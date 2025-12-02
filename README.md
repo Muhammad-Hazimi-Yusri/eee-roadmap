@@ -84,22 +84,19 @@ This project includes a GitHub Actions workflow that automatically deploys to Gi
    - Once complete, your site will be live at:  
      `https://Muhammad-Hazimi-Yusri.github.io/eee-roadmap`
 
-### Custom Domain (Optional)
+### Custom Domain (CloudFlare e.g)
 
-1. Add a `CNAME` file to the `public/` folder with your domain:
-   ```
-   eee-roadmap.dev
-   ```
+1. Add your domain to github pages settings, make sure to also add verified domain on profile setting -> Pages to get https certs to avoid mixed content issue
 
 2. Update `astro.config.mjs`:
    ```js
    export default defineConfig({
-     site: 'https://eee-roadmap.dev',
+     // site: 'https://eee-roadmap.dev', // either comment this out or change to your single domain
      base: '/',  // Change from '/eee-roadmap' to '/'
    });
    ```
 
-3. Configure DNS with your domain provider.
+3. Configure DNS with your domain provider for CNAME and TXT
 
 ---
 
