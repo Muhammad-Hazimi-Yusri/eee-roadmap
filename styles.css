@@ -1,0 +1,556 @@
+:root {
+    /* PCB/Electronics color scheme */
+    --pcb-green: #0d2818;
+    --pcb-light: #1a4a2e;
+    --copper: #b87333;
+    --copper-light: #da9f5b;
+    --solder: #c0c0c0;
+    --silk-white: #f0f0f0;
+    --trace-color: #8b7355;
+    --led-red: #ff3333;
+    --led-green: #00ff41;
+    --led-yellow: #ffdd00;
+    --terminal-amber: #ffb000;
+    --grid-color: #2a5434;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', 'Monaco', monospace;
+    line-height: 1.6;
+    color: var(--silk-white);
+    background: var(--pcb-green);
+    background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 2px, var(--grid-color) 2px, var(--grid-color) 3px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, var(--grid-color) 2px, var(--grid-color) 3px);
+    background-size: 30px 30px;
+    position: relative;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navigation - Terminal Style Header */
+.navbar {
+    background: #000;
+    border-bottom: 3px solid var(--copper);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    font-family: 'Courier New', monospace;
+}
+
+.navbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        var(--led-red) 0%, var(--led-red) 33%,
+        var(--led-yellow) 33%, var(--led-yellow) 66%,
+        var(--led-green) 66%, var(--led-green) 100%);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.8rem 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.logo {
+    color: var(--led-yellow);
+    font-size: 1.5rem;
+    animation: blink 2s infinite;
+}
+
+.brand-text {
+    color: var(--led-green);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--terminal-amber);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.nav-links a:hover {
+    border: 1px solid var(--terminal-amber);
+    background: rgba(255, 176, 0, 0.1);
+    box-shadow: 0 0 5px rgba(255, 176, 0, 0.5);
+}
+
+@keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.6; }
+}
+
+/* Hero Section - Oscilloscope Display Style */
+.hero {
+    background: #000;
+    color: var(--led-green);
+    padding: 3rem 20px;
+    text-align: center;
+    border: 2px solid var(--copper);
+    border-top: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0, 255, 65, 0.03) 20px, rgba(0, 255, 65, 0.03) 21px),
+        repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0, 255, 65, 0.03) 20px, rgba(0, 255, 65, 0.03) 21px);
+    pointer-events: none;
+}
+
+.hero-content h1 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    margin-bottom: 0.5rem;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--led-green);
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.hero-subtitle {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    margin-bottom: 2rem;
+    color: var(--terminal-amber);
+    font-family: 'Courier New', monospace;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 0.6rem 1.5rem;
+    border: 2px solid var(--led-green);
+    background: transparent;
+    color: var(--led-green);
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background: var(--led-green);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+}
+
+.btn-secondary {
+    border-color: var(--terminal-amber);
+    color: var(--terminal-amber);
+}
+
+.btn-secondary:hover {
+    background: var(--terminal-amber);
+    color: #000;
+    box-shadow: 0 0 20px rgba(255, 176, 0, 0.5);
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-family: 'Courier New', monospace;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--copper);
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    color: var(--led-yellow);
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--terminal-amber);
+    text-transform: uppercase;
+}
+
+/* Roadmap Section - PCB Layout */
+.roadmap-section {
+    padding: 2rem 1rem;
+    background: var(--pcb-green);
+    position: relative;
+}
+
+.roadmap-section h2 {
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin-bottom: 0.5rem;
+    color: var(--silk-white);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: normal;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: var(--terminal-amber);
+    margin-bottom: 2rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+}
+
+.roadmap-container {
+    background: var(--pcb-light);
+    border: 3px solid var(--copper);
+    padding: 1rem;
+    overflow-x: auto;
+    position: relative;
+}
+
+.roadmap-container::before {
+    content: 'LAYER: TOP COPPER';
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-size: 0.7rem;
+    color: var(--copper-light);
+    letter-spacing: 1px;
+}
+
+/* D3 Roadmap Styles - Circuit Components */
+.roadmap-node {
+    cursor: pointer;
+}
+
+.node-rect {
+    fill: var(--pcb-green);
+    stroke: var(--copper);
+    stroke-width: 2;
+    rx: 2;
+}
+
+.node-rect:hover {
+    fill: var(--pcb-light);
+    stroke: var(--led-yellow);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 8px rgba(255, 221, 0, 0.6));
+}
+
+.node-rect.completed {
+    fill: #0a3a0a;
+    stroke: var(--led-green);
+}
+
+.node-rect.in-progress {
+    fill: #3a2a0a;
+    stroke: var(--led-yellow);
+}
+
+.node-text {
+    fill: var(--silk-white);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    pointer-events: none;
+}
+
+/* Circuit trace connections */
+.node-connection {
+    stroke: var(--copper);
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+}
+
+/* Via holes */
+.via-hole {
+    fill: none;
+    stroke: var(--copper);
+    stroke-width: 2;
+}
+
+/* Solder points */
+.solder-point {
+    fill: var(--solder);
+    stroke: var(--copper-light);
+    stroke-width: 1;
+}
+
+/* About Section - Component Cards */
+.about-section {
+    padding: 2rem 1rem;
+    background: #000;
+    border-top: 2px solid var(--copper);
+}
+
+.about-section h2 {
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin-bottom: 2rem;
+    color: var(--led-green);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: normal;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background: var(--pcb-green);
+    padding: 1.5rem;
+    border: 2px solid var(--copper);
+    transition: all 0.2s;
+    position: relative;
+}
+
+.feature-card::before {
+    content: '◯ ◯';
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    color: var(--copper);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+}
+
+.feature-card:hover {
+    border-color: var(--led-yellow);
+    box-shadow: 0 0 15px rgba(255, 221, 0, 0.3);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.feature-card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--terminal-amber);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: normal;
+}
+
+.feature-card p {
+    color: var(--silk-white);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Footer - Terminal Style */
+.footer {
+    background: #000;
+    color: var(--led-green);
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border-top: 2px solid var(--copper);
+    font-family: 'Courier New', monospace;
+}
+
+.footer p {
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+/* Make container responsive */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-content {
+    animation: fadeIn 1s ease-out;
+}
+
+/* Responsive Design - Mobile First */
+@media (max-width: 768px) {
+    .nav-links {
+        gap: 0.5rem;
+    }
+    
+    .nav-links a {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .hero {
+        padding: 2rem 1rem;
+    }
+    
+    .hero-stats {
+        gap: 1rem;
+    }
+    
+    .stat {
+        padding: 0.3rem 0.6rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .roadmap-container {
+        padding: 0.5rem;
+    }
+    
+    .feature-card {
+        padding: 1rem;
+    }
+}
+
+/* ASCII Decorations */
+.ascii-wire {
+    color: var(--copper);
+    font-family: 'Courier New', monospace;
+    line-height: 1;
+    white-space: pre;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    position: absolute;
+    pointer-events: none;
+}
+
+/* Scanline effect for retro feel */
+@keyframes scanline {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100vh); }
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(180deg, 
+        rgba(0, 255, 65, 0.2) 0%,
+        rgba(0, 255, 65, 0.1) 50%,
+        transparent 100%);
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+}
+
+/* Ensure text readability */
+.container p, .container h2, .container h3 {
+    max-width: 70ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Touch-friendly mobile targets */
+@media (pointer: coarse) {
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .nav-links a {
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .hero {
+        border-width: 3px;
+    }
+    
+    .feature-card {
+        border-width: 3px;
+    }
+    
+    .node-rect {
+        stroke-width: 3;
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar, .footer {
+        display: none;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .hero {
+        background: white;
+        color: black;
+        border: 1px solid black;
+    }
+}
