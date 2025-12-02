@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   CSS VARIABLES
+   ======================================== */
+:root {
+  --color-bg: #f5f5f0;
+  --color-bg-grid: #e0e0d8;
+  --color-text: #1a1a1a;
+  --color-text-muted: #555555;
+  --color-copper: #b87333;
+  --color-copper-light: #d4956a;
+  --color-pcb: #2d5016;
+  --color-pcb-light: #4a7c23;
+  --color-border: #888888;
+  --color-paper: #f5f5f0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1a1a18;
+    --color-bg-grid: #2a2a26;
+    --color-text: #e8e8e0;
+    --color-text-muted: #a0a090;
+    --color-border: #555555;
+    --color-paper: #1a1a18;
+  }
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    background-image:
+      linear-gradient(var(--color-bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-bg-grid) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: -1px -1px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "IBM Plex Mono", "Courier New", Courier, monospace;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  a {
+    color: var(--color-pcb);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+  }
+
+  a:hover, a:focus {
+    color: var(--color-pcb-light);
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-copper);
+    outline-offset: 2px;
+  }
+}
+
+/* ========================================
+   COMPONENT STYLES
+   ======================================== */
+@layer components {
+  .container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .section {
+    padding: 3rem 0;
+    border-bottom: 1px dashed var(--color-border);
+  }
+
+  .section:last-of-type {
+    border-bottom: none;
+  }
+
+  .section-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    padding: 0.625rem 1.25rem;
+    border: 2px solid var(--color-text);
+    background: transparent;
+    color: var(--color-text);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .btn:hover, .btn:focus {
+    background-color: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .btn--primary {
+    background-color: var(--color-pcb);
+    border-color: var(--color-pcb);
+    color: white;
+  }
+
+  .btn--primary:hover, .btn--primary:focus {
+    background-color: var(--color-pcb-light);
+    border-color: var(--color-pcb-light);
+    color: white;
+  }
+
+  /* Track cards */
+  .track {
+    border: 1px solid var(--color-border);
+    padding: 1.25rem;
+    position: relative;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .track::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--color-copper);
+  }
+
+  .track[data-level="core"]::before {
+    background-color: var(--color-pcb);
+  }
+
+  .track[data-level="advanced"]::before {
+    background-color: var(--color-text);
+  }
+
+  /* Wire bullet points */
+  .wire-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  .wire-list li {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+
+  .wire-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 8px;
+    height: 8px;
+    border: 2px solid var(--color-copper);
+    border-radius: 50%;
+    background-color: var(--color-bg);
+  }
+
+  .track[data-level="core"] .wire-list li::before {
+    border-color: var(--color-pcb);
+  }
+
+  .track[data-level="advanced"] .wire-list li::before {
+    border-color: var(--color-text);
+  }
+
+  /* Stat display */
+  .stat-value {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-copper);
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Text utilities */
+  .text-muted {
+    color: var(--color-text-muted);
+  }
+}

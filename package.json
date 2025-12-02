@@ -1,31 +1,27 @@
 {
   "name": "eee-roadmap",
-  "version": "0.1.0",
-  "description": "Interactive roadmap for learning Electrical and Electronic Engineering with built-in circuit simulators",
-  "main": "index.html",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
-    "start": "python3 -m http.server 8000",
-    "dev": "live-server"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^4.16.0",
+    "@astrojs/tailwind": "^5.1.0",
+    "tailwindcss": "^3.4.0"
   },
   "keywords": [
     "electrical-engineering",
     "electronics",
     "education",
     "roadmap",
-    "circuit-simulator",
-    "webassembly",
-    "rust"
+    "learning-path"
   ],
-  "author": "Muhammad Hazimi Yusri",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap"
-  },
-  "devDependencies": {
-    "live-server": "^1.2.2"
-  },
-  "dependencies": {
-    "d3": "^7.8.5"
-  }
+  "author": "Muhammad-Hazimi-Yusri",
+  "license": "MIT"
 }

@@ -1,0 +1,42 @@
+---
+const stats = [
+  { value: '50+', label: 'topics' },
+  { value: '3', label: 'tracks' },
+  { value: 'MIT', label: 'license' },
+];
+---
+
+<section class="section py-16 md:py-24">
+  <div class="container">
+    <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">
+      // open source learning path
+    </p>
+    
+    <h1 class="text-2xl sm:text-3xl md:text-4xl mb-4">
+      Learn Electrical &amp; Electronic Engineering
+    </h1>
+    
+    <p class="max-w-xl text-muted mb-6">
+      A structured roadmap from circuit fundamentals to advanced power systems. 
+      No fluff — just topics, resources, and a clear path forward.
+    </p>
+    
+    <div class="flex flex-wrap gap-4 mb-8">
+      <a href="#roadmaps" class="btn btn--primary">
+        Start Learning →
+      </a>
+      <a href="https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap" class="btn" target="_blank" rel="noopener noreferrer">
+        View Source
+      </a>
+    </div>
+
+    <div class="flex flex-wrap gap-8 pt-6 border-t" style="border-color: var(--color-border);">
+      {stats.map((stat) => (
+        <div class="flex items-baseline gap-2">
+          <span class="stat-value">{stat.value}</span>
+          <span class="stat-label">{stat.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

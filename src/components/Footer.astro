@@ -1,0 +1,165 @@
+---
+const baseUrl = import.meta.env.BASE_URL;
+const currentYear = new Date().getFullYear();
+
+const footerLinks = {
+  tracks: [
+    { href: `${baseUrl}roadmaps/fundamentals`, label: 'Fundamentals' },
+    { href: `${baseUrl}roadmaps/core`, label: 'Core Topics' },
+    { href: `${baseUrl}roadmaps/advanced`, label: 'Advanced' },
+  ],
+  resources: [
+    { href: `${baseUrl}guides`, label: 'Guides' },
+    { href: `${baseUrl}resources`, label: 'Links' },
+    { href: `${baseUrl}projects`, label: 'Projects' },
+  ],
+  project: [
+    { href: 'https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap', label: 'GitHub', external: true },
+    { href: `${baseUrl}about`, label: 'About' },
+    { href: `${baseUrl}contribute`, label: 'Contribute' },
+  ],
+};
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div class="footer-brand">
+        <a href={baseUrl} class="logo-link">
+          <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 16h5l2-6 4 12 4-12 4 12 2-6h7"/>
+            <circle cx="2" cy="16" r="1.5" fill="currentColor"/>
+            <circle cx="30" cy="16" r="1.5" fill="currentColor"/>
+          </svg>
+          <span class="font-mono text-lg font-bold">EEE Roadmap</span>
+        </a>
+        <p class="text-sm text-muted">
+          Your guide to mastering Electrical &amp; Electronic Engineering.
+        </p>
+      </div>
+
+      <!-- Tracks -->
+      <div>
+        <h4 class="footer-heading">Tracks</h4>
+        <ul class="footer-links">
+          {footerLinks.tracks.map((link) => (
+            <li>
+              <a href={link.href} class="footer-link">{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Resources -->
+      <div>
+        <h4 class="footer-heading">Resources</h4>
+        <ul class="footer-links">
+          {footerLinks.resources.map((link) => (
+            <li>
+              <a href={link.href} class="footer-link">{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Project -->
+      <div>
+        <h4 class="footer-heading">Project</h4>
+        <ul class="footer-links">
+          {footerLinks.project.map((link) => (
+            <li>
+              <a 
+                href={link.href} 
+                class="footer-link"
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="footer-bottom">
+      <p class="font-mono text-xs text-muted">
+        © {currentYear} EEE Roadmap. MIT License. 
+        Built by <a href="https://github.com/Muhammad-Hazimi-Yusri" target="_blank" rel="noopener noreferrer">Muhammad-Hazimi-Yusri</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: 3rem 0;
+    border-top: 2px solid var(--color-text);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .footer-brand {
+    grid-column: span 2;
+  }
+
+  @media (min-width: 768px) {
+    .footer-brand {
+      grid-column: span 1;
+    }
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--color-text);
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-heading {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer-link {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .footer-link:hover {
+    color: var(--color-text);
+  }
+
+  .footer-bottom {
+    padding-top: 1.5rem;
+    border-top: 1px dashed var(--color-border);
+  }
+</style>

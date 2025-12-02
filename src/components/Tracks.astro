@@ -1,0 +1,94 @@
+---
+const baseUrl = import.meta.env.BASE_URL;
+
+const tracks = [
+  {
+    level: 'fundamentals',
+    title: 'Fundamentals',
+    description: 'Build the foundation. Circuits, math, physics, components.',
+    topics: [
+      'Circuit Theory (KVL, KCL, Thevenin)',
+      'Engineering Mathematics',
+      'Electromagnetism',
+      'Passive Components',
+      'Basic Measurements',
+    ],
+    icon: 'grid',
+  },
+  {
+    level: 'core',
+    title: 'Core Topics',
+    description: 'The meat of EE. Analog, digital, signals, embedded.',
+    topics: [
+      'Analog Electronics',
+      'Digital Logic Design',
+      'Signals & Systems',
+      'Microcontrollers',
+      'PCB Design Basics',
+    ],
+    icon: 'sun',
+  },
+  {
+    level: 'advanced',
+    title: 'Advanced',
+    description: 'Specialize. Power, control, RF, communications.',
+    topics: [
+      'Power Electronics',
+      'Control Systems',
+      'RF & Microwave',
+      'Communication Systems',
+      'Power Systems',
+    ],
+    icon: 'bolt',
+  },
+];
+---
+
+<section class="section" id="roadmaps">
+  <div class="container">
+    <div class="mb-6">
+      <p class="section-num">01</p>
+      <h2 class="text-xl sm:text-2xl">Learning Tracks</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {tracks.map((track) => (
+        <article class="track" data-level={track.level}>
+          <div class="flex items-center gap-3 mb-3">
+            {track.icon === 'grid' && (
+              <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M9 9h6v6H9z"/>
+              </svg>
+            )}
+            {track.icon === 'sun' && (
+              <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+            )}
+            {track.icon === 'bolt' && (
+              <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            )}
+            <h3 class="text-base font-semibold">{track.title}</h3>
+          </div>
+          
+          <p class="text-sm text-muted mb-4">
+            {track.description}
+          </p>
+          
+          <ul class="wire-list mb-4">
+            {track.topics.map((topic) => (
+              <li>{topic}</li>
+            ))}
+          </ul>
+          
+          <a href={`${baseUrl}roadmaps/${track.level}`} class="font-mono text-[0.8125rem]">
+            View roadmap →
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
