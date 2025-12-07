@@ -8,7 +8,8 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check-links": "npx linkinator ./dist --recurse"
   },
   "dependencies": {
     "astro": "^4.16.0",
