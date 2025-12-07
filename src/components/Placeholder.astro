@@ -1,0 +1,23 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "This page is under construction." } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<div class="container py-16 md:py-24">
+  <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">
+    // under construction
+  </p>
+  
+  <h1 class="text-2xl sm:text-3xl mb-4">{title}</h1>
+  
+  <p class="max-w-xl text-muted mb-6">{description}</p>
+  
+  <a href={baseUrl} class="btn">
+    ← Back to Home
+  </a>
+</div>
