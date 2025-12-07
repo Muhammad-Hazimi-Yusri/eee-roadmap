@@ -38,6 +38,10 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         title: 'DC Circuit Analysis',
         description: 'Voltage, current, resistance. The building blocks.',
         topics: ["Ohm's Law", 'KVL & KCL', 'Thevenin & Norton'],
+        resources: [
+            { label: 'MIT OCW 6.002', url: 'https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/' },
+            { label: 'All About Circuits', url: 'https://www.allaboutcircuits.com/textbook/direct-current/' },
+        ],
       },
       {
         id: 'ac-circuits',

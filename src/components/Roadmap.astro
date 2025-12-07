@@ -33,6 +33,14 @@ const { sections } = Astro.props;
                   ))}
                 </ul>
               )}
+              {item.resources && item.resources.length > 0 && (
+              <div class="node-resources">
+                <span class="resources-label">Resources:</span>
+                {item.resources.map((r) => (
+                  <a href={r.url} target="_blank" rel="noopener noreferrer">{r.label}</a>
+                ))}
+              </div>
+              )}
             </div>
           </div>
         ))}
@@ -191,5 +199,34 @@ const { sections } = Astro.props;
     padding: 0.25rem 0.5rem;
     background-color: var(--color-bg-grid);
     border: 1px solid var(--color-border);
+  }
+
+  .node-resources {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .resources-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+  
+  .node-resources a {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--color-pcb);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .node-resources a:hover {
+    background-color: var(--color-pcb-light);
   }
 </style>
