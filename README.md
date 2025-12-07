@@ -8,21 +8,26 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.2)
-- Mockup landing page
-- Responsive design
-- Clean, modern UI
+### Current (v0.3)
+- Interactive roadmap for Fundamentals track
+- Expand/collapse topic nodes with descriptions and resources
+- Optional topics styled as side branches (roadmap.sh pattern)
+- Responsive design with Lab Notebook + PCB aesthetic
 
 ### Planned Features
-- [ ] Interactive roadmap visualization
-- [ ] Hierarchical learning path structure
+- [ ] Interactive roadmaps for Core and Advanced tracks
+- [ ] Progress tracking with localStorage
 - [ ] WebAssembly-based circuit simulator (Rust)
 - [ ] Individual learning modules with theory + practice
-- [ ] Progress tracking with local storage
-- [ ] Resource links (MIT OCW, Khan Academy, etc.)
 - [ ] Community contributions
 - [ ] Dark mode
 - [ ] PWA support for offline access
+
+### Known Issues / Future Improvements
+- [ ] Verify all resource links point to correct content (not just 200 OK)
+- [ ] Expand topic descriptions with motivation, prerequisites, and learning outcomes
+- [ ] Consider non-linear roadmap paths (such as niche/profession just like in roadmap.sh) where topics have multiple valid orderings
+- [ ] Add estimated time/difficulty per topic
 
 ---
 
