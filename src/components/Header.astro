@@ -1,4 +1,6 @@
 ---
+import ThemeToggle from './ThemeToggle.astro';
+
 const baseUrl = import.meta.env.BASE_URL;
 
 const navLinks = [
@@ -21,7 +23,7 @@ const navLinks = [
     </a>
 
     <!-- Navigation -->
-    <nav class="flex flex-wrap gap-x-6 gap-y-2" aria-label="Main navigation">
+    <nav class="flex flex-wrap items-center gap-x-6 gap-y-2" aria-label="Main navigation">
       {navLinks.map((link) => (
         <a 
           href={link.external ? link.href : link.href}
@@ -33,6 +35,8 @@ const navLinks = [
         </a>
       ))}
     </nav>
+    
+    <ThemeToggle />
   </div>
 </header>
 

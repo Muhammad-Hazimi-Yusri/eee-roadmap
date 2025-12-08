@@ -18,15 +18,13 @@
   --color-paper: #f5f5f0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1a1a18;
-    --color-bg-grid: #2a2a26;
-    --color-text: #e8e8e0;
-    --color-text-muted: #a0a090;
-    --color-border: #555555;
-    --color-paper: #1a1a18;
-  }
+:root.dark {
+  --color-bg: #1a1a18;
+  --color-bg-grid: #2a2a26;
+  --color-text: #e8e8e0;
+  --color-text-muted: #a0a090;
+  --color-border: #555555;
+  --color-paper: #1a1a18;
 }
 
 /* ========================================
@@ -143,11 +141,9 @@
     background: rgba(255, 255, 255, 0.5);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .track {
+  :root.dark .track {
       background: rgba(0, 0, 0, 0.3);
     }
-  }
 
   .track::before {
     content: "";
