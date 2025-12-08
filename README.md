@@ -16,12 +16,26 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - Toggleable dark mode
 
 ### Planned Features
+
+**v0.6 - Content**
+- [ ] Expanded topic descriptions with motivation, prerequisites, learning outcomes
 - [ ] Interactive roadmaps for Core and Advanced tracks
+
+**v0.7 - Concept Deep-dives**
+- [ ] Clickable concepts → modal/popup with detailed explanations
+- [ ] Markdown-based content system for community contributions
+
+**v0.8 - Notes System**
+- [ ] LaTeX notes compiled via GitHub Actions → PDF
+- [ ] Client-side PDF viewer (PDF.js)
+- [ ] A4 paper aesthetic: draggable, pinnable, dismissable note cards
+- [ ] Image/diagram support in notes
+
+**Future**
 - [ ] Progress tracking with localStorage
 - [ ] WebAssembly-based circuit simulator (Rust)
-- [ ] Individual learning modules with theory + practice
-- [ ] Community contributions
 - [ ] PWA support for offline access
+- [ ] Community contributions workflow
 
 ### Known Issues / Future Improvements
 - [ ] Verify all resource links point to correct content (not just 200 OK)
