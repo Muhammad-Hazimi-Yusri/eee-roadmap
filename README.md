@@ -8,9 +8,9 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.4)
+### Current (v0.5)
 - Interactive roadmap for Fundamentals track
-- Expand/collapse topic nodes with descriptions and resources
+- Expand/collapse topic nodes with descriptions, concepts and resources
 - Optional topics styled as side branches (roadmap.sh pattern)
 - Responsive design with Lab Notebook + PCB aesthetic
 - Toggleable dark mode

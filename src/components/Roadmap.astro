@@ -26,10 +26,10 @@ const { sections } = Astro.props;
             
             <div class="node-content" hidden>
               <p class="node-description">{item.description}</p>
-              {item.topics && item.topics.length > 0 && (
-                <ul class="node-topics">
-                  {item.topics.map((topic) => (
-                    <li>{topic}</li>
+              {item.concepts && item.concepts.length > 0 && (
+                <ul class="node-concepts">
+                  {item.concepts.map((concept) => (
+                    <li>{concept}</li>
                   ))}
                 </ul>
               )}
@@ -182,7 +182,7 @@ const { sections } = Astro.props;
     margin-bottom: 0.75rem;
   }
 
-  .node-topics {
+  .node-concepts {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -191,7 +191,7 @@ const { sections } = Astro.props;
     gap: 0.5rem;
   }
 
-  .node-topics li {
+  .node-concepts li {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;

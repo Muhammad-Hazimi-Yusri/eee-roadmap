@@ -9,7 +9,7 @@ export interface Topic {
   id: string;
   title: string;
   description: string;
-  topics?: string[];
+  concepts?: string[];
   resources?: Resource[];
   optional?: boolean;
 }
