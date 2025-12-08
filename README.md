@@ -8,39 +8,40 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.5.5)
-- Interactive roadmap for Fundamentals track
+### Current (v0.6)
+- Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
+- Prerequisites and learning outcomes for each topic
 - Optional topics styled as side branches (roadmap.sh pattern)
 - Responsive design with Lab Notebook + PCB aesthetic
 - Toggleable dark mode
 
 ### Planned Features
 
-**v0.6 - Content**
-- [X] Expanded topic descriptions with motivation, prerequisites, learning outcomes
-- [ ] Interactive roadmaps for Core and Advanced tracks
+**v0.7 - Navigation & Linking**
+- [ ] Clickable prerequisites → navigate to related topic (cross-track linking)
+- [ ] Topic deep-links with hash anchors
+- [ ] Progress tracking with localStorage
 
-**v0.7 - Concept Deep-dives**
+**v0.8 - Concept Deep-dives**
 - [ ] Clickable concepts → modal/popup with detailed explanations
 - [ ] Markdown-based content system for community contributions
 
-**v0.8 - Notes System**
+**v0.9 - Notes System**
 - [ ] LaTeX notes compiled via GitHub Actions → PDF
 - [ ] Client-side PDF viewer (PDF.js)
 - [ ] A4 paper aesthetic: draggable, pinnable, dismissable note cards
 - [ ] Image/diagram support in notes
 
 **Future**
-- [ ] Progress tracking with localStorage
 - [ ] WebAssembly-based circuit simulator (Rust)
 - [ ] PWA support for offline access
 - [ ] Community contributions workflow
 
 ### Known Issues / Future Improvements
+- [ ] Fix 3 broken links (all in advanced roadmap, commented)
 - [ ] Verify all resource links point to correct content (not just 200 OK)
-- [ ] Expand topic descriptions with motivation, prerequisites, and learning outcomes
-- [ ] Consider non-linear roadmap paths (such as niche/profession just like in roadmap.sh) where topics have multiple valid orderings
+- [ ] Consider non-linear roadmap paths where topics have multiple valid orderings
 - [ ] Add estimated time/difficulty per topic
 
 ---
