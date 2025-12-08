@@ -8,11 +8,12 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.3)
+### Current (v0.4)
 - Interactive roadmap for Fundamentals track
 - Expand/collapse topic nodes with descriptions and resources
 - Optional topics styled as side branches (roadmap.sh pattern)
 - Responsive design with Lab Notebook + PCB aesthetic
+- Toggleable dark mode
 
 ### Planned Features
 - [ ] Interactive roadmaps for Core and Advanced tracks
@@ -20,7 +21,6 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] WebAssembly-based circuit simulator (Rust)
 - [ ] Individual learning modules with theory + practice
 - [ ] Community contributions
-- [ ] Dark mode
 - [ ] PWA support for offline access
 
 ### Known Issues / Future Improvements
