@@ -26,6 +26,27 @@ const { sections } = Astro.props;
             
             <div class="node-content" hidden>
               <p class="node-description">{item.description}</p>
+
+              {item.prerequisites && item.prerequisites.length > 0 && (
+                <div class="node-prereqs">
+                  <span class="prereqs-label">Prerequisites:</span>
+                  {item.prerequisites.map((prereq) => (
+                    <span class="prereq-tag">{prereq}</span>
+                  ))}
+                </div>
+              )}
+
+              {item.outcomes && item.outcomes.length > 0 && (
+                <div class="node-outcomes">
+                  <span class="outcomes-label">You'll learn to:</span>
+                  <ul>
+                    {item.outcomes.map((outcome) => (
+                      <li>{outcome}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {item.concepts && item.concepts.length > 0 && (
                 <ul class="node-concepts">
                   {item.concepts.map((concept) => (
@@ -227,4 +248,58 @@ const { sections } = Astro.props;
   .node-resources a:hover {
     background-color: var(--color-pcb-light);
   }
+
+  .node-prereqs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prereqs-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .prereq-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--color-copper);
+    color: white;
+  }
+
+  .node-outcomes {
+    margin-bottom: 0.75rem;
+  }
+
+  .outcomes-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .node-outcomes ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .node-outcomes li {
+    font-size: 0.8125rem;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+
+  .node-outcomes li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--color-pcb);
+  }
+
 </style>

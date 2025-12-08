@@ -10,7 +10,13 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'algebra-trig',
         title: 'Algebra & Trigonometry',
-        description: 'Prerequisite math. Refresh if rusty.',
+        description: 'The mathematical language of circuits. Complex numbers are essential for AC analysis, trig for waveforms and phasors. Revisit if your fundamentals are shaky — everything builds on this.',
+        prerequisites: ['High school math'],
+        outcomes: [
+          'Manipulate complex numbers in rectangular and polar form',
+          'Apply trig identities to simplify expressions',
+          'Perform vector operations',
+        ],
         concepts: ['Complex numbers', 'Trig identities', 'Vectors'],
         optional: true,
         resources: [
@@ -21,7 +27,13 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'calculus',
         title: 'Calculus',
-        description: 'Derivatives, integrals, differential equations.',
+        description: 'How circuits change over time. Derivatives describe capacitor/inductor behavior, integrals calculate energy and charge. Differential equations model real circuit dynamics.',
+        prerequisites: ['Algebra & Trigonometry'],
+        outcomes: [
+          'Differentiate and integrate common functions',
+          'Solve first-order differential equations',
+          'Apply calculus to analyze changing quantities',
+        ],
         concepts: ['Differentiation', 'Integration', 'ODEs'],
         resources: [
           { label: 'MIT OCW 18.01', url: 'https://ocw.mit.edu/courses/18-01sc-single-variable-calculus-fall-2010/' },
@@ -32,7 +44,13 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'linear-algebra',
         title: 'Linear Algebra',
-        description: 'Matrices, vectors, eigenvalues. Essential for signals & systems.',
+        description: 'Enables systematic circuit analysis. Matrix methods solve complex multi-loop circuits, eigenvalues appear in stability analysis. Critical for signals, systems, and control theory later.',
+        prerequisites: ['Algebra', 'Calculus basics helpful'],
+        outcomes: [
+          'Perform matrix operations and find inverses',
+          'Solve systems of linear equations',
+          'Calculate and interpret eigenvalues',
+        ],
         concepts: ['Matrix operations', 'Determinants', 'Eigenvalues'],
         optional: true,
         resources: [
@@ -49,7 +67,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'dc-circuits',
         title: 'DC Circuit Analysis',
-        description: 'Voltage, current, resistance. The building blocks.',
+        description: 'Your first real circuits. Master voltage, current, and resistance relationships. Kirchhoff\'s laws let you analyze any circuit; Thevenin/Norton simplify complex networks into simple equivalents.',
+        prerequisites: ['Algebra', 'Basic physics (voltage, current concepts)'],
+        outcomes: [
+          'Apply Ohm\'s law to calculate V, I, R',
+          'Use KVL and KCL to analyze multi-loop circuits',
+          'Find Thevenin and Norton equivalents',
+          'Calculate power dissipation',
+        ],
         concepts: ["Ohm's Law", 'KVL & KCL', 'Thevenin & Norton'],
         resources: [
           { label: 'MIT OCW 6.002', url: 'https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/' },
@@ -59,7 +84,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'ac-circuits',
         title: 'AC Circuit Analysis',
-        description: 'Phasors, impedance, frequency response.',
+        description: 'Real-world power is AC. Phasors turn differential equations into algebra, impedance extends Ohm\'s law to capacitors and inductors. Foundation for power systems and signal processing.',
+        prerequisites: ['DC Circuits', 'Complex numbers', 'Trigonometry'],
+        outcomes: [
+          'Represent sinusoids as phasors',
+          'Calculate impedance of R, L, C combinations',
+          'Analyze resonant circuits',
+          'Compute real, reactive, and apparent power',
+        ],
         concepts: ['Phasors', 'Impedance', 'Resonance', 'Power factor'],
         resources: [
           { label: 'All About Circuits - AC', url: 'https://www.allaboutcircuits.com/textbook/alternating-current/' },
@@ -75,7 +107,13 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'electric-fields',
         title: 'Electric Fields & Forces',
-        description: 'Coulomb\'s law, electric potential, capacitance.',
+        description: 'The invisible force behind every circuit. Understanding fields explains how capacitors store energy, why insulators break down, and how charges move. Gauss\'s law simplifies complex charge distributions.',
+        prerequisites: ['Calculus', 'Basic physics'],
+        outcomes: [
+          'Calculate electric force using Coulomb\'s law',
+          'Determine electric potential and field strength',
+          'Apply Gauss\'s law to symmetric charge distributions',
+        ],
         concepts: ['Coulomb\'s law', 'Electric potential', 'Gauss\'s law'],
         resources: [
           { label: 'MIT OCW 8.02', url: 'https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/' },
@@ -85,7 +123,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'magnetic-fields',
         title: 'Magnetic Fields & Induction',
-        description: 'Magnetic forces, Faraday\'s law, inductance.',
+        description: 'Where electricity and magnetism meet. Magnetic forces drive motors, Faraday\'s law explains transformers and generators. Inductance is just stored magnetic energy.',
+        prerequisites: ['Electric Fields', 'Calculus'],
+        outcomes: [
+          'Calculate magnetic force on moving charges and currents',
+          'Apply Faraday\'s law to find induced EMF',
+          'Use Lenz\'s law to determine induced current direction',
+          'Calculate inductance of simple geometries',
+        ],
         concepts: ['Magnetic force', 'Faraday\'s law', 'Lenz\'s law', 'Inductance'],
         resources: [
           { label: 'Khan Academy Magnetism', url: 'https://www.khanacademy.org/science/physics/magnetic-forces-and-magnetic-fields' },
@@ -95,7 +140,13 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'maxwell-equations',
         title: 'Maxwell\'s Equations',
-        description: 'Unified electromagnetic theory. The complete picture.',
+        description: 'The complete picture — four equations that unify all electromagnetic phenomena. Essential for RF, antennas, and understanding why circuits behave differently at high frequencies.',
+        prerequisites: ['Vector calculus', 'Electric and Magnetic Fields'],
+        outcomes: [
+          'State Maxwell\'s equations in differential and integral form',
+          'Derive the electromagnetic wave equation',
+          'Explain how changing E-fields create B-fields and vice versa',
+        ],
         concepts: ['Differential form', 'Integral form', 'Wave equation'],
         optional: true,
         resources: [
@@ -112,7 +163,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'resistors',
         title: 'Resistors',
-        description: 'Types, ratings, color codes, power dissipation.',
+        description: 'The simplest component, but details matter. Learn to read color codes, choose appropriate power ratings, and understand tolerance. Know when to use precision vs. general-purpose.',
+        prerequisites: ['DC Circuits'],
+        outcomes: [
+          'Read resistor values from color codes',
+          'Calculate power dissipation and select appropriate wattage',
+          'Choose resistors based on tolerance requirements',
+          'Understand SMD package sizes',
+        ],
         concepts: ['Color codes', 'Power ratings', 'Tolerance', 'SMD vs through-hole'],
         resources: [
           { label: 'SparkFun Resistors', url: 'https://learn.sparkfun.com/tutorials/resistors' },
@@ -122,7 +180,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'capacitors',
         title: 'Capacitors',
-        description: 'Types, ESR, voltage ratings, applications.',
+        description: 'Store energy in electric fields. Different types (ceramic, electrolytic, film) have different behaviors — ESR affects filtering, voltage ratings prevent explosions. Decoupling is an art.',
+        prerequisites: ['DC Circuits', 'Electric Fields basics'],
+        outcomes: [
+          'Select appropriate capacitor type for application',
+          'Understand ESR and its effect on performance',
+          'Design basic decoupling and filtering circuits',
+          'Read capacitor markings and datasheets',
+        ],
         concepts: ['Ceramic', 'Electrolytic', 'Film', 'ESR', 'Decoupling'],
         resources: [
           { label: 'SparkFun Capacitors', url: 'https://learn.sparkfun.com/tutorials/capacitors' },
@@ -132,17 +197,31 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'inductors',
         title: 'Inductors & Transformers',
-        description: 'Inductance, mutual inductance, transformer basics.',
+        description: 'Store energy in magnetic fields. Saturation limits current handling, mutual inductance enables transformers. Turns ratio determines voltage transformation in power supplies.',
+        prerequisites: ['Magnetic Fields basics'],
+        outcomes: [
+          'Calculate inductance and stored energy',
+          'Understand core saturation and its limits',
+          'Apply transformer turns ratio for voltage conversion',
+          'Select inductors for filtering applications',
+        ],
         concepts: ['Inductance', 'Saturation', 'Transformers', 'Turns ratio'],
         resources: [
-        { label: 'Electronics Tutorials - Inductors', url: 'https://www.electronics-tutorials.ws/inductor/inductor.html' },
+          { label: 'Electronics Tutorials - Inductors', url: 'https://www.electronics-tutorials.ws/inductor/inductor.html' },
           { label: 'Electronics Tutorials - Transformers', url: 'https://www.electronics-tutorials.ws/transformer/transformer-basics.html' },
         ],
       },
       {
         id: 'diodes',
         title: 'Diodes',
-        description: 'PN junction, rectifiers, Zener, LEDs.',
+        description: 'First step into semiconductors. One-way current flow enables rectification (AC→DC). Zener diodes regulate voltage, LEDs convert current to light. The PN junction concept underlies all semiconductors.',
+        prerequisites: ['DC Circuits', 'Basic semiconductor concepts'],
+        outcomes: [
+          'Analyze circuits with forward/reverse biased diodes',
+          'Design basic rectifier circuits',
+          'Use Zener diodes for voltage regulation',
+          'Calculate LED current limiting resistors',
+        ],
         concepts: ['Forward/reverse bias', 'Rectification', 'Zener regulation', 'LED'],
         optional: true,
         resources: [
@@ -159,7 +238,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'multimeter',
         title: 'Multimeter',
-        description: 'Measuring voltage, current, resistance, continuity.',
+        description: 'Your most-used tool. Measures voltage, current, resistance — but technique matters. Learn proper probe placement, when to use AC vs DC ranges, and how to safely measure current in-circuit.',
+        prerequisites: ['DC Circuits', 'AC Circuits basics'],
+        outcomes: [
+          'Measure DC and AC voltage accurately',
+          'Measure current without blowing fuses',
+          'Test resistance and continuity',
+          'Identify common measurement errors',
+        ],
         concepts: ['DC/AC voltage', 'Current measurement', 'Resistance', 'Continuity'],
         resources: [
           { label: 'SparkFun Multimeter', url: 'https://learn.sparkfun.com/tutorials/how-to-use-a-multimeter' },
@@ -169,7 +255,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'oscilloscope',
         title: 'Oscilloscope',
-        description: 'Visualizing waveforms, triggering, measurements.',
+        description: 'See what\'s actually happening. Voltage vs. time reveals signal integrity, noise, and timing issues invisible to multimeters. Master triggering to capture the waveform you need.',
+        prerequisites: ['AC Circuits', 'Waveform concepts'],
+        outcomes: [
+          'Set up timebase and vertical scale appropriately',
+          'Use triggering to capture stable waveforms',
+          'Measure frequency, amplitude, and rise time',
+          'Identify signal integrity issues',
+        ],
         concepts: ['Timebase', 'Triggering', 'Probes', 'Bandwidth'],
         resources: [
           { label: 'EEVblog Oscilloscope Tutorial', url: 'https://www.youtube.com/watch?v=xaELqAo4kkQ' },
@@ -179,7 +272,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'breadboarding',
         title: 'Breadboarding & Prototyping',
-        description: 'Building circuits without soldering. Debug techniques.',
+        description: 'Rapid prototyping without soldering. Understand the internal connections, keep wires short and organized. Most debugging is just finding the loose connection or wrong row.',
+        prerequisites: ['Basic circuit knowledge'],
+        outcomes: [
+          'Understand breadboard internal connections',
+          'Build organized, debuggable circuits',
+          'Identify and fix common breadboard issues',
+          'Know breadboard limitations (current, frequency)',
+        ],
         concepts: ['Breadboard layout', 'Wire management', 'Common mistakes'],
         resources: [
           { label: 'SparkFun Breadboards', url: 'https://learn.sparkfun.com/tutorials/how-to-use-a-breadboard' },
@@ -189,7 +289,14 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'soldering',
         title: 'Soldering',
-        description: 'Through-hole and basic SMD soldering skills.',
+        description: 'Permanent connections done right. Good joints are shiny and concave. Learn proper iron temperature, flux usage, and desoldering for mistakes. SMD opens up modern component access.',
+        prerequisites: ['Breadboarding experience'],
+        outcomes: [
+          'Create reliable through-hole solder joints',
+          'Identify and fix cold joints',
+          'Desolder components without damage',
+          'Attempt basic SMD soldering',
+        ],
         concepts: ['Iron tips', 'Flux', 'Desoldering', 'SMD basics'],
         optional: true,
         resources: [

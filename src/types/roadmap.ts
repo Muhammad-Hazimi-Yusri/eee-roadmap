@@ -9,11 +9,12 @@ export interface Topic {
   id: string;
   title: string;
   description: string;
+  prerequisites?: string[];
+  outcomes?: string[];
   concepts?: string[];
   resources?: Resource[];
   optional?: boolean;
 }
-
 export interface RoadmapSection {
   id: string;
   title: string;
