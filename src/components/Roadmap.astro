@@ -17,6 +17,7 @@ const { sections } = Astro.props;
         {section.items.map((item, index) => (
           <div 
             class={`roadmap-node ${item.optional ? 'roadmap-node--optional' : ''}`}
+            id={item.id}
             data-node-id={item.id}
           >
             <button class="node-button" aria-expanded="false">
@@ -30,9 +31,18 @@ const { sections } = Astro.props;
               {item.prerequisites && item.prerequisites.length > 0 && (
                 <div class="node-prereqs">
                   <span class="prereqs-label">Prerequisites:</span>
-                  {item.prerequisites.map((prereq) => (
-                    <span class="prereq-tag">{prereq}</span>
-                  ))}
+                  {item.prerequisites.map((prereq) => {
+                    const isLinkable = prereq.includes('/');
+                    if (isLinkable) {
+                      const [track, id] = prereq.split('/');
+                      return (
+                        <a href={`${Astro.url.origin}/roadmaps/${track}#${id}`} class="prereq-tag prereq-tag--link">
+                          {id.replace(/-/g, ' ')}
+                        </a>
+                      );
+                    }
+                    return <span class="prereq-tag prereq-tag--static">{prereq}</span>;
+                  })}
                 </div>
               )}
 
@@ -71,6 +81,20 @@ const { sections } = Astro.props;
 </div>
 
 <script>
+  function expandNode(id: string) {
+    const node = document.getElementById(id);
+    if (!node) return;
+    
+    const btn = node.querySelector('.node-button');
+    const content = node.querySelector('.node-content') as HTMLElement;
+    
+    if (btn && content) {
+      btn.setAttribute('aria-expanded', 'true');
+      content.hidden = false;
+    }
+  }
+
+  // Handle click to toggle
   document.querySelectorAll('.node-button').forEach((btn) => {
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
@@ -79,6 +103,18 @@ const { sections } = Astro.props;
       btn.setAttribute('aria-expanded', String(!expanded));
       content.hidden = expanded;
     });
+  });
+
+  // Auto-expand on page load if hash exists
+  if (window.location.hash) {
+    expandNode(window.location.hash.slice(1));
+  }
+
+  // Handle hash changes (same-page navigation)
+  window.addEventListener('hashchange', () => {
+    if (window.location.hash) {
+      expandNode(window.location.hash.slice(1));
+    }
   });
 </script>
 
@@ -267,8 +303,25 @@ const { sections } = Astro.props;
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
+  }
+
+  .prereq-tag--link {
     background-color: var(--color-copper);
     color: white;
+    border: 1px solid var(--color-copper);
+    text-decoration: none;
+    transition: box-shadow 0.15s, background-color 0.15s;
+  }
+
+  .prereq-tag--link:hover {
+    box-shadow: 0 0 8px var(--color-copper-light);
+    background-color: var(--color-copper-light);
+  }
+
+  .prereq-tag--static {
+    background-color: rgba(184, 115, 51, 0.15);
+    color: var(--color-text-muted);
+    border: 1px dashed var(--color-copper);
   }
 
   .node-outcomes {

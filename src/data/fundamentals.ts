@@ -28,7 +28,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'calculus',
         title: 'Calculus',
         description: 'How circuits change over time. Derivatives describe capacitor/inductor behavior, integrals calculate energy and charge. Differential equations model real circuit dynamics.',
-        prerequisites: ['Algebra & Trigonometry'],
+        prerequisites: ['fundamentals/algebra-trig'],
         outcomes: [
           'Differentiate and integrate common functions',
           'Solve first-order differential equations',
@@ -45,7 +45,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'linear-algebra',
         title: 'Linear Algebra',
         description: 'Enables systematic circuit analysis. Matrix methods solve complex multi-loop circuits, eigenvalues appear in stability analysis. Critical for signals, systems, and control theory later.',
-        prerequisites: ['Algebra', 'Calculus basics helpful'],
+        prerequisites: ['fundamentals/algebra-trig', 'Calculus basics helpful'],
         outcomes: [
           'Perform matrix operations and find inverses',
           'Solve systems of linear equations',
@@ -108,7 +108,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'electric-fields',
         title: 'Electric Fields & Forces',
         description: 'The invisible force behind every circuit. Understanding fields explains how capacitors store energy, why insulators break down, and how charges move. Gauss\'s law simplifies complex charge distributions.',
-        prerequisites: ['Calculus', 'Basic physics'],
+        prerequisites: ['fundamentals/calculus', 'Basic physics'],
         outcomes: [
           'Calculate electric force using Coulomb\'s law',
           'Determine electric potential and field strength',
