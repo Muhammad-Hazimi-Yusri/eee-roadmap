@@ -8,13 +8,13 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.6)
+### Current (v0.6.1)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites and learning outcomes for each topic
 - Optional topics styled as side branches (roadmap.sh pattern)
 - Responsive design with Lab Notebook + PCB aesthetic
-- Toggleable dark mode
+- Toggleable dark mode with improved text color readability
 
 ### Planned Features
 
@@ -183,6 +183,12 @@ Contributions welcome! Please:
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+## Disclaimer
+
+This project was built with assistance from [Claude](https://claude.ai), an AI assistant by Anthropic.
 
 ---
 
