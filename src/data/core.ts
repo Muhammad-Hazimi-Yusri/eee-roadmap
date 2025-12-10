@@ -11,7 +11,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'transistors',
         title: 'Transistors (BJT & MOSFET)',
         description: 'The building blocks of amplification and switching. BJTs are current-controlled, MOSFETs are voltage-controlled. Understanding both lets you choose the right device for your application.',
-        prerequisites: ['DC Circuits', 'Diodes basics'],
+        prerequisites: ['fundamentals/dc-circuits/DC Circuits', 'fundamentals/diodes/Diodes basics'],
         outcomes: [
           'Bias BJT and MOSFET circuits for linear operation',
           'Analyze small-signal amplifier behavior',
@@ -29,7 +29,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'op-amps',
         title: 'Operational Amplifiers',
         description: 'The Swiss Army knife of analog design. Two simple rules (virtual short, no input current) let you build amplifiers, filters, comparators, and more. Master the 741 and its modern successors.',
-        prerequisites: ['DC Circuits', 'AC Circuits'],
+        prerequisites: ['fundamentals/dc-circuits/DC Circuits', 'fundamentals/ac-circuits/AC Circuits'],
         outcomes: [
           'Design inverting and non-inverting amplifiers',
           'Build active filters and integrators',
@@ -47,7 +47,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'analog-filters',
         title: 'Analog Filters',
         description: 'Shape the frequency content of signals. Low-pass removes noise, high-pass blocks DC, band-pass selects specific frequencies. Active filters with op-amps give you gain plus filtering.',
-        prerequisites: ['AC Circuits', 'Op-amps basics'],
+        prerequisites: ['fundamentals/ac-circuits/AC Circuits', 'core/op-amps/Op-amps basics'],
         outcomes: [
           'Design passive RC and RLC filters',
           'Build active filters using op-amps',
@@ -88,7 +88,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'combinational-circuits',
         title: 'Combinational Circuits',
         description: 'Outputs depend only on current inputs — no memory. Multiplexers route signals, decoders select devices, adders do arithmetic. These blocks combine to build ALUs and more.',
-        prerequisites: ['Boolean Algebra & Logic Gates'],
+        prerequisites: ['core/boolean-logic-gates/Boolean Algebra & Logic Gates'],
         outcomes: [
           'Design multiplexers and demultiplexers',
           'Build encoders, decoders, and priority encoders',
@@ -105,7 +105,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'sequential-circuits',
         title: 'Sequential Circuits',
         description: 'Circuits with memory — outputs depend on current inputs AND past history. Flip-flops store bits, registers hold bytes, counters sequence through states. The basis of all digital systems.',
-        prerequisites: ['Combinational Circuits'],
+        prerequisites: ['core/combinational-circuits/Combinational Circuits'],
         outcomes: [
           'Design circuits using SR, D, JK, and T flip-flops',
           'Build counters (synchronous and asynchronous)',
@@ -128,7 +128,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'signal-basics',
         title: 'Signal Fundamentals',
         description: 'The language of information. Continuous vs discrete, periodic vs aperiodic, energy vs power signals. Understanding signal properties is essential before analyzing how systems process them.',
-        prerequisites: ['Calculus', 'Complex numbers'],
+        prerequisites: ['fundamentals/calculus/Calculus', 'Complex numbers'],
         outcomes: [
           'Classify signals by their properties',
           'Perform basic signal operations (scaling, shifting)',
@@ -145,7 +145,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'fourier-analysis',
         title: 'Fourier Analysis',
         description: 'Any signal can be decomposed into sinusoids. Fourier series for periodic signals, Fourier transform for aperiodic. This frequency-domain view reveals what filters do and how signals occupy bandwidth.',
-        prerequisites: ['Signal Fundamentals', 'Calculus'],
+        prerequisites: ['core/signal-basics/Signal Fundamentals', 'fundamentals/calculus/Calculus'],
         outcomes: [
           'Compute Fourier series coefficients',
           'Apply Fourier transform to common signals',
@@ -162,7 +162,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'laplace-z-transform',
         title: 'Laplace & Z-Transform',
         description: 'Generalized frequency domain tools. Laplace transform handles continuous systems with initial conditions, Z-transform does the same for discrete systems. Both turn differential/difference equations into algebra.',
-        prerequisites: ['Fourier Analysis', 'Differential equations'],
+        prerequisites: ['core/fourier-analysis/Fourier Analysis', 'Differential equations'],
         outcomes: [
           'Apply Laplace transform to solve circuit problems',
           'Find transfer functions from differential equations',
@@ -186,7 +186,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'mcu-basics',
         title: 'Microcontroller Fundamentals',
         description: 'A computer on a chip — CPU, memory, and peripherals in one package. Arduino made embedded systems accessible, but understanding what happens under the hood makes you a better developer.',
-        prerequisites: ['Digital Logic basics', 'Basic programming'],
+        prerequisites: ['core/boolean-logic-gates/Digital Logic basics', 'Basic programming'],
         outcomes: [
           'Understand microcontroller architecture (CPU, memory, peripherals)',
           'Program GPIO pins for digital I/O',
@@ -203,7 +203,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'mcu-peripherals',
         title: 'Peripherals & Communication',
         description: 'Microcontrollers talk to sensors and other devices through standardized protocols. I2C for multiple devices on two wires, SPI for speed, UART for simplicity. ADC/DAC bridge analog and digital worlds.',
-        prerequisites: ['Microcontroller Fundamentals'],
+        prerequisites: ['core/mcu-basics/Microcontroller Fundamentals'],
         outcomes: [
           'Configure and use UART, SPI, and I2C',
           'Read analog sensors with ADC',
@@ -220,7 +220,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'embedded-c',
         title: 'Embedded C Programming',
         description: 'C is the lingua franca of embedded systems. Direct hardware access, bit manipulation, memory management — skills that matter when every byte counts and timing is critical.',
-        prerequisites: ['Microcontroller Fundamentals', 'C programming basics'],
+        prerequisites: ['core/mcu-basics/Microcontroller Fundamentals', 'C programming basics'],
         outcomes: [
           'Write efficient embedded C code',
           'Manipulate registers using bit operations',
@@ -244,7 +244,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'pcb-fundamentals',
         title: 'PCB Design Fundamentals',
         description: 'Move from breadboard to real product. PCBs are reliable, reproducible, and professional. Learn the workflow: schematic → layout → fabrication files. KiCad is free and industry-capable.',
-        prerequisites: ['Circuit Fundamentals', 'Passive Components'],
+        prerequisites: ['fundamentals/dc-circuits/Circuit Fundamentals', 'fundamentals/resistors/Passive Components'],
         outcomes: [
           'Create schematics in KiCad',
           'Understand PCB stackup and layers',
@@ -261,7 +261,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'pcb-layout',
         title: 'Layout Best Practices',
         description: 'Good layout separates working boards from problematic ones. Decoupling placement, ground planes, trace width for current, keep-outs — rules that prevent noise and ensure manufacturability.',
-        prerequisites: ['PCB Design Fundamentals'],
+        prerequisites: ['core/pcb-fundamentals/PCB Design Fundamentals'],
         outcomes: [
           'Apply proper decoupling capacitor placement',
           'Design effective ground planes',
@@ -278,7 +278,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'pcb-manufacturing',
         title: 'Manufacturing & Assembly',
         description: 'Design for manufacturing (DFM) prevents costly mistakes. Understand minimum trace widths, drill sizes, and clearances your fab house requires. Consider assembly when placing components.',
-        prerequisites: ['PCB Layout Best Practices'],
+        prerequisites: ['core/pcb-layout/PCB Layout Best Practices'],
         outcomes: [
           'Prepare designs for PCB fabrication',
           'Understand manufacturing constraints',

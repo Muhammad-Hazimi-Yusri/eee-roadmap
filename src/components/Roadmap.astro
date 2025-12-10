@@ -32,12 +32,16 @@ const { sections } = Astro.props;
                 <div class="node-prereqs">
                   <span class="prereqs-label">Prerequisites:</span>
                   {item.prerequisites.map((prereq) => {
-                    const isLinkable = prereq.includes('/');
+                    const parts = prereq.split('/');
+                    const isLinkable = parts.length >= 2;
                     if (isLinkable) {
-                      const [track, id] = prereq.split('/');
+                      const [track, id, ...displayParts] = parts;
+                      const displayName = displayParts.length > 0 
+                        ? displayParts.join('/') 
+                        : id.replace(/-/g, ' ');
                       return (
                         <a href={`${Astro.url.origin}/roadmaps/${track}#${id}`} class="prereq-tag prereq-tag--link">
-                          {id.replace(/-/g, ' ')}
+                          {displayName}
                         </a>
                       );
                     }

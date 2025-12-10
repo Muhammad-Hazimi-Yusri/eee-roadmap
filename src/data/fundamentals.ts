@@ -28,7 +28,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'calculus',
         title: 'Calculus',
         description: 'How circuits change over time. Derivatives describe capacitor/inductor behavior, integrals calculate energy and charge. Differential equations model real circuit dynamics.',
-        prerequisites: ['fundamentals/algebra-trig'],
+        prerequisites: ['fundamentals/algebra-trig/Algebra & Trigonometry'],
         outcomes: [
           'Differentiate and integrate common functions',
           'Solve first-order differential equations',
@@ -45,7 +45,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'linear-algebra',
         title: 'Linear Algebra',
         description: 'Enables systematic circuit analysis. Matrix methods solve complex multi-loop circuits, eigenvalues appear in stability analysis. Critical for signals, systems, and control theory later.',
-        prerequisites: ['fundamentals/algebra-trig', 'Calculus basics helpful'],
+        prerequisites: ['Algebra', 'Calculus basics helpful'],
         outcomes: [
           'Perform matrix operations and find inverses',
           'Solve systems of linear equations',
@@ -85,7 +85,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'ac-circuits',
         title: 'AC Circuit Analysis',
         description: 'Real-world power is AC. Phasors turn differential equations into algebra, impedance extends Ohm\'s law to capacitors and inductors. Foundation for power systems and signal processing.',
-        prerequisites: ['DC Circuits', 'Complex numbers', 'Trigonometry'],
+        prerequisites: ['fundamentals/dc-circuits/DC Circuits', 'Complex numbers', 'Trigonometry'],
         outcomes: [
           'Represent sinusoids as phasors',
           'Calculate impedance of R, L, C combinations',
@@ -108,7 +108,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'electric-fields',
         title: 'Electric Fields & Forces',
         description: 'The invisible force behind every circuit. Understanding fields explains how capacitors store energy, why insulators break down, and how charges move. Gauss\'s law simplifies complex charge distributions.',
-        prerequisites: ['fundamentals/calculus', 'Basic physics'],
+        prerequisites: ['fundamentals/calculus/Calculus', 'Basic physics'],
         outcomes: [
           'Calculate electric force using Coulomb\'s law',
           'Determine electric potential and field strength',
@@ -124,7 +124,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'magnetic-fields',
         title: 'Magnetic Fields & Induction',
         description: 'Where electricity and magnetism meet. Magnetic forces drive motors, Faraday\'s law explains transformers and generators. Inductance is just stored magnetic energy.',
-        prerequisites: ['Electric Fields', 'Calculus'],
+        prerequisites: ['fundamentals/electric-fields/Electric Fields', 'fundamentals/calculus/Calculus'],
         outcomes: [
           'Calculate magnetic force on moving charges and currents',
           'Apply Faraday\'s law to find induced EMF',
@@ -141,7 +141,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'maxwell-equations',
         title: 'Maxwell\'s Equations',
         description: 'The complete picture — four equations that unify all electromagnetic phenomena. Essential for RF, antennas, and understanding why circuits behave differently at high frequencies.',
-        prerequisites: ['Vector calculus', 'Electric and Magnetic Fields'],
+        prerequisites: ['Vector calculus', 'fundamentals/electric-fields/Electric Fields', 'fundamentals/magnetic-fields/Magnetic Fields'],
         outcomes: [
           'State Maxwell\'s equations in differential and integral form',
           'Derive the electromagnetic wave equation',
@@ -164,7 +164,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'resistors',
         title: 'Resistors',
         description: 'The simplest component, but details matter. Learn to read color codes, choose appropriate power ratings, and understand tolerance. Know when to use precision vs. general-purpose.',
-        prerequisites: ['DC Circuits'],
+        prerequisites: ['fundamentals/dc-circuits/DC Circuits'],
         outcomes: [
           'Read resistor values from color codes',
           'Calculate power dissipation and select appropriate wattage',
@@ -181,7 +181,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'capacitors',
         title: 'Capacitors',
         description: 'Store energy in electric fields. Different types (ceramic, electrolytic, film) have different behaviors — ESR affects filtering, voltage ratings prevent explosions. Decoupling is an art.',
-        prerequisites: ['DC Circuits', 'Electric Fields basics'],
+        prerequisites: ['fundamentals/dc-circuits/DC Circuits', 'fundamentals/electric-fields/Electric Fields basics'],
         outcomes: [
           'Select appropriate capacitor type for application',
           'Understand ESR and its effect on performance',
@@ -198,7 +198,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'inductors',
         title: 'Inductors & Transformers',
         description: 'Store energy in magnetic fields. Saturation limits current handling, mutual inductance enables transformers. Turns ratio determines voltage transformation in power supplies.',
-        prerequisites: ['Magnetic Fields basics'],
+        prerequisites: ['fundamentals/magnetic-fields/Magnetic Fields basics'],
         outcomes: [
           'Calculate inductance and stored energy',
           'Understand core saturation and its limits',
@@ -215,7 +215,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'diodes',
         title: 'Diodes',
         description: 'First step into semiconductors. One-way current flow enables rectification (AC→DC). Zener diodes regulate voltage, LEDs convert current to light. The PN junction concept underlies all semiconductors.',
-        prerequisites: ['DC Circuits', 'Basic semiconductor concepts'],
+        prerequisites: ['fundamentals/dc-circuits/DC Circuits', 'Basic semiconductor concepts'],
         outcomes: [
           'Analyze circuits with forward/reverse biased diodes',
           'Design basic rectifier circuits',
@@ -239,7 +239,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'multimeter',
         title: 'Multimeter',
         description: 'Your most-used tool. Measures voltage, current, resistance — but technique matters. Learn proper probe placement, when to use AC vs DC ranges, and how to safely measure current in-circuit.',
-        prerequisites: ['DC Circuits', 'AC Circuits basics'],
+        prerequisites: ['fundamentals/dc-circuits/DC Circuits', 'fundamentals/ac-circuits/AC Circuits basics'],
         outcomes: [
           'Measure DC and AC voltage accurately',
           'Measure current without blowing fuses',
@@ -256,7 +256,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'oscilloscope',
         title: 'Oscilloscope',
         description: 'See what\'s actually happening. Voltage vs. time reveals signal integrity, noise, and timing issues invisible to multimeters. Master triggering to capture the waveform you need.',
-        prerequisites: ['AC Circuits', 'Waveform concepts'],
+        prerequisites: ['fundamentals/ac-circuits/AC Circuits', 'Waveform concepts'],
         outcomes: [
           'Set up timebase and vertical scale appropriately',
           'Use triggering to capture stable waveforms',
@@ -290,7 +290,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'soldering',
         title: 'Soldering',
         description: 'Permanent connections done right. Good joints are shiny and concave. Learn proper iron temperature, flux usage, and desoldering for mistakes. SMD opens up modern component access.',
-        prerequisites: ['Breadboarding experience'],
+        prerequisites: ['fundamentals/breadboarding/Breadboarding experience'],
         outcomes: [
           'Create reliable through-hole solder joints',
           'Identify and fix cold joints',
