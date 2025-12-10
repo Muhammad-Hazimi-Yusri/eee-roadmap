@@ -128,19 +128,35 @@ eee-roadmap/
 │   └── favicon.svg
 ├── src/
 │   ├── components/
+│   │   ├── CircuitLine.astro
+│   │   ├── CTA.astro
+│   │   ├── Features.astro
+│   │   ├── Footer.astro
 │   │   ├── Header.astro
 │   │   ├── Hero.astro
-│   │   ├── CircuitLine.astro
-│   │   ├── Tracks.astro
-│   │   ├── Features.astro
-│   │   ├── CTA.astro
-│   │   └── Footer.astro
+│   │   ├── Placeholder.astro
+│   │   ├── Roadmap.astro
+│   │   ├── ThemeToggle.astro
+│   │   └── Tracks.astro
+│   ├── data/
+│   │   ├── advanced.ts
+│   │   ├── core.ts
+│   │   └── fundamentals.ts
 │   ├── layouts/
 │   │   └── Layout.astro
 │   ├── pages/
-│   │   └── index.astro
-│   └── styles/
-│       └── global.css
+│   │   ├── roadmaps/
+│   │   │   └── [slug].astro
+│   │   ├── about.astro
+│   │   ├── contribute.astro
+│   │   ├── guides.astro
+│   │   ├── index.astro
+│   │   ├── projects.astro
+│   │   └── resources.astro
+│   ├── styles/
+│   │   └── global.css
+│   └── types/
+│       └── roadmap.ts
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml
