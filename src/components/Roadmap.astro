@@ -139,6 +139,18 @@ const { sections } = Astro.props;
     }
   });
 
+  // Handle prereq link clicks (fixes re-click on same hash)
+  document.querySelectorAll('.prereq-tag--link').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href') || '';
+      const hash = href.split('#')[1];
+      if (hash && window.location.hash === `#${hash}`) {
+        // Same hash - manually expand since hashchange won't fire
+        expandNode(hash);
+      }
+    });
+  });
+
   // Settings panel toggle
   const settingsToggle = document.getElementById('settings-toggle');
   const settingsPanel = document.getElementById('settings-panel');
