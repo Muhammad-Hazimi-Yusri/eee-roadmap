@@ -45,7 +45,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'linear-algebra',
         title: 'Linear Algebra',
         description: 'Enables systematic circuit analysis. Matrix methods solve complex multi-loop circuits, eigenvalues appear in stability analysis. Critical for signals, systems, and control theory later.',
-        prerequisites: ['Algebra', 'Calculus basics helpful'],
+        prerequisites: ['fundamentals/algebra-trig/Algebra', 'fundamentals/calculus/Calculus basics'],
         outcomes: [
           'Perform matrix operations and find inverses',
           'Solve systems of linear equations',
@@ -68,7 +68,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         id: 'dc-circuits',
         title: 'DC Circuit Analysis',
         description: 'Your first real circuits. Master voltage, current, and resistance relationships. Kirchhoff\'s laws let you analyze any circuit; Thevenin/Norton simplify complex networks into simple equivalents.',
-        prerequisites: ['Algebra', 'Basic physics (voltage, current concepts)'],
+        prerequisites: ['fundamentals/algebra-trig/Algebra', 'Basic physics (voltage, current concepts)'],
         outcomes: [
           'Apply Ohm\'s law to calculate V, I, R',
           'Use KVL and KCL to analyze multi-loop circuits',

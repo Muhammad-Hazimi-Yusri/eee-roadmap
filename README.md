@@ -8,7 +8,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.6.4)
+### Current (v0.6.5)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites and learning outcomes for each topic
@@ -24,7 +24,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Clickable prerequisites → navigate to related topic (cross-track linking)
 - [x] Visual distinction: solid+glow (linkable) vs dashed (static) prereqs
 - [x] Custom display names for prereqs (`track/id/Display Name` format)
-- [ ] Prereq link behavior preference (same tab vs new tab)
+- [x] Prereq link behavior preference (smart/same tab/new tab)
+- [x] Improved section title styling
 - [ ] Fix: re-clicking same prereq doesn't re-expand if manually collapsed
 - [ ] Progress tracking with localStorage
 

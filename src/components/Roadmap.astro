@@ -7,6 +7,24 @@ interface Props {
 
 const { sections } = Astro.props;
 ---
+<div class="roadmap-settings" id="roadmap-settings">
+  <button class="settings-toggle" id="settings-toggle">
+    <span class="toggle-text">Preferences</span>
+    <svg class="toggle-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </button>
+  <div class="settings-panel" id="settings-panel">
+    <label class="prereq-link-setting">
+      <span class="setting-label">Open prereqs in:</span>
+      <select id="prereq-link-behavior">
+        <option value="smart">New tab if different track</option>
+        <option value="same-tab">Always same tab</option>
+        <option value="new-tab">Always new tab</option>
+      </select>
+    </label>
+  </div>
+</div>
 
 <div class="roadmap">
   {sections.map((section) => (
@@ -120,6 +138,59 @@ const { sections } = Astro.props;
       expandNode(window.location.hash.slice(1));
     }
   });
+
+  // Settings panel toggle
+  const settingsToggle = document.getElementById('settings-toggle');
+  const settingsPanel = document.getElementById('settings-panel');
+  
+  settingsToggle?.addEventListener('click', () => {
+    const isExpanded = settingsToggle.getAttribute('aria-expanded') !== 'false';
+    settingsToggle.setAttribute('aria-expanded', String(!isExpanded));
+    if (settingsPanel) settingsPanel.hidden = isExpanded;
+  });
+
+  // Prereq link behavior preference
+  const prereqSelect = document.getElementById('prereq-link-behavior') as HTMLSelectElement;
+  const prereqLinks = document.querySelectorAll('.prereq-tag--link');
+  
+  // Load saved preference
+  const savedBehavior = localStorage.getItem('prereq-link-behavior') || 'smart';
+  if (prereqSelect) prereqSelect.value = savedBehavior;
+  applyPrereqBehavior(savedBehavior);
+
+  // Save preference on change
+  prereqSelect?.addEventListener('change', () => {
+    const value = prereqSelect.value;
+    localStorage.setItem('prereq-link-behavior', value);
+    applyPrereqBehavior(value);
+  });
+
+  function applyPrereqBehavior(behavior: string) {
+      const currentPath = window.location.pathname;
+      const currentTrack = currentPath.match(/\/roadmaps\/(\w+)/)?.[1] || '';
+
+      prereqLinks.forEach((link) => {
+        const href = link.getAttribute('href') || '';
+        const linkTrack = href.match(/\/roadmaps\/(\w+)/)?.[1] || '';
+        
+        let openInNewTab = false;
+        
+        if (behavior === 'new-tab') {
+          openInNewTab = true;
+        } else if (behavior === 'smart') {
+          openInNewTab = linkTrack !== currentTrack;
+        }
+        // 'same-tab' → openInNewTab stays false
+
+        if (openInNewTab) {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+        } else {
+          link.removeAttribute('target');
+          link.removeAttribute('rel');
+        }
+      });
+    }
 </script>
 
 
@@ -131,12 +202,16 @@ const { sections } = Astro.props;
   }
 
   .section-title {
-    font-size: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-muted);
+    letter-spacing: 0.1em;
+    color: var(--color-text);
     margin-bottom: 1.5rem;
-    padding-left: 2rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-bg-grid);
+    border-left: 4px solid var(--color-copper);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .roadmap-track {
@@ -359,4 +434,69 @@ const { sections } = Astro.props;
     color: var(--color-pcb);
   }
 
+  .roadmap-settings {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+.settings-toggle {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-chevron {
+  transition: transform 0.2s;
+}
+
+.settings-toggle[aria-expanded="false"] .toggle-chevron {
+  transform: rotate(180deg);
+}
+
+  .settings-toggle:hover {
+    background-color: var(--color-bg-grid);
+  }
+
+  .settings-panel {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .prereq-link-setting {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+  }
+
+  .setting-label {
+    color: var(--color-text-muted);
+  }
+
+  #prereq-link-behavior {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+  }
 </style>

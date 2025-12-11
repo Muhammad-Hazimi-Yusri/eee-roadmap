@@ -71,7 +71,7 @@ export const coreRoadmap: RoadmapSection[] = [
         id: 'boolean-logic-gates',
         title: 'Boolean Algebra & Logic Gates',
         description: 'The mathematics of digital systems. AND, OR, NOT gates combine to implement any logical function. Boolean algebra lets you simplify and optimize circuits before building them.',
-        prerequisites: ['Basic algebra'],
+        prerequisites: ['fundamentals/algebra-trig/Basic algebra'],
         outcomes: [
           'Simplify Boolean expressions using algebra and K-maps',
           'Convert between truth tables and gate circuits',
