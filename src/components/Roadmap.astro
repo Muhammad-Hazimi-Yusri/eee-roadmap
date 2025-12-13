@@ -82,7 +82,11 @@ const { sections } = Astro.props;
               {item.concepts && item.concepts.length > 0 && (
                 <ul class="node-concepts">
                   {item.concepts.map((concept) => (
-                    <li>{concept}</li>
+                    <li 
+                      data-topic-id={item.id}
+                      data-concept={concept}
+                      class="concept-pill"
+                    >{concept}</li>
                   ))}
                 </ul>
               )}
@@ -203,6 +207,80 @@ const { sections } = Astro.props;
         }
       });
     }
+
+  // Progress tracking
+  const STORAGE_KEY = 'eee-progress';
+
+  function getProgress(): string[] {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  }
+
+  function saveProgress(progress: string[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  function toggleConcept(topicId: string, concept: string) {
+    const key = `${topicId}:${concept}`;
+    const progress = getProgress();
+    
+    if (progress.includes(key)) {
+      // Remove it
+      const updated = progress.filter(p => p !== key);
+      saveProgress(updated);
+      return false; // now incomplete
+    } else {
+      // Add it
+      progress.push(key);
+      saveProgress(progress);
+      return true; // now complete
+    }
+  }
+
+  function isTopicCompleted(topicId: string): boolean {
+    const node = document.querySelector(`[data-node-id="${topicId}"]`);
+    if (!node) return false;
+    
+    const pills = node.querySelectorAll('.concept-pill');
+    if (pills.length === 0) return false;
+    
+    const progress = getProgress();
+    return Array.from(pills).every(pill => {
+      const concept = pill.getAttribute('data-concept');
+      return progress.includes(`${topicId}:${concept}`);
+    });
+  }
+
+  function updateTopicStatus(topicId: string) {
+    const node = document.querySelector(`[data-node-id="${topicId}"]`);
+    if (!node) return;
+    
+    if (isTopicCompleted(topicId)) {
+      node.classList.add('topic--completed');
+    } else {
+      node.classList.remove('topic--completed');
+    }
+  }
+  
+  // Make concept pills clickable
+  document.querySelectorAll('.concept-pill').forEach((pill) => {
+    const topicId = pill.getAttribute('data-topic-id');
+    const concept = pill.getAttribute('data-concept');
+    if (!topicId || !concept) return;
+    
+    // Check initial state
+    const key = `${topicId}:${concept}`;
+    if (getProgress().includes(key)) {
+      pill.classList.add('concept--completed');
+    }
+    updateTopicStatus(topicId);
+    
+    pill.addEventListener('click', () => {
+      const completed = toggleConcept(topicId, concept);
+      pill.classList.toggle('concept--completed', completed);
+      updateTopicStatus(topicId);
+    });
+  });
 </script>
 
 
@@ -510,5 +588,29 @@ const { sections } = Astro.props;
     background-color: var(--color-bg);
     color: var(--color-text);
     cursor: pointer;
+  }
+
+  .concept-pill {
+    cursor: pointer;
+    transition: opacity 0.15s, text-decoration 0.15s;
+  }
+
+  .concept-pill:hover {
+    opacity: 0.7;
+  }
+
+  .concept--completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .topic--completed .node-title {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .topic--completed .node-dot {
+    background-color: var(--color-pcb) !important;
+    border-color: var(--color-pcb);
   }
 </style>
