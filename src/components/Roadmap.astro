@@ -6,6 +6,7 @@ interface Props {
 }
 
 const { sections } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL;
 ---
 <div class="roadmap-settings" id="roadmap-settings">
   <button class="settings-toggle" id="settings-toggle">
@@ -58,7 +59,7 @@ const { sections } = Astro.props;
                         ? displayParts.join('/') 
                         : id.replace(/-/g, ' ');
                       return (
-                        <a href={`${Astro.url.origin}/roadmaps/${track}#${id}`} class="prereq-tag prereq-tag--link">
+                        <a href={`${baseUrl}roadmaps/${track}#${id}`} class="prereq-tag prereq-tag--link">
                           {displayName}
                         </a>
                       );
