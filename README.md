@@ -21,6 +21,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ### Planned Features
 
+#### Versioning Notes
+
+- **v0.X.0** marks feature milestone start, **v0.X.Y** for incremental progress
+- Completed versions are kept in README until 3+ exist, then oldest moves to CHANGELOG.md
+
 **v0.7 - Navigation & Linking** ✓
 - [x] Topic deep-links with hash anchors (v0.6.3)
 - [x] Auto-expand nodes on hash navigation (v0.6.3)
