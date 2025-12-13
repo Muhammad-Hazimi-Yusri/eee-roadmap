@@ -8,49 +8,59 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.6.6)
+### Current (v0.8.0)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites and learning outcomes for each topic
 - Optional topics styled as side branches (roadmap.sh pattern)
 - Responsive design with Lab Notebook + PCB aesthetic
 - Toggleable dark mode with improved text color readability
+- Topic deep-links with hash anchors
+- Clickable prerequisites with cross-track navigation
+- Progress tracking with localStorage
 
 ### Planned Features
 
-**v0.7 - Navigation & Linking**
-- [x] Topic deep-links with hash anchors
-- [x] Auto-expand nodes on hash navigation
-- [x] Clickable prerequisites → navigate to related topic (cross-track linking)
-- [x] Visual distinction: solid+glow (linkable) vs dashed (static) prereqs
-- [x] Custom display names for prereqs (`track/id/Display Name` format)
-- [x] Prereq link behavior preference (smart/same tab/new tab)
-- [x] Improved section title styling
-- [x] Fix: re-clicking same prereq doesn't re-expand if manually collapsed
-- [ ] Progress tracking with localStorage
+**v0.7 - Navigation & Linking** ✓
+- [x] Topic deep-links with hash anchors (v0.6.3)
+- [x] Auto-expand nodes on hash navigation (v0.6.3)
+- [x] Clickable prerequisites → cross-track linking (v0.6.3)
+- [x] Visual distinction: solid+glow (linkable) vs dashed (static) prereqs (v0.6.4)
+- [x] Custom display names for prereqs (v0.6.4)
+- [x] Prereq link behavior preference (v0.6.5)
+- [x] Improved section title styling (v0.6.5)
+- [x] Fix: re-clicking same prereq re-expands collapsed node (v0.6.6)
 
-**Known Limitations**
-- Prerequisites assume unique topic IDs across all tracks. May need refactoring if topics become duplicated or tracks become more modular.
+**v0.8 - Progress Tracking**
+- [x] Basic progress tracking with localStorage (v0.8.0)
+- [ ] Prereqs show completed status (strikethrough if topic done)
+- [ ] Static prereqs can be manually toggled
+- [ ] Demo roadmap on homepage (showcase navigation, progress, interactions)
+- [ ] Interaction mode preference: simple click toggle vs highlighter/pen swipe
+- [ ] Visual flair: highlighter for in-progress, pen strikethrough for complete
+- [ ] Swipe interaction for marking concepts (when interactive mode enabled)
 
-**v0.8 - Concept Deep-dives**
-- [ ] Clickable concepts → modal/popup with detailed explanations
-- [ ] Markdown-based content system for community contributions
+**v0.9 - Cross-Device Sync**
+- [ ] Research sync options (GitHub Gist, Firebase, custom backend)
+- [ ] User authentication strategy
+- [ ] Import/export progress as JSON fallback
 
-**v0.9 - Notes System**
-- [ ] LaTeX notes compiled via GitHub Actions → PDF
-- [ ] Client-side PDF viewer (PDF.js)
-- [ ] A4 paper aesthetic: draggable, pinnable, dismissable note cards
-- [ ] Image/diagram support in notes
+**v1.0 - Notes & Deep-dives**
+- [ ] Clickable concepts → modal/popup with explanations
+- [ ] LaTeX or Markdown notes (decide on format)
+- [ ] PDF compilation via GitHub Actions
+- [ ] A4 paper aesthetic: draggable, pinnable note cards
 
 **Future**
 - [ ] WebAssembly-based circuit simulator (Rust)
 - [ ] PWA support for offline access
 - [ ] Community contributions workflow
 
-### Known Issues / Future Improvements
-- [ ] Fix 3 broken links (all in advanced roadmap, commented)
-- [ ] Verify all resource links point to correct content (not just 200 OK)
-- [ ] Consider non-linear roadmap paths where topics have multiple valid orderings
+**Known Issues & Limitations**
+- [ ] Verify all resource links point to correct content
+- Prerequisites assume unique topic IDs across all tracks
+- Progress stored in localStorage (browser-specific, clears with site data)
+- [ ] Consider non-linear roadmap paths (and specialisations paths)
 - [ ] Add estimated time/difficulty per topic
 
 ---
