@@ -144,13 +144,19 @@ const baseUrl = import.meta.env.BASE_URL;
     }
   });
 
-  // Handle prereq link clicks (fixes re-click on same hash)
+  // Handle prereq link clicks - prevent reload for same-page navigation
   document.querySelectorAll('.prereq-tag--link').forEach((link) => {
     link.addEventListener('click', (e) => {
       const href = link.getAttribute('href') || '';
-      const hash = href.split('#')[1];
-      if (hash && window.location.hash === `#${hash}`) {
-        // Same hash - manually expand since hashchange won't fire
+      const [path, hash] = href.split('#');
+      
+      // Check if link is to current page
+      const isSamePage = path === window.location.pathname || 
+                        path === window.location.pathname.replace(/\/$/, '');
+      
+      if (isSamePage && hash) {
+        e.preventDefault();
+        window.location.hash = hash;
         expandNode(hash);
       }
     });
