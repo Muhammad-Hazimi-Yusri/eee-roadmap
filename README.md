@@ -44,6 +44,9 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Simple mode: click (notes), dblclick (complete), shift+click (important) (v0.8.3)
 - [ ] Tools mode with swipe gestures
 - [ ] Demo roadmap on homepage (showcase interactions)
+- [ ] Expand/collapse all controls
+- [ ] Filter: show only nodes with important concepts
+- [ ] Filter: show only incomplete nodes
 
 ### Interaction System Spec
 
