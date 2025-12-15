@@ -68,7 +68,14 @@ const baseUrl = import.meta.env.BASE_URL;
                         </a>
                       );
                     }
-                    return <span class="prereq-tag prereq-tag--static">{prereq}</span>;
+                    return (
+                      <span 
+                        class="prereq-tag prereq-tag--static" 
+                        data-static-prereq={prereq}
+                      >
+                        {prereq}
+                      </span>
+                    );
                   })}
                 </div>
               )}
@@ -227,6 +234,36 @@ const baseUrl = import.meta.env.BASE_URL;
     });
   }
 
+  function initStaticPrereqs() {
+    const progress = getProgress();
+    
+    document.querySelectorAll('.prereq-tag--static[data-static-prereq]').forEach((tag) => {
+      const prereq = tag.getAttribute('data-static-prereq');
+      if (!prereq) return;
+      
+      const key = `static:${prereq}`;
+      
+      // Set initial state
+      if (progress.includes(key)) {
+        tag.classList.add('prereq--completed');
+      }
+      
+      // Click handler
+      tag.addEventListener('click', () => {
+        const current = getProgress();
+        
+        if (current.includes(key)) {
+          saveProgress(current.filter(p => p !== key));
+          tag.classList.remove('prereq--completed');
+        } else {
+          current.push(key);
+          saveProgress(current);
+          tag.classList.add('prereq--completed');
+        }
+      });
+    });
+  }
+
   function initProgressTracking() {
     document.querySelectorAll('.concept-pill').forEach((pill) => {
       const topicId = pill.getAttribute('data-topic-id');
@@ -315,6 +352,7 @@ const baseUrl = import.meta.env.BASE_URL;
   initNodeToggles();
   initHashNavigation();
   initProgressTracking();
+  initStaticPrereqs();
   initPrereqBehavior();
   initSettingsPanel();
 </script>
@@ -532,6 +570,12 @@ const baseUrl = import.meta.env.BASE_URL;
     background-color: rgba(184, 115, 51, 0.15);
     color: var(--color-text-muted);
     border: 1px dashed var(--color-copper);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .prereq-tag--static:hover {
+    opacity: 0.7;
   }
 
   .node-outcomes {
