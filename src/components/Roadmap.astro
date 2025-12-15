@@ -59,7 +59,11 @@ const baseUrl = import.meta.env.BASE_URL;
                         ? displayParts.join('/') 
                         : id.replace(/-/g, ' ');
                       return (
-                        <a href={`${baseUrl}roadmaps/${track}#${id}`} class="prereq-tag prereq-tag--link">
+                        <a 
+                          href={`${Astro.url.origin}/roadmaps/${track}#${id}`} 
+                          class="prereq-tag prereq-tag--link"
+                          data-prereq-topic={id}
+                        >
                           {displayName}
                         </a>
                       );
@@ -214,6 +218,15 @@ const baseUrl = import.meta.env.BASE_URL;
     node.classList.toggle('topic--completed', isTopicCompleted(topicId));
   }
 
+  function updatePrereqCompletionStatus() {
+    document.querySelectorAll('.prereq-tag--link[data-prereq-topic]').forEach((link) => {
+      const topicId = link.getAttribute('data-prereq-topic');
+      if (!topicId) return;
+      
+      link.classList.toggle('prereq--completed', isTopicCompleted(topicId));
+    });
+  }
+
   function initProgressTracking() {
     document.querySelectorAll('.concept-pill').forEach((pill) => {
       const topicId = pill.getAttribute('data-topic-id');
@@ -232,8 +245,10 @@ const baseUrl = import.meta.env.BASE_URL;
         const completed = toggleConcept(topicId, concept);
         pill.classList.toggle('concept--completed', completed);
         updateTopicStatus(topicId);
+        updatePrereqCompletionStatus();
       });
     });
+    updatePrereqCompletionStatus();
   }
 
   // ============================================
@@ -506,6 +521,11 @@ const baseUrl = import.meta.env.BASE_URL;
   .prereq-tag--link:hover {
     box-shadow: 0 0 8px var(--color-copper-light);
     background-color: var(--color-copper-light);
+  }
+
+  .prereq--completed {
+    text-decoration: line-through;
+    opacity: 0.7;
   }
 
   .prereq-tag--static {

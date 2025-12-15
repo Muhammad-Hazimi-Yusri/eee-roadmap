@@ -38,7 +38,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **v0.8 - Progress Tracking**
 - [x] Basic progress tracking with localStorage (v0.8.0)
-- [ ] Prereqs show completed status (strikethrough if topic done)
+- [x] Prereqs show completed status (strikethrough if topic done) (v0.8.1)
 - [ ] Static prereqs can be manually toggled
 - [ ] Demo roadmap on homepage (showcase navigation, progress, interactions)
 - [ ] Interaction mode preference: simple click toggle vs highlighter/pen swipe
