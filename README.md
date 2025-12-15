@@ -40,10 +40,31 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Basic progress tracking with localStorage (v0.8.0)
 - [x] Prereqs show completed status (strikethrough if topic done) (v0.8.1)
 - [x] Static prereqs can be manually toggled (v0.8.2)
-- [ ] Demo roadmap on homepage (showcase navigation, progress, interactions)
-- [ ] Interaction mode preference: simple click toggle vs highlighter/pen swipe
-- [ ] Visual flair: highlighter for in-progress, pen strikethrough for complete
-- [ ] Swipe interaction for marking concepts (when interactive mode enabled)
+- [ ] Two-dimension concept state (complete + important flags)
+- [ ] Simple mode interactions
+- [ ] Tools mode with swipe gestures
+- [ ] Demo roadmap on homepage (showcase interactions)
+
+### Interaction System Spec
+
+**Concept State (2 independent dimensions):**
+- Completion: incomplete ↔ complete (strikethrough + dim)
+- Flag: normal ↔ important (highlight background)
+- Storage: separate keys (`topicId:concept:complete`, `topicId:concept:important`)
+
+**Simple Mode:**
+- Click → open notes
+- Double-click → toggle complete
+- Shift+Click → toggle important
+
+**Tools Mode (swipe gestures for tactile experience, optimized for tablet/stylus):**
+- 🖱️ Cursor → click to open notes
+- 🖊️ Pen → swipe across concept to toggle complete (like crossing out)
+- 🖍️ Highlighter → swipe across concept to toggle important (like highlighting)
+- 🧹 Eraser → swipe across concept to reset both states
+
+Note: Swipe = mousedown/touchstart on concept, drag across, mouseup/touchend. 
+Designed to feel like using real stationery on paper.
 
 **v0.9 - Cross-Device Sync**
 - [ ] Research sync options (GitHub Gist, Firebase, custom backend)
