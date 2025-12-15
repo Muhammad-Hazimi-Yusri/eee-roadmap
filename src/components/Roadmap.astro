@@ -108,6 +108,23 @@ const baseUrl = import.meta.env.BASE_URL;
 </div>
 
 <script>
+  // ============================================
+  // STORAGE UTILS
+  // ============================================
+  const STORAGE_KEY = 'eee-progress';
+
+  function getProgress(): string[] {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  }
+
+  function saveProgress(progress: string[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  // ============================================
+  // NODE EXPANSION
+  // ============================================
   function expandNode(id: string) {
     const node = document.getElementById(id);
     if (!node) return;
@@ -121,126 +138,58 @@ const baseUrl = import.meta.env.BASE_URL;
     }
   }
 
-  // Handle click to toggle
-  document.querySelectorAll('.node-button').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      const content = btn.nextElementSibling as HTMLElement;
-      
-      btn.setAttribute('aria-expanded', String(!expanded));
-      content.hidden = expanded;
+  function initNodeToggles() {
+    document.querySelectorAll('.node-button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        const content = btn.nextElementSibling as HTMLElement;
+        
+        btn.setAttribute('aria-expanded', String(!expanded));
+        content.hidden = expanded;
+      });
     });
-  });
-
-  // Auto-expand on page load if hash exists
-  if (window.location.hash) {
-    expandNode(window.location.hash.slice(1));
   }
 
-  // Handle hash changes (same-page navigation)
-  window.addEventListener('hashchange', () => {
+  function initHashNavigation() {
+    // Auto-expand on page load if hash exists
     if (window.location.hash) {
       expandNode(window.location.hash.slice(1));
     }
-  });
 
-  // Handle prereq link clicks - prevent reload for same-page navigation
-  document.querySelectorAll('.prereq-tag--link').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href') || '';
-      const [path, hash] = href.split('#');
-      
-      // Check if link is to current page
-      const isSamePage = path === window.location.pathname || 
-                        path === window.location.pathname.replace(/\/$/, '');
-      
-      if (isSamePage && hash) {
-        e.preventDefault();
-        window.location.hash = hash;
-        expandNode(hash);
+    // Handle hash changes (same-page navigation)
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash) {
+        expandNode(window.location.hash.slice(1));
       }
     });
-  });
 
-  // Settings panel toggle
-  const settingsToggle = document.getElementById('settings-toggle');
-  const settingsPanel = document.getElementById('settings-panel');
-  
-  settingsToggle?.addEventListener('click', () => {
-    const isExpanded = settingsToggle.getAttribute('aria-expanded') !== 'false';
-    settingsToggle.setAttribute('aria-expanded', String(!isExpanded));
-    if (settingsPanel) settingsPanel.hidden = isExpanded;
-  });
-
-  // Prereq link behavior preference
-  const prereqSelect = document.getElementById('prereq-link-behavior') as HTMLSelectElement;
-  const prereqLinks = document.querySelectorAll('.prereq-tag--link');
-  
-  // Load saved preference
-  const savedBehavior = localStorage.getItem('prereq-link-behavior') || 'smart';
-  if (prereqSelect) prereqSelect.value = savedBehavior;
-  applyPrereqBehavior(savedBehavior);
-
-  // Save preference on change
-  prereqSelect?.addEventListener('change', () => {
-    const value = prereqSelect.value;
-    localStorage.setItem('prereq-link-behavior', value);
-    applyPrereqBehavior(value);
-  });
-
-  function applyPrereqBehavior(behavior: string) {
-      const currentPath = window.location.pathname;
-      const currentTrack = currentPath.match(/\/roadmaps\/(\w+)/)?.[1] || '';
-
-      prereqLinks.forEach((link) => {
+    // Handle prereq link clicks (fixes re-click on same hash)
+    document.querySelectorAll('.prereq-tag--link').forEach((link) => {
+      link.addEventListener('click', () => {
         const href = link.getAttribute('href') || '';
-        const linkTrack = href.match(/\/roadmaps\/(\w+)/)?.[1] || '';
-        
-        let openInNewTab = false;
-        
-        if (behavior === 'new-tab') {
-          openInNewTab = true;
-        } else if (behavior === 'smart') {
-          openInNewTab = linkTrack !== currentTrack;
-        }
-        // 'same-tab' → openInNewTab stays false
-
-        if (openInNewTab) {
-          link.setAttribute('target', '_blank');
-          link.setAttribute('rel', 'noopener noreferrer');
-        } else {
-          link.removeAttribute('target');
-          link.removeAttribute('rel');
+        const hash = href.split('#')[1];
+        if (hash && window.location.hash === `#${hash}`) {
+          expandNode(hash);
         }
       });
-    }
-
-  // Progress tracking
-  const STORAGE_KEY = 'eee-progress';
-
-  function getProgress(): string[] {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
+    });
   }
 
-  function saveProgress(progress: string[]) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }
-
-  function toggleConcept(topicId: string, concept: string) {
+  // ============================================
+  // PROGRESS TRACKING
+  // ============================================
+  function toggleConcept(topicId: string, concept: string): boolean {
     const key = `${topicId}:${concept}`;
     const progress = getProgress();
     
     if (progress.includes(key)) {
-      // Remove it
       const updated = progress.filter(p => p !== key);
       saveProgress(updated);
-      return false; // now incomplete
+      return false;
     } else {
-      // Add it
       progress.push(key);
       saveProgress(progress);
-      return true; // now complete
+      return true;
     }
   }
 
@@ -262,32 +211,97 @@ const baseUrl = import.meta.env.BASE_URL;
     const node = document.querySelector(`[data-node-id="${topicId}"]`);
     if (!node) return;
     
-    if (isTopicCompleted(topicId)) {
-      node.classList.add('topic--completed');
-    } else {
-      node.classList.remove('topic--completed');
-    }
+    node.classList.toggle('topic--completed', isTopicCompleted(topicId));
   }
-  
-  // Make concept pills clickable
-  document.querySelectorAll('.concept-pill').forEach((pill) => {
-    const topicId = pill.getAttribute('data-topic-id');
-    const concept = pill.getAttribute('data-concept');
-    if (!topicId || !concept) return;
-    
-    // Check initial state
-    const key = `${topicId}:${concept}`;
-    if (getProgress().includes(key)) {
-      pill.classList.add('concept--completed');
-    }
-    updateTopicStatus(topicId);
-    
-    pill.addEventListener('click', () => {
-      const completed = toggleConcept(topicId, concept);
-      pill.classList.toggle('concept--completed', completed);
+
+  function initProgressTracking() {
+    document.querySelectorAll('.concept-pill').forEach((pill) => {
+      const topicId = pill.getAttribute('data-topic-id');
+      const concept = pill.getAttribute('data-concept');
+      if (!topicId || !concept) return;
+      
+      // Set initial state
+      const key = `${topicId}:${concept}`;
+      if (getProgress().includes(key)) {
+        pill.classList.add('concept--completed');
+      }
       updateTopicStatus(topicId);
+      
+      // Click handler
+      pill.addEventListener('click', () => {
+        const completed = toggleConcept(topicId, concept);
+        pill.classList.toggle('concept--completed', completed);
+        updateTopicStatus(topicId);
+      });
     });
-  });
+  }
+
+  // ============================================
+  // PREREQ LINK BEHAVIOR
+  // ============================================
+  function applyPrereqBehavior(behavior: string) {
+    const currentPath = window.location.pathname;
+    const currentTrack = currentPath.match(/\/roadmaps\/(\w+)/)?.[1] || '';
+
+    document.querySelectorAll('.prereq-tag--link').forEach((link) => {
+      const href = link.getAttribute('href') || '';
+      const linkTrack = href.match(/\/roadmaps\/(\w+)/)?.[1] || '';
+      
+      let openInNewTab = false;
+      
+      if (behavior === 'new-tab') {
+        openInNewTab = true;
+      } else if (behavior === 'smart') {
+        openInNewTab = linkTrack !== currentTrack;
+      }
+
+      if (openInNewTab) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      } else {
+        link.removeAttribute('target');
+        link.removeAttribute('rel');
+      }
+    });
+  }
+
+  function initPrereqBehavior() {
+    const prereqSelect = document.getElementById('prereq-link-behavior') as HTMLSelectElement;
+    if (!prereqSelect) return;
+
+    const savedBehavior = localStorage.getItem('prereq-link-behavior') || 'smart';
+    prereqSelect.value = savedBehavior;
+    applyPrereqBehavior(savedBehavior);
+
+    prereqSelect.addEventListener('change', () => {
+      const value = prereqSelect.value;
+      localStorage.setItem('prereq-link-behavior', value);
+      applyPrereqBehavior(value);
+    });
+  }
+
+  // ============================================
+  // SETTINGS PANEL
+  // ============================================
+  function initSettingsPanel() {
+    const settingsToggle = document.getElementById('settings-toggle');
+    const settingsPanel = document.getElementById('settings-panel');
+    
+    settingsToggle?.addEventListener('click', () => {
+      const isExpanded = settingsToggle.getAttribute('aria-expanded') !== 'false';
+      settingsToggle.setAttribute('aria-expanded', String(!isExpanded));
+      if (settingsPanel) settingsPanel.hidden = isExpanded;
+    });
+  }
+
+  // ============================================
+  // INIT
+  // ============================================
+  initNodeToggles();
+  initHashNavigation();
+  initProgressTracking();
+  initPrereqBehavior();
+  initSettingsPanel();
 </script>
 
 

@@ -5,6 +5,13 @@ export interface Resource {
   url: string;
 }
 
+/**
+ * Prerequisite format:
+ * - Linkable: "track/topic-id/Display Name" (navigates to that topic)
+ *   Example: "fundamentals/dc-circuits/DC Circuits"
+ * - Static: plain text (non-clickable, external knowledge)
+ *   Example: "Basic programming", "Complex numbers"
+ */
 export interface Topic {
   id: string;
   title: string;
