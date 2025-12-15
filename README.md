@@ -42,7 +42,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Static prereqs can be manually toggled (v0.8.2)
 - [x] Two-dimension concept state (complete + important flags) (v0.8.3)
 - [x] Simple mode: click (notes), dblclick (complete), shift+click (important) (v0.8.3)
-- [ ] Tools mode with swipe gestures
+- [x] Mode selector + toolbar UI (v0.8.4)
+- [ ] Tools mode swipe gestures
 - [ ] Demo roadmap on homepage (showcase interactions)
 - [ ] Expand/collapse all controls
 - [ ] Filter: show only nodes with important concepts

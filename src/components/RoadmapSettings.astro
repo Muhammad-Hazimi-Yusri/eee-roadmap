@@ -1,0 +1,213 @@
+---
+// src/components/RoadmapSettings.astro
+---
+
+<div class="roadmap-settings" id="roadmap-settings">
+  <button class="settings-toggle" id="settings-toggle" aria-expanded="false">
+    <span class="toggle-text">Preferences</span>
+    <svg class="toggle-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </button>
+<div class="settings-panel" id="settings-panel" hidden>
+  <!-- Mode selector -->
+  <div class="setting-row">
+    <span class="setting-label">Mode:</span>
+    <select id="interaction-mode">
+      <option value="simple">Simple</option>
+      <option value="tools">Tools</option>
+    </select>
+  </div>
+
+  <!-- Simple mode hints -->
+  <div class="mode-hints" id="simple-hints">
+    <div class="hint"><span class="hint-key">Click</span> open notes</div>
+    <div class="hint"><span class="hint-key">Double-click</span> toggle complete</div>
+    <div class="hint"><span class="hint-key">Shift+Click</span> toggle important</div>
+  </div>
+
+  <!-- Toolbar (shown in tools mode) -->
+  <div class="toolbar" id="toolbar" hidden>
+    <button class="tool" data-tool="cursor" aria-pressed="true" title="Open notes">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+      </svg>
+      <span class="tool-label">Notes</span>
+    </button>
+    <button class="tool" data-tool="pen" aria-pressed="false" title="Mark complete">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+      </svg>
+      <span class="tool-label">Complete</span>
+    </button>
+    <button class="tool" data-tool="highlighter" aria-pressed="false" title="Mark important">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 11l-6 6v3h9l3-3"/>
+        <path d="M22 12l-4.6 4.6a2 2 0 01-2.8 0l-5.2-5.2a2 2 0 010-2.8L14 4"/>
+      </svg>
+      <span class="tool-label">Important</span>
+    </button>
+    <button class="tool" data-tool="eraser" aria-pressed="false" title="Reset state">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 20H7L3 16l9-9 8 8-4 4"/>
+        <path d="M6.5 13.5l5 5"/>
+      </svg>
+      <span class="tool-label">Reset</span>
+    </button>
+  </div>
+
+  <!-- Prereq link behavior -->
+  <div class="setting-row">
+    <span class="setting-label">Prereq links:</span>
+    <select id="prereq-link-behavior">
+      <option value="smart">New tab if different track</option>
+      <option value="same-tab">Always same tab</option>
+      <option value="new-tab">Always new tab</option>
+    </select>
+  </div>
+</div>
+
+<style>
+  .roadmap-settings {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .settings-toggle {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .toggle-chevron {
+    transition: transform 0.2s;
+  }
+
+  .settings-toggle[aria-expanded="false"] .toggle-chevron {
+    transform: rotate(180deg);
+  }
+
+  .settings-toggle:hover {
+    background-color: var(--color-bg-grid);
+  }
+
+  .settings-panel {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .settings-panel[hidden] {
+    display: none;
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+  }
+
+  .setting-label {
+    color: var(--color-text-muted);
+  }
+
+  .setting-row select {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background-color: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+  }
+  
+  .toolbar[hidden] {
+    display: none;
+  }
+  
+  .tool {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid transparent;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  
+  .tool:hover {
+    color: var(--color-text);
+  }
+  
+  .tool[aria-pressed="true"] {
+    color: var(--color-copper);
+    border-color: var(--color-copper);
+    background-color: var(--color-bg);
+  }
+  
+  .tool-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  /* Simple mode hints */
+  .mode-hints {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background-color: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+  }
+  
+  .mode-hints[hidden] {
+    display: none;
+  }
+  
+  .hint {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+  
+  .hint-key {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+</style>

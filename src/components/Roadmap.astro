@@ -1,6 +1,8 @@
 ---
 // src/components/Roadmap.astro
 
+import RoadmapSettings from './RoadmapSettings.astro';
+
 interface Props {
   sections: import('../types/roadmap').RoadmapSection[];
 }
@@ -8,24 +10,9 @@ interface Props {
 const { sections } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL;
 ---
-<div class="roadmap-settings" id="roadmap-settings">
-  <button class="settings-toggle" id="settings-toggle">
-    <span class="toggle-text">Preferences</span>
-    <svg class="toggle-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M6 9l6 6 6-6"/>
-    </svg>
-  </button>
-  <div class="settings-panel" id="settings-panel">
-    <label class="prereq-link-setting">
-      <span class="setting-label">Open prereqs in:</span>
-      <select id="prereq-link-behavior">
-        <option value="smart">New tab if different track</option>
-        <option value="same-tab">Always same tab</option>
-        <option value="new-tab">Always new tab</option>
-      </select>
-    </label>
-  </div>
-</div>
+<RoadmapSettings />
+
+<div class="roadmap">
 
 <div class="roadmap">
   {sections.map((section) => (
@@ -385,6 +372,65 @@ const baseUrl = import.meta.env.BASE_URL;
   }
 
   // ============================================
+  // INTERACTION MODE & TOOLS
+  // ============================================
+  let currentMode: 'simple' | 'tools' = 'simple';
+  let currentTool: 'cursor' | 'pen' | 'highlighter' | 'eraser' = 'cursor';
+
+  function initInteractionMode() {
+    const modeSelect = document.getElementById('interaction-mode') as HTMLSelectElement;
+    const toolbar = document.getElementById('toolbar');
+    const simpleHints = document.getElementById('simple-hints');
+    
+    if (!modeSelect || !toolbar || !simpleHints) return;
+    
+    // Load saved preference
+    const savedMode = localStorage.getItem('interaction-mode') || 'simple';
+    currentMode = savedMode as 'simple' | 'tools';
+    modeSelect.value = currentMode;
+    toolbar.hidden = currentMode !== 'tools';
+    simpleHints.hidden = currentMode !== 'simple';
+    
+    // Mode change handler
+    modeSelect.addEventListener('change', () => {
+      currentMode = modeSelect.value as 'simple' | 'tools';
+      localStorage.setItem('interaction-mode', currentMode);
+      toolbar.hidden = currentMode !== 'tools';
+      simpleHints.hidden = currentMode !== 'simple';
+    });
+  }
+
+  function initToolbar() {
+    const tools = document.querySelectorAll('.tool[data-tool]');
+    
+    // Load saved tool
+    const savedTool = localStorage.getItem('active-tool') || 'cursor';
+    currentTool = savedTool as typeof currentTool;
+    
+    // Set initial state
+    tools.forEach((tool) => {
+      const toolName = tool.getAttribute('data-tool');
+      tool.setAttribute('aria-pressed', String(toolName === currentTool));
+    });
+    
+    // Tool selection handler
+    tools.forEach((tool) => {
+      tool.addEventListener('click', () => {
+        const toolName = tool.getAttribute('data-tool') as typeof currentTool;
+        if (!toolName) return;
+        
+        currentTool = toolName;
+        localStorage.setItem('active-tool', currentTool);
+        
+        // Update all tool buttons
+        tools.forEach((t) => {
+          t.setAttribute('aria-pressed', String(t.getAttribute('data-tool') === currentTool));
+        });
+      });
+    });
+  }
+
+  // ============================================
   // INIT
   // ============================================
   initNodeToggles();
@@ -393,6 +439,8 @@ const baseUrl = import.meta.env.BASE_URL;
   initStaticPrereqs();
   initPrereqBehavior();
   initSettingsPanel();
+  initInteractionMode();
+  initToolbar();
 </script>
 
 
@@ -673,73 +721,6 @@ const baseUrl = import.meta.env.BASE_URL;
     position: absolute;
     left: 0;
     color: var(--color-pcb);
-  }
-
-  /* Settings */
-  .roadmap-settings {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5rem;
-  }
-
-  .settings-toggle {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--color-border);
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .toggle-chevron {
-    transition: transform 0.2s;
-  }
-
-  .settings-toggle[aria-expanded="false"] .toggle-chevron {
-    transform: rotate(180deg);
-  }
-
-  .settings-toggle:hover {
-    background-color: var(--color-bg-grid);
-  }
-
-  .settings-panel {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--color-border);
-    background-color: var(--color-bg);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .prereq-link-setting {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-  }
-
-  .setting-label {
-    color: var(--color-text-muted);
-  }
-
-  #prereq-link-behavior {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border: 1px solid var(--color-border);
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    cursor: pointer;
   }
 
   /* Topic completion */
