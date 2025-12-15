@@ -83,11 +83,11 @@ const baseUrl = import.meta.env.BASE_URL;
               {item.outcomes && item.outcomes.length > 0 && (
                 <div class="node-outcomes">
                   <span class="outcomes-label">You'll learn to:</span>
-                  <ul>
-                    {item.outcomes.map((outcome) => (
-                      <li>{outcome}</li>
-                    ))}
-                  </ul>
+                    <ul class="outcomes-list">
+                      {item.outcomes.map((outcome) => (
+                        <li class="outcome-item">{outcome}</li>
+                      ))}
+                    </ul>
                 </div>
               )}
 
@@ -106,7 +106,7 @@ const baseUrl = import.meta.env.BASE_URL;
               <div class="node-resources">
                 <span class="resources-label">Resources:</span>
                 {item.resources.map((r) => (
-                  <a href={r.url} target="_blank" rel="noopener noreferrer">{r.label}</a>
+                  <a href={r.url} target="_blank" rel="noopener noreferrer" class="resource-link">{r.label}</a>
                 ))}
               </div>
               )}
@@ -122,15 +122,61 @@ const baseUrl = import.meta.env.BASE_URL;
   // ============================================
   // STORAGE UTILS
   // ============================================
-  const STORAGE_KEY = 'eee-progress';
+  const STORAGE_KEY = 'eee-progress-v2';
 
-  function getProgress(): string[] {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
+  interface ProgressState {
+    complete: string[];  // ["topicId:concept", ...]
+    important: string[]; // ["topicId:concept", ...]
   }
 
-  function saveProgress(progress: string[]) {
+  function getProgress(): ProgressState {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : { complete: [], important: [] };
+  }
+
+  function saveProgress(progress: ProgressState) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  function isComplete(key: string): boolean {
+    return getProgress().complete.includes(key);
+  }
+
+  function isImportant(key: string): boolean {
+    return getProgress().important.includes(key);
+  }
+
+  function toggleComplete(key: string): boolean {
+    const progress = getProgress();
+    if (progress.complete.includes(key)) {
+      progress.complete = progress.complete.filter(k => k !== key);
+      saveProgress(progress);
+      return false;
+    } else {
+      progress.complete.push(key);
+      saveProgress(progress);
+      return true;
+    }
+  }
+
+  function toggleImportant(key: string): boolean {
+    const progress = getProgress();
+    if (progress.important.includes(key)) {
+      progress.important = progress.important.filter(k => k !== key);
+      saveProgress(progress);
+      return false;
+    } else {
+      progress.important.push(key);
+      saveProgress(progress);
+      return true;
+    }
+  }
+
+  function resetState(key: string) {
+    const progress = getProgress();
+    progress.complete = progress.complete.filter(k => k !== key);
+    progress.important = progress.important.filter(k => k !== key);
+    saveProgress(progress);
   }
 
   // ============================================
@@ -189,21 +235,6 @@ const baseUrl = import.meta.env.BASE_URL;
   // ============================================
   // PROGRESS TRACKING
   // ============================================
-  function toggleConcept(topicId: string, concept: string): boolean {
-    const key = `${topicId}:${concept}`;
-    const progress = getProgress();
-    
-    if (progress.includes(key)) {
-      const updated = progress.filter(p => p !== key);
-      saveProgress(updated);
-      return false;
-    } else {
-      progress.push(key);
-      saveProgress(progress);
-      return true;
-    }
-  }
-
   function isTopicCompleted(topicId: string): boolean {
     const node = document.querySelector(`[data-node-id="${topicId}"]`);
     if (!node) return false;
@@ -211,10 +242,9 @@ const baseUrl = import.meta.env.BASE_URL;
     const pills = node.querySelectorAll('.concept-pill');
     if (pills.length === 0) return false;
     
-    const progress = getProgress();
     return Array.from(pills).every(pill => {
       const concept = pill.getAttribute('data-concept');
-      return progress.includes(`${topicId}:${concept}`);
+      return isComplete(`${topicId}:${concept}`);
     });
   }
 
@@ -235,8 +265,6 @@ const baseUrl = import.meta.env.BASE_URL;
   }
 
   function initStaticPrereqs() {
-    const progress = getProgress();
-    
     document.querySelectorAll('.prereq-tag--static[data-static-prereq]').forEach((tag) => {
       const prereq = tag.getAttribute('data-static-prereq');
       if (!prereq) return;
@@ -244,22 +272,14 @@ const baseUrl = import.meta.env.BASE_URL;
       const key = `static:${prereq}`;
       
       // Set initial state
-      if (progress.includes(key)) {
+      if (isComplete(key)) {
         tag.classList.add('prereq--completed');
       }
       
       // Click handler
       tag.addEventListener('click', () => {
-        const current = getProgress();
-        
-        if (current.includes(key)) {
-          saveProgress(current.filter(p => p !== key));
-          tag.classList.remove('prereq--completed');
-        } else {
-          current.push(key);
-          saveProgress(current);
-          tag.classList.add('prereq--completed');
-        }
+        const completed = toggleComplete(key);
+        tag.classList.toggle('prereq--completed', completed);
       });
     });
   }
@@ -270,21 +290,39 @@ const baseUrl = import.meta.env.BASE_URL;
       const concept = pill.getAttribute('data-concept');
       if (!topicId || !concept) return;
       
-      // Set initial state
       const key = `${topicId}:${concept}`;
-      if (getProgress().includes(key)) {
+      
+      // Set initial state
+      if (isComplete(key)) {
         pill.classList.add('concept--completed');
+      }
+      if (isImportant(key)) {
+        pill.classList.add('concept--important');
       }
       updateTopicStatus(topicId);
       
-      // Click handler
-      pill.addEventListener('click', () => {
-        const completed = toggleConcept(topicId, concept);
+      // Simple mode: click = notes, dblclick = complete, shift+click = important
+      pill.addEventListener('click', (e) => {
+        const event = e as MouseEvent;
+        if (event.shiftKey) {
+          // Shift+Click → toggle important
+          const important = toggleImportant(key);
+          pill.classList.toggle('concept--important', important);
+        } else {
+          // Click → open notes (placeholder for now)
+          console.log('Open notes for:', key);
+        }
+      });
+
+      pill.addEventListener('dblclick', () => {
+        // Double-click → toggle complete
+        const completed = toggleComplete(key);
         pill.classList.toggle('concept--completed', completed);
         updateTopicStatus(topicId);
         updatePrereqCompletionStatus();
       });
     });
+    
     updatePrereqCompletionStatus();
   }
 
@@ -385,7 +423,6 @@ const baseUrl = import.meta.env.BASE_URL;
     gap: 0.5rem;
   }
 
-  /* Vertical line connecting nodes */
   .roadmap-track::before {
     content: '';
     position: absolute;
@@ -401,7 +438,6 @@ const baseUrl = import.meta.env.BASE_URL;
     padding-left: 2rem;
   }
 
-  /* Optional nodes - offset to the right */
   .roadmap-node--optional {
     margin-left: 3rem;
   }
@@ -473,8 +509,8 @@ const baseUrl = import.meta.env.BASE_URL;
   }
 
   :global(.dark) .node-content {
-      background: rgba(0, 0, 0, 0.3);
-    }
+    background: rgba(0, 0, 0, 0.3);
+  }
 
   .node-description {
     font-size: 0.875rem;
@@ -482,6 +518,7 @@ const baseUrl = import.meta.env.BASE_URL;
     margin-bottom: 0.75rem;
   }
 
+  /* Concepts */
   .node-concepts {
     list-style: none;
     padding: 0;
@@ -491,14 +528,41 @@ const baseUrl = import.meta.env.BASE_URL;
     gap: 0.5rem;
   }
 
-  .node-concepts li {
+  .concept-pill {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
     background-color: var(--color-bg-grid);
     border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: opacity 0.15s, background-color 0.15s;
+    user-select: none;
   }
 
+  .concept-pill:hover {
+    opacity: 0.7;
+  }
+
+  .concept-pill.concept--completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .concept-pill.concept--important {
+    background-color: rgba(255, 220, 100, 0.5);
+    border-color: rgb(200, 170, 50);
+  }
+
+  :global(.dark) .concept-pill.concept--important {
+    background-color: rgba(255, 200, 50, 0.3);
+    border-color: rgb(180, 150, 40);
+  }
+
+  .concept-pill.concept--completed.concept--important {
+    background-color: rgba(255, 220, 100, 0.3);
+  }
+
+  /* Resources */
   .node-resources {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
@@ -508,14 +572,14 @@ const baseUrl = import.meta.env.BASE_URL;
     align-items: center;
     gap: 0.5rem;
   }
-  
+
   .resources-label {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.75rem;
     color: var(--color-text-muted);
   }
-  
-  .node-resources a {
+
+  .resource-link {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
@@ -523,11 +587,12 @@ const baseUrl = import.meta.env.BASE_URL;
     color: white;
     text-decoration: none;
   }
-  
-  .node-resources a:hover {
+
+  .resource-link:hover {
     background-color: var(--color-pcb-light);
   }
 
+  /* Prerequisites */
   .node-prereqs {
     display: flex;
     flex-wrap: wrap;
@@ -561,11 +626,6 @@ const baseUrl = import.meta.env.BASE_URL;
     background-color: var(--color-copper-light);
   }
 
-  .prereq--completed {
-    text-decoration: line-through;
-    opacity: 0.7;
-  }
-
   .prereq-tag--static {
     background-color: rgba(184, 115, 51, 0.15);
     color: var(--color-text-muted);
@@ -578,6 +638,12 @@ const baseUrl = import.meta.env.BASE_URL;
     opacity: 0.7;
   }
 
+  .prereq--completed {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  /* Outcomes */
   .node-outcomes {
     margin-bottom: 0.75rem;
   }
@@ -590,25 +656,26 @@ const baseUrl = import.meta.env.BASE_URL;
     margin-bottom: 0.25rem;
   }
 
-  .node-outcomes ul {
+  .outcomes-list {
     list-style: none;
     padding: 0;
     margin: 0;
   }
 
-  .node-outcomes li {
+  .outcome-item {
     font-size: 0.8125rem;
     padding-left: 1.25rem;
     position: relative;
   }
 
-  .node-outcomes li::before {
+  .outcome-item::before {
     content: "→";
     position: absolute;
     left: 0;
     color: var(--color-pcb);
   }
 
+  /* Settings */
   .roadmap-settings {
     position: fixed;
     bottom: 1.5rem;
@@ -620,27 +687,27 @@ const baseUrl = import.meta.env.BASE_URL;
     gap: 0.5rem;
   }
 
-.settings-toggle {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.75rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
+  .settings-toggle {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 
-.toggle-chevron {
-  transition: transform 0.2s;
-}
+  .toggle-chevron {
+    transition: transform 0.2s;
+  }
 
-.settings-toggle[aria-expanded="false"] .toggle-chevron {
-  transform: rotate(180deg);
-}
+  .settings-toggle[aria-expanded="false"] .toggle-chevron {
+    transform: rotate(180deg);
+  }
 
   .settings-toggle:hover {
     background-color: var(--color-bg-grid);
@@ -675,20 +742,7 @@ const baseUrl = import.meta.env.BASE_URL;
     cursor: pointer;
   }
 
-  .concept-pill {
-    cursor: pointer;
-    transition: opacity 0.15s, text-decoration 0.15s;
-  }
-
-  .concept-pill:hover {
-    opacity: 0.7;
-  }
-
-  .concept--completed {
-    text-decoration: line-through;
-    opacity: 0.6;
-  }
-
+  /* Topic completion */
   .topic--completed .node-title {
     text-decoration: line-through;
     opacity: 0.6;

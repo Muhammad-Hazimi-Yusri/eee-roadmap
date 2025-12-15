@@ -40,8 +40,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Basic progress tracking with localStorage (v0.8.0)
 - [x] Prereqs show completed status (strikethrough if topic done) (v0.8.1)
 - [x] Static prereqs can be manually toggled (v0.8.2)
-- [ ] Two-dimension concept state (complete + important flags)
-- [ ] Simple mode interactions
+- [x] Two-dimension concept state (complete + important flags) (v0.8.3)
+- [x] Simple mode: click (notes), dblclick (complete), shift+click (important) (v0.8.3)
 - [ ] Tools mode with swipe gestures
 - [ ] Demo roadmap on homepage (showcase interactions)
 

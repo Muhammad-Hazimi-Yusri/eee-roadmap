@@ -175,14 +175,14 @@
     margin: 0;
   }
 
-  .wire-list li {
+  .wire-list-item {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.8125rem;
     padding-left: 1.25rem;
     position: relative;
   }
 
-  .wire-list li::before {
+  .wire-list-item::before {
     content: "";
     position: absolute;
     left: 0;
@@ -194,11 +194,11 @@
     background-color: var(--color-bg);
   }
 
-  .track[data-level="core"] .wire-list li::before {
+  .track[data-level="core"] .wire-list-item::before {
     border-color: var(--color-pcb);
   }
 
-  .track[data-level="advanced"] .wire-list li::before {
+  .track[data-level="advanced"] .wire-list-item::before {
     border-color: var(--color-text);
   }
 
