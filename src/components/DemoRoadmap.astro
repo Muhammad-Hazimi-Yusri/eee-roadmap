@@ -1,0 +1,598 @@
+---
+// src/components/DemoRoadmap.astro
+// Interactive demo that doesn't persist to localStorage
+
+const demoData = {
+  title: 'Try It Out',
+  description: 'Click, double-click, or switch to Tools mode and swipe across concepts.',
+  topics: [
+    {
+      id: 'demo-basics',
+      title: 'Getting Started',
+      concepts: ['Click me', 'Double-click me', 'Shift+click me'],
+    },
+    {
+      id: 'demo-tools',
+      title: 'Tools Mode',
+      concepts: ['Swipe with pen', 'Highlight me', 'Erase me'],
+    },
+  ],
+};
+---
+
+<section class="section" id="demo">
+  <div class="container">
+    <div class="mb-6">
+      <p class="section-num">01</p>
+      <h2 class="text-xl sm:text-2xl">{demoData.title}</h2>
+    </div>
+    
+    <p class="text-muted mb-4 max-w-lg">{demoData.description}</p>
+
+    <!-- Demo Settings Panel -->
+    <div class="demo-settings" id="demo-settings">
+      <div class="demo-mode-row">
+        <span class="demo-label">Mode:</span>
+        <select id="demo-interaction-mode">
+          <option value="simple">Simple</option>
+          <option value="tools">Tools</option>
+        </select>
+      </div>
+
+      <!-- Simple mode hints -->
+      <div class="demo-hints" id="demo-simple-hints">
+        <span class="demo-hint"><strong>Click</strong> open notes</span>
+        <span class="demo-hint"><strong>Dbl-click</strong> complete</span>
+        <span class="demo-hint"><strong>Shift+click</strong> important</span>
+      </div>
+
+      <!-- Toolbar (shown in tools mode) -->
+      <div class="demo-toolbar" id="demo-toolbar" hidden>
+        <button class="demo-tool" data-demo-tool="cursor" aria-pressed="true" title="Open notes">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+          </svg>
+          <span>Open</span>
+        </button>
+        <button class="demo-tool" data-demo-tool="pen" aria-pressed="false" title="Mark complete">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+          </svg>
+          <span>Pen</span>
+        </button>
+        <button class="demo-tool" data-demo-tool="highlighter" aria-pressed="false" title="Mark important">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l-6 6v3h9l3-3"/>
+            <path d="M22 12l-4.6 4.6a2 2 0 01-2.8 0l-5.2-5.2a2 2 0 010-2.8L14 4"/>
+          </svg>
+          <span>Highlight</span>
+        </button>
+        <button class="demo-tool" data-demo-tool="eraser" aria-pressed="false" title="Reset state">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 20H7L3 16l9-9 8 8-4 4"/>
+            <path d="M6.5 13.5l5 5"/>
+          </svg>
+          <span>Erase</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Demo Roadmap -->
+    <div class="demo-roadmap" id="demo-roadmap">
+      {demoData.topics.map((topic) => (
+        <div class="demo-topic" data-demo-topic={topic.id}>
+          <span class="demo-topic-title">{topic.title}</span>
+          <div class="demo-concepts">
+            {topic.concepts.map((concept) => (
+              <span 
+                class="demo-pill" 
+                data-demo-topic-id={topic.id}
+                data-demo-concept={concept}
+              >{concept}</span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <button class="demo-reset-btn" id="demo-reset-btn">Reset Demo</button>
+  </div>
+</section>
+
+<style>
+  .demo-settings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+  }
+
+  .demo-mode-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+  }
+
+  .demo-label {
+    color: var(--color-text-muted);
+  }
+
+  .demo-mode-row select {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .demo-hints {
+    display: flex;
+    gap: 1rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+
+  .demo-hints[hidden] {
+    display: none;
+  }
+
+  .demo-hint strong {
+    color: var(--color-text);
+  }
+
+  .demo-toolbar {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .demo-toolbar[hidden] {
+    display: none;
+  }
+
+  .demo-tool {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid transparent;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.6rem;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .demo-tool:hover {
+    color: var(--color-text);
+  }
+
+  .demo-tool[aria-pressed="true"] {
+    color: var(--color-copper);
+    border-color: var(--color-copper);
+    background-color: var(--color-bg);
+  }
+
+  .demo-roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .demo-topic {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  :global(.dark) .demo-topic {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .demo-topic-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text);
+    min-width: 120px;
+  }
+
+  .demo-concepts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .demo-pill {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s, opacity 0.15s, background-color 0.15s;
+  }
+
+  .demo-pill:hover {
+    opacity: 0.8;
+  }
+
+  .demo-pill--completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .demo-pill--important {
+    background-color: rgba(255, 220, 100, 0.5);
+    border-color: rgb(200, 170, 50);
+  }
+
+  :global(.dark) .demo-pill--important {
+    background-color: rgba(255, 200, 50, 0.3);
+    border-color: rgb(180, 150, 40);
+  }
+
+  .demo-pill--swiping {
+    transform: scale(0.95);
+  }
+
+  .demo-reset-btn {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px dashed var(--color-border);
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .demo-reset-btn:hover {
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+
+  /* Tools mode active */
+  .demo-roadmap.demo-tools-active,
+  .demo-roadmap.demo-tools-active * {
+    cursor: none !important;
+    user-select: none !important;
+  }
+</style>
+
+<script>
+  // ============================================
+  // DEMO STATE (no localStorage)
+  // ============================================
+  let demoMode: 'simple' | 'tools' = 'simple';
+  let demoTool: 'cursor' | 'pen' | 'highlighter' | 'eraser' = 'cursor';
+  let demoComplete: Set<string> = new Set();
+  let demoImportant: Set<string> = new Set();
+  let demoMouseDown = false;
+  let demoSwipedPills: Set<string> = new Set();
+
+  // ============================================
+  // DEMO INIT
+  // ============================================
+  function initDemo() {
+    initDemoModeSelector();
+    initDemoToolbar();
+    initDemoPills();
+    initDemoSwipe();
+    initDemoTrail();
+    initDemoReset();
+  }
+
+  // ============================================
+  // MODE SELECTOR
+  // ============================================
+  function initDemoModeSelector() {
+    const modeSelect = document.getElementById('demo-interaction-mode') as HTMLSelectElement;
+    const toolbar = document.getElementById('demo-toolbar');
+    const hints = document.getElementById('demo-simple-hints');
+    const roadmap = document.getElementById('demo-roadmap');
+    
+    if (!modeSelect || !toolbar || !hints || !roadmap) return;
+  
+    // Handle hover for custom cursor
+    roadmap.addEventListener('mouseenter', () => {
+      if (demoMode === 'tools') {
+        (window as any).customCursor?.show();
+        roadmap.classList.add('demo-tools-active');
+      }
+    });
+  
+    roadmap.addEventListener('mouseleave', () => {
+      (window as any).customCursor?.hide();
+      roadmap.classList.remove('demo-tools-active');
+    });
+  
+    modeSelect.addEventListener('change', () => {
+      demoMode = modeSelect.value as 'simple' | 'tools';
+      toolbar.hidden = demoMode !== 'tools';
+      hints.hidden = demoMode !== 'simple';
+      
+      if (demoMode === 'tools') {
+        roadmap.classList.add('demo-tools-active');
+      } else {
+        roadmap.classList.remove('demo-tools-active');
+        (window as any).customCursor?.hide();
+      }
+    });
+  }
+
+  // ============================================
+  // TOOLBAR
+  // ============================================
+  function initDemoToolbar() {
+    const tools = document.querySelectorAll('.demo-tool[data-demo-tool]');
+  
+    tools.forEach((tool) => {
+      tool.addEventListener('click', () => {
+        const toolName = tool.getAttribute('data-demo-tool') as typeof demoTool;
+        if (!toolName) return;
+  
+        demoTool = toolName;
+        tools.forEach((t) => {
+          t.setAttribute('aria-pressed', String(t.getAttribute('data-demo-tool') === demoTool));
+        });
+        (window as any).customCursor?.setTool(demoTool);
+      });
+    });
+  }
+  // ============================================
+  // PILL INTERACTIONS
+  // ============================================
+  function initDemoPills() {
+    document.querySelectorAll('.demo-pill').forEach((pill) => {
+      const key = getDemoPillKey(pill);
+      if (!key) return;
+
+      // Simple mode: click, dblclick, shift+click
+      pill.addEventListener('click', (e) => {
+        if (demoMode !== 'simple') return;
+        const event = e as MouseEvent;
+        
+        if (event.shiftKey) {
+          toggleDemoImportant(pill as HTMLElement, key);
+        } else {
+          console.log('Demo: Open notes for', key);
+        }
+      });
+
+      pill.addEventListener('dblclick', () => {
+        if (demoMode !== 'simple') return;
+        toggleDemoComplete(pill as HTMLElement, key);
+      });
+    });
+  
+    // Pre-set "Erase me" as completed + important
+    const erasePill = document.querySelector('[data-demo-concept="Erase me"]') as HTMLElement;
+    if (erasePill) {
+      const key = 'demo-tools:Erase me';
+      demoComplete.add(key);
+      demoImportant.add(key);
+      erasePill.classList.add('demo-pill--completed', 'demo-pill--important');
+    }
+  }
+
+  function getDemoPillKey(pill: Element): string | null {
+    const topicId = pill.getAttribute('data-demo-topic-id');
+    const concept = pill.getAttribute('data-demo-concept');
+    if (!topicId || !concept) return null;
+    return `${topicId}:${concept}`;
+  }
+
+  function toggleDemoComplete(pill: HTMLElement, key: string) {
+    if (demoComplete.has(key)) {
+      demoComplete.delete(key);
+      pill.classList.remove('demo-pill--completed');
+    } else {
+      demoComplete.add(key);
+      pill.classList.add('demo-pill--completed');
+    }
+  }
+
+  function toggleDemoImportant(pill: HTMLElement, key: string) {
+    if (demoImportant.has(key)) {
+      demoImportant.delete(key);
+      pill.classList.remove('demo-pill--important');
+    } else {
+      demoImportant.add(key);
+      pill.classList.add('demo-pill--important');
+    }
+  }
+
+  function setDemoComplete(pill: HTMLElement, key: string) {
+    if (demoComplete.has(key)) return;
+    demoComplete.add(key);
+    pill.classList.add('demo-pill--completed');
+  }
+
+  function setDemoImportant(pill: HTMLElement, key: string) {
+    if (demoImportant.has(key)) return;
+    demoImportant.add(key);
+    pill.classList.add('demo-pill--important');
+  }
+
+  function resetDemoState(pill: HTMLElement, key: string) {
+    demoComplete.delete(key);
+    demoImportant.delete(key);
+    pill.classList.remove('demo-pill--completed', 'demo-pill--important');
+  }
+
+  // ============================================
+  // SWIPE GESTURES
+  // ============================================
+  function initDemoSwipe() {
+    const roadmap = document.getElementById('demo-roadmap');
+    if (!roadmap) return;
+
+    document.addEventListener('mousedown', () => {
+      if (demoMode === 'tools') {
+        demoMouseDown = true;
+        demoSwipedPills.clear();
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      demoMouseDown = false;
+      demoSwipedPills.clear();
+      document.querySelectorAll('.demo-pill--swiping').forEach((pill) => {
+        pill.classList.remove('demo-pill--swiping');
+      });
+    });
+
+    document.querySelectorAll('.demo-pill').forEach((pill) => {
+      const key = getDemoPillKey(pill);
+      if (!key) return;
+
+      pill.addEventListener('mouseenter', () => {
+        if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor') return;
+        if (demoSwipedPills.has(key)) return;
+
+        demoSwipedPills.add(key);
+        pill.classList.add('demo-pill--swiping');
+        applyDemoToolAction(pill as HTMLElement, key);
+      });
+
+      pill.addEventListener('mousedown', (e) => {
+        if (demoMode !== 'tools') return;
+
+        if (demoTool === 'cursor') {
+          console.log('Demo: Open notes for', key);
+          e.preventDefault();
+          return;
+        }
+
+        demoSwipedPills.add(key);
+        pill.classList.add('demo-pill--swiping');
+        applyDemoToolAction(pill as HTMLElement, key);
+      });
+    });
+  }
+
+  function applyDemoToolAction(pill: HTMLElement, key: string) {
+    switch (demoTool) {
+      case 'pen':
+        setDemoComplete(pill, key);
+        break;
+      case 'highlighter':
+        setDemoImportant(pill, key);
+        break;
+      case 'eraser':
+        resetDemoState(pill, key);
+        break;
+    }
+  }
+
+  // ============================================
+  // TRAIL EFFECT
+  // ============================================
+  let demoTrailCanvas: HTMLCanvasElement | null = null;
+  let demoTrailCtx: CanvasRenderingContext2D | null = null;
+  let demoLastPos: { x: number; y: number } | null = null;
+
+  const demoTrailColors: Record<string, string> = {
+    pen: '#1a1a1a',
+    highlighter: 'rgba(255, 220, 100, 0.6)',
+    eraser: '#cccccc',
+  };
+
+  const demoTrailWidths: Record<string, number> = {
+    pen: 2,
+    highlighter: 16,
+    eraser: 12,
+  };
+
+  function initDemoTrail() {
+      demoTrailCanvas = document.getElementById('swipe-trail-canvas') as HTMLCanvasElement;
+      if (!demoTrailCanvas) return;
+
+      demoTrailCtx = demoTrailCanvas.getContext('2d');
+
+    function resizeCanvas() {
+        if (!demoTrailCanvas) return;
+        demoTrailCanvas.width = window.innerWidth;
+        demoTrailCanvas.height = window.innerHeight;
+    }
+
+    // Delay initial resize to ensure page is fully rendered
+    setTimeout(resizeCanvas, 100);
+    window.addEventListener('resize', resizeCanvas);
+
+    document.addEventListener('mousemove', (e) => {
+      if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor') {
+        demoLastPos = null;
+        return;
+      }
+
+      const currentPos = { x: e.clientX, y: e.clientY };
+
+      if (demoLastPos && demoTrailCtx) {
+        demoTrailCtx.beginPath();
+        demoTrailCtx.moveTo(demoLastPos.x, demoLastPos.y);
+        demoTrailCtx.lineTo(currentPos.x, currentPos.y);
+        demoTrailCtx.strokeStyle = demoTrailColors[demoTool] || demoTrailColors.pen;
+        demoTrailCtx.lineWidth = demoTrailWidths[demoTool] || 2;
+        demoTrailCtx.lineCap = 'round';
+        demoTrailCtx.lineJoin = 'round';
+        demoTrailCtx.stroke();
+      }
+
+      demoLastPos = currentPos;
+    });
+
+    document.addEventListener('mouseup', () => {
+      demoLastPos = null;
+      // Clear trail after short delay
+      setTimeout(() => {
+        if (demoTrailCtx && demoTrailCanvas) {
+          demoTrailCtx.clearRect(0, 0, demoTrailCanvas.width, demoTrailCanvas.height);
+        }
+      }, 300);
+    });
+
+    document.addEventListener('mousedown', () => {
+      demoLastPos = null;
+    });
+  }
+
+  // ============================================
+  // RESET BUTTON
+  // ============================================
+  function initDemoReset() {
+    const resetBtn = document.getElementById('demo-reset-btn');
+    if (!resetBtn) return;
+
+    resetBtn.addEventListener('click', () => {
+      demoComplete.clear();
+      demoImportant.clear();
+
+      document.querySelectorAll('.demo-pill').forEach((pill) => {
+        pill.classList.remove('demo-pill--completed', 'demo-pill--important');
+      });
+    });
+  }
+
+  // ============================================
+  // INIT
+  // ============================================
+  initDemo();
+</script>

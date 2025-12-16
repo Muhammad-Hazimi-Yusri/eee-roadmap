@@ -1,0 +1,71 @@
+---
+// src/components/CustomCursor.astro
+// Reusable custom cursor for tools mode
+---
+
+<div class="custom-cursor" id="custom-cursor" hidden>
+  <svg class="cursor-icon" id="cursor-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+  </svg>
+</div>
+
+<style>
+  .custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-4px, -4px);
+    color: var(--color-text);
+  }
+
+  .custom-cursor[hidden] {
+    display: none;
+  }
+
+  .custom-cursor .cursor-icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+</style>
+
+<script>
+  // ============================================
+  // CUSTOM CURSOR - Global API
+  // ============================================
+  const cursorIcons: Record<string, string> = {
+    cursor: '<path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>',
+    pen: '<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>',
+    highlighter: '<path d="M9 11l-6 6v3h9l3-3"/><path d="M22 12l-4.6 4.6a2 2 0 01-2.8 0l-5.2-5.2a2 2 0 010-2.8L14 4"/>',
+    eraser: '<path d="M20 20H7L3 16l9-9 8 8-4 4"/><path d="M6.5 13.5l5 5"/>',
+  };
+
+  const cursorEl = document.getElementById('custom-cursor');
+  const cursorIcon = document.getElementById('cursor-icon');
+
+  // Track mouse position globally
+  document.addEventListener('mousemove', (e) => {
+    if (cursorEl && !cursorEl.hidden) {
+      cursorEl.style.left = e.clientX + 'px';
+      cursorEl.style.top = e.clientY + 'px';
+    }
+  });
+
+  // Expose global API
+  (window as any).customCursor = {
+    show() {
+      if (cursorEl) cursorEl.hidden = false;
+    },
+    hide() {
+      if (cursorEl) cursorEl.hidden = true;
+    },
+    setTool(tool: string) {
+      if (cursorIcon) {
+        cursorIcon.innerHTML = cursorIcons[tool] || cursorIcons.cursor;
+      }
+    },
+    isVisible() {
+      return cursorEl ? !cursorEl.hidden : false;
+    }
+  };
+</script>

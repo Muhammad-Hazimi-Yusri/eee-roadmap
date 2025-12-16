@@ -49,13 +49,18 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Mode selector + toolbar UI (v0.8.4)
 - [x] Custom cursor that matches active tool (v0.8.5)
 - [x] Tools mode swipe gestures (v0.8.6)
-- [x] Swipe trail effect (pen/highlighter/erases leaves visual trail) (v0.8.7)
-- [ ] Demo roadmap on homepage (showcase interactions)
+- [x] Swipe trail effect (pen/highlighter/erases leaves visual trail) (v0.8.7)- [x] Demo roadmap on homepage (v0.8.8)
+- [x] Refactor CustomCursor and trail canvas to shared components (v0.8.8)
+- [x] Rename tools: Open, Pen, Highlight, Erase (v0.8.8)
+- [ ] Fix: simple mode interactions firing in tools mode
+- [ ] Fix: trail draws outside demo area
+- [ ] Tools work on static prereqs
+- [ ] Enhanced demo with prereq interactions
 - [ ] Expand/collapse all controls
 - [ ] Filter: show only nodes with important concepts
 - [ ] Filter: show only incomplete nodes
 
-### Interaction System Spec
+#### Interaction System Spec
 
 **Concept State (2 independent dimensions):**
 - Completion: incomplete ↔ complete (strikethrough + dim)
@@ -186,6 +191,8 @@ eee-roadmap/
 │   ├── components/
 │   │   ├── CircuitLine.astro
 │   │   ├── CTA.astro
+│   │   ├── CustomCursor.astro
+│   │   ├── DemoRoadmap.astro
 │   │   ├── Features.astro
 │   │   ├── Footer.astro
 │   │   ├── Header.astro
