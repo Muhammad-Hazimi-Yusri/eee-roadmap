@@ -305,6 +305,7 @@ console.log('Sections count:', sections?.length);
       
       // Simple mode: click = notes, dblclick = complete, shift+click = important
       pill.addEventListener('click', (e) => {
+        if (currentMode !== 'simple') return;
         const event = e as MouseEvent;
         if (event.shiftKey) {
           // Shift+Click → toggle important
@@ -317,6 +318,7 @@ console.log('Sections count:', sections?.length);
       });
 
       pill.addEventListener('dblclick', () => {
+        if (currentMode !== 'simple') return;
         // Double-click → toggle complete
         const completed = toggleComplete(key);
         pill.classList.toggle('concept--completed', completed);
