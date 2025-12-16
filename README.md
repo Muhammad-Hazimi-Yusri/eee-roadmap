@@ -8,7 +8,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.8.7)
+### Current (v0.8.11)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites and learning outcomes for each topic
@@ -22,6 +22,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - Tools mode: swipe gestures with pen/highlighter/eraser
 - Custom cursor matching active tool
 - Swipe trail effect for visual feedback
+- Proper demo in homepage
 
 ### Planned Features
 
@@ -65,8 +66,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - [x] Interaction demo (existing pills for practice)
   - [x] Note about floating settings in real roadmaps
   - [x] Smooth transition to Tracks section
-- [ ] Bug: linked prereqs don't show strikethrough when target topic completed
-- [ ] Remove Features section (redundant with demo)
+- [x] Bug: linked prereqs show strikethrough when target topic completed (v0.8.11)
+- [x] Remove Features section (redundant with demo), nvm lets keep it for now, added demo herf to header instead. (v0.8.11)
 - [ ] Expand/collapse all controls
 - [ ] Filter: show only nodes with important concepts
 - [ ] Filter: show only incomplete nodes

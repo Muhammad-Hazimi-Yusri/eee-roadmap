@@ -906,6 +906,7 @@ const demoData = {
       demoComplete.add(key);
       pill.classList.add('demo-pill--completed');
     }
+    updateDemoPrereqStatus();
   }
 
   function toggleDemoImportant(pill: HTMLElement, key: string) {
@@ -918,22 +919,24 @@ const demoData = {
     }
   }
 
-  function setDemoComplete(pill: HTMLElement, key: string) {
-    if (demoComplete.has(key)) return;
-    demoComplete.add(key);
-    pill.classList.add('demo-pill--completed');
-  }
-
   function setDemoImportant(pill: HTMLElement, key: string) {
     if (demoImportant.has(key)) return;
     demoImportant.add(key);
     pill.classList.add('demo-pill--important');
   }
 
+  function setDemoComplete(pill: HTMLElement, key: string) {
+    if (demoComplete.has(key)) return;
+    demoComplete.add(key);
+    pill.classList.add('demo-pill--completed');
+    updateDemoPrereqStatus();
+  }
+
   function resetDemoState(pill: HTMLElement, key: string) {
     demoComplete.delete(key);
     demoImportant.delete(key);
     pill.classList.remove('demo-pill--completed', 'demo-pill--important');
+    updateDemoPrereqStatus();
   }
 
   // ============================================
@@ -1037,6 +1040,29 @@ const demoData = {
         tag.classList.remove('demo-prereq-tag--completed');
         break;
     }
+  }
+
+  function isDemoTopicCompleted(topicId: string): boolean {
+    const topicNode = document.querySelector(`[data-demo-topic-id="${topicId}"]`)?.closest('.demo-topic-node');
+    if (!topicNode) return false;
+    
+    const pills = topicNode.querySelectorAll('.demo-pill');
+    if (pills.length === 0) return false;
+    
+    return Array.from(pills).every(pill => {
+      const concept = pill.getAttribute('data-demo-concept');
+      const key = `${topicId}:${concept}`;
+      return demoComplete.has(key);
+    });
+  }
+
+  function updateDemoPrereqStatus() {
+    document.querySelectorAll('.demo-prereq-tag--link[data-prereq-target]').forEach((link) => {
+      const targetId = link.getAttribute('data-prereq-target');
+      if (!targetId) return;
+      
+      link.classList.toggle('demo-prereq-tag--completed', isDemoTopicCompleted(targetId));
+    });
   }
 
   // ============================================
