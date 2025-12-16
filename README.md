@@ -8,7 +8,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.8.0)
+### Current (v0.8.7)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites and learning outcomes for each topic
@@ -17,7 +17,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - Toggleable dark mode with improved text color readability
 - Topic deep-links with hash anchors
 - Clickable prerequisites with cross-track navigation
-- Progress tracking with localStorage
+- Two-dimension progress tracking (complete + important states)
+- Simple mode: click (notes), dblclick (complete), shift+click (important)
+- Tools mode: swipe gestures with pen/highlighter/eraser
+- Custom cursor matching active tool
+- Swipe trail effect for visual feedback
 
 ### Planned Features
 
@@ -45,8 +49,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Mode selector + toolbar UI (v0.8.4)
 - [x] Custom cursor that matches active tool (v0.8.5)
 - [x] Tools mode swipe gestures (v0.8.6)
-- [ ] Swipe trail effect (pen/highlighter leaves visual trail)
-- [ ] Hand-drawn style for strikethrough/highlight (future)
+- [x] Swipe trail effect (pen/highlighter/erases leaves visual trail) (v0.8.7)
 - [ ] Demo roadmap on homepage (showcase interactions)
 - [ ] Expand/collapse all controls
 - [ ] Filter: show only nodes with important concepts
@@ -66,8 +69,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **Tools Mode (swipe gestures for tactile experience, optimized for tablet/stylus):**
 - 🖱️ Cursor → click to open notes
-- 🖊️ Pen → swipe across concept to toggle complete (like crossing out)
-- 🖍️ Highlighter → swipe across concept to toggle important (like highlighting)
+- 🖊️ Pen → swipe across concept to mark complete (one-way)
+- 🖍️ Highlighter → swipe across concept to mark important (one-way)
 - 🧹 Eraser → swipe across concept to reset both states
 
 Note: Swipe = mousedown/touchstart on concept, drag across, mouseup/touchend. 
@@ -85,6 +88,7 @@ Designed to feel like using real stationery on paper.
 - [ ] A4 paper aesthetic: draggable, pinnable note cards
 
 **Future**
+- [ ] Hand-drawn style for strikethrough/highlight (maybe whole design overhaul to fit handdrawn aesthetic?)
 - [ ] WebAssembly-based circuit simulator (Rust)
 - [ ] PWA support for offline access
 - [ ] Community contributions workflow
@@ -188,6 +192,7 @@ eee-roadmap/
 │   │   ├── Hero.astro
 │   │   ├── Placeholder.astro
 │   │   ├── Roadmap.astro
+│   │   ├── RoadmapSettings.astro
 │   │   ├── ThemeToggle.astro
 │   │   └── Tracks.astro
 │   ├── data/
