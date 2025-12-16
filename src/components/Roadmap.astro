@@ -159,6 +159,22 @@ const baseUrl = import.meta.env.BASE_URL;
     }
   }
 
+  function setComplete(key: string): boolean {
+    const progress = getProgress();
+    if (progress.complete.includes(key)) return false; // Already complete
+    progress.complete.push(key);
+    saveProgress(progress);
+    return true;
+  }
+
+  function setImportant(key: string): boolean {
+    const progress = getProgress();
+    if (progress.important.includes(key)) return false; // Already important
+    progress.important.push(key);
+    saveProgress(progress);
+    return true;
+  }
+
   function resetState(key: string) {
     const progress = getProgress();
     progress.complete = progress.complete.filter(k => k !== key);
@@ -491,6 +507,95 @@ const baseUrl = import.meta.env.BASE_URL;
   }
 
   // ============================================
+  // SWIPE GESTURES
+  // ============================================
+  let isMouseDown = false;
+  let swipedPills: Set<string> = new Set();
+
+  function initSwipeGestures() {
+    // Track mouse down state globally
+    document.addEventListener('mousedown', () => {
+      if (currentMode === 'tools') {
+        isMouseDown = true;
+        swipedPills.clear();
+      }
+    });
+    
+    document.addEventListener('mouseup', () => {
+      isMouseDown = false;
+      swipedPills.clear();
+      
+      // Remove swiping class from all pills
+      document.querySelectorAll('.concept-pill--swiping').forEach((pill) => {
+        pill.classList.remove('concept-pill--swiping');
+      });
+    });
+    
+    // Handle swipe on concept pills
+    document.querySelectorAll('.concept-pill').forEach((pill) => {
+      const topicId = pill.getAttribute('data-topic-id');
+      const concept = pill.getAttribute('data-concept');
+      if (!topicId || !concept) return;
+      
+      const key = `${topicId}:${concept}`;
+      
+      // Mouse enter while dragging = swipe action
+      pill.addEventListener('mouseenter', () => {
+        if (currentMode !== 'tools' || !isMouseDown) return;
+        if (currentTool === 'cursor') return;
+        if (swipedPills.has(key)) return; // Already swiped this pill
+        
+        swipedPills.add(key);
+        pill.classList.add('concept-pill--swiping');
+        
+        applyToolAction(pill as HTMLElement, key, topicId);
+      });
+      
+      // Also handle mousedown directly on pill
+      pill.addEventListener('mousedown', (e) => {
+        if (currentMode !== 'tools') return;
+        
+        if (currentTool === 'cursor') {
+          // Cursor = open notes on click
+          console.log('Open notes for:', key);
+          e.preventDefault();
+          return;
+        }
+        
+        // For other tools, start swipe
+        swipedPills.add(key);
+        pill.classList.add('concept-pill--swiping');
+        applyToolAction(pill as HTMLElement, key, topicId);
+      });
+    });
+  }
+
+  function applyToolAction(pill: HTMLElement, key: string, topicId: string) {
+    switch (currentTool) {
+      case 'pen':
+        if (setComplete(key)) {
+          pill.classList.add('concept--completed');
+          updateTopicStatus(topicId);
+          updatePrereqCompletionStatus();
+        }
+        break;
+        
+      case 'highlighter':
+        if (setImportant(key)) {
+          pill.classList.add('concept--important');
+        }
+        break;
+        
+      case 'eraser':
+        resetState(key);
+        pill.classList.remove('concept--completed', 'concept--important');
+        updateTopicStatus(topicId);
+        updatePrereqCompletionStatus();
+        break;
+    }
+  }
+
+  // ============================================
   // INIT
   // ============================================
   initNodeToggles();
@@ -502,6 +607,7 @@ const baseUrl = import.meta.env.BASE_URL;
   initInteractionMode();
   initToolbar();
   initCustomCursor();
+  initSwipeGestures();
 </script>
 
 
@@ -515,6 +621,7 @@ const baseUrl = import.meta.env.BASE_URL;
   .roadmap.tools-mode-active,
   .roadmap.tools-mode-active * {
     cursor: none !important;
+    user-select: none !important;
   }
 
   .section-title {
@@ -674,6 +781,10 @@ const baseUrl = import.meta.env.BASE_URL;
 
   .concept-pill.concept--completed.concept--important {
     background-color: rgba(255, 220, 100, 0.3);
+  }
+  .concept-pill--swiping {
+    transform: scale(0.95);
+    transition: transform 0.1s;
   }
 
   /* Resources */
