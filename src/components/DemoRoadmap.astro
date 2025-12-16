@@ -4,17 +4,68 @@
 
 const demoData = {
   title: 'Try It Out',
-  description: 'Simple mode (clicks) works best on desktop. Tools mode (swipe gestures) shines on tablet/stylus. Both work everywhere.',  
-  topics: [
+  description: 'Simple mode (clicks) works best on desktop. Tools mode (swipe gestures) shines on tablet/stylus. Both work everywhere.',
+  // Interaction demo (kept)
+  interactionTopics: [
     {
       id: 'demo-basics',
-      title: 'Getting Started',
+      title: 'Simple Mode',
       concepts: ['Click me', 'Double-click me', 'Shift+click me'],
     },
     {
       id: 'demo-tools',
       title: 'Tools Mode',
       concepts: ['Swipe with pen', 'Highlight me', 'Erase me'],
+    },
+  ],
+  // Mini-roadmap demo
+  tracks: [
+    {
+      id: 'demo-track-a',
+      name: 'Track A (track 1)',
+      sections: [
+        {
+          id: 'demo-section-1',
+          title: 'Foundations (section 1)',
+          topics: [
+            {
+              id: 'demo-topic-1',
+              title: 'Introduction (topic 1)',
+              prereqs: [],
+              concepts: ['Basics (concept 1)', 'Setup (concept 2)'],
+            },
+            {
+              id: 'demo-topic-2',
+              title: 'Core Concepts (topic 2)',
+              prereqs: [
+                { type: 'link', label: 'Introduction (Linked, same track)', target: 'demo-topic-1', track: 'demo-track-a' },
+                { type: 'static', label: 'Basic Math (Ext)' },
+              ],
+              concepts: ['Theory (concept 3)', 'Practice (concept 4)'],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'demo-track-b',
+      name: 'Track B (track 2)',
+      sections: [
+        {
+          id: 'demo-section-2',
+          title: 'Applied (section 2)',
+          topics: [
+            {
+              id: 'demo-topic-3',
+              title: 'Building (topic 3)',
+              prereqs: [
+                { type: 'link', label: 'Core Concepts (Linked, diff track)', target: 'demo-topic-2', track: 'demo-track-a' },
+              ],
+              concepts: ['Design (concept 5)', 'Implementation (concept 6)'],
+            },
+          ],
+        },
+      ],
     },
   ],
 };
@@ -26,87 +77,397 @@ const demoData = {
       <p class="section-num">01</p>
       <h2 class="text-xl sm:text-2xl">{demoData.title}</h2>
     </div>
-    
-    <p class="text-muted mb-6 max-w-2xl">{demoData.description}</p>
 
-    <!-- Demo Settings Panel -->
-    <div class="demo-settings" id="demo-settings">
-      <div class="demo-mode-row">
-        <span class="demo-label">Mode:</span>
-        <select id="demo-interaction-mode">
-          <option value="simple">Simple</option>
-          <option value="tools">Tools</option>
+    <!-- PART 1: Prerequisites & Navigation -->
+    <div class="demo-prereqs-section">
+      <h3 class="demo-subtitle">Prerequisites & Navigation</h3>
+      <p class="text-muted mb-4">
+        Topics can have prerequisites — either <strong>links to other topics</strong> (copper tags) or <strong>external knowledge</strong> (dashed tags you can click to mark done).
+      </p>
+      
+      <div class="demo-prereq-settings mb-4">
+        <span class="demo-label">Link behavior:</span>
+        <select id="demo-prereq-behavior">
+          <option value="smart">New tab if different track</option>
+          <option value="same-tab">Always same tab</option>
+          <option value="new-tab">Always new tab</option>
         </select>
       </div>
 
-      <!-- Simple mode hints -->
-      <div class="demo-hints" id="demo-simple-hints">
-        <span class="demo-hint"><strong>Click</strong> open notes</span>
-        <span class="demo-hint"><strong>Dbl-click</strong> complete</span>
-        <span class="demo-hint"><strong>Shift+click</strong> important</span>
-      </div>
-
-      <!-- Toolbar (shown in tools mode) -->
-      <div class="demo-toolbar" id="demo-toolbar" hidden>
-        <button class="demo-tool" data-demo-tool="cursor" aria-pressed="true" title="Open notes">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-          </svg>
-          <span>Open</span>
-        </button>
-        <button class="demo-tool" data-demo-tool="pen" aria-pressed="false" title="Mark complete">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-          </svg>
-          <span>Pen</span>
-        </button>
-        <button class="demo-tool" data-demo-tool="highlighter" aria-pressed="false" title="Mark important">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 11l-6 6v3h9l3-3"/>
-            <path d="M22 12l-4.6 4.6a2 2 0 01-2.8 0l-5.2-5.2a2 2 0 010-2.8L14 4"/>
-          </svg>
-          <span>Highlight</span>
-        </button>
-        <button class="demo-tool" data-demo-tool="eraser" aria-pressed="false" title="Reset state">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 20H7L3 16l9-9 8 8-4 4"/>
-            <path d="M6.5 13.5l5 5"/>
-          </svg>
-          <span>Erase</span>
-        </button>
-      </div>
+      <p class="text-muted text-sm mb-4">
+        Try clicking the prereq tags below. Linked prereqs navigate to topics. Static prereqs (external) toggle completion (also works with Pen/Eraser in Tools mode).
+      </p>
     </div>
 
-    <!-- Demo Roadmap -->
-    <div class="demo-roadmap" id="demo-roadmap">
-      {demoData.topics.map((topic) => (
-        <div class="demo-topic" data-demo-topic={topic.id}>
-          <span class="demo-topic-title">{topic.title}</span>
-          <div class="demo-concepts">
-            {topic.concepts.map((concept) => (
-              <span 
-                class="demo-pill" 
-                data-demo-topic-id={topic.id}
-                data-demo-concept={concept}
-              >{concept}</span>
-            ))}
-          </div>
+    <!-- PART 2: Mini-Roadmap Demo -->
+    <div class="demo-mini-roadmap" id="demo-mini-roadmap">
+      {demoData.tracks.map((track) => (
+        <div class="demo-track" data-demo-track={track.id}>
+          <div class="demo-track-header">{track.name}</div>
+          {track.sections.map((section) => (
+            <div class="demo-section">
+              <div class="demo-section-title">{section.title}</div>
+              <div class="demo-topics">
+                {section.topics.map((topic) => (
+                  <div class="demo-topic-node" id={topic.id} data-demo-topic-id={topic.id}>
+                    <button class="demo-node-button" aria-expanded="false">
+                      <span class="demo-node-dot"></span>
+                      <span class="demo-node-title">{topic.title}</span>
+                    </button>
+                    <div class="demo-node-content" hidden>
+                      {topic.prereqs && topic.prereqs.length > 0 && (
+                        <div class="demo-prereqs">
+                          <span class="demo-prereqs-label">Prerequisites:</span>
+                          {topic.prereqs.map((prereq) => (
+                            prereq.type === 'link' ? (
+                              <a 
+                                href={`#${prereq.target}`}
+                                class="demo-prereq-tag demo-prereq-tag--link"
+                                data-prereq-target={prereq.target}
+                                data-prereq-track={prereq.track}
+                              >
+                                {prereq.label}
+                              </a>
+                            ) : (
+                              <span 
+                                class="demo-prereq-tag demo-prereq-tag--static"
+                                data-static-prereq={prereq.label}
+                              >
+                                {prereq.label}
+                              </span>
+                            )
+                          ))}
+                        </div>
+                      )}
+                      <div class="demo-concepts">
+                        {topic.concepts.map((concept) => (
+                          <span 
+                            class="demo-pill"
+                            data-demo-topic-id={topic.id}
+                            data-demo-concept={concept}
+                          >{concept}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ))}
     </div>
 
-    <button class="demo-reset-btn" id="demo-reset-btn">Reset Demo</button>
+    <p class="text-muted text-sm mt-4 mb-6">
+      ↑ This mini-roadmap shows the hierarchy: <strong>Track → Section → Topic → Concepts</strong>. Click topics to expand.
+    </p>
+
+    <!-- PART 3: Mode & Interaction Demo -->
+    <div class="demo-mode-section">
+      <h3 class="demo-subtitle">Interaction Modes</h3>
+      <p class="text-muted mb-4">
+        Now try marking concepts as complete or important (below or above). Switch modes below.
+      </p>
+      <p class="text-muted mb-6 max-w-2xl">{demoData.description}</p>
+
+      <!-- Mode Settings Panel -->
+      <div class="demo-settings" id="demo-settings">
+        <div class="demo-mode-row">
+          <span class="demo-label">Mode:</span>
+          <select id="demo-interaction-mode">
+            <option value="simple">Simple</option>
+            <option value="tools">Tools</option>
+          </select>
+        </div>
+
+        <!-- Simple mode hints -->
+        <div class="demo-hints" id="demo-simple-hints">
+          <span class="demo-hint"><strong>Click</strong> open notes</span>
+          <span class="demo-hint"><strong>Dbl-click</strong> complete</span>
+          <span class="demo-hint"><strong>Shift+click</strong> important</span>
+        </div>
+
+        <!-- Toolbar (shown in tools mode) -->
+        <div class="demo-toolbar" id="demo-toolbar" hidden>
+          <button class="demo-tool" data-demo-tool="cursor" aria-pressed="true" title="Open notes">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+            </svg>
+            <span>Open</span>
+          </button>
+          <button class="demo-tool" data-demo-tool="pen" aria-pressed="false" title="Mark complete">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+              <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+            </svg>
+            <span>Pen</span>
+          </button>
+          <button class="demo-tool" data-demo-tool="highlighter" aria-pressed="false" title="Mark important">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l-6 6v3h9l3-3"/>
+              <path d="M22 12l-4.6 4.6a2 2 0 01-2.8 0l-5.2-5.2a2 2 0 010-2.8L14 4"/>
+            </svg>
+            <span>Highlight</span>
+          </button>
+          <button class="demo-tool" data-demo-tool="eraser" aria-pressed="false" title="Reset state">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 20H7L3 16l9-9 8 8-4 4"/>
+              <path d="M6.5 13.5l5 5"/>
+            </svg>
+            <span>Erase</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Interaction Demo -->
+      <div class="demo-roadmap" id="demo-roadmap">
+        {demoData.interactionTopics.map((topic) => (
+          <div class="demo-topic" data-demo-topic={topic.id}>
+            <span class="demo-topic-title">{topic.title}</span>
+            <div class="demo-concepts">
+              {topic.concepts.map((concept) => (
+                <span 
+                  class="demo-pill" 
+                  data-demo-topic-id={topic.id}
+                  data-demo-concept={concept}
+                >{concept}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button class="demo-reset-btn" id="demo-reset-btn">Reset Demo</button>
+    </div>
+
+    <!-- PART 4: Transition to real roadmaps -->
+    <div class="demo-outro">
+      <p class="text-muted">
+        In the real roadmaps, you'll find a <strong>floating settings panel</strong> at the bottom-right corner with these same options. Ready to start learning?
+      </p>
+      <a href="#roadmaps" class="btn btn--primary mt-4">View Tracks ↓</a>
+    </div>
   </div>
 </section>
 
 <style>
+  /* Prereq section */
+  .demo-prereqs-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .demo-subtitle {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .demo-prereq-settings {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+  }
+
+  .demo-prereq-settings select {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  /* Mini-roadmap */
+  .demo-mini-roadmap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .demo-mini-roadmap {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Tools mode active for mini-roadmap */
+  .demo-mini-roadmap.demo-tools-active,
+  .demo-mini-roadmap.demo-tools-active * {
+    cursor: none !important;
+    user-select: none !important;
+  }
+
+  .demo-track {
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  :global(.dark) .demo-track {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .demo-track-header {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--color-bg-grid);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .demo-section {
+    padding: 0.75rem;
+  }
+
+  .demo-section-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+    border-left: 2px solid var(--color-copper);
+  }
+
+  .demo-topics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .demo-topic-node {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .demo-node-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.25rem 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+  }
+
+  .demo-node-dot {
+    position: absolute;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--color-copper);
+    border-radius: 50%;
+    background-color: var(--color-bg);
+  }
+
+  .demo-node-button:hover .demo-node-dot {
+    background-color: var(--color-copper);
+  }
+
+  .demo-node-button[aria-expanded="true"] .demo-node-dot {
+    background-color: var(--color-copper);
+  }
+
+  .demo-node-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .demo-node-content {
+    margin-top: 0.25rem;
+    margin-left: 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  :global(.dark) .demo-node-content {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .demo-node-content[hidden] {
+    display: none;
+  }
+
+  /* Prereqs in mini-roadmap */
+  .demo-prereqs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .demo-prereqs-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+  }
+
+  .demo-prereq-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.65rem;
+    padding: 0.125rem 0.375rem;
+  }
+
+  .demo-prereq-tag--link {
+    background-color: var(--color-copper);
+    color: white;
+    border: 1px solid var(--color-copper);
+    text-decoration: none;
+    cursor: pointer;
+    transition: box-shadow 0.15s, background-color 0.15s;
+  }
+
+  .demo-prereq-tag--link:hover {
+    box-shadow: 0 0 6px var(--color-copper-light);
+    background-color: var(--color-copper-light);
+  }
+
+  .demo-prereq-tag--static {
+    background-color: rgba(184, 115, 51, 0.15);
+    color: var(--color-text-muted);
+    border: 1px dashed var(--color-copper);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .demo-prereq-tag--static:hover {
+    opacity: 0.7;
+  }
+
+  .demo-prereq-tag--completed {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  /* Mode section */
+  .demo-mode-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px dashed var(--color-border);
+  }
+
   .demo-settings {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     padding: 0.75rem 1rem;
     background-color: var(--color-bg-grid);
     border: 1px solid var(--color-border);
@@ -187,7 +548,7 @@ const demoData = {
   .demo-roadmap {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
     margin-bottom: 1rem;
   }
 
@@ -274,6 +635,14 @@ const demoData = {
     cursor: none !important;
     user-select: none !important;
   }
+
+  /* Outro */
+  .demo-outro {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px dashed var(--color-border);
+    text-align: center;
+  }
 </style>
 
 <script>
@@ -284,6 +653,7 @@ const demoData = {
   let demoTool: 'cursor' | 'pen' | 'highlighter' | 'eraser' = 'cursor';
   let demoComplete: Set<string> = new Set();
   let demoImportant: Set<string> = new Set();
+  let demoStaticComplete: Set<string> = new Set();
   let demoMouseDown = false;
   let demoMouseInside = false;
   let demoSwipedPills: Set<string> = new Set();
@@ -292,12 +662,132 @@ const demoData = {
   // DEMO INIT
   // ============================================
   function initDemo() {
+    initDemoMiniRoadmap();
+    initDemoPrereqBehavior();
     initDemoModeSelector();
     initDemoToolbar();
     initDemoPills();
     initDemoSwipe();
     initDemoTrail();
     initDemoReset();
+  }
+
+  // ============================================
+  // MINI-ROADMAP
+  // ============================================
+  function initDemoMiniRoadmap() {
+    // Topic expand/collapse
+    document.querySelectorAll('.demo-node-button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        const content = btn.nextElementSibling as HTMLElement;
+        
+        btn.setAttribute('aria-expanded', String(!expanded));
+        if (content) content.hidden = expanded;
+      });
+    });
+
+    // Static prereq toggle
+    document.querySelectorAll('.demo-prereq-tag--static').forEach((tag) => {
+      tag.addEventListener('click', () => {
+        const prereq = tag.getAttribute('data-static-prereq');
+        if (!prereq) return;
+        
+        if (demoStaticComplete.has(prereq)) {
+          demoStaticComplete.delete(prereq);
+          tag.classList.remove('demo-prereq-tag--completed');
+        } else {
+          demoStaticComplete.add(prereq);
+          tag.classList.add('demo-prereq-tag--completed');
+        }
+      });
+    });
+
+    // Linked prereq click - expand target with link behavior
+    document.querySelectorAll('.demo-prereq-tag--link').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('data-prereq-target');
+        const linkTrack = link.getAttribute('data-prereq-track');
+        if (!target) return;
+        
+        // Find which track the current topic belongs to
+        const currentTopic = link.closest('.demo-track');
+        const currentTrack = currentTopic?.getAttribute('data-demo-track');
+        const isDifferentTrack = linkTrack !== currentTrack;
+        
+        // Determine if should open in new tab
+        const shouldNewTab = 
+          demoPrereqBehavior === 'new-tab' || 
+          (demoPrereqBehavior === 'smart' && isDifferentTrack);
+        
+        const targetNode = document.getElementById(target);
+        if (!targetNode) return;
+        
+        if (shouldNewTab) {
+          // Flash the target to show what would open in new tab
+          targetNode.classList.add('demo-target-flash');
+          setTimeout(() => targetNode.classList.remove('demo-target-flash'), 1000);
+          
+          // Show indicator
+          const indicator = document.createElement('div');
+          indicator.className = 'demo-newtab-indicator';
+          indicator.textContent = '↗ Would open in new tab';
+          link.parentElement?.appendChild(indicator);
+          setTimeout(() => indicator.remove(), 2000);
+        }
+        
+        // Expand target
+        const btn = targetNode.querySelector('.demo-node-button');
+        const content = targetNode.querySelector('.demo-node-content') as HTMLElement;
+        if (btn && content) {
+          btn.setAttribute('aria-expanded', 'true');
+          content.hidden = false;
+        }
+        
+        // Scroll into view
+        targetNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
+
+    // Mini-roadmap pills - same interactions as main demo
+    document.querySelectorAll('.demo-mini-roadmap .demo-pill').forEach((pill) => {
+      const topicId = pill.getAttribute('data-demo-topic-id');
+      const concept = pill.getAttribute('data-demo-concept');
+      if (!topicId || !concept) return;
+      
+      const key = `${topicId}:${concept}`;
+
+      pill.addEventListener('click', (e) => {
+        if (demoMode !== 'simple') return;
+        const event = e as MouseEvent;
+        
+        if (event.shiftKey) {
+          toggleDemoImportant(pill as HTMLElement, key);
+        } else {
+          console.log('Demo: Open notes for', key);
+        }
+      });
+
+      pill.addEventListener('dblclick', () => {
+        if (demoMode !== 'simple') return;
+        toggleDemoComplete(pill as HTMLElement, key);
+      });
+    });
+  }
+
+  // ============================================
+  // PREREQ LINK BEHAVIOR
+  // ============================================
+  let demoPrereqBehavior: 'smart' | 'same-tab' | 'new-tab' = 'smart';
+
+  function initDemoPrereqBehavior() {
+    const select = document.getElementById('demo-prereq-behavior') as HTMLSelectElement;
+    if (!select) return;
+
+    select.addEventListener('change', () => {
+      demoPrereqBehavior = select.value as typeof demoPrereqBehavior;
+    });
   }
 
   // ============================================
@@ -311,19 +801,24 @@ const demoData = {
     
     if (!modeSelect || !toolbar || !hints || !roadmap) return;
   
-    // Handle hover for custom cursor
-    roadmap.addEventListener('mouseenter', () => {
-      demoMouseInside = true;
-      if (demoMode === 'tools') {
-        (window as any).customCursor?.show();
-        roadmap.classList.add('demo-tools-active');
-      }
-    });
-
-    roadmap.addEventListener('mouseleave', () => {
-      demoMouseInside = false;
-      (window as any).customCursor?.hide();
-      roadmap.classList.remove('demo-tools-active');
+    // Handle hover for custom cursor - both demo areas
+    const miniRoadmap = document.getElementById('demo-mini-roadmap');
+    const demoAreas = [roadmap, miniRoadmap].filter(Boolean) as HTMLElement[];
+    
+    demoAreas.forEach((area) => {
+      area.addEventListener('mouseenter', () => {
+        demoMouseInside = true;
+        if (demoMode === 'tools') {
+          (window as any).customCursor?.show();
+          area.classList.add('demo-tools-active');
+        }
+      });
+    
+      area.addEventListener('mouseleave', () => {
+        demoMouseInside = false;
+        (window as any).customCursor?.hide();
+        area.classList.remove('demo-tools-active');
+      });
     });
   
     modeSelect.addEventListener('change', () => {
@@ -359,11 +854,12 @@ const demoData = {
       });
     });
   }
+
   // ============================================
   // PILL INTERACTIONS
   // ============================================
   function initDemoPills() {
-    document.querySelectorAll('.demo-pill').forEach((pill) => {
+    document.querySelectorAll('#demo-roadmap .demo-pill').forEach((pill) => {
       const key = getDemoPillKey(pill);
       if (!key) return;
 
@@ -462,7 +958,7 @@ const demoData = {
       });
     });
 
-    document.querySelectorAll('.demo-pill').forEach((pill) => {
+    document.querySelectorAll('#demo-roadmap .demo-pill, #demo-mini-roadmap .demo-pill').forEach((pill) => {
       const key = getDemoPillKey(pill);
       if (!key) return;
 
@@ -489,6 +985,29 @@ const demoData = {
         applyDemoToolAction(pill as HTMLElement, key);
       });
     });
+
+    // Static prereqs - tools mode swipe support
+    document.querySelectorAll('.demo-prereq-tag--static').forEach((tag) => {
+      const prereq = tag.getAttribute('data-static-prereq');
+      if (!prereq) return;
+
+      tag.addEventListener('mouseenter', () => {
+        if (demoMode !== 'tools' || !demoMouseDown) return;
+        if (demoTool === 'cursor' || demoTool === 'highlighter') return;
+        if (demoSwipedPills.has(prereq)) return;
+
+        demoSwipedPills.add(prereq);
+        applyDemoStaticPrereqAction(tag as HTMLElement, prereq);
+      });
+
+      tag.addEventListener('mousedown', (e) => {
+        if (demoMode !== 'tools') return;
+        if (demoTool === 'cursor' || demoTool === 'highlighter') return;
+
+        demoSwipedPills.add(prereq);
+        applyDemoStaticPrereqAction(tag as HTMLElement, prereq);
+      });
+    });
   }
 
   function applyDemoToolAction(pill: HTMLElement, key: string) {
@@ -501,6 +1020,21 @@ const demoData = {
         break;
       case 'eraser':
         resetDemoState(pill, key);
+        break;
+    }
+  }
+
+  function applyDemoStaticPrereqAction(tag: HTMLElement, prereq: string) {
+    switch (demoTool) {
+      case 'pen':
+        if (!demoStaticComplete.has(prereq)) {
+          demoStaticComplete.add(prereq);
+          tag.classList.add('demo-prereq-tag--completed');
+        }
+        break;
+      case 'eraser':
+        demoStaticComplete.delete(prereq);
+        tag.classList.remove('demo-prereq-tag--completed');
         break;
     }
   }
@@ -525,18 +1059,17 @@ const demoData = {
   };
 
   function initDemoTrail() {
-      demoTrailCanvas = document.getElementById('swipe-trail-canvas') as HTMLCanvasElement;
-      if (!demoTrailCanvas) return;
+    demoTrailCanvas = document.getElementById('swipe-trail-canvas') as HTMLCanvasElement;
+    if (!demoTrailCanvas) return;
 
-      demoTrailCtx = demoTrailCanvas.getContext('2d');
+    demoTrailCtx = demoTrailCanvas.getContext('2d');
 
     function resizeCanvas() {
-        if (!demoTrailCanvas) return;
-        demoTrailCanvas.width = window.innerWidth;
-        demoTrailCanvas.height = window.innerHeight;
+      if (!demoTrailCanvas) return;
+      demoTrailCanvas.width = window.innerWidth;
+      demoTrailCanvas.height = window.innerHeight;
     }
 
-    // Delay initial resize to ensure page is fully rendered
     setTimeout(resizeCanvas, 100);
     window.addEventListener('resize', resizeCanvas);
 
@@ -564,7 +1097,6 @@ const demoData = {
 
     document.addEventListener('mouseup', () => {
       demoLastPos = null;
-      // Clear trail after short delay
       setTimeout(() => {
         if (demoTrailCtx && demoTrailCanvas) {
           demoTrailCtx.clearRect(0, 0, demoTrailCanvas.width, demoTrailCanvas.height);
@@ -587,10 +1119,31 @@ const demoData = {
     resetBtn.addEventListener('click', () => {
       demoComplete.clear();
       demoImportant.clear();
+      demoStaticComplete.clear();
 
       document.querySelectorAll('.demo-pill').forEach((pill) => {
         pill.classList.remove('demo-pill--completed', 'demo-pill--important');
       });
+
+      document.querySelectorAll('.demo-prereq-tag--static').forEach((tag) => {
+        tag.classList.remove('demo-prereq-tag--completed');
+      });
+
+      // Collapse all mini-roadmap topics
+      document.querySelectorAll('.demo-node-button').forEach((btn) => {
+        btn.setAttribute('aria-expanded', 'false');
+        const content = btn.nextElementSibling as HTMLElement;
+        if (content) content.hidden = true;
+      });
+
+      // Restore "Erase me" initial state
+      const erasePill = document.querySelector('[data-demo-concept="Erase me"]') as HTMLElement;
+      if (erasePill) {
+        const key = 'demo-tools:Erase me';
+        demoComplete.add(key);
+        demoImportant.add(key);
+        erasePill.classList.add('demo-pill--completed', 'demo-pill--important');
+      }
     });
   }
 

@@ -54,8 +54,19 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Rename tools: Open, Pen, Highlight, Erase (v0.8.8)
 - [x] Fix: simple mode interactions firing in tools mode
 - [x] Fix: trail draws outside demo area
-- [x] Tools work on static prereqs
-- [ ] Enhanced demo with prereq interactions
+- [x] Tools work on static prereqs (v0.8.9)
+- [x] Enhanced demo - learn then practice flow (v0.8.10)
+  - [x] Prereq links panel (explanation + behavior selector)
+  - [x] Mini-roadmap demo (tracks/sections/topics/concepts hierarchy)
+  - [x] Linkable prereqs (within + cross-track)
+  - [x] Static prereqs (clickable to mark done)
+  - [x] Tools mode works on mini-roadmap and static prereqs
+  - [x] Mode panel (Simple/Tools)
+  - [x] Interaction demo (existing pills for practice)
+  - [x] Note about floating settings in real roadmaps
+  - [x] Smooth transition to Tracks section
+- [ ] Bug: linked prereqs don't show strikethrough when target topic completed
+- [ ] Remove Features section (redundant with demo)
 - [ ] Expand/collapse all controls
 - [ ] Filter: show only nodes with important concepts
 - [ ] Filter: show only incomplete nodes
