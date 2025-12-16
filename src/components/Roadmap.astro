@@ -537,6 +537,45 @@ console.log('Sections count:', sections?.length);
         applyToolAction(pill as HTMLElement, key, topicId);
       });
     });
+    // Static prereqs - tools mode swipe support
+    document.querySelectorAll('.prereq-tag--static[data-static-prereq]').forEach((tag) => {
+      const prereq = tag.getAttribute('data-static-prereq');
+      if (!prereq) return;
+
+      const key = `static:${prereq}`;
+
+      tag.addEventListener('mouseenter', () => {
+        if (currentMode !== 'tools' || !isMouseDown) return;
+        if (currentTool === 'cursor' || currentTool === 'highlighter') return;
+        if (swipedPills.has(key)) return;
+
+        swipedPills.add(key);
+        applyStaticPrereqAction(tag as HTMLElement, key);
+      });
+
+      tag.addEventListener('mousedown', (e) => {
+        if (currentMode !== 'tools') return;
+        if (currentTool === 'cursor' || currentTool === 'highlighter') return;
+
+        swipedPills.add(key);
+        applyStaticPrereqAction(tag as HTMLElement, key);
+      });
+    });
+  }
+
+  function applyStaticPrereqAction(tag: HTMLElement, key: string) {
+    switch (currentTool) {
+      case 'pen':
+        if (setComplete(key)) {
+          tag.classList.add('prereq--completed');
+        }
+        break;
+        
+      case 'eraser':
+        resetState(key);
+        tag.classList.remove('prereq--completed');
+        break;
+    }
   }
 
   function applyToolAction(pill: HTMLElement, key: string, topicId: string) {

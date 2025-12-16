@@ -54,7 +54,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Rename tools: Open, Pen, Highlight, Erase (v0.8.8)
 - [x] Fix: simple mode interactions firing in tools mode
 - [x] Fix: trail draws outside demo area
-- [ ] Tools work on static prereqs
+- [x] Tools work on static prereqs
 - [ ] Enhanced demo with prereq interactions
 - [ ] Expand/collapse all controls
 - [ ] Filter: show only nodes with important concepts
