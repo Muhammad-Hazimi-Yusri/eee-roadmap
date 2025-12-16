@@ -53,7 +53,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Refactor CustomCursor and trail canvas to shared components (v0.8.8)
 - [x] Rename tools: Open, Pen, Highlight, Erase (v0.8.8)
 - [x] Fix: simple mode interactions firing in tools mode
-- [ ] Fix: trail draws outside demo area
+- [x] Fix: trail draws outside demo area
 - [ ] Tools work on static prereqs
 - [ ] Enhanced demo with prereq interactions
 - [ ] Expand/collapse all controls

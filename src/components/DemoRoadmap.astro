@@ -285,6 +285,7 @@ const demoData = {
   let demoComplete: Set<string> = new Set();
   let demoImportant: Set<string> = new Set();
   let demoMouseDown = false;
+  let demoMouseInside = false;
   let demoSwipedPills: Set<string> = new Set();
 
   // ============================================
@@ -312,13 +313,15 @@ const demoData = {
   
     // Handle hover for custom cursor
     roadmap.addEventListener('mouseenter', () => {
+      demoMouseInside = true;
       if (demoMode === 'tools') {
         (window as any).customCursor?.show();
         roadmap.classList.add('demo-tools-active');
       }
     });
-  
+
     roadmap.addEventListener('mouseleave', () => {
+      demoMouseInside = false;
       (window as any).customCursor?.hide();
       roadmap.classList.remove('demo-tools-active');
     });
@@ -538,7 +541,7 @@ const demoData = {
     window.addEventListener('resize', resizeCanvas);
 
     document.addEventListener('mousemove', (e) => {
-      if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor') {
+      if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor' || !demoMouseInside) {
         demoLastPos = null;
         return;
       }
