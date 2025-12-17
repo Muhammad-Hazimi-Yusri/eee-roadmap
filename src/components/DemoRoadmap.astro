@@ -664,6 +664,14 @@ const demoData = {
 </style>
 
 <script>
+  import {
+  initTrailCanvas,
+  drawTrailLine,
+  clearTrail,
+  fadeOutTrail,
+  type TrailState,
+} from '../utils/trail';
+
   // ============================================
   // DEMO STATE (no localStorage)
   // ============================================
@@ -1024,21 +1032,15 @@ const demoData = {
     }, { passive: true });
 
     document.addEventListener('touchend', () => {
-      demoLastPos = null;
+      demoTrailState.lastPos = null;
       demoMouseDown = false;
-      setTimeout(() => {
-        if (demoTrailCtx && demoTrailCanvas) {
-          demoTrailCtx.clearRect(0, 0, demoTrailCanvas.width, demoTrailCanvas.height);
-        }
-      }, 300);
+      fadeOutTrail(demoTrailState);
     });
 
     document.addEventListener('touchcancel', () => {
-      demoLastPos = null;
+      demoTrailState.lastPos = null;
       demoMouseDown = false;
-      if (demoTrailCtx && demoTrailCanvas) {
-        demoTrailCtx.clearRect(0, 0, demoTrailCanvas.width, demoTrailCanvas.height);
-      }
+      clearTrail(demoTrailState);
     });
 
     document.querySelectorAll('#demo-roadmap .demo-pill, #demo-mini-roadmap .demo-pill').forEach((pill) => {
@@ -1195,94 +1197,62 @@ const demoData = {
   // ============================================
   // TRAIL EFFECT
   // ============================================
-  let demoTrailCanvas: HTMLCanvasElement | null = null;
-  let demoTrailCtx: CanvasRenderingContext2D | null = null;
-  let demoLastPos: { x: number; y: number } | null = null;
-
-  const demoTrailColors: Record<string, string> = {
-    pen: '#1a1a1a',
-    highlighter: 'rgba(255, 220, 100, 0.6)',
-    eraser: '#cccccc',
-  };
-
-  const demoTrailWidths: Record<string, number> = {
-    pen: 2,
-    highlighter: 16,
-    eraser: 12,
-  };
+  let demoTrailState: TrailState = { canvas: null, ctx: null, lastPos: null };
 
   function initDemoTrail() {
-    demoTrailCanvas = document.getElementById('swipe-trail-canvas') as HTMLCanvasElement;
-    if (!demoTrailCanvas) return;
-
-    demoTrailCtx = demoTrailCanvas.getContext('2d');
-
-    function resizeCanvas() {
-      if (!demoTrailCanvas) return;
-      demoTrailCanvas.width = window.innerWidth;
-      demoTrailCanvas.height = window.innerHeight;
-    }
-
-    setTimeout(resizeCanvas, 100);
-    window.addEventListener('resize', resizeCanvas);
+    demoTrailState = initTrailCanvas('swipe-trail-canvas');
 
     document.addEventListener('mousemove', (e) => {
       if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor' || !demoMouseInside) {
-        demoLastPos = null;
+        demoTrailState.lastPos = null;
         return;
       }
 
       const currentPos = { x: e.clientX, y: e.clientY };
 
-      if (demoLastPos && demoTrailCtx) {
-        demoTrailCtx.beginPath();
-        demoTrailCtx.moveTo(demoLastPos.x, demoLastPos.y);
-        demoTrailCtx.lineTo(currentPos.x, currentPos.y);
-        demoTrailCtx.strokeStyle = demoTrailColors[demoTool] || demoTrailColors.pen;
-        demoTrailCtx.lineWidth = demoTrailWidths[demoTool] || 2;
-        demoTrailCtx.lineCap = 'round';
-        demoTrailCtx.lineJoin = 'round';
-        demoTrailCtx.stroke();
+      if (demoTrailState.lastPos) {
+        drawTrailLine(demoTrailState, demoTrailState.lastPos, currentPos, demoTool);
       }
 
-      demoLastPos = currentPos;
+      demoTrailState.lastPos = currentPos;
+    });
+
+    document.addEventListener('mouseup', () => {
+      demoTrailState.lastPos = null;
+      fadeOutTrail(demoTrailState);
+    });
+
+    document.addEventListener('mousedown', () => {
+      demoTrailState.lastPos = null;
     });
 
     // Touch trail support
     document.addEventListener('touchmove', (e) => {
       if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor' || !demoMouseInside) {
-        demoLastPos = null;
+        demoTrailState.lastPos = null;
         return;
       }
 
       const touch = e.touches[0];
       const currentPos = { x: touch.clientX, y: touch.clientY };
 
-      if (demoLastPos && demoTrailCtx) {
-        demoTrailCtx.beginPath();
-        demoTrailCtx.moveTo(demoLastPos.x, demoLastPos.y);
-        demoTrailCtx.lineTo(currentPos.x, currentPos.y);
-        demoTrailCtx.strokeStyle = demoTrailColors[demoTool] || demoTrailColors.pen;
-        demoTrailCtx.lineWidth = demoTrailWidths[demoTool] || 2;
-        demoTrailCtx.lineCap = 'round';
-        demoTrailCtx.lineJoin = 'round';
-        demoTrailCtx.stroke();
+      if (demoTrailState.lastPos) {
+        drawTrailLine(demoTrailState, demoTrailState.lastPos, currentPos, demoTool);
       }
 
-      demoLastPos = currentPos;
+      demoTrailState.lastPos = currentPos;
     }, { passive: false });
 
-    document.addEventListener('mouseup', () => {
-      demoLastPos = null;
-      setTimeout(() => {
-        if (demoTrailCtx && demoTrailCanvas) {
-          demoTrailCtx.clearRect(0, 0, demoTrailCanvas.width, demoTrailCanvas.height);
-        }
-      }, 300);
+    document.addEventListener('touchend', () => {
+      demoTrailState.lastPos = null;
+      demoMouseDown = false;
+      fadeOutTrail(demoTrailState);
     });
 
-    document.addEventListener('mousedown', () => {
-      demoLastPos = null;
+    document.addEventListener('touchcancel', () => {
+      demoTrailState.lastPos = null;
+      demoMouseDown = false;
+      clearTrail(demoTrailState);
     });
   }
 

@@ -117,6 +117,14 @@ import {
   resetState 
 } from '../utils/progress';
 
+import {
+  initTrailCanvas,
+  drawTrailLine,
+  clearTrail,
+  fadeOutTrail,
+  type TrailState,
+} from '../utils/trail';
+
   // ============================================
   // NODE EXPANSION
   // ============================================
@@ -649,132 +657,64 @@ import {
   // ============================================
   // SWIPE TRAIL
   // ============================================
-  let trailCanvas: HTMLCanvasElement | null = null;
-  let trailCtx: CanvasRenderingContext2D | null = null;
-  let lastPos: { x: number; y: number } | null = null;
 
-  const trailColors: Record<string, string> = {
-    pen: '#1a1a1a',
-    highlighter: 'rgba(255, 220, 100, 0.6)',
-    eraser: '#cccccc',
-  };
-
-  const trailWidths: Record<string, number> = {
-    pen: 2,
-    highlighter: 16,
-    eraser: 12,
-  };
+  let trailState: TrailState = { canvas: null, ctx: null, lastPos: null };
 
   function initSwipeTrail() {
-    trailCanvas = document.getElementById('swipe-trail-canvas') as HTMLCanvasElement;
-    if (!trailCanvas) return;
-    
-    trailCtx = trailCanvas.getContext('2d');
-    
-    // Set canvas size to window size
-    function resizeCanvas() {
-      if (!trailCanvas) return;
-      trailCanvas.width = window.innerWidth;
-      trailCanvas.height = window.innerHeight;
-    }
-    
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    // Track mouse for drawing
+    trailState = initTrailCanvas('swipe-trail-canvas');
+
     document.addEventListener('mousemove', (e) => {
       if (currentMode !== 'tools' || !isMouseDown || currentTool === 'cursor') {
-        lastPos = null;
+        trailState.lastPos = null;
         return;
       }
-      
+
       const currentPos = { x: e.clientX, y: e.clientY };
-      
-      if (lastPos && trailCtx) {
-        drawTrailLine(lastPos, currentPos);
+
+      if (trailState.lastPos) {
+        drawTrailLine(trailState, trailState.lastPos, currentPos, currentTool);
       }
-      
-      lastPos = currentPos;
+
+      trailState.lastPos = currentPos;
     });
-    
-    // Clear trail on mouse up
+
     document.addEventListener('mouseup', () => {
-      lastPos = null;
-      fadeOutTrail();
+      trailState.lastPos = null;
+      fadeOutTrail(trailState);
     });
-    
-    // Reset on mouse down
+
     document.addEventListener('mousedown', () => {
-      lastPos = null;
+      trailState.lastPos = null;
     });
 
     // Touch trail support
     document.addEventListener('touchmove', (e) => {
       if (currentMode !== 'tools' || !isMouseDown || currentTool === 'cursor') {
-        lastPos = null;
+        trailState.lastPos = null;
         return;
       }
 
       const touch = e.touches[0];
       const currentPos = { x: touch.clientX, y: touch.clientY };
 
-      if (lastPos && trailCtx) {
-        drawTrailLine(lastPos, currentPos);
+      if (trailState.lastPos) {
+        drawTrailLine(trailState, trailState.lastPos, currentPos, currentTool);
       }
 
-      lastPos = currentPos;
+      trailState.lastPos = currentPos;
     }, { passive: false });
 
     document.addEventListener('touchend', () => {
-      lastPos = null;
+      trailState.lastPos = null;
       isMouseDown = false;
-      fadeOutTrail();
+      fadeOutTrail(trailState);
     });
 
     document.addEventListener('touchcancel', () => {
-      lastPos = null;
+      trailState.lastPos = null;
       isMouseDown = false;
-      if (trailCtx && trailCanvas) {
-        trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
-      }
+      clearTrail(trailState);
     });
-  }
-
-  function drawTrailLine(from: { x: number; y: number }, to: { x: number; y: number }) {
-    if (!trailCtx) return;
-    
-    trailCtx.beginPath();
-    trailCtx.moveTo(from.x, from.y);
-    trailCtx.lineTo(to.x, to.y);
-    trailCtx.strokeStyle = trailColors[currentTool] || trailColors.pen;
-    trailCtx.lineWidth = trailWidths[currentTool] || 2;
-    trailCtx.lineCap = 'round';
-    trailCtx.lineJoin = 'round';
-    trailCtx.stroke();
-  }
-
-  function fadeOutTrail() {
-    if (!trailCanvas || !trailCtx) return;
-    
-    let opacity = 1;
-    const fadeInterval = setInterval(() => {
-      opacity -= 0.1;
-      if (opacity <= 0) {
-        clearInterval(fadeInterval);
-        trailCtx!.clearRect(0, 0, trailCanvas!.width, trailCanvas!.height);
-      } else {
-        trailCtx!.save();
-        trailCtx!.globalAlpha = opacity;
-        trailCtx!.restore();
-      }
-    }, 30);
-    
-    // Fallback clear after 500ms
-    setTimeout(() => {
-      if (trailCtx && trailCanvas) {
-        trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
-      }
-    }, 500);
   }
 
   // ============================================
