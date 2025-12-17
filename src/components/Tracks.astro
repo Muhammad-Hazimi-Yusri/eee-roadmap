@@ -1,5 +1,5 @@
 ---
-const baseUrl = import.meta.env.BASE_URL;
+import { internalHref } from '../utils/url';
 
 const tracks = [
   {
@@ -84,7 +84,7 @@ const tracks = [
             ))}
           </ul>
           
-          <a href={`${baseUrl}roadmaps/${track.level}`} class="font-mono text-[0.8125rem]">
+          <a href={internalHref(`roadmaps/${track.level}`)} class="font-mono text-[0.8125rem]">
             View roadmap →
           </a>
         </article>

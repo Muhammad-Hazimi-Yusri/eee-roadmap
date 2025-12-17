@@ -2,13 +2,13 @@
 // src/components/Roadmap.astro
 
 import RoadmapSettings from './RoadmapSettings.astro';
+import { internalHref } from '../utils/url';
 
 interface Props {
   sections: import('../types/roadmap').RoadmapSection[];
 }
 
 const { sections } = Astro.props;
-const baseUrl = import.meta.env.BASE_URL;
 console.log('Sections count:', sections?.length);
 ---
 <RoadmapSettings />
@@ -46,7 +46,7 @@ console.log('Sections count:', sections?.length);
                         : id.replace(/-/g, ' ');
                       return (
                         <a 
-                          href={`${baseUrl}roadmaps/${track}#${id}`} 
+                          href={internalHref(`roadmaps/${track}#${id}`)}
                           class="prereq-tag prereq-tag--link"
                           data-prereq-topic={id}
                         >

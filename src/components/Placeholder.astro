@@ -1,11 +1,11 @@
 ---
+import { internalHref } from '../utils/url';
 interface Props {
   title: string;
   description?: string;
 }
 
 const { title, description = "This page is under construction." } = Astro.props;
-const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <div class="container py-16 md:py-24">
@@ -17,7 +17,7 @@ const baseUrl = import.meta.env.BASE_URL;
   
   <p class="max-w-xl text-muted mb-6">{description}</p>
   
-  <a href={baseUrl} class="btn">
+  <a href={internalHref('')} class="btn">
     ← Back to Home
   </a>
 </div>

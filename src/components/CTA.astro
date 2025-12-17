@@ -1,5 +1,5 @@
 ---
-const baseUrl = import.meta.env.BASE_URL;
+import { internalHref } from '../utils/url';
 ---
 
 <section class="section">
@@ -14,10 +14,10 @@ const baseUrl = import.meta.env.BASE_URL;
     </p>
     
     <div class="flex flex-wrap gap-4">
-      <a href={`${baseUrl}roadmaps/fundamentals`} class="btn btn--primary">
+      <a href={internalHref('roadmaps/fundamentals')} class="btn btn--primary">
         Begin with Fundamentals
       </a>
-      <a href={`${baseUrl}#roadmaps`} class="btn">
+      <a href="/#roadmaps" class="btn">
         Browse All Tracks
       </a>
     </div>
