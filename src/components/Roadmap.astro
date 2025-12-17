@@ -436,6 +436,27 @@ console.log('Sections count:', sections?.length);
         (window as any).customCursor?.hide();
         roadmap.classList.remove('tools-mode-active');
       });
+
+      // Touch: prevent scroll when in tools mode, but only on interactive elements
+      // Allow two-finger scroll for navigation
+      roadmap.addEventListener('touchstart', (e) => {
+        const touch = e as TouchEvent;
+        if (currentMode === 'tools' && currentTool !== 'cursor' && touch.touches.length === 1) {
+          const target = e.target as HTMLElement;
+          if (target.classList.contains('concept-pill') || 
+              target.classList.contains('prereq-tag--static') ||
+              target.classList.contains('prereq-tag--link')) {
+            e.preventDefault();
+          }
+        }
+      }, { passive: false });
+
+      roadmap.addEventListener('touchmove', (e) => {
+        const touch = e as TouchEvent;
+        if (currentMode === 'tools' && currentTool !== 'cursor' && isMouseDown && touch.touches.length === 1) {
+          e.preventDefault();
+        }
+      }, { passive: false });
     }
   }
 
@@ -499,6 +520,28 @@ console.log('Sections count:', sections?.length);
         pill.classList.remove('concept-pill--swiping');
       });
     });
+
+    // Touch events for mobile/tablet
+    document.addEventListener('touchstart', (e) => {
+      if (currentMode === 'tools' && currentTool !== 'cursor') {
+        isMouseDown = true;
+        swipedPills.clear();
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+      isMouseDown = false;
+      swipedPills.clear();
+      
+      document.querySelectorAll('.concept-pill--swiping').forEach((pill) => {
+        pill.classList.remove('concept-pill--swiping');
+      });
+    });
+
+    document.addEventListener('touchcancel', () => {
+      isMouseDown = false;
+      swipedPills.clear();
+    });
     
     // Handle swipe on concept pills
     document.querySelectorAll('.concept-pill').forEach((pill) => {
@@ -536,31 +579,95 @@ console.log('Sections count:', sections?.length);
         pill.classList.add('concept-pill--swiping');
         applyToolAction(pill as HTMLElement, key, topicId);
       });
+
+      // Touch support
+      pill.addEventListener('touchstart', (e) => {
+        if (currentMode !== 'tools') return;
+
+        if (currentTool === 'cursor') {
+          console.log('Open notes for:', key);
+          return;
+        }
+
+        e.preventDefault(); // Prevent scroll
+        swipedPills.add(key);
+        pill.classList.add('concept-pill--swiping');
+        applyToolAction(pill as HTMLElement, key, topicId);
+      }, { passive: false });
+
+      pill.addEventListener('touchmove', (e) => {
+        if (currentMode !== 'tools' || currentTool === 'cursor') return;
+        e.preventDefault(); // Prevent scroll while swiping
+      }, { passive: false });
     });
+
     // Static prereqs - tools mode swipe support
     document.querySelectorAll('.prereq-tag--static[data-static-prereq]').forEach((tag) => {
       const prereq = tag.getAttribute('data-static-prereq');
       if (!prereq) return;
-
+      
       const key = `static:${prereq}`;
-
+      
       tag.addEventListener('mouseenter', () => {
         if (currentMode !== 'tools' || !isMouseDown) return;
         if (currentTool === 'cursor' || currentTool === 'highlighter') return;
         if (swipedPills.has(key)) return;
-
+        
         swipedPills.add(key);
         applyStaticPrereqAction(tag as HTMLElement, key);
       });
-
+      
       tag.addEventListener('mousedown', (e) => {
         if (currentMode !== 'tools') return;
         if (currentTool === 'cursor' || currentTool === 'highlighter') return;
-
+        
         swipedPills.add(key);
         applyStaticPrereqAction(tag as HTMLElement, key);
       });
+
+      // Touch support
+      tag.addEventListener('touchstart', (e) => {
+        if (currentMode !== 'tools') return;
+        if (currentTool === 'cursor' || currentTool === 'highlighter') return;
+
+        e.preventDefault();
+        swipedPills.add(key);
+        applyStaticPrereqAction(tag as HTMLElement, key);
+      }, { passive: false });
     });
+  
+    // Touch move to detect swipe across pills
+    document.addEventListener('touchmove', (e) => {
+      if (currentMode !== 'tools' || !isMouseDown || currentTool === 'cursor') return;
+      
+      const touch = e.touches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      if (element?.classList.contains('concept-pill')) {
+        const topicId = element.getAttribute('data-topic-id');
+        const concept = element.getAttribute('data-concept');
+        if (!topicId || !concept) return;
+        
+        const key = `${topicId}:${concept}`;
+        if (!swipedPills.has(key)) {
+          swipedPills.add(key);
+          element.classList.add('concept-pill--swiping');
+          applyToolAction(element as HTMLElement, key, topicId);
+        }
+      }
+      
+      // Also check static prereqs
+      if (element?.classList.contains('prereq-tag--static')) {
+        const prereq = element.getAttribute('data-static-prereq');
+        if (!prereq) return;
+        
+        const key = `static:${prereq}`;
+        if (!swipedPills.has(key) && currentTool !== 'highlighter') {
+          swipedPills.add(key);
+          applyStaticPrereqAction(element as HTMLElement, key);
+        }
+      }
+    }, { passive: false });
   }
 
   function applyStaticPrereqAction(tag: HTMLElement, key: string) {
@@ -663,6 +770,37 @@ console.log('Sections count:', sections?.length);
     // Reset on mouse down
     document.addEventListener('mousedown', () => {
       lastPos = null;
+    });
+
+    // Touch trail support
+    document.addEventListener('touchmove', (e) => {
+      if (currentMode !== 'tools' || !isMouseDown || currentTool === 'cursor') {
+        lastPos = null;
+        return;
+      }
+
+      const touch = e.touches[0];
+      const currentPos = { x: touch.clientX, y: touch.clientY };
+
+      if (lastPos && trailCtx) {
+        drawTrailLine(lastPos, currentPos);
+      }
+
+      lastPos = currentPos;
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+      lastPos = null;
+      isMouseDown = false;
+      fadeOutTrail();
+    });
+
+    document.addEventListener('touchcancel', () => {
+      lastPos = null;
+      isMouseDown = false;
+      if (trailCtx && trailCanvas) {
+        trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+      }
     });
   }
 

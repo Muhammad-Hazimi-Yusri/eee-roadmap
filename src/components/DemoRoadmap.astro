@@ -187,6 +187,11 @@ const demoData = {
           <span class="demo-hint"><strong>Shift+click</strong> important</span>
         </div>
 
+        <!-- Mobile/tablet hint (shown in tools mode) -->
+        <div class="demo-touch-hint" id="demo-touch-hint" hidden>
+          <span>📱 Single finger to draw, two fingers to scroll</span>
+        </div>
+        
         <!-- Toolbar (shown in tools mode) -->
         <div class="demo-toolbar" id="demo-toolbar" hidden>
           <button class="demo-tool" data-demo-tool="cursor" aria-pressed="true" title="Open notes">
@@ -545,6 +550,19 @@ const demoData = {
     background-color: var(--color-bg);
   }
 
+  .demo-touch-hint {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    padding: 0.375rem 0.5rem;
+    background-color: rgba(184, 115, 51, 0.1);
+    border: 1px dashed var(--color-copper);
+  }
+  
+  .demo-touch-hint[hidden] {
+    display: none;
+  }
+
   .demo-roadmap {
     display: flex;
     flex-direction: column;
@@ -821,9 +839,11 @@ const demoData = {
       });
 
       // Touch: prevent scroll when in tools mode, but only on pills/prereqs
+      // Allow two-finger scroll for navigation
       area.addEventListener('touchstart', (e) => {
         demoMouseInside = true;
-        if (demoMode === 'tools' && demoTool !== 'cursor') {
+        const touch = e as TouchEvent;
+        if (demoMode === 'tools' && demoTool !== 'cursor' && touch.touches.length === 1) {
           const target = e.target as HTMLElement;
           // Only prevent default on interactive elements, not buttons
           if (target.classList.contains('demo-pill') || 
@@ -839,16 +859,26 @@ const demoData = {
       });
 
       area.addEventListener('touchmove', (e) => {
-        if (demoMode === 'tools' && demoTool !== 'cursor') {
+        const touch = e as TouchEvent;
+        if (demoMode === 'tools' && demoTool !== 'cursor' && touch.touches.length === 1) {
           e.preventDefault();
         }
       }, { passive: false });
     });
   
+    // Touch device detection
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const touchHint = document.getElementById('demo-touch-hint');
+
     modeSelect.addEventListener('change', () => {
       demoMode = modeSelect.value as 'simple' | 'tools';
       toolbar.hidden = demoMode !== 'tools';
       hints.hidden = demoMode !== 'simple';
+      
+      // Show touch hint on touch devices in tools mode
+      if (touchHint && isTouchDevice) {
+        touchHint.hidden = demoMode !== 'tools';
+      }
       
       if (demoMode === 'tools') {
         roadmap.classList.add('demo-tools-active');

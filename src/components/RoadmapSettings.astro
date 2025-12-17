@@ -33,6 +33,11 @@
     <div class="hint"><span class="hint-key">Shift+Click</span> toggle important</div>
   </div>
 
+  <!-- Mobile/tablet hint (shown in tools mode) -->
+  <div class="touch-hint" id="touch-hint" hidden>
+    <span>📱 Single finger to draw, two fingers to scroll</span>
+  </div>
+
   <!-- Toolbar (shown in tools mode) -->
   <div class="toolbar" id="toolbar" hidden>
     <button class="tool" data-tool="cursor" aria-pressed="true" title="Open notes">
@@ -193,6 +198,19 @@
     letter-spacing: 0.02em;
   }
 
+  .touch-hint {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    padding: 0.375rem 0.5rem;
+    background-color: rgba(184, 115, 51, 0.1);
+    border: 1px dashed var(--color-copper);
+  }
+
+  .touch-hint[hidden] {
+    display: none;
+  }
+
   /* Simple mode hints */
   .mode-hints {
     display: flex;
@@ -237,3 +255,23 @@
       filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
     }
 </style>
+
+<script>
+  // Show touch hint on touch devices when in tools mode
+  const touchHint = document.getElementById('touch-hint');
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+  if (touchHint && isTouchDevice) {
+    const modeSelect = document.getElementById('interaction-mode') as HTMLSelectElement;
+    
+    // Initial state
+    if (modeSelect?.value === 'tools') {
+      touchHint.hidden = false;
+    }
+
+    // Listen for mode changes
+    modeSelect?.addEventListener('change', () => {
+      touchHint.hidden = modeSelect.value !== 'tools';
+    });
+  }
+</script>
