@@ -46,7 +46,7 @@ console.log('Sections count:', sections?.length);
                         : id.replace(/-/g, ' ');
                       return (
                         <a 
-                          href={`${Astro.url.origin}/roadmaps/${track}#${id}`} 
+                          href={`${baseUrl}roadmaps/${track}#${id}`} 
                           class="prereq-tag prereq-tag--link"
                           data-prereq-topic={id}
                         >
