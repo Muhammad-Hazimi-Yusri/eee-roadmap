@@ -2,124 +2,112 @@
 
 An interactive roadmap for learning Electrical & Electronic Engineering.
 
-**[Live Demo →](https://Muhammad-Hazimi-Yusri.github.io/eee-roadmap)**
+**[Live Demo →](https://eee-roadmap.muhammadhazimiyusri.uk)**
 
 ---
 
 ## Features
 
-### Current (v0.8.11)
+### Current (v0.8.13)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
-- Prerequisites and learning outcomes for each topic
-- Optional topics styled as side branches (roadmap.sh pattern)
+- Prerequisites (linkable + static) and learning outcomes for each topic
+- Optional topics styled as side branches
 - Responsive design with Lab Notebook + PCB aesthetic
-- Toggleable dark mode with improved text color readability
+- Dark mode with system preference detection
 - Topic deep-links with hash anchors
 - Clickable prerequisites with cross-track navigation
 - Two-dimension progress tracking (complete + important states)
-- Simple mode: click (notes), dblclick (complete), shift+click (important)
-- Tools mode: swipe gestures with pen/highlighter/eraser
+- Dual interaction modes:
+  - **Simple mode:** click (notes), dblclick (complete), shift+click (important)
+  - **Tools mode:** swipe gestures with pen/highlighter/eraser (tablet/stylus optimized)
 - Custom cursor matching active tool
 - Swipe trail effect for visual feedback
-- Proper demo in homepage
+- Touch support (single finger draws, two fingers scroll)
+- Comprehensive homepage demo
 
-### Planned Features
+---
 
-#### Versioning Notes
+---
 
-- **v0.X.0** marks feature milestone start, **v0.X.Y** for incremental progress
-- Completed versions are kept in README until 3+ exist, then oldest moves to CHANGELOG.md
+## Roadmap
 
-**v0.7 - Navigation & Linking** ✓
-- [x] Topic deep-links with hash anchors (v0.6.3)
-- [x] Auto-expand nodes on hash navigation (v0.6.3)
-- [x] Clickable prerequisites → cross-track linking (v0.6.3)
-- [x] Visual distinction: solid+glow (linkable) vs dashed (static) prereqs (v0.6.4)
-- [x] Custom display names for prereqs (v0.6.4)
-- [x] Prereq link behavior preference (v0.6.5)
-- [x] Improved section title styling (v0.6.5)
-- [x] Fix: re-clicking same prereq re-expands collapsed node (v0.6.6)
+> See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-**v0.8 - Progress Tracking**
-- [x] Basic progress tracking with localStorage (v0.8.0)
-- [x] Prereqs show completed status (strikethrough if topic done) (v0.8.1)
-- [x] Static prereqs can be manually toggled (v0.8.2)
-- [x] Two-dimension concept state (complete + important flags) (v0.8.3)
-- [x] Simple mode: click (notes), dblclick (complete), shift+click (important) (v0.8.3)
-- [x] Mode selector + toolbar UI (v0.8.4)
-- [x] Custom cursor that matches active tool (v0.8.5)
-- [x] Tools mode swipe gestures (v0.8.6)
-- [x] Swipe trail effect (pen/highlighter/erases leaves visual trail) (v0.8.7)- [x] Demo roadmap on homepage (v0.8.8)
-- [x] Refactor CustomCursor and trail canvas to shared components (v0.8.8)
-- [x] Rename tools: Open, Pen, Highlight, Erase (v0.8.8)
-- [x] Fix: simple mode interactions firing in tools mode
-- [x] Fix: trail draws outside demo area
-- [x] Tools work on static prereqs (v0.8.9)
-- [x] Enhanced demo - learn then practice flow (v0.8.10)
-  - [x] Prereq links panel (explanation + behavior selector)
-  - [x] Mini-roadmap demo (tracks/sections/topics/concepts hierarchy)
-  - [x] Linkable prereqs (within + cross-track)
-  - [x] Static prereqs (clickable to mark done)
-  - [x] Tools mode works on mini-roadmap and static prereqs
-  - [x] Mode panel (Simple/Tools)
-  - [x] Interaction demo (existing pills for practice)
-  - [x] Note about floating settings in real roadmaps
-  - [x] Smooth transition to Tracks section
-- [x] Bug: linked prereqs show strikethrough when target topic completed (v0.8.11)
-- [x] Remove Features section (redundant with demo), nvm lets keep it for now, added demo herf to header instead. (v0.8.11)
-- [x] Touch support for tools mode in demo (mobile/tablet swipe gestures) (v0.8.12)
-- [x] Touch support for tools mode in roadmap (mobile/tablet swipe gestures) (v0.8.13)
-- [x] Two-finger scroll in tools mode (single finger draws, two fingers scroll) (v0.8.13)
-- [x] Mobile/tablet hint shown when in tools mode on touch devices (v0.8.13)
-- [ ] Expand/collapse all controls
-- [ ] Filter: show only nodes with important concepts
-- [ ] Filter: show only incomplete nodes
+### v0.9 - Refactoring & Code Quality
 
-#### Interaction System Spec
+**Goal:** Reduce technical debt, improve maintainability, prepare for testing.
 
-**Concept State (2 independent dimensions):**
-- Completion: incomplete ↔ complete (strikethrough + dim)
-- Flag: normal ↔ important (highlight background)
-- Storage: separate keys (`topicId:concept:complete`, `topicId:concept:important`)
+#### Critical Fixes
+- [ ] Remove duplicate CustomCursor from RoadmapSettings.astro
+- [ ] Fix duplicate forEach loop in DemoRoadmap.astro (double event registration)
+- [ ] Remove unused CircuitLine.astro
 
-**Simple Mode:**
-- Click → open notes
-- Double-click → toggle complete
-- Shift+Click → toggle important
+#### Code Deduplication
+- [ ] Extract shared utilities to `src/utils/`:
+  - [ ] `progress.ts` - localStorage operations, state management
+  - [ ] `swipe.ts` - Swipe gesture detection and coordination
+  - [ ] `trail.ts` - Canvas trail drawing logic
+  - [ ] `tools.ts` - Tool action application (pen/highlighter/eraser)
+- [ ] Consolidate duplicate CSS into shared classes in global.css
+- [ ] Refactor DemoRoadmap to import shared utilities
 
-**Tools Mode (swipe gestures for tactile experience, optimized for tablet/stylus):**
-- 🖱️ Cursor → click to open notes
-- 🖊️ Pen → swipe across concept to mark complete (one-way)
-- 🖍️ Highlighter → swipe across concept to mark important (one-way)
-- 🧹 Eraser → swipe across concept to reset both states
+#### TypeScript Improvements
+- [ ] Add strict types for tool names, modes, progress state
+- [ ] Create interfaces for shared function signatures
+- [ ] Enable stricter tsconfig options
 
-Note: Swipe = mousedown/touchstart on concept, drag across, mouseup/touchend. 
-Designed to feel like using real stationery on paper.
+#### Documentation
+- [ ] Add JSDoc comments to utility functions
+- [ ] Document component props with TypeScript interfaces
+- [ ] Create CONTRIBUTING.md with code style guidelines
 
-**v0.9 - Cross-Device Sync**
+### v0.10 - Testing Infrastructure
+
+**Goal:** Comprehensive test coverage to catch regressions early.
+
+#### Unit Tests (Vitest)
+- [ ] Progress utilities (toggle, save, load)
+- [ ] Tool action logic
+- [ ] State calculations (isTopicCompleted, etc.)
+
+#### Integration Tests (Playwright)
+- [ ] Page navigation and routing
+- [ ] Hash anchor navigation and auto-expand
+- [ ] Prerequisite link behavior (same-tab, new-tab, smart)
+- [ ] Dark mode toggle persistence
+
+#### E2E Tests (Playwright)
+- [ ] Simple mode interactions (click, dblclick, shift+click)
+- [ ] Tools mode swipe gestures
+- [ ] Progress persistence across page reloads
+- [ ] Demo component full flow
+- [ ] Cross-track prerequisite navigation
+
+#### CI/CD Enhancements
+- [ ] Add test step to deploy.yml (run before build)
+- [ ] Add test coverage reporting
+- [ ] Add visual regression tests for key components
+
+### v0.11 - Cross-Device Sync
 - [ ] Research sync options (GitHub Gist, Firebase, custom backend)
 - [ ] User authentication strategy
 - [ ] Import/export progress as JSON fallback
 
-**v1.0 - Notes & Deep-dives**
+### v0.12 - Notes & Deep-dives
 - [ ] Clickable concepts → modal/popup with explanations
-- [ ] LaTeX or Markdown notes (decide on format)
+- [ ] LaTeX or Markdown notes
 - [ ] PDF compilation via GitHub Actions
 - [ ] A4 paper aesthetic: draggable, pinnable note cards
 
-**Future**
-- [ ] Hand-drawn style for strikethrough/highlight (maybe whole design overhaul to fit handdrawn aesthetic?)
-- [ ] WebAssembly-based circuit simulator (Rust)
+### Future
+- [ ] Hand-drawn aesthetic overhaul
+- [ ] WebAssembly circuit simulator (Rust)
 - [ ] PWA support for offline access
 - [ ] Community contributions workflow
-
-**Known Issues & Limitations**
-- [ ] Verify all resource links point to correct content
-- Prerequisites assume unique topic IDs across all tracks
-- Progress stored in localStorage (browser-specific, clears with site data)
-- [ ] Consider non-linear roadmap paths (and specialisations paths)
-- [ ] Add estimated time/difficulty per topic
+- [ ] Expand/collapse all controls
+- [ ] Filter: show only important concepts
+- [ ] Filter: show only incomplete nodes
 
 ---
 
@@ -131,6 +119,63 @@ Designed to feel like using real stationery on paper.
 
 ---
 
+## Project Structure
+```
+eee-roadmap/
+├── public/
+│   └── favicon.svg              # Site favicon (circuit wave icon)
+├── src/
+│   ├── components/
+│   │   ├── CTA.astro            # Call-to-action section with "Get Started" buttons
+│   │   ├── CustomCursor.astro   # Tool-shaped cursor for tools mode (shared)
+│   │   ├── DemoRoadmap.astro    # Interactive demo on homepage (mini-roadmap + interactions)
+│   │   ├── Features.astro       # "What This Is" feature grid section
+│   │   ├── Footer.astro         # Site footer with links and copyright
+│   │   ├── Header.astro         # Navigation header with logo and theme toggle
+│   │   ├── Hero.astro           # Landing hero with stats and CTAs
+│   │   ├── Placeholder.astro    # "Under construction" template for stub pages
+│   │   ├── Roadmap.astro        # Main roadmap component with progress tracking
+│   │   ├── RoadmapSettings.astro # Floating settings panel (mode, tools, preferences)
+│   │   ├── ThemeToggle.astro    # Dark/light mode toggle button
+│   │   └── Tracks.astro         # Track cards grid (Fundamentals/Core/Advanced)
+│   ├── data/
+│   │   ├── advanced.ts          # Advanced track content (power, control, RF, comms)
+│   │   ├── core.ts              # Core track content (analog, digital, signals, MCU, PCB)
+│   │   └── fundamentals.ts      # Fundamentals track content (math, circuits, EM, components)
+│   ├── layouts/
+│   │   └── Layout.astro         # Base HTML layout with head, fonts, theme init
+│   ├── pages/
+│   │   ├── roadmaps/
+│   │   │   └── [slug].astro     # Dynamic route for track pages (/roadmaps/fundamentals, etc.)
+│   │   ├── about.astro          # About page (placeholder)
+│   │   ├── contribute.astro     # Contribute page (placeholder)
+│   │   ├── guides.astro         # Guides page (placeholder)
+│   │   ├── index.astro          # Homepage (Hero, Demo, Tracks, Features, CTA)
+│   │   ├── projects.astro       # Projects page (placeholder)
+│   │   └── resources.astro      # Resources page (placeholder)
+│   ├── styles/
+│   │   └── global.css           # Global styles, CSS variables, Tailwind layers
+│   ├── types/
+│   │   └── roadmap.ts           # TypeScript interfaces (Topic, RoadmapSection, Resource)
+│   └── utils/                   # [Planned v0.9] Shared utilities
+│       ├── progress.ts          # [Planned] localStorage operations, state management
+│       ├── swipe.ts             # [Planned] Swipe gesture detection
+│       ├── trail.ts             # [Planned] Canvas trail drawing
+│       └── tools.ts             # [Planned] Tool action logic
+├── .github/
+│   └── workflows/
+│       └── deploy.yml           # GitHub Actions: build, link-check, deploy to Pages
+├── astro.config.mjs             # Astro configuration (Tailwind integration, base URL)
+├── tailwind.config.mjs          # Tailwind configuration (fonts, content paths)
+├── tsconfig.json                # TypeScript configuration (paths, strict mode)
+├── package.json                 # Dependencies and npm scripts
+├── CHANGELOG.md                 # Version history with dates and commits
+├── LICENSE                      # MIT License
+└── README.md                    # Project documentation
+```
+
+---
+
 ## Run Locally
 
 ### Prerequisites
@@ -139,7 +184,6 @@ Designed to feel like using real stationery on paper.
 - npm (comes with Node.js)
 
 ### Steps
-
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap.git
@@ -155,95 +199,15 @@ npm run dev
 Open [http://localhost:4321](http://localhost:4321) in your browser.
 
 ### Other Commands
-
 ```bash
 # Build for production
 npm run build
 
 # Preview production build locally
 npm run preview
-```
 
----
-
-## Deploy to GitHub Pages
-
-This project includes a GitHub Actions workflow that automatically deploys to GitHub Pages on every push to `main`.
-
-### First-time Setup GitHub Pages
-
-1. **Enable GitHub Pages**
-   - Go to your repo → **Settings** → **Pages**
-   - Under "Build and deployment", set **Source** to **GitHub Actions**
-
-2. **Wait for deployment**
-   - Go to **Actions** tab to see the workflow running
-   - Once complete, your site will be live at:  
-     `https://Muhammad-Hazimi-Yusri.github.io/eee-roadmap`
-
-### Custom Domain (CloudFlare e.g)
-
-1. Add your domain to github pages settings, make sure to also add verified domain on profile setting -> Pages to get https certs to avoid mixed content issue
-
-2. Update `astro.config.mjs`:
-   ```js
-   export default defineConfig({
-     // site: 'https://eee-roadmap.dev', // either comment this out or change to your single domain
-     base: '/',  // Change from '/eee-roadmap' to '/'
-   });
-   ```
-
-3. Configure DNS with your domain provider for CNAME and TXT
-
----
-
-## Project Structure
-
-```
-eee-roadmap/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   ├── CircuitLine.astro
-│   │   ├── CTA.astro
-│   │   ├── CustomCursor.astro
-│   │   ├── DemoRoadmap.astro
-│   │   ├── Features.astro
-│   │   ├── Footer.astro
-│   │   ├── Header.astro
-│   │   ├── Hero.astro
-│   │   ├── Placeholder.astro
-│   │   ├── Roadmap.astro
-│   │   ├── RoadmapSettings.astro
-│   │   ├── ThemeToggle.astro
-│   │   └── Tracks.astro
-│   ├── data/
-│   │   ├── advanced.ts
-│   │   ├── core.ts
-│   │   └── fundamentals.ts
-│   ├── layouts/
-│   │   └── Layout.astro
-│   ├── pages/
-│   │   ├── roadmaps/
-│   │   │   └── [slug].astro
-│   │   ├── about.astro
-│   │   ├── contribute.astro
-│   │   ├── guides.astro
-│   │   ├── index.astro
-│   │   ├── projects.astro
-│   │   └── resources.astro
-│   ├── styles/
-│   │   └── global.css
-│   └── types/
-│       └── roadmap.ts
-├── .github/
-│   └── workflows/
-│       └── deploy.yml
-├── astro.config.mjs
-├── tailwind.config.mjs
-├── tsconfig.json
-└── package.json
+# Check for broken links (requires build first)
+npm run check-links
 ```
 
 ---
@@ -266,10 +230,6 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-## Disclaimer
+## Acknowledgments
 
-This project was built with assistance from [Claude](https://claude.ai), an AI assistant by Anthropic.
-
----
-
-Built by [Muhammad-Hazimi-Yusri](https://github.com/Muhammad-Hazimi-Yusri)
+Built by [Muhammad-Hazimi-Yusri](https://github.com/Muhammad-Hazimi-Yusri) with assistance from [Claude](https://claude.ai).
