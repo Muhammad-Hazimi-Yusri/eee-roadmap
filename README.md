@@ -68,6 +68,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - [x] Smooth transition to Tracks section
 - [x] Bug: linked prereqs show strikethrough when target topic completed (v0.8.11)
 - [x] Remove Features section (redundant with demo), nvm lets keep it for now, added demo herf to header instead. (v0.8.11)
+- [x] Touch support for tools mode in demo (mobile/tablet swipe gestures) (v0.8.12)
 - [ ] Expand/collapse all controls
 - [ ] Filter: show only nodes with important concepts
 - [ ] Filter: show only incomplete nodes

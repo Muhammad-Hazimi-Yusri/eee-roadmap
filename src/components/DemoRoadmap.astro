@@ -819,6 +819,30 @@ const demoData = {
         (window as any).customCursor?.hide();
         area.classList.remove('demo-tools-active');
       });
+
+      // Touch: prevent scroll when in tools mode, but only on pills/prereqs
+      area.addEventListener('touchstart', (e) => {
+        demoMouseInside = true;
+        if (demoMode === 'tools' && demoTool !== 'cursor') {
+          const target = e.target as HTMLElement;
+          // Only prevent default on interactive elements, not buttons
+          if (target.classList.contains('demo-pill') || 
+              target.classList.contains('demo-prereq-tag--static') ||
+              target.classList.contains('demo-prereq-tag--link')) {
+            e.preventDefault();
+          }
+        }
+      }, { passive: false });
+
+      area.addEventListener('touchend', () => {
+        demoMouseInside = false;
+      });
+
+      area.addEventListener('touchmove', (e) => {
+        if (demoMode === 'tools' && demoTool !== 'cursor') {
+          e.preventDefault();
+        }
+      }, { passive: false });
     });
   
     modeSelect.addEventListener('change', () => {
@@ -961,6 +985,36 @@ const demoData = {
       });
     });
 
+    // Touch events for mobile/tablet
+    document.addEventListener('touchstart', (e) => {
+      if (demoMode === 'tools' && demoTool !== 'cursor') {
+        demoMouseDown = true;
+        demoSwipedPills.clear();
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+      demoLastPos = null;
+      demoMouseDown = false;
+      setTimeout(() => {
+        if (demoTrailCtx && demoTrailCanvas) {
+          demoTrailCtx.clearRect(0, 0, demoTrailCanvas.width, demoTrailCanvas.height);
+        }
+      }, 300);
+    });
+
+    document.addEventListener('touchcancel', () => {
+      demoLastPos = null;
+      demoMouseDown = false;
+      if (demoTrailCtx && demoTrailCanvas) {
+        demoTrailCtx.clearRect(0, 0, demoTrailCanvas.width, demoTrailCanvas.height);
+      }
+    });
+
+    document.querySelectorAll('#demo-roadmap .demo-pill, #demo-mini-roadmap .demo-pill').forEach((pill) => {
+      const key = getDemoPillKey(pill);
+      if (!key) return;
+
     document.querySelectorAll('#demo-roadmap .demo-pill, #demo-mini-roadmap .demo-pill').forEach((pill) => {
       const key = getDemoPillKey(pill);
       if (!key) return;
@@ -973,6 +1027,41 @@ const demoData = {
         pill.classList.add('demo-pill--swiping');
         applyDemoToolAction(pill as HTMLElement, key);
       });
+
+      pill.addEventListener('mousedown', (e) => {
+        if (demoMode !== 'tools') return;
+
+        if (demoTool === 'cursor') {
+          console.log('Demo: Open notes for', key);
+          e.preventDefault();
+          return;
+        }
+
+        demoSwipedPills.add(key);
+        pill.classList.add('demo-pill--swiping');
+        applyDemoToolAction(pill as HTMLElement, key);
+      });
+
+      // Touch support
+      pill.addEventListener('touchstart', (e) => {
+        if (demoMode !== 'tools') return;
+
+        if (demoTool === 'cursor') {
+          console.log('Demo: Open notes for', key);
+          return;
+        }
+
+        e.preventDefault(); // Prevent scroll
+        demoSwipedPills.add(key);
+        pill.classList.add('demo-pill--swiping');
+        applyDemoToolAction(pill as HTMLElement, key);
+      }, { passive: false });
+
+      pill.addEventListener('touchmove', (e) => {
+        if (demoMode !== 'tools' || demoTool === 'cursor') return;
+        e.preventDefault(); // Prevent scroll while swiping
+      }, { passive: false });
+    });
 
       pill.addEventListener('mousedown', (e) => {
         if (demoMode !== 'tools') return;
@@ -1011,6 +1100,33 @@ const demoData = {
         applyDemoStaticPrereqAction(tag as HTMLElement, prereq);
       });
     });
+
+    // Touch move to detect swipe across pills
+    document.addEventListener('touchmove', (e) => {
+      if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor') return;
+      if (!demoMouseInside) return;
+      
+      const touch = e.touches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      if (element?.classList.contains('demo-pill')) {
+        const key = getDemoPillKey(element);
+        if (key && !demoSwipedPills.has(key)) {
+          demoSwipedPills.add(key);
+          element.classList.add('demo-pill--swiping');
+          applyDemoToolAction(element as HTMLElement, key);
+        }
+      }
+      
+      // Also check static prereqs
+      if (element?.classList.contains('demo-prereq-tag--static')) {
+        const prereq = element.getAttribute('data-static-prereq');
+        if (prereq && !demoSwipedPills.has(prereq)) {
+          demoSwipedPills.add(prereq);
+          applyDemoStaticPrereqAction(element as HTMLElement, prereq);
+        }
+      }
+    }, { passive: false });
   }
 
   function applyDemoToolAction(pill: HTMLElement, key: string) {
@@ -1120,6 +1236,30 @@ const demoData = {
 
       demoLastPos = currentPos;
     });
+
+    // Touch trail support
+    document.addEventListener('touchmove', (e) => {
+      if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor' || !demoMouseInside) {
+        demoLastPos = null;
+        return;
+      }
+
+      const touch = e.touches[0];
+      const currentPos = { x: touch.clientX, y: touch.clientY };
+
+      if (demoLastPos && demoTrailCtx) {
+        demoTrailCtx.beginPath();
+        demoTrailCtx.moveTo(demoLastPos.x, demoLastPos.y);
+        demoTrailCtx.lineTo(currentPos.x, currentPos.y);
+        demoTrailCtx.strokeStyle = demoTrailColors[demoTool] || demoTrailColors.pen;
+        demoTrailCtx.lineWidth = demoTrailWidths[demoTool] || 2;
+        demoTrailCtx.lineCap = 'round';
+        demoTrailCtx.lineJoin = 'round';
+        demoTrailCtx.stroke();
+      }
+
+      demoLastPos = currentPos;
+    }, { passive: false });
 
     document.addEventListener('mouseup', () => {
       demoLastPos = null;
