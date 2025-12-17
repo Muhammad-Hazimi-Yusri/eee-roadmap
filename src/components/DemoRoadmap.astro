@@ -1045,10 +1045,6 @@ const demoData = {
       const key = getDemoPillKey(pill);
       if (!key) return;
 
-    document.querySelectorAll('#demo-roadmap .demo-pill, #demo-mini-roadmap .demo-pill').forEach((pill) => {
-      const key = getDemoPillKey(pill);
-      if (!key) return;
-
       pill.addEventListener('mouseenter', () => {
         if (demoMode !== 'tools' || !demoMouseDown || demoTool === 'cursor') return;
         if (demoSwipedPills.has(key)) return;
@@ -1091,21 +1087,6 @@ const demoData = {
         if (demoMode !== 'tools' || demoTool === 'cursor') return;
         e.preventDefault(); // Prevent scroll while swiping
       }, { passive: false });
-    });
-
-      pill.addEventListener('mousedown', (e) => {
-        if (demoMode !== 'tools') return;
-
-        if (demoTool === 'cursor') {
-          console.log('Demo: Open notes for', key);
-          e.preventDefault();
-          return;
-        }
-
-        demoSwipedPills.add(key);
-        pill.classList.add('demo-pill--swiping');
-        applyDemoToolAction(pill as HTMLElement, key);
-      });
     });
 
     // Static prereqs - tools mode swipe support

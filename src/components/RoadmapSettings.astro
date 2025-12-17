@@ -3,13 +3,6 @@
 ---
 
 <div class="roadmap-settings" id="roadmap-settings">
-    <!-- Custom cursor for tools mode -->
-    <div class="custom-cursor" id="custom-cursor" hidden>
-      <svg class="cursor-icon" id="cursor-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <!-- Default: cursor arrow -->
-        <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-      </svg>
-    </div>
   <button class="settings-toggle" id="settings-toggle" aria-expanded="false">
     <span class="toggle-text">Preferences</span>
     <svg class="toggle-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -236,24 +229,6 @@
     font-weight: 500;
   }
 
-  /* Custom cursor */
-    .custom-cursor {
-      position: fixed;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-4px, -4px);
-      transition: opacity 0.1s;
-    }
-    
-    .custom-cursor[hidden] {
-      display: none;
-    }
-    
-    .custom-cursor .cursor-icon {
-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
-    }
 </style>
 
 <script>
