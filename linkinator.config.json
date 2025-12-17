@@ -1,0 +1,6 @@
+{
+  "recurse": true,
+  "skip": [
+    "https://www.electronics-tutorials.ws/*"
+  ]
+}

@@ -9,7 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check-links": "npx linkinator ./dist --recurse",
+    "check-links": "npx linkinator ./dist",
     "test": "vitest",
     "test:run": "vitest run"
   },
