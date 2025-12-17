@@ -105,81 +105,17 @@ console.log('Sections count:', sections?.length);
 </div>
 
 <script>
-  // ============================================
-  // STORAGE UTILS
-  // ============================================
-  const STORAGE_KEY = 'eee-progress-v2';
-
-  interface ProgressState {
-    complete: string[];  // ["topicId:concept", ...]
-    important: string[]; // ["topicId:concept", ...]
-  }
-
-  function getProgress(): ProgressState {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : { complete: [], important: [] };
-  }
-
-  function saveProgress(progress: ProgressState) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }
-
-  function isComplete(key: string): boolean {
-    return getProgress().complete.includes(key);
-  }
-
-  function isImportant(key: string): boolean {
-    return getProgress().important.includes(key);
-  }
-
-  function toggleComplete(key: string): boolean {
-    const progress = getProgress();
-    if (progress.complete.includes(key)) {
-      progress.complete = progress.complete.filter(k => k !== key);
-      saveProgress(progress);
-      return false;
-    } else {
-      progress.complete.push(key);
-      saveProgress(progress);
-      return true;
-    }
-  }
-
-  function toggleImportant(key: string): boolean {
-    const progress = getProgress();
-    if (progress.important.includes(key)) {
-      progress.important = progress.important.filter(k => k !== key);
-      saveProgress(progress);
-      return false;
-    } else {
-      progress.important.push(key);
-      saveProgress(progress);
-      return true;
-    }
-  }
-
-  function setComplete(key: string): boolean {
-    const progress = getProgress();
-    if (progress.complete.includes(key)) return false; // Already complete
-    progress.complete.push(key);
-    saveProgress(progress);
-    return true;
-  }
-
-  function setImportant(key: string): boolean {
-    const progress = getProgress();
-    if (progress.important.includes(key)) return false; // Already important
-    progress.important.push(key);
-    saveProgress(progress);
-    return true;
-  }
-
-  function resetState(key: string) {
-    const progress = getProgress();
-    progress.complete = progress.complete.filter(k => k !== key);
-    progress.important = progress.important.filter(k => k !== key);
-    saveProgress(progress);
-  }
+import { 
+  getProgress, 
+  saveProgress, 
+  isComplete, 
+  isImportant,
+  toggleComplete,
+  toggleImportant,
+  setComplete,
+  setImportant,
+  resetState 
+} from '../utils/progress';
 
   // ============================================
   // NODE EXPANSION
