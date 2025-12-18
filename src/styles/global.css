@@ -219,4 +219,91 @@
   .text-muted {
     color: var(--color-text-muted);
   }
+/* ========================================
+     SHARED INTERACTIVE ELEMENTS
+     ======================================== */
+  
+  /* Concept pills - interactive tags */
+  .concept-pill {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: opacity 0.15s, background-color 0.15s, transform 0.1s;
+    user-select: none;
+  }
+
+  .concept-pill:hover {
+    opacity: 0.7;
+  }
+
+  .concept-pill--completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .concept-pill--important {
+    background-color: rgba(255, 220, 100, 0.5);
+    border-color: rgb(200, 170, 50);
+  }
+
+  :root.dark .concept-pill--important {
+    background-color: rgba(255, 200, 50, 0.3);
+    border-color: rgb(180, 150, 40);
+  }
+
+  .concept-pill--completed.concept-pill--important {
+    background-color: rgba(255, 220, 100, 0.3);
+  }
+
+  .concept-pill--swiping {
+    transform: scale(0.95);
+  }
+
+  /* Prereq tags */
+  .prereq-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .prereq-tag--link {
+    background-color: var(--color-copper);
+    color: white;
+    border: 1px solid var(--color-copper);
+    text-decoration: none;
+    transition: box-shadow 0.15s, background-color 0.15s;
+  }
+
+  .prereq-tag--link:hover {
+    box-shadow: 0 0 8px var(--color-copper-light);
+    background-color: var(--color-copper-light);
+    color: white;
+  }
+
+  .prereq-tag--static {
+    background-color: rgba(184, 115, 51, 0.15);
+    color: var(--color-text-muted);
+    border: 1px dashed var(--color-copper);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .prereq-tag--static:hover {
+    opacity: 0.7;
+  }
+
+  .prereq-tag--completed {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  /* Tools mode - hide system cursor */
+  .tools-mode-active,
+  .tools-mode-active * {
+    cursor: none !important;
+    user-select: none !important;
+  }
 }

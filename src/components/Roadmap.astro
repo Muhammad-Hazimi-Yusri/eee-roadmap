@@ -47,7 +47,7 @@ console.log('Sections count:', sections?.length);
                       return (
                         <a 
                           href={internalHref(`roadmaps/${track}#${id}`)}
-                          class="prereq-tag prereq-tag--link"
+                          class="prereq prereq--link prereq-tag prereq-tag--link"
                           data-prereq-topic={id}
                         >
                           {displayName}
@@ -56,7 +56,7 @@ console.log('Sections count:', sections?.length);
                     }
                     return (
                       <span 
-                        class="prereq-tag prereq-tag--static" 
+                        class="prereq prereq--static prereq-tag prereq-tag--static"  
                         data-static-prereq={prereq}
                       >
                         {prereq}
@@ -83,7 +83,7 @@ console.log('Sections count:', sections?.length);
                     <li 
                       data-topic-id={item.id}
                       data-concept={concept}
-                      class="concept-pill"
+                      class="pill concept-pill"
                     >{concept}</li>
                   ))}
                 </ul>
@@ -234,7 +234,7 @@ console.log('Sections count:', sections?.length);
       // Click handler
       tag.addEventListener('click', () => {
         const completed = toggleComplete(key);
-        tag.classList.toggle('prereq--completed', completed);
+        tag.classList.toggle('prereq-tag--completed', completed);
       });
     });
   }
@@ -249,7 +249,7 @@ console.log('Sections count:', sections?.length);
       
       // Set initial state
       if (isComplete(key)) {
-        pill.classList.add('concept--completed');
+        pill.classList.add('concept-pill--completed');
       }
       if (isImportant(key)) {
         pill.classList.add('concept--important');
@@ -263,7 +263,7 @@ console.log('Sections count:', sections?.length);
         if (event.shiftKey) {
           // Shift+Click → toggle important
           const important = toggleImportant(key);
-          pill.classList.toggle('concept--important', important);
+          pill.classList.toggle('concept-pill--important', important);
         } else {
           // Click → open notes (placeholder for now)
           console.log('Open notes for:', key);
@@ -274,7 +274,7 @@ console.log('Sections count:', sections?.length);
         if (currentMode !== 'simple') return;
         // Double-click → toggle complete
         const completed = toggleComplete(key);
-        pill.classList.toggle('concept--completed', completed);
+        pill.classList.toggle('concept-pill--completed', completed);
         updateTopicStatus(topicId);
         updatePrereqCompletionStatus();
       });
@@ -381,13 +381,13 @@ console.log('Sections count:', sections?.length);
       roadmap.addEventListener('mouseenter', () => {
         if (currentMode === 'tools') {
           (window as any).customCursor?.show();
-          roadmap.classList.add('tools-mode-active');
+          roadmap.classList.add('tools-active', 'tools-mode-active');
         }
       });
     
       roadmap.addEventListener('mouseleave', () => {
         (window as any).customCursor?.hide();
-        roadmap.classList.remove('tools-mode-active');
+        roadmap.classList.remove('tools-active', 'tools-mode-active');
       });
 
       // Touch: prevent scroll when in tools mode, but only on interactive elements
@@ -470,7 +470,7 @@ console.log('Sections count:', sections?.length);
       
       // Remove swiping class from all pills
       document.querySelectorAll('.concept-pill--swiping').forEach((pill) => {
-        pill.classList.remove('concept-pill--swiping');
+        pill.classList.remove('pill--swiping', 'concept-pill--swiping');
       });
     });
 
@@ -487,7 +487,7 @@ console.log('Sections count:', sections?.length);
       swipedPills.clear();
       
       document.querySelectorAll('.concept-pill--swiping').forEach((pill) => {
-        pill.classList.remove('concept-pill--swiping');
+        pill.classList.remove('pill--swiping', 'concept-pill--swiping');
       });
     });
 
@@ -511,7 +511,7 @@ console.log('Sections count:', sections?.length);
         if (swipedPills.has(key)) return; // Already swiped this pill
         
         swipedPills.add(key);
-        pill.classList.add('concept-pill--swiping');
+        pill.classList.add('pill--swiping', 'concept-pill--swiping');
         
         handleToolAction(pill as HTMLElement, key, topicId);
       });
@@ -529,7 +529,7 @@ console.log('Sections count:', sections?.length);
         
         // For other tools, start swipe
         swipedPills.add(key);
-        pill.classList.add('concept-pill--swiping');
+        pill.classList.add('pill--swiping', 'concept-pill--swiping');
         handleToolAction(pill as HTMLElement, key, topicId);
       });
 
@@ -544,7 +544,7 @@ console.log('Sections count:', sections?.length);
 
         e.preventDefault(); // Prevent scroll
         swipedPills.add(key);
-        pill.classList.add('concept-pill--swiping');
+        pill.classList.add('pill--swiping', 'concept-pill--swiping');
         handleToolAction(pill as HTMLElement, key, topicId);
       }, { passive: false });
 
@@ -632,7 +632,8 @@ console.log('Sections count:', sections?.length);
       resetState,
     });
 
-    tag.classList.toggle('prereq--completed', isComplete(key));
+    tag.classList.toggle('prereq--done', isComplete(key));
+    tag.classList.toggle('prereq-tag--completed', isComplete(key));
   }
 
   function handleToolAction(pill: HTMLElement, key: string, topicId: string) {
@@ -645,8 +646,10 @@ console.log('Sections count:', sections?.length);
     if (!changed) return;
 
     // Update UI based on current state
-    pill.classList.toggle('concept--completed', isComplete(key));
-    pill.classList.toggle('concept--important', isImportant(key));
+    pill.classList.toggle('pill--completed', isComplete(key));
+    pill.classList.toggle('concept-pill--completed', isComplete(key));
+    pill.classList.toggle('pill--important', isImportant(key));
+    pill.classList.toggle('concept-pill--important', isImportant(key));
     updateTopicStatus(topicId);
     updatePrereqCompletionStatus();
   }
@@ -745,12 +748,6 @@ console.log('Sections count:', sections?.length);
     display: flex;
     flex-direction: column;
     gap: 3rem;
-  }
-
-  .roadmap.tools-mode-active,
-  .roadmap.tools-mode-active * {
-    cursor: none !important;
-    user-select: none !important;
   }
 
   .section-title {
@@ -879,41 +876,7 @@ console.log('Sections count:', sections?.length);
   }
 
   .concept-pill {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    background-color: var(--color-bg-grid);
-    border: 1px solid var(--color-border);
-    cursor: pointer;
-    transition: opacity 0.15s, background-color 0.15s;
-    user-select: none;
-  }
-
-  .concept-pill:hover {
-    opacity: 0.7;
-  }
-
-  .concept-pill.concept--completed {
-    text-decoration: line-through;
-    opacity: 0.6;
-  }
-
-  .concept-pill.concept--important {
-    background-color: rgba(255, 220, 100, 0.5);
-    border-color: rgb(200, 170, 50);
-  }
-
-  :global(.dark) .concept-pill.concept--important {
-    background-color: rgba(255, 200, 50, 0.3);
-    border-color: rgb(180, 150, 40);
-  }
-
-  .concept-pill.concept--completed.concept--important {
-    background-color: rgba(255, 220, 100, 0.3);
-  }
-  .concept-pill--swiping {
-    transform: scale(0.95);
-    transition: transform 0.1s;
+    /* Extends .pill from global.css */
   }
 
   /* Resources */
@@ -959,42 +922,6 @@ console.log('Sections count:', sections?.length);
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.75rem;
     color: var(--color-text-muted);
-  }
-
-  .prereq-tag {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-  }
-
-  .prereq-tag--link {
-    background-color: var(--color-copper);
-    color: white;
-    border: 1px solid var(--color-copper);
-    text-decoration: none;
-    transition: box-shadow 0.15s, background-color 0.15s;
-  }
-
-  .prereq-tag--link:hover {
-    box-shadow: 0 0 8px var(--color-copper-light);
-    background-color: var(--color-copper-light);
-  }
-
-  .prereq-tag--static {
-    background-color: rgba(184, 115, 51, 0.15);
-    color: var(--color-text-muted);
-    border: 1px dashed var(--color-copper);
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-
-  .prereq-tag--static:hover {
-    opacity: 0.7;
-  }
-
-  .prereq--completed {
-    text-decoration: line-through;
-    opacity: 0.7;
   }
 
   /* Outcomes */

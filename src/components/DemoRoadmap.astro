@@ -122,7 +122,7 @@ const demoData = {
                             prereq.type === 'link' ? (
                               <a 
                                 href={`#${prereq.target}`}
-                                class="demo-prereq-tag demo-prereq-tag--link"
+                                class="prereq-tag prereq-tag--link"
                                 data-prereq-target={prereq.target}
                                 data-prereq-track={prereq.track}
                               >
@@ -130,7 +130,7 @@ const demoData = {
                               </a>
                             ) : (
                               <span 
-                                class="demo-prereq-tag demo-prereq-tag--static"
+                                class="prereq-tag prereq-tag--static"
                                 data-static-prereq={prereq.label}
                               >
                                 {prereq.label}
@@ -142,7 +142,7 @@ const demoData = {
                       <div class="demo-concepts">
                         {topic.concepts.map((concept) => (
                           <span 
-                            class="demo-pill"
+                            class="concept-pill"
                             data-demo-topic-id={topic.id}
                             data-demo-concept={concept}
                           >{concept}</span>
@@ -232,7 +232,7 @@ const demoData = {
             <div class="demo-concepts">
               {topic.concepts.map((concept) => (
                 <span 
-                  class="demo-pill" 
+                  class="concept-pill" 
                   data-demo-topic-id={topic.id}
                   data-demo-concept={concept}
                 >{concept}</span>
@@ -423,41 +423,14 @@ const demoData = {
     color: var(--color-text-muted);
   }
 
-  .demo-prereq-tag {
-    font-family: "IBM Plex Mono", monospace;
+  /* Demo-specific: smaller prereq tags */
+  .demo-prereqs .prereq-tag {
     font-size: 0.65rem;
     padding: 0.125rem 0.375rem;
   }
 
-  .demo-prereq-tag--link {
-    background-color: var(--color-copper);
-    color: white;
-    border: 1px solid var(--color-copper);
-    text-decoration: none;
-    cursor: pointer;
-    transition: box-shadow 0.15s, background-color 0.15s;
-  }
-
-  .demo-prereq-tag--link:hover {
+  .demo-prereqs .prereq-tag--link:hover {
     box-shadow: 0 0 6px var(--color-copper-light);
-    background-color: var(--color-copper-light);
-  }
-
-  .demo-prereq-tag--static {
-    background-color: rgba(184, 115, 51, 0.15);
-    color: var(--color-text-muted);
-    border: 1px dashed var(--color-copper);
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-
-  .demo-prereq-tag--static:hover {
-    opacity: 0.7;
-  }
-
-  .demo-prereq-tag--completed {
-    text-decoration: line-through;
-    opacity: 0.7;
   }
 
   /* Mode section */
@@ -598,40 +571,6 @@ const demoData = {
     gap: 0.5rem;
   }
 
-  .demo-pill {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.75rem;
-    background-color: var(--color-bg-grid);
-    border: 1px solid var(--color-border);
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.1s, opacity 0.15s, background-color 0.15s;
-  }
-
-  .demo-pill:hover {
-    opacity: 0.8;
-  }
-
-  .demo-pill--completed {
-    text-decoration: line-through;
-    opacity: 0.6;
-  }
-
-  .demo-pill--important {
-    background-color: rgba(255, 220, 100, 0.5);
-    border-color: rgb(200, 170, 50);
-  }
-
-  :global(.dark) .demo-pill--important {
-    background-color: rgba(255, 200, 50, 0.3);
-    border-color: rgb(180, 150, 40);
-  }
-
-  .demo-pill--swiping {
-    transform: scale(0.95);
-  }
-
   .demo-reset-btn {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.75rem;
@@ -645,13 +584,6 @@ const demoData = {
   .demo-reset-btn:hover {
     border-color: var(--color-text);
     color: var(--color-text);
-  }
-
-  /* Tools mode active */
-  .demo-roadmap.demo-tools-active,
-  .demo-roadmap.demo-tools-active * {
-    cursor: none !important;
-    user-select: none !important;
   }
 
   /* Outro */
@@ -723,18 +655,18 @@ const demoData = {
     });
 
     // Static prereq toggle
-    document.querySelectorAll('.demo-prereq-tag--static').forEach((tag) => {
+    document.querySelectorAll('.prereq-tag--static').forEach((tag) => {
       tag.addEventListener('click', () => {
         const prereq = tag.getAttribute('data-static-prereq');
         if (!prereq) return;
         
         staticPrereqStore.toggleComplete(prereq);
-        tag.classList.toggle('demo-prereq-tag--completed', staticPrereqStore.isComplete(prereq));
+        tag.classList.toggle('prereq-tag--completed', staticPrereqStore.isComplete(prereq));
       });
     });
 
     // Linked prereq click - expand target with link behavior
-    document.querySelectorAll('.demo-prereq-tag--link').forEach((link) => {
+    document.querySelectorAll('.prereq-tag--link').forEach((link) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const target = link.getAttribute('data-prereq-target');
@@ -781,7 +713,7 @@ const demoData = {
     });
 
     // Mini-roadmap pills - same interactions as main demo
-    document.querySelectorAll('.demo-mini-roadmap .demo-pill').forEach((pill) => {
+    document.querySelectorAll('.demo-mini-roadmap .concept-pill').forEach((pill) => {
       const topicId = pill.getAttribute('data-demo-topic-id');
       const concept = pill.getAttribute('data-demo-concept');
       if (!topicId || !concept) return;
@@ -864,9 +796,9 @@ const demoData = {
         if (demoMode === 'tools' && demoTool !== 'cursor' && touch.touches.length === 1) {
           const target = e.target as HTMLElement;
           // Only prevent default on interactive elements, not buttons
-          if (target.classList.contains('demo-pill') || 
-              target.classList.contains('demo-prereq-tag--static') ||
-              target.classList.contains('demo-prereq-tag--link')) {
+          if (target.classList.contains('concept-pill') || 
+              target.classList.contains('prereq-tag--static') ||
+              target.classList.contains('prereq-tag--link')) {
             e.preventDefault();
           }
         }
@@ -931,7 +863,7 @@ const demoData = {
   // PILL INTERACTIONS
   // ============================================
   function initDemoPills() {
-    document.querySelectorAll('#demo-roadmap .demo-pill').forEach((pill) => {
+    document.querySelectorAll('#demo-roadmap .concept-pill').forEach((pill) => {
       const key = getDemoPillKey(pill);
       if (!key) return;
 
@@ -959,7 +891,7 @@ const demoData = {
       const key = 'demo-tools:Erase me';
       demoStore.setComplete(key);
       demoStore.setImportant(key);
-      erasePill.classList.add('demo-pill--completed', 'demo-pill--important');
+      erasePill.classList.add('concept-pill--completed', 'concept-pill--important');
     }
   }
 
@@ -972,13 +904,13 @@ const demoData = {
 
   function toggleDemoComplete(pill: HTMLElement, key: string) {
     demoStore.toggleComplete(key);
-    pill.classList.toggle('demo-pill--completed', demoStore.isComplete(key));
+    pill.classList.toggle('concept-pill--completed', demoStore.isComplete(key));
     updateDemoPrereqStatus();
   }
 
   function toggleDemoImportant(pill: HTMLElement, key: string) {
     demoStore.toggleImportant(key);
-    pill.classList.toggle('demo-pill--important', demoStore.isImportant(key));
+    pill.classList.toggle('concept-pill--important', demoStore.isImportant(key));
   }
 
   // ============================================
@@ -998,8 +930,8 @@ const demoData = {
     document.addEventListener('mouseup', () => {
       demoMouseDown = false;
       demoSwipedPills.clear();
-      document.querySelectorAll('.demo-pill--swiping').forEach((pill) => {
-        pill.classList.remove('demo-pill--swiping');
+      document.querySelectorAll('.concept-pill--swiping').forEach((pill) => {
+        pill.classList.remove('concept-pill--swiping');
       });
     });
 
@@ -1023,7 +955,7 @@ const demoData = {
       clearTrail(demoTrailState);
     });
 
-    document.querySelectorAll('#demo-roadmap .demo-pill, #demo-mini-roadmap .demo-pill').forEach((pill) => {
+    document.querySelectorAll('#demo-roadmap .concept-pill, #demo-mini-roadmap .concept-pill').forEach((pill) => {
       const key = getDemoPillKey(pill);
       if (!key) return;
 
@@ -1032,7 +964,7 @@ const demoData = {
         if (demoSwipedPills.has(key)) return;
 
         demoSwipedPills.add(key);
-        pill.classList.add('demo-pill--swiping');
+        pill.classList.add('concept-pill--swiping');
         handleDemoToolAction(pill as HTMLElement, key);
       });
 
@@ -1046,7 +978,7 @@ const demoData = {
         }
 
         demoSwipedPills.add(key);
-        pill.classList.add('demo-pill--swiping');
+        pill.classList.add('concept-pill--swiping');
         handleDemoToolAction(pill as HTMLElement, key);
       });
 
@@ -1061,7 +993,7 @@ const demoData = {
 
         e.preventDefault(); // Prevent scroll
         demoSwipedPills.add(key);
-        pill.classList.add('demo-pill--swiping');
+        pill.classList.add('concept-pill--swiping');
         handleDemoToolAction(pill as HTMLElement, key);
       }, { passive: false });
 
@@ -1072,7 +1004,7 @@ const demoData = {
     });
 
     // Static prereqs - tools mode swipe support
-    document.querySelectorAll('.demo-prereq-tag--static').forEach((tag) => {
+    document.querySelectorAll('.prereq-tag--static').forEach((tag) => {
       const prereq = tag.getAttribute('data-static-prereq');
       if (!prereq) return;
 
@@ -1102,11 +1034,11 @@ const demoData = {
       const touch = e.touches[0];
       const element = document.elementFromPoint(touch.clientX, touch.clientY);
       
-      if (element?.classList.contains('demo-pill')) {
+      if (element?.classList.contains('concept-pill')) {
         const key = getDemoPillKey(element);
         if (key && !demoSwipedPills.has(key)) {
           demoSwipedPills.add(key);
-          element.classList.add('demo-pill--swiping');
+          element.classList.add('concept-pill--swiping');
           handleDemoToolAction(element as HTMLElement, key);
         }
       }
@@ -1130,8 +1062,8 @@ const demoData = {
     });
 
     // Update UI
-    pill.classList.toggle('demo-pill--completed', demoStore.isComplete(key));
-    pill.classList.toggle('demo-pill--important', demoStore.isImportant(key));
+    pill.classList.toggle('concept-pill--completed', demoStore.isComplete(key));
+    pill.classList.toggle('concept-pill--important', demoStore.isImportant(key));
     updateDemoPrereqStatus();
   }
     
@@ -1144,14 +1076,14 @@ const demoData = {
       resetState: staticPrereqStore.resetState,
     });
 
-    tag.classList.toggle('demo-prereq-tag--completed', staticPrereqStore.isComplete(prereq));
+    tag.classList.toggle('prereq-tag--completed', staticPrereqStore.isComplete(prereq));
   }
 
   function isDemoTopicCompleted(topicId: string): boolean {
     const topicNode = document.querySelector(`[data-demo-topic-id="${topicId}"]`)?.closest('.demo-topic-node');
     if (!topicNode) return false;
     
-    const pills = topicNode.querySelectorAll('.demo-pill');
+    const pills = topicNode.querySelectorAll('.concept-pill');
     if (pills.length === 0) return false;
     
     return Array.from(pills).every(pill => {
@@ -1162,11 +1094,11 @@ const demoData = {
   }
 
   function updateDemoPrereqStatus() {
-    document.querySelectorAll('.demo-prereq-tag--link[data-prereq-target]').forEach((link) => {
+    document.querySelectorAll('.prereq-tag--link[data-prereq-target]').forEach((link) => {
       const targetId = link.getAttribute('data-prereq-target');
       if (!targetId) return;
       
-      link.classList.toggle('demo-prereq-tag--completed', isDemoTopicCompleted(targetId));
+      link.classList.toggle('prereq-tag--completed', isDemoTopicCompleted(targetId));
     });
   }
 
@@ -1243,12 +1175,12 @@ const demoData = {
       demoStore.clearAll();
       staticPrereqStore.clearAll();
 
-      document.querySelectorAll('.demo-pill').forEach((pill) => {
-        pill.classList.remove('demo-pill--completed', 'demo-pill--important');
+      document.querySelectorAll('.concept-pill').forEach((pill) => {
+        pill.classList.remove('concept-pill--completed', 'concept-pill--important');
       });
 
-      document.querySelectorAll('.demo-prereq-tag--static').forEach((tag) => {
-        tag.classList.remove('demo-prereq-tag--completed');
+      document.querySelectorAll('.prereq-tag--static').forEach((tag) => {
+        tag.classList.remove('prereq-tag--completed');
       });
 
       // Collapse all mini-roadmap topics
@@ -1264,7 +1196,7 @@ const demoData = {
         const key = 'demo-tools:Erase me';
         demoStore.setComplete(key);
         demoStore.setImportant(key);
-        erasePill.classList.add('demo-pill--completed', 'demo-pill--important');
+        erasePill.classList.add('concept-pill--completed', 'concept-pill--important');
       }
     });
   }
