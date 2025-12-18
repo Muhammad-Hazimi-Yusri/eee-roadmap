@@ -672,11 +672,19 @@ const demoData = {
   type TrailState,
 } from '../utils/trail';
 
+import {
+  applyToolAction,
+  canApplyToPrereq,
+  isStatefulTool,
+  type ToolName,
+  type ModeName,
+} from '../utils/tools';
+
   // ============================================
   // DEMO STATE (no localStorage)
   // ============================================
-  let demoMode: 'simple' | 'tools' = 'simple';
-  let demoTool: 'cursor' | 'pen' | 'highlighter' | 'eraser' = 'cursor';
+  let demoMode: ModeName = 'simple';
+  let demoTool: ToolName = 'cursor';
   let demoComplete: Set<string> = new Set();
   let demoImportant: Set<string> = new Set();
   let demoStaticComplete: Set<string> = new Set();
@@ -1053,7 +1061,7 @@ const demoData = {
 
         demoSwipedPills.add(key);
         pill.classList.add('demo-pill--swiping');
-        applyDemoToolAction(pill as HTMLElement, key);
+        handleDemoToolAction(pill as HTMLElement, key);
       });
 
       pill.addEventListener('mousedown', (e) => {
@@ -1067,7 +1075,7 @@ const demoData = {
 
         demoSwipedPills.add(key);
         pill.classList.add('demo-pill--swiping');
-        applyDemoToolAction(pill as HTMLElement, key);
+        handleDemoToolAction(pill as HTMLElement, key);
       });
 
       // Touch support
@@ -1082,7 +1090,7 @@ const demoData = {
         e.preventDefault(); // Prevent scroll
         demoSwipedPills.add(key);
         pill.classList.add('demo-pill--swiping');
-        applyDemoToolAction(pill as HTMLElement, key);
+        handleDemoToolAction(pill as HTMLElement, key);
       }, { passive: false });
 
       pill.addEventListener('touchmove', (e) => {
@@ -1098,19 +1106,19 @@ const demoData = {
 
       tag.addEventListener('mouseenter', () => {
         if (demoMode !== 'tools' || !demoMouseDown) return;
-        if (demoTool === 'cursor' || demoTool === 'highlighter') return;
+        if (!canApplyToPrereq(demoTool)) return;
         if (demoSwipedPills.has(prereq)) return;
 
         demoSwipedPills.add(prereq);
-        applyDemoStaticPrereqAction(tag as HTMLElement, prereq);
+        handleDemoStaticPrereqAction(tag as HTMLElement, prereq);
       });
 
       tag.addEventListener('mousedown', (e) => {
         if (demoMode !== 'tools') return;
-        if (demoTool === 'cursor' || demoTool === 'highlighter') return;
+        if (!canApplyToPrereq(demoTool)) return;
 
         demoSwipedPills.add(prereq);
-        applyDemoStaticPrereqAction(tag as HTMLElement, prereq);
+        handleDemoStaticPrereqAction(tag as HTMLElement, prereq);
       });
     });
 
@@ -1127,7 +1135,7 @@ const demoData = {
         if (key && !demoSwipedPills.has(key)) {
           demoSwipedPills.add(key);
           element.classList.add('demo-pill--swiping');
-          applyDemoToolAction(element as HTMLElement, key);
+          handleDemoToolAction(element as HTMLElement, key);
         }
       }
       
@@ -1136,39 +1144,70 @@ const demoData = {
         const prereq = element.getAttribute('data-static-prereq');
         if (prereq && !demoSwipedPills.has(prereq)) {
           demoSwipedPills.add(prereq);
-          applyDemoStaticPrereqAction(element as HTMLElement, prereq);
+          handleDemoStaticPrereqAction(element as HTMLElement, prereq);
         }
       }
     }, { passive: false });
   }
 
-  function applyDemoToolAction(pill: HTMLElement, key: string) {
-    switch (demoTool) {
-      case 'pen':
-        setDemoComplete(pill, key);
-        break;
-      case 'highlighter':
-        setDemoImportant(pill, key);
-        break;
-      case 'eraser':
-        resetDemoState(pill, key);
-        break;
-    }
+  function handleDemoToolAction(pill: HTMLElement, key: string) {
+    applyToolAction(demoTool, key, {
+      setComplete: (k) => {
+        if (demoComplete.has(k)) return false;
+        demoComplete.add(k);
+        return true;
+      },
+      setImportant: (k) => {
+        if (demoImportant.has(k)) return false;
+        demoImportant.add(k);
+        return true;
+      },
+      resetState: (k) => {
+        demoComplete.delete(k);
+        demoImportant.delete(k);
+      },
+    });
+    
+    function handleDemoStaticPrereqAction(tag: HTMLElement, prereq: string) {
+    if (!canApplyToPrereq(demoTool)) return;
+
+    applyToolAction(demoTool, prereq, {
+      setComplete: (k) => {
+        if (demoStaticComplete.has(k)) return false;
+        demoStaticComplete.add(k);
+        return true;
+      },
+      setImportant: () => false, // Not used for prereqs
+      resetState: (k) => {
+        demoStaticComplete.delete(k);
+      },
+    });
+
+    tag.classList.toggle('demo-prereq-tag--completed', demoStaticComplete.has(prereq));
   }
 
-  function applyDemoStaticPrereqAction(tag: HTMLElement, prereq: string) {
-    switch (demoTool) {
-      case 'pen':
-        if (!demoStaticComplete.has(prereq)) {
-          demoStaticComplete.add(prereq);
-          tag.classList.add('demo-prereq-tag--completed');
-        }
-        break;
-      case 'eraser':
-        demoStaticComplete.delete(prereq);
-        tag.classList.remove('demo-prereq-tag--completed');
-        break;
-    }
+    // Update UI
+    pill.classList.toggle('demo-pill--completed', demoComplete.has(key));
+    pill.classList.toggle('demo-pill--important', demoImportant.has(key));
+    updateDemoPrereqStatus();
+  }
+
+  function handleDemoStaticPrereqAction(tag: HTMLElement, prereq: string) {
+    if (!canApplyToPrereq(demoTool)) return;
+
+    applyToolAction(demoTool, prereq, {
+      setComplete: (k) => {
+        if (demoStaticComplete.has(k)) return false;
+        demoStaticComplete.add(k);
+        return true;
+      },
+      setImportant: () => false, // Not used for prereqs
+      resetState: (k) => {
+        demoStaticComplete.delete(k);
+      },
+    });
+
+    tag.classList.toggle('demo-prereq-tag--completed', demoStaticComplete.has(prereq));
   }
 
   function isDemoTopicCompleted(topicId: string): boolean {

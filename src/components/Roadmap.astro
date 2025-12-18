@@ -105,25 +105,33 @@ console.log('Sections count:', sections?.length);
 </div>
 
 <script>
-import { 
-  getProgress, 
-  saveProgress, 
-  isComplete, 
-  isImportant,
-  toggleComplete,
-  toggleImportant,
-  setComplete,
-  setImportant,
-  resetState 
-} from '../utils/progress';
+  import { 
+    getProgress, 
+    saveProgress, 
+    isComplete, 
+    isImportant,
+    toggleComplete,
+    toggleImportant,
+    setComplete,
+    setImportant,
+    resetState 
+  } from '../utils/progress';
 
-import {
-  initTrailCanvas,
-  drawTrailLine,
-  clearTrail,
-  fadeOutTrail,
-  type TrailState,
-} from '../utils/trail';
+  import {
+    initTrailCanvas,
+    drawTrailLine,
+    clearTrail,
+    fadeOutTrail,
+    type TrailState,
+  } from '../utils/trail';
+
+  import {
+    applyToolAction,
+    canApplyToPrereq,
+    isStatefulTool,
+    type ToolName,
+    type ModeName,
+  } from '../utils/tools';
 
   // ============================================
   // NODE EXPANSION
@@ -335,8 +343,8 @@ import {
   // ============================================
   // INTERACTION MODE & TOOLS
   // ============================================
-  let currentMode: 'simple' | 'tools' = 'simple';
-  let currentTool: 'cursor' | 'pen' | 'highlighter' | 'eraser' = 'cursor';
+  let currentMode: ModeName = 'simple';
+  let currentTool: ToolName = 'cursor';
 
   function initInteractionMode() {
     const modeSelect = document.getElementById('interaction-mode') as HTMLSelectElement;
@@ -504,7 +512,7 @@ import {
         swipedPills.add(key);
         pill.classList.add('concept-pill--swiping');
         
-        applyToolAction(pill as HTMLElement, key, topicId);
+        handleToolAction(pill as HTMLElement, key, topicId);
       });
       
       // Also handle mousedown directly on pill
@@ -521,7 +529,7 @@ import {
         // For other tools, start swipe
         swipedPills.add(key);
         pill.classList.add('concept-pill--swiping');
-        applyToolAction(pill as HTMLElement, key, topicId);
+        handleToolAction(pill as HTMLElement, key, topicId);
       });
 
       // Touch support
@@ -536,7 +544,7 @@ import {
         e.preventDefault(); // Prevent scroll
         swipedPills.add(key);
         pill.classList.add('concept-pill--swiping');
-        applyToolAction(pill as HTMLElement, key, topicId);
+        handleToolAction(pill as HTMLElement, key, topicId);
       }, { passive: false });
 
       pill.addEventListener('touchmove', (e) => {
@@ -554,29 +562,29 @@ import {
       
       tag.addEventListener('mouseenter', () => {
         if (currentMode !== 'tools' || !isMouseDown) return;
-        if (currentTool === 'cursor' || currentTool === 'highlighter') return;
+        if (!canApplyToPrereq(currentTool)) return;
         if (swipedPills.has(key)) return;
         
         swipedPills.add(key);
-        applyStaticPrereqAction(tag as HTMLElement, key);
+        handleStaticPrereqAction(tag as HTMLElement, key);
       });
       
       tag.addEventListener('mousedown', (e) => {
         if (currentMode !== 'tools') return;
-        if (currentTool === 'cursor' || currentTool === 'highlighter') return;
+        if (!canApplyToPrereq(currentTool)) return;
         
         swipedPills.add(key);
-        applyStaticPrereqAction(tag as HTMLElement, key);
+        handleStaticPrereqAction(tag as HTMLElement, key);
       });
 
       // Touch support
       tag.addEventListener('touchstart', (e) => {
         if (currentMode !== 'tools') return;
-        if (currentTool === 'cursor' || currentTool === 'highlighter') return;
+        if (!canApplyToPrereq(currentTool)) return;
 
         e.preventDefault();
         swipedPills.add(key);
-        applyStaticPrereqAction(tag as HTMLElement, key);
+        handleStaticPrereqAction(tag as HTMLElement, key);
       }, { passive: false });
     });
   
@@ -596,7 +604,7 @@ import {
         if (!swipedPills.has(key)) {
           swipedPills.add(key);
           element.classList.add('concept-pill--swiping');
-          applyToolAction(element as HTMLElement, key, topicId);
+          handleToolAction(element as HTMLElement, key, topicId);
         }
       }
       
@@ -608,50 +616,38 @@ import {
         const key = `static:${prereq}`;
         if (!swipedPills.has(key) && currentTool !== 'highlighter') {
           swipedPills.add(key);
-          applyStaticPrereqAction(element as HTMLElement, key);
+          handleStaticPrereqAction(element as HTMLElement, key);
         }
       }
     }, { passive: false });
   }
 
-  function applyStaticPrereqAction(tag: HTMLElement, key: string) {
-    switch (currentTool) {
-      case 'pen':
-        if (setComplete(key)) {
-          tag.classList.add('prereq--completed');
-        }
-        break;
-        
-      case 'eraser':
-        resetState(key);
-        tag.classList.remove('prereq--completed');
-        break;
-    }
+  function handleStaticPrereqAction(tag: HTMLElement, key: string) {
+    if (!canApplyToPrereq(currentTool)) return;
+
+    applyToolAction(currentTool, key, {
+      setComplete,
+      setImportant,
+      resetState,
+    });
+
+    tag.classList.toggle('prereq--completed', isComplete(key));
   }
 
-  function applyToolAction(pill: HTMLElement, key: string, topicId: string) {
-    switch (currentTool) {
-      case 'pen':
-        if (setComplete(key)) {
-          pill.classList.add('concept--completed');
-          updateTopicStatus(topicId);
-          updatePrereqCompletionStatus();
-        }
-        break;
-        
-      case 'highlighter':
-        if (setImportant(key)) {
-          pill.classList.add('concept--important');
-        }
-        break;
-        
-      case 'eraser':
-        resetState(key);
-        pill.classList.remove('concept--completed', 'concept--important');
-        updateTopicStatus(topicId);
-        updatePrereqCompletionStatus();
-        break;
-    }
+  function handleToolAction(pill: HTMLElement, key: string, topicId: string) {
+    const changed = applyToolAction(currentTool, key, {
+      setComplete,
+      setImportant,
+      resetState,
+    });
+
+    if (!changed) return;
+
+    // Update UI based on current state
+    pill.classList.toggle('concept--completed', isComplete(key));
+    pill.classList.toggle('concept--important', isImportant(key));
+    updateTopicStatus(topicId);
+    updatePrereqCompletionStatus();
   }
 
   // ============================================
