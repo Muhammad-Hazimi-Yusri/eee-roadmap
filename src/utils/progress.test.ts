@@ -1,173 +1,124 @@
 // src/utils/progress.test.ts
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  STORAGE_KEY,
-  getProgress,
-  saveProgress,
-  isComplete,
-  isImportant,
-  toggleComplete,
-  toggleImportant,
-  setComplete,
-  setImportant,
-  resetState,
-} from './progress';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { createProgressStore, type ProgressStore } from './progress';
 
-// Mock localStorage
-const localStorageMock = (() => {
+// Mock storage
+function createMockStorage(): Storage {
   let store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] || null,
     setItem: (key: string, value: string) => { store[key] = value; },
     removeItem: (key: string) => { delete store[key]; },
     clear: () => { store = {}; },
+    get length() { return Object.keys(store).length; },
+    key: (index: number) => Object.keys(store)[index] || null,
   };
-})();
+}
 
-Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock });
+const mockLocalStorage = createMockStorage();
+const mockSessionStorage = createMockStorage();
 
-describe('progress utilities', () => {
+Object.defineProperty(globalThis, 'localStorage', { value: mockLocalStorage });
+Object.defineProperty(globalThis, 'sessionStorage', { value: mockSessionStorage });
+
+describe('createProgressStore', () => {
   beforeEach(() => {
-    localStorage.clear();
+    mockLocalStorage.clear();
+    mockSessionStorage.clear();
   });
 
-  describe('getProgress', () => {
+  describe('with localStorage', () => {
+    let store: ProgressStore;
+
+    beforeEach(() => {
+      store = createProgressStore('test-key', 'local');
+    });
+
     it('returns empty state when nothing saved', () => {
-      const progress = getProgress();
-      expect(progress).toEqual({ complete: [], important: [] });
+      expect(store.getProgress()).toEqual({ complete: [], important: [] });
     });
 
-    it('returns saved state', () => {
-      const saved = { complete: ['a:b'], important: ['c:d'] };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    it('setComplete adds to complete list', () => {
+      expect(store.setComplete('a:b')).toBe(true);
+      expect(store.isComplete('a:b')).toBe(true);
+    });
+
+    it('setComplete returns false if already complete', () => {
+      store.setComplete('a:b');
+      expect(store.setComplete('a:b')).toBe(false);
+    });
+
+    it('setImportant adds to important list', () => {
+      expect(store.setImportant('a:b')).toBe(true);
+      expect(store.isImportant('a:b')).toBe(true);
+    });
+
+    it('setImportant returns false if already important', () => {
+      store.setImportant('a:b');
+      expect(store.setImportant('a:b')).toBe(false);
+    });
+
+    it('toggleComplete toggles state', () => {
+      expect(store.toggleComplete('a:b')).toBe(true);
+      expect(store.isComplete('a:b')).toBe(true);
       
-      const progress = getProgress();
-      expect(progress).toEqual(saved);
+      expect(store.toggleComplete('a:b')).toBe(false);
+      expect(store.isComplete('a:b')).toBe(false);
     });
-  });
 
-  describe('saveProgress', () => {
-    it('saves state to localStorage', () => {
-      const state = { complete: ['x:y'], important: [] };
-      saveProgress(state);
+    it('toggleImportant toggles state', () => {
+      expect(store.toggleImportant('a:b')).toBe(true);
+      expect(store.isImportant('a:b')).toBe(true);
       
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      expect(saved).toEqual(state);
-    });
-  });
-
-  describe('isComplete', () => {
-    it('returns false when key not in complete list', () => {
-      expect(isComplete('topic:concept')).toBe(false);
+      expect(store.toggleImportant('a:b')).toBe(false);
+      expect(store.isImportant('a:b')).toBe(false);
     });
 
-    it('returns true when key in complete list', () => {
-      saveProgress({ complete: ['topic:concept'], important: [] });
-      expect(isComplete('topic:concept')).toBe(true);
-    });
-  });
-
-  describe('isImportant', () => {
-    it('returns false when key not in important list', () => {
-      expect(isImportant('topic:concept')).toBe(false);
-    });
-
-    it('returns true when key in important list', () => {
-      saveProgress({ complete: [], important: ['topic:concept'] });
-      expect(isImportant('topic:concept')).toBe(true);
-    });
-  });
-
-  describe('toggleComplete', () => {
-    it('adds key and returns true when not complete', () => {
-      const result = toggleComplete('topic:concept');
+    it('resetState removes from both lists', () => {
+      store.setComplete('a:b');
+      store.setImportant('a:b');
       
-      expect(result).toBe(true);
-      expect(isComplete('topic:concept')).toBe(true);
+      store.resetState('a:b');
+      
+      expect(store.isComplete('a:b')).toBe(false);
+      expect(store.isImportant('a:b')).toBe(false);
     });
 
-    it('removes key and returns false when already complete', () => {
-      saveProgress({ complete: ['topic:concept'], important: [] });
+    it('clearAll removes all data', () => {
+      store.setComplete('a:b');
+      store.setImportant('c:d');
       
-      const result = toggleComplete('topic:concept');
+      store.clearAll();
       
-      expect(result).toBe(false);
-      expect(isComplete('topic:concept')).toBe(false);
+      expect(store.getProgress()).toEqual({ complete: [], important: [] });
     });
   });
 
-  describe('toggleImportant', () => {
-    it('adds key and returns true when not important', () => {
-      const result = toggleImportant('topic:concept');
-      
-      expect(result).toBe(true);
-      expect(isImportant('topic:concept')).toBe(true);
+  describe('with sessionStorage', () => {
+    let store: ProgressStore;
+
+    beforeEach(() => {
+      store = createProgressStore('demo-key', 'session');
     });
 
-    it('removes key and returns false when already important', () => {
-      saveProgress({ complete: [], important: ['topic:concept'] });
+    it('uses sessionStorage not localStorage', () => {
+      store.setComplete('a:b');
       
-      const result = toggleImportant('topic:concept');
-      
-      expect(result).toBe(false);
-      expect(isImportant('topic:concept')).toBe(false);
+      expect(mockSessionStorage.getItem('demo-key')).not.toBeNull();
+      expect(mockLocalStorage.getItem('demo-key')).toBeNull();
     });
   });
 
-  describe('setComplete', () => {
-    it('adds key and returns true when not complete', () => {
-      const result = setComplete('topic:concept');
-      
-      expect(result).toBe(true);
-      expect(isComplete('topic:concept')).toBe(true);
-    });
+  describe('isolation', () => {
+    it('different keys are isolated', () => {
+      const store1 = createProgressStore('key1', 'local');
+      const store2 = createProgressStore('key2', 'local');
 
-    it('returns false when already complete (no duplicate)', () => {
-      saveProgress({ complete: ['topic:concept'], important: [] });
+      store1.setComplete('item');
       
-      const result = setComplete('topic:concept');
-      
-      expect(result).toBe(false);
-      expect(getProgress().complete.filter(k => k === 'topic:concept').length).toBe(1);
-    });
-  });
-
-  describe('setImportant', () => {
-    it('adds key and returns true when not important', () => {
-      const result = setImportant('topic:concept');
-      
-      expect(result).toBe(true);
-      expect(isImportant('topic:concept')).toBe(true);
-    });
-
-    it('returns false when already important (no duplicate)', () => {
-      saveProgress({ complete: [], important: ['topic:concept'] });
-      
-      const result = setImportant('topic:concept');
-      
-      expect(result).toBe(false);
-      expect(getProgress().important.filter(k => k === 'topic:concept').length).toBe(1);
-    });
-  });
-
-  describe('resetState', () => {
-    it('removes key from both complete and important', () => {
-      saveProgress({ complete: ['topic:concept'], important: ['topic:concept'] });
-      
-      resetState('topic:concept');
-      
-      expect(isComplete('topic:concept')).toBe(false);
-      expect(isImportant('topic:concept')).toBe(false);
-    });
-
-    it('preserves other keys', () => {
-      saveProgress({ complete: ['a:b', 'c:d'], important: ['a:b', 'e:f'] });
-      
-      resetState('a:b');
-      
-      expect(isComplete('c:d')).toBe(true);
-      expect(isImportant('e:f')).toBe(true);
+      expect(store1.isComplete('item')).toBe(true);
+      expect(store2.isComplete('item')).toBe(false);
     });
   });
 });

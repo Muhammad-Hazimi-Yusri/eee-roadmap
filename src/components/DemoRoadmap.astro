@@ -665,29 +665,30 @@ const demoData = {
 
 <script>
   import {
-  initTrailCanvas,
-  drawTrailLine,
-  clearTrail,
-  fadeOutTrail,
-  type TrailState,
-} from '../utils/trail';
+    initTrailCanvas,
+    drawTrailLine,
+    clearTrail,
+    fadeOutTrail,
+    type TrailState,
+  } from '../utils/trail';
+  
+  import {
+    applyToolAction,
+    canApplyToPrereq,
+    isStatefulTool,
+    type ToolName,
+    type ModeName,
+  } from '../utils/tools';
 
-import {
-  applyToolAction,
-  canApplyToPrereq,
-  isStatefulTool,
-  type ToolName,
-  type ModeName,
-} from '../utils/tools';
+  import { createProgressStore } from '../utils/progress';
 
   // ============================================
   // DEMO STATE (no localStorage)
   // ============================================
   let demoMode: ModeName = 'simple';
   let demoTool: ToolName = 'cursor';
-  let demoComplete: Set<string> = new Set();
-  let demoImportant: Set<string> = new Set();
-  let demoStaticComplete: Set<string> = new Set();
+  const demoStore = createProgressStore('eee-demo', 'session');
+  const staticPrereqStore = createProgressStore('eee-demo-prereqs', 'session');
   let demoMouseDown = false;
   let demoMouseInside = false;
   let demoSwipedPills: Set<string> = new Set();
@@ -727,13 +728,8 @@ import {
         const prereq = tag.getAttribute('data-static-prereq');
         if (!prereq) return;
         
-        if (demoStaticComplete.has(prereq)) {
-          demoStaticComplete.delete(prereq);
-          tag.classList.remove('demo-prereq-tag--completed');
-        } else {
-          demoStaticComplete.add(prereq);
-          tag.classList.add('demo-prereq-tag--completed');
-        }
+        staticPrereqStore.toggleComplete(prereq);
+        tag.classList.toggle('demo-prereq-tag--completed', staticPrereqStore.isComplete(prereq));
       });
     });
 
@@ -819,6 +815,9 @@ import {
     const select = document.getElementById('demo-prereq-behavior') as HTMLSelectElement;
     if (!select) return;
 
+    // Sync dropdown with initial state (browser may remember old selection)
+    select.value = demoPrereqBehavior;
+
     select.addEventListener('change', () => {
       demoPrereqBehavior = select.value as typeof demoPrereqBehavior;
     });
@@ -835,6 +834,9 @@ import {
     
     if (!modeSelect || !toolbar || !hints || !roadmap) return;
   
+    // Sync dropdown with initial state (browser may remember old selection)
+    modeSelect.value = demoMode;
+
     // Handle hover for custom cursor - both demo areas
     const miniRoadmap = document.getElementById('demo-mini-roadmap');
     const demoAreas = [roadmap, miniRoadmap].filter(Boolean) as HTMLElement[];
@@ -955,8 +957,8 @@ import {
     const erasePill = document.querySelector('[data-demo-concept="Erase me"]') as HTMLElement;
     if (erasePill) {
       const key = 'demo-tools:Erase me';
-      demoComplete.add(key);
-      demoImportant.add(key);
+      demoStore.setComplete(key);
+      demoStore.setImportant(key);
       erasePill.classList.add('demo-pill--completed', 'demo-pill--important');
     }
   }
@@ -969,44 +971,14 @@ import {
   }
 
   function toggleDemoComplete(pill: HTMLElement, key: string) {
-    if (demoComplete.has(key)) {
-      demoComplete.delete(key);
-      pill.classList.remove('demo-pill--completed');
-    } else {
-      demoComplete.add(key);
-      pill.classList.add('demo-pill--completed');
-    }
+    demoStore.toggleComplete(key);
+    pill.classList.toggle('demo-pill--completed', demoStore.isComplete(key));
     updateDemoPrereqStatus();
   }
 
   function toggleDemoImportant(pill: HTMLElement, key: string) {
-    if (demoImportant.has(key)) {
-      demoImportant.delete(key);
-      pill.classList.remove('demo-pill--important');
-    } else {
-      demoImportant.add(key);
-      pill.classList.add('demo-pill--important');
-    }
-  }
-
-  function setDemoImportant(pill: HTMLElement, key: string) {
-    if (demoImportant.has(key)) return;
-    demoImportant.add(key);
-    pill.classList.add('demo-pill--important');
-  }
-
-  function setDemoComplete(pill: HTMLElement, key: string) {
-    if (demoComplete.has(key)) return;
-    demoComplete.add(key);
-    pill.classList.add('demo-pill--completed');
-    updateDemoPrereqStatus();
-  }
-
-  function resetDemoState(pill: HTMLElement, key: string) {
-    demoComplete.delete(key);
-    demoImportant.delete(key);
-    pill.classList.remove('demo-pill--completed', 'demo-pill--important');
-    updateDemoPrereqStatus();
+    demoStore.toggleImportant(key);
+    pill.classList.toggle('demo-pill--important', demoStore.isImportant(key));
   }
 
   // ============================================
@@ -1152,62 +1124,27 @@ import {
 
   function handleDemoToolAction(pill: HTMLElement, key: string) {
     applyToolAction(demoTool, key, {
-      setComplete: (k) => {
-        if (demoComplete.has(k)) return false;
-        demoComplete.add(k);
-        return true;
-      },
-      setImportant: (k) => {
-        if (demoImportant.has(k)) return false;
-        demoImportant.add(k);
-        return true;
-      },
-      resetState: (k) => {
-        demoComplete.delete(k);
-        demoImportant.delete(k);
-      },
+      setComplete: demoStore.setComplete,
+      setImportant: demoStore.setImportant,
+      resetState: demoStore.resetState,
     });
-    
-    function handleDemoStaticPrereqAction(tag: HTMLElement, prereq: string) {
-    if (!canApplyToPrereq(demoTool)) return;
-
-    applyToolAction(demoTool, prereq, {
-      setComplete: (k) => {
-        if (demoStaticComplete.has(k)) return false;
-        demoStaticComplete.add(k);
-        return true;
-      },
-      setImportant: () => false, // Not used for prereqs
-      resetState: (k) => {
-        demoStaticComplete.delete(k);
-      },
-    });
-
-    tag.classList.toggle('demo-prereq-tag--completed', demoStaticComplete.has(prereq));
-  }
 
     // Update UI
-    pill.classList.toggle('demo-pill--completed', demoComplete.has(key));
-    pill.classList.toggle('demo-pill--important', demoImportant.has(key));
+    pill.classList.toggle('demo-pill--completed', demoStore.isComplete(key));
+    pill.classList.toggle('demo-pill--important', demoStore.isImportant(key));
     updateDemoPrereqStatus();
   }
-
+    
   function handleDemoStaticPrereqAction(tag: HTMLElement, prereq: string) {
     if (!canApplyToPrereq(demoTool)) return;
 
     applyToolAction(demoTool, prereq, {
-      setComplete: (k) => {
-        if (demoStaticComplete.has(k)) return false;
-        demoStaticComplete.add(k);
-        return true;
-      },
-      setImportant: () => false, // Not used for prereqs
-      resetState: (k) => {
-        demoStaticComplete.delete(k);
-      },
+      setComplete: staticPrereqStore.setComplete,
+      setImportant: () => false,
+      resetState: staticPrereqStore.resetState,
     });
 
-    tag.classList.toggle('demo-prereq-tag--completed', demoStaticComplete.has(prereq));
+    tag.classList.toggle('demo-prereq-tag--completed', staticPrereqStore.isComplete(prereq));
   }
 
   function isDemoTopicCompleted(topicId: string): boolean {
@@ -1220,7 +1157,7 @@ import {
     return Array.from(pills).every(pill => {
       const concept = pill.getAttribute('data-demo-concept');
       const key = `${topicId}:${concept}`;
-      return demoComplete.has(key);
+      return demoStore.isComplete(key);
     });
   }
 
@@ -1303,9 +1240,8 @@ import {
     if (!resetBtn) return;
 
     resetBtn.addEventListener('click', () => {
-      demoComplete.clear();
-      demoImportant.clear();
-      demoStaticComplete.clear();
+      demoStore.clearAll();
+      staticPrereqStore.clearAll();
 
       document.querySelectorAll('.demo-pill').forEach((pill) => {
         pill.classList.remove('demo-pill--completed', 'demo-pill--important');
@@ -1326,8 +1262,8 @@ import {
       const erasePill = document.querySelector('[data-demo-concept="Erase me"]') as HTMLElement;
       if (erasePill) {
         const key = 'demo-tools:Erase me';
-        demoComplete.add(key);
-        demoImportant.add(key);
+        demoStore.setComplete(key);
+        demoStore.setImportant(key);
         erasePill.classList.add('demo-pill--completed', 'demo-pill--important');
       }
     });
