@@ -1,12 +1,26 @@
-// src/utils/tools.ts
+/**
+ * Tool action utilities for handling pen/highlighter/eraser interactions.
+ * Abstracts the logic for applying tools to concept pills and prereqs.
+ * 
+ * @module tools
+ */
 
+/** Available tool names */
 export type ToolName = 'cursor' | 'pen' | 'highlighter' | 'eraser';
+
+/** Available interaction modes */
 export type ModeName = 'simple' | 'tools';
 
+
+/** Callbacks for tool state changes */
 export interface ToolCallbacks {
+  /** Called when pen tool marks item complete */
   setComplete: (key: string) => boolean;
+  /** Called when highlighter tool marks item important */
   setImportant: (key: string) => boolean;
+  /** Called when eraser tool resets item state */
   resetState: (key: string) => void;
+  /** Optional callback after any state change */
   onStateChange?: (key: string) => void;
 }
 
@@ -45,15 +59,21 @@ export function applyToolAction(
 }
 
 /**
- * Check if tool can modify state (not cursor)
+ * Check if tool modifies state (not cursor).
+ * 
+ * @param tool - Tool name to check
+ * @returns true if tool changes completion/importance state
  */
 export function isStatefulTool(tool: ToolName): boolean {
   return tool !== 'cursor';
 }
 
 /**
- * Check if tool can be used on static prereqs
- * (highlighter doesn't apply to prereqs)
+ * Check if tool can be applied to prerequisite tags.
+ * Highlighter doesn't apply to prereqs (they can't be "important").
+ * 
+ * @param tool - Tool name to check
+ * @returns true if tool works on prereq tags
  */
 export function canApplyToPrereq(tool: ToolName): boolean {
   return tool === 'pen' || tool === 'eraser';

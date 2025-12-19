@@ -1,16 +1,24 @@
-// src/utils/url.ts
+/**
+ * URL utilities for consistent internal link handling.
+ * Ensures trailing slashes match Astro config to prevent page reloads.
+ * 
+ * @module url
+ */
 
 /**
- * Generate internal href with proper trailing slash.
- * Handles hash anchors correctly.
+ * Generate consistent internal href with proper trailing slash.
+ * Prevents page reload issues when navigating between pages.
  * 
- * @param path - Path without base URL (e.g., 'roadmaps/fundamentals')
- * @returns Full href with base URL and trailing slash
+ * @param path - Path without leading slash (e.g., 'roadmaps/fundamentals')
+ * @returns Full path with base URL and trailing slash
  * 
  * @example
- * internalHref('roadmaps/fundamentals') // '/roadmaps/fundamentals/'
- * internalHref('roadmaps/fundamentals#topic') // '/roadmaps/fundamentals/#topic'
- * internalHref('') // '/' (root)
+ * internalHref('roadmaps/fundamentals')
+ * // Returns: '/roadmaps/fundamentals/'
+ * 
+ * @example
+ * internalHref('roadmaps/core#transistors')
+ * // Returns: '/roadmaps/core/#transistors'
  */
 export function internalHref(path: string): string {
   // Handle empty path (root)
