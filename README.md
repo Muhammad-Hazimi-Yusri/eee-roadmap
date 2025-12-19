@@ -8,7 +8,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ## Features
 
-### Current (v0.8.13)
+### Current (v0.9)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -34,33 +34,21 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### v0.9 - Refactoring & Code Quality
-
-**Goal:** Reduce technical debt, improve maintainability, prepare for testing.
-
-#### Critical Fixes
-- [ ] Remove duplicate CustomCursor from RoadmapSettings.astro
-- [ ] Fix duplicate forEach loop in DemoRoadmap.astro (double event registration)
-- [ ] Remove unused CircuitLine.astro
-
-#### Code Deduplication
-- [ ] Extract shared utilities to `src/utils/`:
-  - [ ] `progress.ts` - localStorage operations, state management
-  - [ ] `swipe.ts` - Swipe gesture detection and coordination
-  - [ ] `trail.ts` - Canvas trail drawing logic
-  - [ ] `tools.ts` - Tool action application (pen/highlighter/eraser)
-- [ ] Consolidate duplicate CSS into shared classes in global.css
-- [ ] Refactor DemoRoadmap to import shared utilities
-
-#### TypeScript Improvements
-- [ ] Add strict types for tool names, modes, progress state
-- [ ] Create interfaces for shared function signatures
-- [ ] Enable stricter tsconfig options
-
-#### Documentation
-- [ ] Add JSDoc comments to utility functions
-- [ ] Document component props with TypeScript interfaces
-- [ ] Create CONTRIBUTING.md with code style guidelines
+**v0.9 - Code Quality & Testing** ✓
+- [x] Remove duplicate CustomCursor from RoadmapSettings (v0.9.1)
+- [x] Fix duplicate forEach loop in DemoRoadmap (v0.9.1)
+- [x] Delete unused CircuitLine.astro (v0.9.1)
+- [x] Set up Vitest testing infrastructure (v0.9.2)
+- [x] Extract progress utilities with tests (v0.9.2)
+- [x] Extract URL helper with trailing slash fix (v0.9.4)
+- [x] Extract trail utilities with tests (v0.9.6)
+- [x] Extract tools utilities with tests (v0.9.7)
+- [x] Refactor progress store for sessionStorage support (v0.9.8)
+- [x] Consolidate duplicate CSS to global.css (v0.9.9)
+- [x] Enable stricter tsconfig options (v0.9.10)
+- [x] Add JSDoc comments to utility functions (v0.9.10)
+- [x] Document types in roadmap.ts (v0.9.11)
+- [x] Create CONTRIBUTING.md (v0.9.11)
 
 ### v0.10 - Testing Infrastructure
 
@@ -123,58 +111,60 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ```
 eee-roadmap/
 ├── public/
-│   └── favicon.svg              # Site favicon (circuit wave icon)
+│   └── favicon.svg
 ├── src/
 │   ├── components/
-│   │   ├── CTA.astro            # Call-to-action section with "Get Started" buttons
-│   │   ├── CustomCursor.astro   # Tool-shaped cursor for tools mode (shared)
-│   │   ├── DemoRoadmap.astro    # Interactive demo on homepage (mini-roadmap + interactions)
-│   │   ├── Features.astro       # "What This Is" feature grid section
-│   │   ├── Footer.astro         # Site footer with links and copyright
-│   │   ├── Header.astro         # Navigation header with logo and theme toggle
-│   │   ├── Hero.astro           # Landing hero with stats and CTAs
-│   │   ├── Placeholder.astro    # "Under construction" template for stub pages
-│   │   ├── Roadmap.astro        # Main roadmap component with progress tracking
-│   │   ├── RoadmapSettings.astro # Floating settings panel (mode, tools, preferences)
-│   │   ├── ThemeToggle.astro    # Dark/light mode toggle button
-│   │   └── Tracks.astro         # Track cards grid (Fundamentals/Core/Advanced)
+│   │   ├── CTA.astro
+│   │   ├── CustomCursor.astro
+│   │   ├── DemoRoadmap.astro
+│   │   ├── Features.astro
+│   │   ├── Footer.astro
+│   │   ├── Header.astro
+│   │   ├── Hero.astro
+│   │   ├── Placeholder.astro
+│   │   ├── Roadmap.astro
+│   │   ├── RoadmapSettings.astro
+│   │   ├── ThemeToggle.astro
+│   │   └── Tracks.astro
 │   ├── data/
-│   │   ├── advanced.ts          # Advanced track content (power, control, RF, comms)
-│   │   ├── core.ts              # Core track content (analog, digital, signals, MCU, PCB)
-│   │   └── fundamentals.ts      # Fundamentals track content (math, circuits, EM, components)
+│   │   ├── advanced.ts
+│   │   ├── core.ts
+│   │   └── fundamentals.ts
 │   ├── layouts/
-│   │   └── Layout.astro         # Base HTML layout with head, fonts, theme init
+│   │   └── Layout.astro
 │   ├── pages/
 │   │   ├── roadmaps/
-│   │   │   └── [slug].astro     # Dynamic route for track pages (/roadmaps/fundamentals, etc.)
-│   │   ├── about.astro          # About page (placeholder)
-│   │   ├── contribute.astro     # Contribute page (placeholder)
-│   │   ├── guides.astro         # Guides page (placeholder)
-│   │   ├── index.astro          # Homepage (Hero, Demo, Tracks, Features, CTA)
-│   │   ├── projects.astro       # Projects page (placeholder)
-│   │   └── resources.astro      # Resources page (placeholder)
+│   │   │   └── [slug].astro
+│   │   ├── about.astro
+│   │   ├── contribute.astro
+│   │   ├── guides.astro
+│   │   ├── index.astro
+│   │   ├── projects.astro
+│   │   └── resources.astro
 │   ├── styles/
-│   │   └── global.css           # Global styles, CSS variables, Tailwind layers
+│   │   └── global.css
 │   ├── types/
-│   │   └── roadmap.ts           # TypeScript interfaces (Topic, RoadmapSection, Resource)
-│   └── utils/                   # [Planned v0.9] Shared utilities
-│       ├── progress.ts          # [Planned] localStorage operations, state management
-│       ├── swipe.ts             # [Planned] Swipe gesture detection
-│       ├── trail.ts             # [Planned] Canvas trail drawing
-│       └── tools.ts             # [Planned] Tool action logic
+│   │   └── roadmap.ts
+│   └── utils/
+│       ├── progress.ts
+│       ├── progress.test.ts
+│       ├── tools.ts
+│       ├── tools.test.ts
+│       ├── trail.ts
+│       ├── trail.test.ts
+│       ├── url.ts
+│       └── url.test.ts
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml           # GitHub Actions: build, link-check, deploy to Pages
-├── astro.config.mjs             # Astro configuration (Tailwind integration, base URL)
-├── tailwind.config.mjs          # Tailwind configuration (fonts, content paths)
-├── tsconfig.json                # TypeScript configuration (paths, strict mode)
-├── package.json                 # Dependencies and npm scripts
-├── CHANGELOG.md                 # Version history with dates and commits
-├── LICENSE                      # MIT License
-└── README.md                    # Project documentation
+│       └── deploy.yml
+├── astro.config.mjs
+├── tailwind.config.mjs
+├── tsconfig.json
+├── vitest.config.ts
+├── package.json
+├── CONTRIBUTING.md
+└── README.md
 ```
-
----
 
 ## Run Locally
 
@@ -206,7 +196,10 @@ npm run build
 # Preview production build locally
 npm run preview
 
-# Check for broken links (requires build first)
+# Run tests
+npm test
+
+# Check for broken links (after build)
 npm run check-links
 ```
 
