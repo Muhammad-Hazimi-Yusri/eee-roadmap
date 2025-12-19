@@ -11,7 +11,8 @@
     "astro": "astro",
     "check-links": "npx linkinator ./dist",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.0",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.3",
+    "@vitest/coverage-v8": "^4.0.16",
     "vitest": "^4.0.16"
   }
 }

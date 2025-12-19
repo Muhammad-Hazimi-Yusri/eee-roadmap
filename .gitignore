@@ -32,3 +32,4 @@ public/ # Only if used as build output, not for static assets
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+/coverage/
