@@ -1,6 +1,8 @@
 {
   "recurse": true,
   "skip": [
-    "https://www.electronics-tutorials.ws/*"
+    "https://www.electronics-tutorials.ws/*",
+    "og-image\\.png",
+    ".*/og-image\\.png"       
   ]
 }
