@@ -6,9 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Features
-
-### Current (v0.9)
+## Current Features (v0.10)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -50,43 +48,70 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Document types in roadmap.ts (v0.9.11)
 - [x] Create CONTRIBUTING.md (v0.9.11)
 
-### v0.10 - Testing Infrastructure
+### v0.10 - Testing Infrastructure ✓
 
 **Goal:** Comprehensive test coverage to catch regressions early.
 
 #### Unit Tests (Vitest)
-- [ ] Progress utilities (toggle, save, load)
-- [ ] Tool action logic
-- [ ] State calculations (isTopicCompleted, etc.)
+- [x] Progress utilities (toggle, save, load)
+- [x] Tool action logic
+- [x] State calculations — *skipped, DOM-dependent; covered by E2E*
 
 #### Integration Tests (Playwright)
-- [ ] Page navigation and routing
-- [ ] Hash anchor navigation and auto-expand
-- [ ] Prerequisite link behavior (same-tab, new-tab, smart)
-- [ ] Dark mode toggle persistence
+- [x] Page navigation and routing
+- [x] Hash anchor navigation and auto-expand
+- [x] Prerequisite link behavior (same-tab, new-tab, smart)
+- [x] Dark mode toggle persistence
 
 #### E2E Tests (Playwright)
-- [ ] Simple mode interactions (click, dblclick, shift+click)
-- [ ] Tools mode swipe gestures
-- [ ] Progress persistence across page reloads
-- [ ] Demo component full flow
-- [ ] Cross-track prerequisite navigation
+- [x] Simple mode interactions (click, dblclick, shift+click)
+- [x] Tools mode swipe gestures — *skipped, complex touch simulation*
+- [x] Progress persistence across page reloads
+- [x] Demo component full flow
+- [x] Cross-track prerequisite navigation
 
 #### CI/CD Enhancements
-- [ ] Add test step to deploy.yml (run before build)
-- [ ] Add test coverage reporting
-- [ ] Add visual regression tests for key components
+- [x] Add test step to deploy.yml (run before build)
+- [x] Add test coverage reporting
+- [x] Visual regression tests — *deferred, not useful during active solo development*
 
-### v0.11 - Cross-Device Sync
+### v0.11 - Notes & Deep-dives
+
+**Goal:** Add depth to learning with explanatory content and personal notes.
+
+- [ ] Clickable concepts → modal/popup with explanations
+- [ ] Markdown notes per topic
+- [ ] LaTeX support for equations
+- [ ] PDF export via GitHub Actions
+- [ ] A4 paper aesthetic: draggable, pinnable note cards
+
+### v0.12 - Custom Roadmaps & Self-Hosting
+
+**Goal:** Let developers create and host their own roadmaps.
+
+- [ ] JSON schema for roadmap data
+- [ ] Schema validator (CLI or web)
+- [ ] Docs: how to fork and customize
+- [ ] Example: blank template roadmap
+- [ ] Example: alternative track (e.g., Computer Engineering focus)
+
+### v0.13 - Cross-Device Sync
+
+**Goal:** Access progress from any device.
+
 - [ ] Research sync options (GitHub Gist, Firebase, custom backend)
 - [ ] User authentication strategy
 - [ ] Import/export progress as JSON fallback
+- [ ] Sync custom notes
 
-### v0.12 - Notes & Deep-dives
-- [ ] Clickable concepts → modal/popup with explanations
-- [ ] LaTeX or Markdown notes
-- [ ] PDF compilation via GitHub Actions
-- [ ] A4 paper aesthetic: draggable, pinnable note cards
+### v0.14 - Roadmap Editor
+
+**Goal:** Let non-devs create roadmaps without touching code.
+
+- [ ] Form-based web editor
+- [ ] Live preview
+- [ ] Export as JSON/ZIP (ready to deploy)
+- [ ] Import existing roadmap to edit
 
 ### Future
 - [ ] Hand-drawn aesthetic overhaul

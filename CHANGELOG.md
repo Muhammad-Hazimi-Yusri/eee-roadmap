@@ -11,6 +11,24 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.10.0] - 2025-12-20
+
+**Testing Infrastructure**
+
+### Added
+- Playwright integration tests (navigation, hash anchors, prereq links, dark mode)
+- Playwright E2E tests (interactions, persistence, demo component, cross-track nav)
+- Test job in CI/CD pipeline (runs before build)
+- Vitest coverage reporting with v8 provider
+- Coverage report uploaded as CI artifact on failure
+
+### Changed
+- BEM class name consistency: `concept--important` → `concept-pill--important`
+
+### Deferred
+- Visual regression tests (not useful during active solo development; revisit when UI stabilizes or contributors join)
+
+
 ## [0.9.0] - 2025-12-19
 
 **Code Quality & Testing**
