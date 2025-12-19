@@ -25,3 +25,10 @@ lerna-debug.log*
 
 # Astro-specific (if configured differently from default 'dist')
 public/ # Only if used as build output, not for static assets
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
