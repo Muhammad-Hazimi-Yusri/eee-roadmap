@@ -88,9 +88,19 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Calculate power dissipation',
         ],
         concepts: [
-          { name: "Ohm's Law" },
-          { name: 'KVL & KCL' },
-          { name: 'Thevenin & Norton' },
+          { 
+            name: "Ohm's Law",
+            notes: "V = IR\n\n\rVoltage (V) equals Current (I) times Resistance (R).\n\n• V in Volts (V)\n• I in Amperes (A)\n• R in Ohms (Ω)\n\nRearranged forms:\n• I = V / R\n• R = V / I\n\nPower relation: P = IV = I²R = V²/R"
+          },
+          { 
+            name: 'KVL & KCL',
+            notes: "Kirchhoff's Voltage Law (KVL):\n\r\nThe sum of all voltages around any closed loop equals zero.\n\nΣV = 0\n\nKirchhoff's Current Law (KCL):\nThe sum of currents entering a node equals the sum leaving.\nΣI_in = ΣI_out",
+            pdf: "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf"
+          },
+          { 
+            name: 'Thevenin & Norton',
+            pdf: "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf"
+          },
         ],
         resources: [
           { label: 'MIT OCW 6.002', url: 'https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/' },
