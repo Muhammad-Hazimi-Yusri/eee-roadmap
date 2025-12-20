@@ -1,0 +1,835 @@
+---
+// src/components/ConceptWindows.astro
+// Draggable, resizable windows for displaying concept notes and PDFs
+---
+
+<!-- Container for dynamically created windows -->
+<div id="concept-windows-container" class="concept-windows-container"></div>
+
+<!-- Taskbar for minimized windows -->
+<div id="concept-taskbar" class="concept-taskbar" hidden>
+  <div class="concept-taskbar-items" id="concept-taskbar-items"></div>
+</div>
+
+<!-- Template for a window -->
+<template id="concept-window-template">
+  <div class="concept-window" data-window-id="">
+    <div class="concept-window-titlebar">
+      <span class="concept-window-title">Concept Name</span>
+      <div class="concept-window-controls">
+        <button class="concept-window-btn concept-window-minimize" aria-label="Minimize" title="Minimize">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 6h8"/>
+          </svg>
+        </button>
+        <button class="concept-window-btn concept-window-maximize" aria-label="Maximize" title="Maximize">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="1.5" y="1.5" width="9" height="9" rx="1"/>
+          </svg>
+        </button>
+        <button class="concept-window-btn concept-window-close" aria-label="Close" title="Close">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 2l8 8M10 2l-8 8"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="concept-window-content">
+      <div class="concept-window-body"></div>
+    </div>
+    <!-- Resize handles -->
+    <div class="resize-handle resize-handle-n" data-resize="n"></div>
+    <div class="resize-handle resize-handle-e" data-resize="e"></div>
+    <div class="resize-handle resize-handle-s" data-resize="s"></div>
+    <div class="resize-handle resize-handle-w" data-resize="w"></div>
+    <div class="resize-handle resize-handle-ne" data-resize="ne"></div>
+    <div class="resize-handle resize-handle-se" data-resize="se"></div>
+    <div class="resize-handle resize-handle-sw" data-resize="sw"></div>
+    <div class="resize-handle resize-handle-nw" data-resize="nw"></div>
+  </div>
+</template>
+
+<!-- Template for taskbar item -->
+<template id="concept-taskbar-item-template">
+  <button class="concept-taskbar-item" data-window-id="">
+    <span class="concept-taskbar-item-title"></span>
+  </button>
+</template>
+
+<style>
+  .concept-windows-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Taskbar */
+  .concept-taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    z-index: 999;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .concept-taskbar[hidden] {
+    display: none;
+  }
+
+  .concept-taskbar-items {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+  }
+
+  .concept-taskbar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .concept-taskbar-item:hover {
+    background: var(--color-copper);
+    color: white;
+    border-color: var(--color-copper);
+  }
+
+  /* Window */
+  .concept-window {
+    position: absolute;
+    width: 500px;
+    height: 400px;
+    min-width: 250px;
+    min-height: 150px;
+    background: #ffffff;
+    box-shadow: 
+      0 4px 6px rgba(0, 0, 0, 0.1),
+      0 10px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    border: 1px solid #d0d0d0;
+  }
+
+  .concept-window--maximized {
+    width: 100vw !important;
+    height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    border: none;
+    border-radius: 0;
+  }
+
+  :global(.dark) .concept-window {
+    background: #1a1a1a;
+    border-color: #333;
+    box-shadow: 
+      0 4px 6px rgba(0, 0, 0, 0.3),
+      0 10px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Titlebar */
+  .concept-window-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.375rem 0.5rem;
+    background: var(--color-bg-grid);
+    border-bottom: 2px solid var(--color-copper);
+    cursor: grab;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .concept-window-titlebar:active {
+    cursor: grabbing;
+  }
+
+  .concept-window-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    margin-right: 0.5rem;
+  }
+
+  /* Window controls */
+  .concept-window-controls {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .concept-window-btn {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+  }
+
+  .concept-window-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--color-text);
+  }
+
+  :global(.dark) .concept-window-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .concept-window-close:hover {
+    background: #e81123;
+    color: white;
+  }
+
+  /* Content */
+  .concept-window-content {
+    padding: 1rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .concept-window-body {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .concept-window-placeholder {
+    color: var(--color-text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .concept-window-notes {
+    font-family: inherit;
+  }
+
+  .concept-window-divider {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: 1rem 0;
+  }
+
+  .concept-window-pdf-container {
+    margin-top: 0.5rem;
+  }
+
+  .concept-window-pdf {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: #f5f5f5;
+  }
+
+  :global(.dark) .concept-window-pdf {
+    background: #222;
+  }
+
+  /* Resize handles */
+  .resize-handle {
+    position: absolute;
+    background: transparent;
+  }
+
+  .resize-handle-n {
+    top: -4px;
+    left: 8px;
+    right: 8px;
+    height: 8px;
+    cursor: n-resize;
+  }
+
+  .resize-handle-e {
+    top: 8px;
+    right: -4px;
+    bottom: 8px;
+    width: 8px;
+    cursor: e-resize;
+  }
+
+  .resize-handle-s {
+    bottom: -4px;
+    left: 8px;
+    right: 8px;
+    height: 8px;
+    cursor: s-resize;
+  }
+
+  .resize-handle-w {
+    top: 8px;
+    left: -4px;
+    bottom: 8px;
+    width: 8px;
+    cursor: w-resize;
+  }
+
+  .resize-handle-ne {
+    top: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    cursor: ne-resize;
+  }
+
+  .resize-handle-se {
+    bottom: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    cursor: se-resize;
+  }
+
+  .resize-handle-sw {
+    bottom: -4px;
+    left: -4px;
+    width: 12px;
+    height: 12px;
+    cursor: sw-resize;
+  }
+
+  .resize-handle-nw {
+    top: -4px;
+    left: -4px;
+    width: 12px;
+    height: 12px;
+    cursor: nw-resize;
+  }
+
+  /* Hide resize handles when maximized */
+  .concept-window--maximized .resize-handle {
+    display: none;
+  }
+</style>
+
+<script>
+  interface ConceptData {
+    notes?: string;
+    pdf?: string;
+  }
+
+  interface WindowState {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }
+
+  interface OpenWindow {
+    id: string;
+    element: HTMLElement;
+    zIndex: number;
+    isMinimized: boolean;
+    isMaximized: boolean;
+    preMaximizeState?: WindowState;
+  }
+
+  const STORAGE_KEY = 'eee-concept-window-states';
+  const CASCADE_OFFSET = 30;
+  const BASE_Z_INDEX = 1000;
+  const DEFAULT_WIDTH = 500;
+  const DEFAULT_HEIGHT = 400;
+
+  let openWindows: OpenWindow[] = [];
+  let highestZIndex = BASE_Z_INDEX;
+  let cascadeCount = 0;
+
+  // Load saved states from localStorage
+  function loadStates(): Record<string, WindowState> {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  // Save states to localStorage
+  function saveStates(states: Record<string, WindowState>) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
+    } catch {}
+  }
+
+  // Save single window state
+  function saveWindowState(windowId: string, state: WindowState) {
+    const states = loadStates();
+    states[windowId] = state;
+    saveStates(states);
+  }
+
+  // Get current window state
+  function getWindowState(win: HTMLElement): WindowState {
+    return {
+      x: win.offsetLeft,
+      y: win.offsetTop,
+      width: win.offsetWidth,
+      height: win.offsetHeight
+    };
+  }
+
+  // Get initial state for a window
+  function getInitialState(windowId: string): WindowState {
+    const saved = loadStates()[windowId];
+    if (saved) {
+      return saved;
+    }
+    
+    const x = 50 + (cascadeCount * CASCADE_OFFSET);
+    const y = 50 + (cascadeCount * CASCADE_OFFSET);
+    cascadeCount++;
+    
+    if (cascadeCount > 10) {
+      cascadeCount = 0;
+    }
+    
+    return { x, y, width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
+  }
+
+  // Update taskbar visibility
+  function updateTaskbar() {
+    const taskbar = document.getElementById('concept-taskbar');
+    const hasMinimized = openWindows.some(w => w.isMinimized);
+    if (taskbar) {
+      taskbar.hidden = !hasMinimized;
+    }
+  }
+
+  // Bring window to front
+  function bringToFront(windowId: string) {
+    const win = openWindows.find(w => w.id === windowId);
+    if (!win) return;
+    
+    highestZIndex++;
+    win.zIndex = highestZIndex;
+    win.element.style.zIndex = String(highestZIndex);
+  }
+
+  // Minimize window
+  function minimizeWindow(windowId: string) {
+    const win = openWindows.find(w => w.id === windowId);
+    if (!win || win.isMinimized) return;
+
+    win.isMinimized = true;
+    win.element.style.display = 'none';
+
+    // Add to taskbar
+    const taskbarItems = document.getElementById('concept-taskbar-items');
+    const template = document.getElementById('concept-taskbar-item-template') as HTMLTemplateElement;
+    if (!taskbarItems || !template) return;
+
+    const itemEl = template.content.cloneNode(true) as DocumentFragment;
+    const item = itemEl.querySelector('.concept-taskbar-item') as HTMLElement;
+    if (!item) return;
+
+    item.dataset.windowId = windowId;
+    const titleEl = item.querySelector('.concept-taskbar-item-title');
+    const winTitle = win.element.querySelector('.concept-window-title');
+    if (titleEl && winTitle) {
+      titleEl.textContent = winTitle.textContent;
+    }
+
+    item.addEventListener('click', () => {
+      restoreWindow(windowId);
+    });
+
+    taskbarItems.appendChild(item);
+    updateTaskbar();
+  }
+
+  // Restore window from minimized
+  function restoreWindow(windowId: string) {
+    const win = openWindows.find(w => w.id === windowId);
+    if (!win || !win.isMinimized) return;
+
+    win.isMinimized = false;
+    win.element.style.display = 'flex';
+    bringToFront(windowId);
+
+    // Remove from taskbar
+    const taskbarItem = document.querySelector(`.concept-taskbar-item[data-window-id="${windowId}"]`);
+    taskbarItem?.remove();
+    updateTaskbar();
+  }
+
+  // Maximize/restore window
+  function toggleMaximize(windowId: string) {
+    const win = openWindows.find(w => w.id === windowId);
+    if (!win) return;
+
+    if (win.isMaximized) {
+      // Restore
+      win.isMaximized = false;
+      win.element.classList.remove('concept-window--maximized');
+      
+      if (win.preMaximizeState) {
+        win.element.style.left = `${win.preMaximizeState.x}px`;
+        win.element.style.top = `${win.preMaximizeState.y}px`;
+        win.element.style.width = `${win.preMaximizeState.width}px`;
+        win.element.style.height = `${win.preMaximizeState.height}px`;
+      }
+    } else {
+      // Maximize
+      win.preMaximizeState = getWindowState(win.element);
+      win.isMaximized = true;
+      win.element.classList.add('concept-window--maximized');
+    }
+  }
+
+  // Create and open a window
+  function openWindow(topicId: string, conceptName: string) {
+    const windowId = `${topicId}:${conceptName}`;
+    
+    // If already open, bring to front or restore
+    const existing = openWindows.find(w => w.id === windowId);
+    if (existing) {
+      if (existing.isMinimized) {
+        restoreWindow(windowId);
+      } else {
+        bringToFront(windowId);
+      }
+      return;
+    }
+
+    // Get concept data
+    const allData = (window as any).conceptData || {};
+    const topicData = allData[topicId] || {};
+    const concept: ConceptData = topicData[conceptName] || {};
+
+    // Clone template
+    const template = document.getElementById('concept-window-template') as HTMLTemplateElement;
+    const container = document.getElementById('concept-windows-container');
+    if (!template || !container) return;
+
+    const windowEl = template.content.cloneNode(true) as DocumentFragment;
+    const win = windowEl.querySelector('.concept-window') as HTMLElement;
+    if (!win) return;
+
+    // Set window ID and title
+    win.dataset.windowId = windowId;
+    const titleEl = win.querySelector('.concept-window-title');
+    if (titleEl) titleEl.textContent = conceptName;
+
+    // Set content
+    const bodyEl = win.querySelector('.concept-window-body');
+    if (bodyEl) {
+      let html = '';
+
+      if (concept.notes) {
+        const formattedNotes = concept.notes.replace(/\n/g, '<br>');
+        html += `<div class="concept-window-notes">${formattedNotes}</div>`;
+      }
+
+      if (concept.pdf) {
+        html += `
+          <div class="concept-window-pdf-container">
+            ${concept.notes ? '<hr class="concept-window-divider">' : ''}
+            <iframe 
+              src="${concept.pdf}" 
+              class="concept-window-pdf"
+              title="PDF: ${conceptName}"
+            ></iframe>
+          </div>
+        `;
+      }
+
+      if (!concept.notes && !concept.pdf) {
+        html = `
+          <div class="concept-window-placeholder">
+            📝 Notes not yet uploaded for this concept.
+          </div>
+        `;
+      }
+
+      bodyEl.innerHTML = html;
+    }
+
+    // Set initial state
+    const state = getInitialState(windowId);
+    win.style.left = `${state.x}px`;
+    win.style.top = `${state.y}px`;
+    win.style.width = `${state.width}px`;
+    win.style.height = `${state.height}px`;
+
+    // Set z-index
+    highestZIndex++;
+    win.style.zIndex = String(highestZIndex);
+
+    // Add to DOM
+    container.appendChild(win);
+
+    // Track window
+    const windowData: OpenWindow = {
+      id: windowId,
+      element: win,
+      zIndex: highestZIndex,
+      isMinimized: false,
+      isMaximized: false
+    };
+    openWindows.push(windowData);
+
+    // Setup event listeners
+    setupWindowEvents(win, windowId);
+  }
+
+  // Close a window
+  function closeWindow(windowId: string) {
+    const index = openWindows.findIndex(w => w.id === windowId);
+    if (index === -1) return;
+
+    const win = openWindows[index];
+    win.element.remove();
+    openWindows.splice(index, 1);
+
+    // Remove from taskbar if minimized
+    const taskbarItem = document.querySelector(`.concept-taskbar-item[data-window-id="${windowId}"]`);
+    taskbarItem?.remove();
+    updateTaskbar();
+  }
+
+  // Setup all window events
+  function setupWindowEvents(win: HTMLElement, windowId: string) {
+    const titlebar = win.querySelector('.concept-window-titlebar') as HTMLElement;
+    const closeBtn = win.querySelector('.concept-window-close');
+    const minimizeBtn = win.querySelector('.concept-window-minimize');
+    const maximizeBtn = win.querySelector('.concept-window-maximize');
+    const controls = win.querySelector('.concept-window-controls');
+
+    // Close
+    closeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeWindow(windowId);
+    });
+
+    // Minimize
+    minimizeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      minimizeWindow(windowId);
+    });
+
+    // Maximize
+    maximizeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMaximize(windowId);
+    });
+
+    // Double-click titlebar to maximize
+    titlebar?.addEventListener('dblclick', (e) => {
+      if (controls?.contains(e.target as Node)) return;
+      toggleMaximize(windowId);
+    });
+
+    // Bring to front on click
+    win.addEventListener('mousedown', () => {
+      bringToFront(windowId);
+    });
+
+    // Drag
+    setupDrag(win, windowId, titlebar, controls);
+
+    // Resize
+    setupResize(win, windowId);
+
+    // Prevent page scroll when touching window (except content area)
+    win.addEventListener('touchmove', (e) => {
+      const target = e.target as HTMLElement;
+      const content = win.querySelector('.concept-window-content');
+    
+      // Allow scroll inside content area
+      if (content?.contains(target)) {
+        return;
+      }
+      
+      // Prevent page scroll elsewhere on window
+      e.preventDefault();
+    }, { passive: false });
+  }
+
+  // Drag functionality
+  function setupDrag(win: HTMLElement, windowId: string, titlebar: HTMLElement | null, controls: Element | null) {
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    titlebar?.addEventListener('mousedown', (e) => {
+      if (controls?.contains(e.target as Node)) return;
+      
+      const winData = openWindows.find(w => w.id === windowId);
+      if (winData?.isMaximized) return;
+
+      isDragging = true;
+      dragOffsetX = e.clientX - win.offsetLeft;
+      dragOffsetY = e.clientY - win.offsetTop;
+      bringToFront(windowId);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+
+      const x = e.clientX - dragOffsetX;
+      const y = e.clientY - dragOffsetY;
+
+      const maxX = window.innerWidth - win.offsetWidth;
+      const maxY = window.innerHeight - win.offsetHeight;
+
+      win.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+      win.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        saveWindowState(windowId, getWindowState(win));
+      }
+    });
+
+    // Touch support - prevent page scroll when dragging
+    titlebar?.addEventListener('touchstart', (e) => {
+      if (controls?.contains(e.target as Node)) return;
+      
+      const winData = openWindows.find(w => w.id === windowId);
+      if (winData?.isMaximized) return;
+    
+      e.preventDefault(); // Prevent page scroll
+      const touch = e.touches[0];
+      isDragging = true;
+      dragOffsetX = touch.clientX - win.offsetLeft;
+      dragOffsetY = touch.clientY - win.offsetTop;
+      bringToFront(windowId);
+    }, { passive: false }); // Note: passive: false to allow preventDefault
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+
+      const touch = e.touches[0];
+      const x = touch.clientX - dragOffsetX;
+      const y = touch.clientY - dragOffsetY;
+
+      const maxX = window.innerWidth - win.offsetWidth;
+      const maxY = window.innerHeight - win.offsetHeight;
+
+      win.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+      win.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+      if (isDragging) {
+        isDragging = false;
+        saveWindowState(windowId, getWindowState(win));
+      }
+    });
+  }
+
+  // Resize functionality
+  function setupResize(win: HTMLElement, windowId: string) {
+    const handles = win.querySelectorAll('.resize-handle');
+    let isResizing = false;
+    let resizeDir = '';
+    let startX = 0;
+    let startY = 0;
+    let startWidth = 0;
+    let startHeight = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    handles.forEach(handle => {
+      handle.addEventListener('mousedown', (e) => {
+        const winData = openWindows.find(w => w.id === windowId);
+        if (winData?.isMaximized) return;
+
+        e.stopPropagation();
+        isResizing = true;
+        resizeDir = (handle as HTMLElement).dataset.resize || '';
+        startX = (e as MouseEvent).clientX;
+        startY = (e as MouseEvent).clientY;
+        startWidth = win.offsetWidth;
+        startHeight = win.offsetHeight;
+        startLeft = win.offsetLeft;
+        startTop = win.offsetTop;
+        bringToFront(windowId);
+      });
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const minW = 250;
+      const minH = 150;
+
+      let newWidth = startWidth;
+      let newHeight = startHeight;
+      let newLeft = startLeft;
+      let newTop = startTop;
+
+      if (resizeDir.includes('e')) {
+        newWidth = Math.max(minW, startWidth + dx);
+      }
+      if (resizeDir.includes('w')) {
+        const w = Math.max(minW, startWidth - dx);
+        newLeft = startLeft + (startWidth - w);
+        newWidth = w;
+      }
+      if (resizeDir.includes('s')) {
+        newHeight = Math.max(minH, startHeight + dy);
+      }
+      if (resizeDir.includes('n')) {
+        const h = Math.max(minH, startHeight - dy);
+        newTop = startTop + (startHeight - h);
+        newHeight = h;
+      }
+
+      win.style.width = `${newWidth}px`;
+      win.style.height = `${newHeight}px`;
+      win.style.left = `${newLeft}px`;
+      win.style.top = `${newTop}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        saveWindowState(windowId, getWindowState(win));
+      }
+    });
+  }
+
+  // Expose global API
+  (window as any).conceptModal = {
+    open: openWindow,
+    close: closeWindow,
+    minimize: minimizeWindow,
+    restore: restoreWindow,
+    toggleMaximize,
+    bringToFront
+  };
+</script>
