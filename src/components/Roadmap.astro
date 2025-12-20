@@ -2,6 +2,7 @@
 // src/components/Roadmap.astro
 
 import RoadmapSettings from './RoadmapSettings.astro';
+import ConceptModal from './ConceptModal.astro';
 import { internalHref } from '../utils/url';
 
 interface Props {
@@ -9,9 +10,29 @@ interface Props {
 }
 
 const { sections } = Astro.props;
-console.log('Sections count:', sections?.length);
+
+// Build concept data for modal
+const conceptData: Record<string, Record<string, { notes?: string; pdf?: string }>> = {};
+for (const section of sections) {
+  for (const item of section.items) {
+    if (item.concepts) {
+      conceptData[item.id] = {};
+      for (const concept of item.concepts) {
+        conceptData[item.id][concept.name] = {
+          notes: concept.notes,
+          pdf: concept.pdf,
+        };
+      }
+    }
+  }
+}
 ---
 <RoadmapSettings />
+<ConceptModal />
+
+<script define:vars={{ conceptData }}>
+  window.conceptData = conceptData;
+</script>
 
 <div class="roadmap">
   {sections.map((section) => (
@@ -255,22 +276,42 @@ console.log('Sections count:', sections?.length);
       }
       updateTopicStatus(topicId);
       
+      let clickTimer: number | null = null;
+
       // Simple mode: click = notes, dblclick = complete, shift+click = important
       pill.addEventListener('click', (e) => {
         if (currentMode !== 'simple') return;
         const event = e as MouseEvent;
+
         if (event.shiftKey) {
           // Shift+Click → toggle important
           const important = toggleImportant(key);
           pill.classList.toggle('concept-pill--important', important);
-        } else {
-          // Click → open notes (placeholder for now)
-          console.log('Open notes for:', key);
+        } 
+
+        // Delay to allow double-click detection
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+          return;
         }
+
+        clickTimer = window.setTimeout(() => {
+          clickTimer = null;
+          const topicId = pill.getAttribute('data-topic-id');
+          const conceptName = pill.getAttribute('data-concept');
+          if (topicId && conceptName) {
+            (window as any).conceptModal?.open(topicId, conceptName);
+          }
+        }, 250);
       });
 
       pill.addEventListener('dblclick', () => {
         if (currentMode !== 'simple') return;
+          if (clickTimer) {
+            clearTimeout(clickTimer);
+            clickTimer = null;
+          }
         // Double-click → toggle complete
         const completed = toggleComplete(key);
         pill.classList.toggle('concept-pill--completed', completed);
@@ -521,7 +562,11 @@ console.log('Sections count:', sections?.length);
         
         if (currentTool === 'cursor') {
           // Cursor = open notes on click
-          console.log('Open notes for:', key);
+          const topicId = pill.getAttribute('data-topic-id');
+          const conceptName = pill.getAttribute('data-concept');
+          if (topicId && conceptName) {
+            (window as any).conceptModal?.open(topicId, conceptName);
+          }
           e.preventDefault();
           return;
         }
@@ -537,7 +582,11 @@ console.log('Sections count:', sections?.length);
         if (currentMode !== 'tools') return;
 
         if (currentTool === 'cursor') {
-          console.log('Open notes for:', key);
+          const topicId = pill.getAttribute('data-topic-id');
+          const conceptName = pill.getAttribute('data-concept');
+          if (topicId && conceptName) {
+            (window as any).conceptModal?.open(topicId, conceptName);
+          }
           return;
         }
 

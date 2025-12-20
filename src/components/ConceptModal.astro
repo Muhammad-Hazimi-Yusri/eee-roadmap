@@ -1,0 +1,201 @@
+---
+// src/components/ConceptModal.astro
+// Modal for displaying concept notes and PDFs
+---
+
+<div id="concept-modal" class="concept-modal" hidden>
+  <div class="concept-modal-backdrop"></div>
+  <div class="concept-modal-paper">
+    <button class="concept-modal-close" aria-label="Close modal">&times;</button>
+    <div class="concept-modal-content">
+      <h2 class="concept-modal-title" id="concept-modal-title">Concept Name</h2>
+      <div class="concept-modal-body" id="concept-modal-body">
+        <!-- Notes or PDF will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .concept-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .concept-modal[hidden] {
+    display: none;
+  }
+
+  .concept-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .concept-modal-paper {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    background: #ffffff;
+    box-shadow: 
+      0 4px 6px rgba(0, 0, 0, 0.1),
+      0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    /* A4 paper aesthetic */
+    border: 1px solid #e0e0e0;
+  }
+
+  :global(.dark) .concept-modal-paper {
+    background: #1a1a1a;
+    border-color: #333;
+  }
+
+  .concept-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    z-index: 1;
+  }
+
+  .concept-modal-close:hover {
+    color: var(--color-text);
+  }
+
+  .concept-modal-content {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .concept-modal-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--color-copper);
+  }
+
+  .concept-modal-body {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  /* Placeholder state */
+  .concept-modal-placeholder {
+    color: var(--color-text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  /* Notes content */
+  .concept-modal-notes {
+    white-space: pre-wrap;
+    font-family: inherit;
+  }
+
+  /* PDF embed */
+  .concept-modal-pdf {
+    width: 100%;
+    height: 60vh;
+    border: 1px solid var(--color-border);
+    background: #f5f5f5;
+  }
+
+  :global(.dark) .concept-modal-pdf {
+    background: #222;
+  }
+</style>
+
+<script>
+  interface ConceptData {
+    notes?: string;
+    pdf?: string;
+  }
+
+  interface ConceptModalAPI {
+    open: (topicId: string, conceptName: string) => void;
+    close: () => void;
+  }
+
+  function initConceptModal(): ConceptModalAPI {
+    const modal = document.getElementById('concept-modal');
+    const backdrop = modal?.querySelector('.concept-modal-backdrop');
+    const closeBtn = modal?.querySelector('.concept-modal-close');
+    const titleEl = document.getElementById('concept-modal-title');
+    const bodyEl = document.getElementById('concept-modal-body');
+
+    function open(topicId: string, conceptName: string) {
+      if (!modal || !titleEl || !bodyEl) return;
+
+      // Get concept data from global
+      const allData = (window as any).conceptData || {};
+      const topicData = allData[topicId] || {};
+      const concept: ConceptData = topicData[conceptName] || {};
+
+      // Set title
+      titleEl.textContent = conceptName;
+
+      // Set body content
+      if (concept.pdf) {
+        bodyEl.innerHTML = `
+          <embed 
+            src="${concept.pdf}" 
+            type="application/pdf" 
+            class="concept-modal-pdf"
+          />
+        `;
+      } else if (concept.notes) {
+        bodyEl.innerHTML = `<div class="concept-modal-notes">${concept.notes}</div>`;
+      } else {
+        bodyEl.innerHTML = `
+          <div class="concept-modal-placeholder">
+            📝 Notes not yet uploaded for this concept.
+          </div>
+        `;
+      }
+
+      // Show modal
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function close() {
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    // Event listeners
+    backdrop?.addEventListener('click', close);
+    closeBtn?.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal?.hidden) {
+        close();
+      }
+    });
+
+    return { open, close };
+  }
+
+  // Initialize and expose globally
+  (window as any).conceptModal = initConceptModal();
+</script>
