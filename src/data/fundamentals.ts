@@ -17,7 +17,11 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Apply trig identities to simplify expressions',
           'Perform vector operations',
         ],
-        concepts: ['Complex numbers', 'Trig identities', 'Vectors'],
+        concepts: [
+          { name: 'Complex numbers' },
+          { name: 'Trig identities' },
+          { name: 'Vectors' },
+        ],
         optional: true,
         resources: [
           { label: 'Khan Academy Algebra', url: 'https://www.khanacademy.org/math/algebra' },
@@ -34,7 +38,11 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Solve first-order differential equations',
           'Apply calculus to analyze changing quantities',
         ],
-        concepts: ['Differentiation', 'Integration', 'ODEs'],
+        concepts: [
+          { name: 'Differentiation' },
+          { name: 'Integration' },
+          { name: 'ODEs' },
+        ],
         resources: [
           { label: 'MIT OCW 18.01', url: 'https://ocw.mit.edu/courses/18-01sc-single-variable-calculus-fall-2010/' },
           { label: '3Blue1Brown Essence of Calculus', url: 'https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr' },
@@ -51,7 +59,11 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Solve systems of linear equations',
           'Calculate and interpret eigenvalues',
         ],
-        concepts: ['Matrix operations', 'Determinants', 'Eigenvalues'],
+        concepts: [
+          { name: 'Matrix operations' },
+          { name: 'Determinants' },
+          { name: 'Eigenvalues' },
+        ],
         optional: true,
         resources: [
           { label: 'MIT OCW 18.06', url: 'https://ocw.mit.edu/courses/18-06sc-linear-algebra-fall-2011/' },
@@ -67,7 +79,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'dc-circuits',
         title: 'DC Circuit Analysis',
-        description: 'Your first real circuits. Master voltage, current, and resistance relationships. Kirchhoff\'s laws let you analyze any circuit; Thevenin/Norton simplify complex networks into simple equivalents.',
+        description: "Your first real circuits. Master voltage, current, and resistance relationships. Kirchhoff's laws let you analyze any circuit; Thevenin/Norton simplify complex networks into simple equivalents.",
         prerequisites: ['fundamentals/algebra-trig/Algebra', 'Basic physics (voltage, current concepts)'],
         outcomes: [
           'Apply Ohm\'s law to calculate V, I, R',
@@ -75,7 +87,11 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Find Thevenin and Norton equivalents',
           'Calculate power dissipation',
         ],
-        concepts: ["Ohm's Law", 'KVL & KCL', 'Thevenin & Norton'],
+        concepts: [
+          { name: "Ohm's Law" },
+          { name: 'KVL & KCL' },
+          { name: 'Thevenin & Norton' },
+        ],
         resources: [
           { label: 'MIT OCW 6.002', url: 'https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/' },
           { label: 'All About Circuits', url: 'https://www.allaboutcircuits.com/textbook/direct-current/' },
@@ -84,15 +100,20 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'ac-circuits',
         title: 'AC Circuit Analysis',
-        description: 'Real-world power is AC. Phasors turn differential equations into algebra, impedance extends Ohm\'s law to capacitors and inductors. Foundation for power systems and signal processing.',
-        prerequisites: ['fundamentals/dc-circuits/DC Circuits', 'Complex numbers', 'Trigonometry'],
+        description: "Real-world power is AC. Phasors turn differential equations into algebra, impedance extends Ohm's law to capacitors and inductors. Foundation for power systems and signal processing.",
+        prerequisites: ['fundamentals/dc-circuits/DC Circuits', 'fundamentals/calculus/Calculus', 'Complex numbers'],
         outcomes: [
-          'Represent sinusoids as phasors',
-          'Calculate impedance of R, L, C combinations',
+          'Convert time-domain signals to phasors',
+          'Calculate impedance of RLC combinations',
           'Analyze resonant circuits',
-          'Compute real, reactive, and apparent power',
+          'Calculate real, reactive, and apparent power',
         ],
-        concepts: ['Phasors', 'Impedance', 'Resonance', 'Power factor'],
+        concepts: [
+          { name: 'Phasors' },
+          { name: 'Impedance' },
+          { name: 'Resonance' },
+          { name: 'Power factor' },
+        ],
         resources: [
           { label: 'All About Circuits - AC', url: 'https://www.allaboutcircuits.com/textbook/alternating-current/' },
           { label: 'Khan Academy AC Circuits', url: 'https://www.khanacademy.org/science/physics/circuits-topic' },
@@ -106,24 +127,29 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
     items: [
       {
         id: 'electric-fields',
-        title: 'Electric Fields & Forces',
-        description: 'The invisible force behind every circuit. Understanding fields explains how capacitors store energy, why insulators break down, and how charges move. Gauss\'s law simplifies complex charge distributions.',
-        prerequisites: ['fundamentals/calculus/Calculus', 'Basic physics'],
+        title: 'Electric Fields & Potential',
+        description: "Understand how charges create fields and how fields create forces. Coulomb's law, electric potential, and capacitance all stem from this. Essential for understanding how capacitors store energy.",
+        prerequisites: ['fundamentals/calculus/Calculus basics', 'Basic physics'],
         outcomes: [
-          'Calculate electric force using Coulomb\'s law',
-          'Determine electric potential and field strength',
-          'Apply Gauss\'s law to symmetric charge distributions',
+          'Calculate electric field from charge distributions',
+          'Relate electric potential to field',
+          'Apply Gauss\'s law to symmetric geometries',
+          'Calculate capacitance of simple structures',
         ],
-        concepts: ['Coulomb\'s law', 'Electric potential', 'Gauss\'s law'],
+        concepts: [
+          { name: "Coulomb's law" },
+          { name: 'Electric potential' },
+          { name: "Gauss's law" },
+        ],
         resources: [
-          { label: 'MIT OCW 8.02', url: 'https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/' },
           { label: 'Khan Academy Electrostatics', url: 'https://www.khanacademy.org/science/physics/electric-charge-electric-force-and-voltage' },
+          { label: 'HyperPhysics E&M', url: 'http://hyperphysics.phy-astr.gsu.edu/hbase/emcon.html' },
         ],
       },
       {
         id: 'magnetic-fields',
         title: 'Magnetic Fields & Induction',
-        description: 'Where electricity and magnetism meet. Magnetic forces drive motors, Faraday\'s law explains transformers and generators. Inductance is just stored magnetic energy.',
+        description: "Magnetic forces drive motors, Faraday's law explains transformers and generators. Inductance is just stored magnetic energy.",
         prerequisites: ['fundamentals/electric-fields/Electric Fields', 'fundamentals/calculus/Calculus'],
         outcomes: [
           'Calculate magnetic force on moving charges and currents',
@@ -131,7 +157,12 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Use Lenz\'s law to determine induced current direction',
           'Calculate inductance of simple geometries',
         ],
-        concepts: ['Magnetic force', 'Faraday\'s law', 'Lenz\'s law', 'Inductance'],
+        concepts: [
+          { name: 'Magnetic force' },
+          { name: "Faraday's law" },
+          { name: "Lenz's law" },
+          { name: 'Inductance' },
+        ],
         resources: [
           { label: 'Khan Academy Magnetism', url: 'https://www.khanacademy.org/science/physics/magnetic-forces-and-magnetic-fields' },
           { label: 'HyperPhysics EM', url: 'http://hyperphysics.phy-astr.gsu.edu/hbase/emcon.html' },
@@ -139,7 +170,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       },
       {
         id: 'maxwell-equations',
-        title: 'Maxwell\'s Equations',
+        title: "Maxwell's Equations",
         description: 'The complete picture — four equations that unify all electromagnetic phenomena. Essential for RF, antennas, and understanding why circuits behave differently at high frequencies.',
         prerequisites: ['Vector calculus', 'fundamentals/electric-fields/Electric Fields', 'fundamentals/magnetic-fields/Magnetic Fields'],
         outcomes: [
@@ -147,7 +178,11 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Derive the electromagnetic wave equation',
           'Explain how changing E-fields create B-fields and vice versa',
         ],
-        concepts: ['Differential form', 'Integral form', 'Wave equation'],
+        concepts: [
+          { name: 'Differential form' },
+          { name: 'Integral form' },
+          { name: 'Wave equation' },
+        ],
         optional: true,
         resources: [
           { label: 'MIT OCW 8.03', url: 'https://ocw.mit.edu/courses/8-03sc-physics-iii-vibrations-and-waves-fall-2016/' },
@@ -171,7 +206,12 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Choose resistors based on tolerance requirements',
           'Understand SMD package sizes',
         ],
-        concepts: ['Color codes', 'Power ratings', 'Tolerance', 'SMD vs through-hole'],
+        concepts: [
+          { name: 'Color codes' },
+          { name: 'Power ratings' },
+          { name: 'Tolerance' },
+          { name: 'SMD vs through-hole' },
+        ],
         resources: [
           { label: 'SparkFun Resistors', url: 'https://learn.sparkfun.com/tutorials/resistors' },
           { label: 'Electronics Tutorials', url: 'https://www.electronics-tutorials.ws/resistor/res_1.html' },
@@ -188,7 +228,13 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Design basic decoupling and filtering circuits',
           'Read capacitor markings and datasheets',
         ],
-        concepts: ['Ceramic', 'Electrolytic', 'Film', 'ESR', 'Decoupling'],
+        concepts: [
+          { name: 'Ceramic' },
+          { name: 'Electrolytic' },
+          { name: 'Film' },
+          { name: 'ESR' },
+          { name: 'Decoupling' },
+        ],
         resources: [
           { label: 'SparkFun Capacitors', url: 'https://learn.sparkfun.com/tutorials/capacitors' },
           { label: 'All About Circuits - Capacitors', url: 'https://www.allaboutcircuits.com/textbook/direct-current/chpt-13/electric-fields-capacitance/' },
@@ -205,7 +251,12 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Apply transformer turns ratio for voltage conversion',
           'Select inductors for filtering applications',
         ],
-        concepts: ['Inductance', 'Saturation', 'Transformers', 'Turns ratio'],
+        concepts: [
+          { name: 'Inductance' },
+          { name: 'Saturation' },
+          { name: 'Transformers' },
+          { name: 'Turns ratio' },
+        ],
         resources: [
           { label: 'Electronics Tutorials - Inductors', url: 'https://www.electronics-tutorials.ws/inductor/inductor.html' },
           { label: 'Electronics Tutorials - Transformers', url: 'https://www.electronics-tutorials.ws/transformer/transformer-basics.html' },
@@ -222,7 +273,12 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Use Zener diodes for voltage regulation',
           'Calculate LED current limiting resistors',
         ],
-        concepts: ['Forward/reverse bias', 'Rectification', 'Zener regulation', 'LED'],
+        concepts: [
+          { name: 'Forward/reverse bias' },
+          { name: 'Rectification' },
+          { name: 'Zener regulation' },
+          { name: 'LED' },
+        ],
         optional: true,
         resources: [
           { label: 'SparkFun Diodes', url: 'https://learn.sparkfun.com/tutorials/diodes' },
@@ -246,7 +302,12 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Test resistance and continuity',
           'Identify common measurement errors',
         ],
-        concepts: ['DC/AC voltage', 'Current measurement', 'Resistance', 'Continuity'],
+        concepts: [
+          { name: 'DC/AC voltage' },
+          { name: 'Current measurement' },
+          { name: 'Resistance' },
+          { name: 'Continuity' },
+        ],
         resources: [
           { label: 'SparkFun Multimeter', url: 'https://learn.sparkfun.com/tutorials/how-to-use-a-multimeter' },
           { label: 'EEVblog Multimeter Basics', url: 'https://www.youtube.com/watch?v=gh1n_ELmpFI' },
@@ -255,7 +316,7 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
       {
         id: 'oscilloscope',
         title: 'Oscilloscope',
-        description: 'See what\'s actually happening. Voltage vs. time reveals signal integrity, noise, and timing issues invisible to multimeters. Master triggering to capture the waveform you need.',
+        description: "See what's actually happening. Voltage vs. time reveals signal integrity, noise, and timing issues invisible to multimeters. Master triggering to capture the waveform you need.",
         prerequisites: ['fundamentals/ac-circuits/AC Circuits', 'Waveform concepts'],
         outcomes: [
           'Set up timebase and vertical scale appropriately',
@@ -263,7 +324,12 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Measure frequency, amplitude, and rise time',
           'Identify signal integrity issues',
         ],
-        concepts: ['Timebase', 'Triggering', 'Probes', 'Bandwidth'],
+        concepts: [
+          { name: 'Timebase' },
+          { name: 'Triggering' },
+          { name: 'Probes' },
+          { name: 'Bandwidth' },
+        ],
         resources: [
           { label: 'EEVblog Oscilloscope Tutorial', url: 'https://www.youtube.com/watch?v=xaELqAo4kkQ' },
           { label: 'SparkFun Oscilloscope Tutorial', url: 'https://learn.sparkfun.com/tutorials/how-to-use-an-oscilloscope' },
@@ -280,7 +346,11 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Identify and fix common breadboard issues',
           'Know breadboard limitations (current, frequency)',
         ],
-        concepts: ['Breadboard layout', 'Wire management', 'Common mistakes'],
+        concepts: [
+          { name: 'Breadboard layout' },
+          { name: 'Wire management' },
+          { name: 'Common mistakes' },
+        ],
         resources: [
           { label: 'SparkFun Breadboards', url: 'https://learn.sparkfun.com/tutorials/how-to-use-a-breadboard' },
           { label: 'Adafruit Breadboard Guide', url: 'https://learn.adafruit.com/breadboards-for-beginners' },
@@ -297,7 +367,12 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Desolder components without damage',
           'Attempt basic SMD soldering',
         ],
-        concepts: ['Iron tips', 'Flux', 'Desoldering', 'SMD basics'],
+        concepts: [
+          { name: 'Iron tips' },
+          { name: 'Flux' },
+          { name: 'Desoldering' },
+          { name: 'SMD basics' },
+        ],
         optional: true,
         resources: [
           { label: 'SparkFun Soldering', url: 'https://learn.sparkfun.com/tutorials/how-to-solder-through-hole-soldering' },

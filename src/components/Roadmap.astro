@@ -19,7 +19,7 @@ console.log('Sections count:', sections?.length);
       <h3 class="section-title">{section.title}</h3>
       
       <div class="roadmap-track">
-        {section.items.map((item, index) => (
+        {section.items.map((item) => (
           <div 
             class={`roadmap-node ${item.optional ? 'roadmap-node--optional' : ''}`}
             id={item.id}
@@ -82,9 +82,9 @@ console.log('Sections count:', sections?.length);
                   {item.concepts.map((concept) => (
                     <li 
                       data-topic-id={item.id}
-                      data-concept={concept}
+                      data-concept={concept.name}
                       class="pill concept-pill"
-                    >{concept}</li>
+                    >{concept.name}</li>
                   ))}
                 </ul>
               )}
@@ -118,7 +118,6 @@ console.log('Sections count:', sections?.length);
   import {
     applyToolAction,
     canApplyToPrereq,
-    isStatefulTool,
     type ToolName,
     type ModeName,
   } from '../utils/tools';
@@ -475,7 +474,7 @@ console.log('Sections count:', sections?.length);
     });
 
     // Touch events for mobile/tablet
-    document.addEventListener('touchstart', (e) => {
+    document.addEventListener('touchstart', () => {
       if (currentMode === 'tools' && currentTool !== 'cursor') {
         isMouseDown = true;
         swipedPills.clear();
@@ -570,7 +569,7 @@ console.log('Sections count:', sections?.length);
         handleStaticPrereqAction(tag as HTMLElement, key);
       });
       
-      tag.addEventListener('mousedown', (e) => {
+      tag.addEventListener('mousedown', () => {
         if (currentMode !== 'tools') return;
         if (!canApplyToPrereq(currentTool)) return;
         

@@ -10,12 +10,20 @@ const demoData = {
     {
       id: 'demo-basics',
       title: 'Simple Mode',
-      concepts: ['Click me', 'Double-click me', 'Shift+click me'],
+      concepts: [
+        { name: 'Click me' },
+        { name: 'Double-click me' },
+        { name: 'Shift+click me' },
+      ],
     },
     {
       id: 'demo-tools',
       title: 'Tools Mode',
-      concepts: ['Swipe with pen', 'Highlight me', 'Erase me'],
+      concepts: [
+        { name: 'Swipe with pen' },
+        { name: 'Highlight me' },
+        { name: 'Erase me' },
+      ],
     },
   ],
   // Mini-roadmap demo
@@ -32,7 +40,10 @@ const demoData = {
               id: 'demo-topic-1',
               title: 'Introduction (topic 1)',
               prereqs: [],
-              concepts: ['Basics (concept 1)', 'Setup (concept 2)'],
+              concepts: [
+                { name: 'Basics (concept 1)' },
+                { name: 'Setup (concept 2)' },
+              ],
             },
             {
               id: 'demo-topic-2',
@@ -41,7 +52,10 @@ const demoData = {
                 { type: 'link', label: 'Introduction (Linked, same track)', target: 'demo-topic-1', track: 'demo-track-a' },
                 { type: 'static', label: 'Basic Math (Ext)' },
               ],
-              concepts: ['Theory (concept 3)', 'Practice (concept 4)'],
+              concepts: [
+                { name: 'Theory (concept 3)' },
+                { name: 'Practice (concept 4)' },
+              ],
             },
           ],
         },
@@ -61,7 +75,10 @@ const demoData = {
               prereqs: [
                 { type: 'link', label: 'Core Concepts (Linked, diff track)', target: 'demo-topic-2', track: 'demo-track-a' },
               ],
-              concepts: ['Design (concept 5)', 'Implementation (concept 6)'],
+              concepts: [
+                { name: 'Design (concept 5)' },
+                { name: 'Implementation (concept 6)' },
+              ],
             },
           ],
         },
@@ -144,8 +161,8 @@ const demoData = {
                           <span 
                             class="concept-pill"
                             data-demo-topic-id={topic.id}
-                            data-demo-concept={concept}
-                          >{concept}</span>
+                            data-demo-concept={concept.name}
+                          >{concept.name}</span>
                         ))}
                       </div>
                     </div>
@@ -234,8 +251,8 @@ const demoData = {
                 <span 
                   class="concept-pill" 
                   data-demo-topic-id={topic.id}
-                  data-demo-concept={concept}
-                >{concept}</span>
+                  data-demo-concept={concept.name}
+                >{concept.name}</span>
               ))}
             </div>
           </div>
@@ -607,7 +624,6 @@ const demoData = {
   import {
     applyToolAction,
     canApplyToPrereq,
-    isStatefulTool,
     type ToolName,
     type ModeName,
   } from '../utils/tools';
@@ -936,7 +952,7 @@ const demoData = {
     });
 
     // Touch events for mobile/tablet
-    document.addEventListener('touchstart', (e) => {
+    document.addEventListener('touchstart', () => {
       if (demoMode === 'tools' && demoTool !== 'cursor') {
         demoMouseDown = true;
         demoSwipedPills.clear();
@@ -1017,7 +1033,7 @@ const demoData = {
         handleDemoStaticPrereqAction(tag as HTMLElement, prereq);
       });
 
-      tag.addEventListener('mousedown', (e) => {
+      tag.addEventListener('mousedown', () => {
         if (demoMode !== 'tools') return;
         if (!canApplyToPrereq(demoTool)) return;
 

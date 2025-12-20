@@ -18,7 +18,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Design basic switching circuits',
           'Read transistor datasheets effectively',
         ],
-        concepts: ['BJT biasing', 'MOSFET operation', 'Small-signal models', 'Saturation vs active region'],
+        concepts: [
+          { name: 'BJT biasing' },
+          { name: 'MOSFET operation' },
+          { name: 'Small-signal models' },
+          { name: 'Saturation vs active region' },
+        ],
         resources: [
           { label: 'All About Circuits - BJT', url: 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-4/bipolar-junction-transistors/' },
           { label: 'All About Circuits - MOSFET', url: 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/insulated-gate-field-effect-transistors-mosfet/' },
@@ -36,7 +41,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Understand op-amp limitations (bandwidth, slew rate)',
           'Select appropriate op-amps for specific applications',
         ],
-        concepts: ['Virtual short', 'Gain-bandwidth product', 'Feedback', 'Comparators'],
+        concepts: [
+          { name: 'Virtual short' },
+          { name: 'Gain-bandwidth product' },
+          { name: 'Feedback' },
+          { name: 'Comparators' },
+        ],
         resources: [
           { label: 'Electronics Tutorials - Op-amps', url: 'https://www.electronics-tutorials.ws/opamp/opamp_1.html' },
           { label: 'All About Circuits - Op-amps', url: 'https://www.allaboutcircuits.com/textbook/semiconductors/chpt-8/introduction-operational-amplifiers/' },
@@ -54,7 +64,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Analyze filter frequency response using Bode plots',
           'Choose appropriate filter topology for application',
         ],
-        concepts: ['Cutoff frequency', 'Roll-off', 'Butterworth vs Chebyshev', 'Bode plots'],
+        concepts: [
+          { name: 'Cutoff frequency' },
+          { name: 'Roll-off' },
+          { name: 'Butterworth vs Chebyshev' },
+          { name: 'Bode plots' },
+        ],
         optional: true,
         resources: [
           { label: 'Electronics Tutorials - Filters', url: 'https://www.electronics-tutorials.ws/filter/filter_1.html' },
@@ -78,7 +93,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Implement functions using NAND/NOR as universal gates',
           'Understand gate propagation delay',
         ],
-        concepts: ['Truth tables', 'K-maps', 'De Morgan\'s theorem', 'Universal gates'],
+        concepts: [
+          { name: 'Truth tables' },
+          { name: 'K-maps' },
+          { name: "De Morgan's theorem" },
+          { name: 'Universal gates' },
+        ],
         resources: [
           { label: 'Neso Academy Digital Electronics', url: 'https://www.nesoacademy.org/ee/05-digital-electronics' },
           { label: 'All About Circuits - Boolean', url: 'https://www.allaboutcircuits.com/textbook/digital/chpt-7/introduction-boolean-algebra/' },
@@ -95,7 +115,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Implement binary adders and subtractors',
           'Use ROMs and PLAs for function implementation',
         ],
-        concepts: ['Mux/Demux', 'Encoders/Decoders', 'Adders', 'Comparators'],
+        concepts: [
+          { name: 'Mux/Demux' },
+          { name: 'Encoders/Decoders' },
+          { name: 'Adders' },
+          { name: 'Comparators' },
+        ],
         resources: [
           { label: 'Neso Academy - Combinational', url: 'https://www.nesoacademy.org/ee/05-digital-electronics' },
           { label: 'GeeksforGeeks Digital Logic', url: 'https://www.geeksforgeeks.org/digital-electronics-logic-design-tutorials/' },
@@ -112,7 +137,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Design finite state machines',
           'Analyze timing diagrams and setup/hold violations',
         ],
-        concepts: ['Flip-flops', 'Registers', 'Counters', 'State machines'],
+        concepts: [
+          { name: 'Flip-flops' },
+          { name: 'Registers' },
+          { name: 'Counters' },
+          { name: 'State machines' },
+        ],
         resources: [
           { label: 'Neso Academy - Sequential', url: 'https://www.nesoacademy.org/ee/05-digital-electronics' },
           { label: 'Ben Eater - 8-bit Computer', url: 'https://eater.net/' },
@@ -135,7 +165,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Understand even/odd decomposition',
           'Work with unit impulse and step functions',
         ],
-        concepts: ['Continuous vs discrete', 'Periodic signals', 'Impulse function', 'Convolution'],
+        concepts: [
+          { name: 'Continuous vs discrete' },
+          { name: 'Periodic signals' },
+          { name: 'Impulse function' },
+          { name: 'Convolution' },
+        ],
         resources: [
           { label: 'MIT OCW 6.003', url: 'https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/' },
           { label: 'Neso Academy - Signals', url: 'https://www.nesoacademy.org/ee/04-signals-and-systems' },
@@ -150,9 +185,14 @@ export const coreRoadmap: RoadmapSection[] = [
           'Compute Fourier series coefficients',
           'Apply Fourier transform to common signals',
           'Interpret frequency spectra',
-          'Understand Parseval\'s theorem (energy in time = energy in frequency)',
+          "Understand Parseval's theorem (energy in time = energy in frequency)",
         ],
-        concepts: ['Fourier series', 'Fourier transform', 'Spectrum', 'Bandwidth'],
+        concepts: [
+          { name: 'Fourier series' },
+          { name: 'Fourier transform' },
+          { name: 'Spectrum' },
+          { name: 'Bandwidth' },
+        ],
         resources: [
           { label: '3Blue1Brown - Fourier', url: 'https://www.youtube.com/watch?v=spUNpyF58BY' },
           { label: 'MIT OCW 6.003', url: 'https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/' },
@@ -169,7 +209,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Use Z-transform for discrete-time system analysis',
           'Analyze system stability using pole locations',
         ],
-        concepts: ['Transfer function', 'Poles and zeros', 'ROC', 'Stability'],
+        concepts: [
+          { name: 'Transfer function' },
+          { name: 'Poles and zeros' },
+          { name: 'ROC' },
+          { name: 'Stability' },
+        ],
         optional: true,
         resources: [
           { label: 'MIT OCW 6.003', url: 'https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/' },
@@ -193,7 +238,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Use Arduino IDE effectively',
           'Read microcontroller datasheets',
         ],
-        concepts: ['Architecture', 'GPIO', 'Clock', 'Memory map'],
+        concepts: [
+          { name: 'Architecture' },
+          { name: 'GPIO' },
+          { name: 'Clock' },
+          { name: 'Memory map' },
+        ],
         resources: [
           { label: 'SparkFun Arduino Tutorials', url: 'https://learn.sparkfun.com/tutorials/tags/arduino' },
           { label: 'Adafruit Learn Arduino', url: 'https://learn.adafruit.com/series/learn-arduino' },
@@ -210,7 +260,14 @@ export const coreRoadmap: RoadmapSection[] = [
           'Generate analog outputs with PWM',
           'Use timers and interrupts effectively',
         ],
-        concepts: ['UART', 'SPI', 'I2C', 'ADC/DAC', 'PWM', 'Interrupts'],
+        concepts: [
+          { name: 'UART' },
+          { name: 'SPI' },
+          { name: 'I2C' },
+          { name: 'ADC/DAC' },
+          { name: 'PWM' },
+          { name: 'Interrupts' },
+        ],
         resources: [
           { label: 'SparkFun Communication Tutorials', url: 'https://learn.sparkfun.com/tutorials/serial-communication' },
           { label: 'SparkFun I2C Tutorial', url: 'https://learn.sparkfun.com/tutorials/i2c' },
@@ -227,7 +284,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Understand volatile keyword and memory-mapped I/O',
           'Debug embedded systems effectively',
         ],
-        concepts: ['Bit manipulation', 'Registers', 'Volatile', 'Memory-mapped I/O'],
+        concepts: [
+          { name: 'Bit manipulation' },
+          { name: 'Registers' },
+          { name: 'Volatile' },
+          { name: 'Memory-mapped I/O' },
+        ],
         optional: true,
         resources: [
           { label: 'Embedded Systems Programming', url: 'https://www.state-machine.com/quickstart/' },
@@ -251,7 +313,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Place components and route traces',
           'Generate Gerber files for manufacturing',
         ],
-        concepts: ['Schematic capture', 'Footprints', 'Layers', 'Gerbers'],
+        concepts: [
+          { name: 'Schematic capture' },
+          { name: 'Footprints' },
+          { name: 'Layers' },
+          { name: 'Gerbers' },
+        ],
         resources: [
           { label: 'KiCad Getting Started', url: 'https://docs.kicad.org/9.0/en/getting_started_in_kicad/getting_started_in_kicad.html' },
           { label: 'SparkFun KiCad Guide', url: 'https://learn.sparkfun.com/tutorials/beginners-guide-to-kicad' },
@@ -268,7 +335,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Calculate trace widths for current requirements',
           'Follow design rules for manufacturability',
         ],
-        concepts: ['Decoupling', 'Ground planes', 'Trace width', 'DRC'],
+        concepts: [
+          { name: 'Decoupling' },
+          { name: 'Ground planes' },
+          { name: 'Trace width' },
+          { name: 'DRC' },
+        ],
         resources: [
           { label: 'SparkFun PCB Basics', url: 'https://learn.sparkfun.com/tutorials/pcb-basics' },
           { label: 'KiCad Tutorial', url: 'https://www.build-electronic-circuits.com/kicad-tutorial/' },
@@ -285,7 +357,12 @@ export const coreRoadmap: RoadmapSection[] = [
           'Order PCBs from fabrication houses',
           'Hand-assemble or prepare for automated assembly',
         ],
-        concepts: ['DFM', 'Fab constraints', 'BOM', 'Assembly'],
+        concepts: [
+          { name: 'DFM' },
+          { name: 'Fab constraints' },
+          { name: 'BOM' },
+          { name: 'Assembly' },
+        ],
         optional: true,
         resources: [
           { label: 'PCBWay Tutorial', url: 'https://www.pcbway.com/blog/PCB_Design_Tutorial/' },

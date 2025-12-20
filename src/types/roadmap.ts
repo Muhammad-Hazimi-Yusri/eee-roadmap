@@ -15,6 +15,16 @@ export interface Resource {
   url: string;
 }
 
+/** Individual concept within a topic */
+export interface Concept {
+  /** Display name of the concept */
+  name: string;
+  /** Markdown explanation (optional) */
+  notes?: string;
+  /** URL to PDF file - local ("/notes/topic.pdf") or external (optional) */
+  pdf?: string;
+}
+
 /**
  * Prerequisite format:
  * - Linkable: "track/topic-id/Display Name" (navigates to that topic)
@@ -39,7 +49,7 @@ export interface Topic {
   /** Learning outcomes - what the learner will be able to do */
   outcomes?: string[];
   /** Key concepts covered (displayed as interactive pills) */
-  concepts?: string[];
+  concepts?: Concept[];
   /** Curated external learning resources */
   resources?: Resource[];
   /** If true, topic is optional/supplementary (styled differently) */
