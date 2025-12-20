@@ -23,9 +23,13 @@
           </svg>
         </button>
         <button class="concept-window-btn concept-window-maximize" aria-label="Maximize" title="Maximize">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg class="icon-maximize" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
             <rect x="1.5" y="1.5" width="9" height="9" rx="1"/>
-          </svg>
+        </svg>
+        <svg class="icon-restore" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none">
+            <rect x="2.5" y="0.5" width="7" height="7" rx="1"/>
+            <path d="M0.5 4.5v5a1 1 0 001 1h5"/>
+        </svg>
         </button>
         <button class="concept-window-btn concept-window-close" aria-label="Close" title="Close">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
@@ -76,7 +80,7 @@
     display: flex;
     align-items: center;
     padding: 0 0.5rem;
-    z-index: 999;
+    z-index: 10000;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
 
@@ -136,6 +140,14 @@
     left: 0 !important;
     border: none;
     border-radius: 0;
+  }
+
+  .concept-window--maximized .icon-maximize {
+    display: none;
+  }
+  
+  .concept-window--maximized .icon-restore {
+    display: block !important;
   }
 
   :global(.dark) .concept-window {
@@ -399,20 +411,61 @@
 
   // Get initial state for a window
   function getInitialState(windowId: string): WindowState {
-    const saved = loadStates()[windowId];
-    if (saved) {
-      return saved;
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+    const isMobile = viewportW < 640;
+    const isPortrait = viewportH > viewportW;
+    
+    // Calculate responsive dimensions
+    let width: number;
+    let height: number;
+    
+    if (isMobile) {
+      // Mobile: nearly full width, leave room for edges
+      width = viewportW - 16;
+      // Portrait: shorter to leave room for controls, Landscape: taller
+      height = isPortrait 
+        ? Math.min(viewportH - 120, viewportH * 0.7) 
+        : viewportH - 80;
+    } else {
+      // Desktop: default size clamped to viewport
+      width = Math.min(DEFAULT_WIDTH, viewportW - 40);
+      height = Math.min(DEFAULT_HEIGHT, viewportH - 100);
     }
     
-    const x = 50 + (cascadeCount * CASCADE_OFFSET);
-    const y = 50 + (cascadeCount * CASCADE_OFFSET);
-    cascadeCount++;
+    // If saved position exists, validate it's still on screen
+    const saved = loadStates()[windowId];
+    if (saved) {
+      const validW = Math.min(saved.width, viewportW - 16);
+      const validH = Math.min(saved.height, viewportH - 80);
+      const validX = Math.max(0, Math.min(saved.x, viewportW - validW - 8));
+      const validY = Math.max(0, Math.min(saved.y, viewportH - validH - 60));
+      return { x: validX, y: validY, width: validW, height: validH };
+    }
     
+    // Position: center on mobile, cascade on desktop
+    let x: number;
+    let y: number;
+    
+    if (isMobile) {
+      // Center horizontally
+      x = Math.max(8, (viewportW - width) / 2);
+      // Start near top so controls are visible
+      y = 8 + (cascadeCount * 10);
+    } else {
+      // Desktop cascade
+      const maxCascadeX = Math.max(0, viewportW - width - 20);
+      const maxCascadeY = Math.max(0, viewportH - height - 60);
+      x = Math.min(50 + (cascadeCount * CASCADE_OFFSET), maxCascadeX);
+      y = Math.min(50 + (cascadeCount * CASCADE_OFFSET), maxCascadeY);
+    }
+    
+    cascadeCount++;
     if (cascadeCount > 10) {
       cascadeCount = 0;
     }
     
-    return { x, y, width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT };
+    return { x, y, width, height };
   }
 
   // Update taskbar visibility
@@ -503,6 +556,70 @@
       win.isMaximized = true;
       win.element.classList.add('concept-window--maximized');
     }
+  }
+
+  // Revalidate all window positions on viewport resize
+  function initResizeHandler() {
+    let resizeTimeout: number | null = null;
+    
+    window.addEventListener('resize', () => {
+      // Debounce to avoid excessive calls
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      
+      resizeTimeout = window.setTimeout(() => {
+        resizeTimeout = null;
+        revalidateAllWindows();
+      }, 150);
+    });
+  }
+  
+  // Reposition windows to fit current viewport
+  function revalidateAllWindows() {
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+    const isMobile = viewportW < 640;
+    
+    openWindows.forEach((winData) => {
+      if (winData.isMinimized || winData.isMaximized) return;
+      
+      const win = winData.element;
+      let x = win.offsetLeft;
+      let y = win.offsetTop;
+      let width = win.offsetWidth;
+      let height = win.offsetHeight;
+      
+      // Constrain size to viewport
+      const maxW = viewportW - 16;
+      const maxH = viewportH - 80;
+      
+      if (width > maxW) {
+        width = maxW;
+        win.style.width = `${width}px`;
+      }
+      if (height > maxH) {
+        height = maxH;
+        win.style.height = `${height}px`;
+      }
+      
+      // Constrain position to keep window visible
+      const minVisible = 100; // At least 100px must be visible
+      const maxX = viewportW - minVisible;
+      const maxY = viewportH - minVisible;
+      
+      if (x > maxX || x < 0) {
+        x = isMobile ? Math.max(8, (viewportW - width) / 2) : Math.min(Math.max(0, x), maxX);
+        win.style.left = `${x}px`;
+      }
+      if (y > maxY || y < 0) {
+        y = Math.min(Math.max(0, y), maxY);
+        win.style.top = `${y}px`;
+      }
+      
+      // Save corrected state
+      saveWindowState(winData.id, getWindowState(win));
+    });
   }
 
   // Create and open a window
@@ -668,7 +785,7 @@
       if (content?.contains(target)) {
         return;
       }
-      
+
       // Prevent page scroll elsewhere on window
       e.preventDefault();
     }, { passive: false });
@@ -749,78 +866,111 @@
     });
   }
 
-  // Resize functionality
+  /// Resize functionality
   function setupResize(win: HTMLElement, windowId: string) {
     const handles = win.querySelectorAll('.resize-handle');
-    let isResizing = false;
-    let resizeDir = '';
-    let startX = 0;
-    let startY = 0;
-    let startWidth = 0;
-    let startHeight = 0;
-    let startLeft = 0;
-    let startTop = 0;
+  let isResizing = false;
+  let resizeDir = '';
+  let startX = 0;
+  let startY = 0;
+  let startWidth = 0;
+  let startHeight = 0;
+  let startLeft = 0;
+  let startTop = 0;
 
-    handles.forEach(handle => {
-      handle.addEventListener('mousedown', (e) => {
-        const winData = openWindows.find(w => w.id === windowId);
-        if (winData?.isMaximized) return;
+  function startResize(clientX: number, clientY: number, dir: string) {
+    const winData = openWindows.find(w => w.id === windowId);
+    if (winData?.isMaximized) return false;
 
+    isResizing = true;
+    resizeDir = dir;
+    startX = clientX;
+    startY = clientY;
+    startWidth = win.offsetWidth;
+    startHeight = win.offsetHeight;
+    startLeft = win.offsetLeft;
+    startTop = win.offsetTop;
+    bringToFront(windowId);
+    return true;
+  }
+
+  function doResize(clientX: number, clientY: number) {
+    if (!isResizing) return;
+
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+    const minW = 250;
+    const minH = 150;
+
+    let newWidth = startWidth;
+    let newHeight = startHeight;
+    let newLeft = startLeft;
+    let newTop = startTop;
+
+    if (resizeDir.includes('e')) {
+      newWidth = Math.max(minW, startWidth + dx);
+    }
+    if (resizeDir.includes('w')) {
+      const w = Math.max(minW, startWidth - dx);
+      newLeft = startLeft + (startWidth - w);
+      newWidth = w;
+    }
+    if (resizeDir.includes('s')) {
+      newHeight = Math.max(minH, startHeight + dy);
+    }
+    if (resizeDir.includes('n')) {
+      const h = Math.max(minH, startHeight - dy);
+      newTop = startTop + (startHeight - h);
+      newHeight = h;
+    }
+
+    // Constrain to viewport
+    const maxW = window.innerWidth - newLeft - 10;
+    const maxH = window.innerHeight - newTop - 10;
+    
+    win.style.width = `${Math.min(newWidth, maxW)}px`;
+    win.style.height = `${Math.min(newHeight, maxH)}px`;
+    win.style.left = `${Math.max(0, newLeft)}px`;
+    win.style.top = `${Math.max(0, newTop)}px`;
+  }
+
+  function endResize() {
+    if (isResizing) {
+      isResizing = false;
+      saveWindowState(windowId, getWindowState(win));
+    }
+  }
+
+  // Mouse events
+  handles.forEach(handle => {
+    handle.addEventListener('mousedown', (e) => {
         e.stopPropagation();
-        isResizing = true;
-        resizeDir = (handle as HTMLElement).dataset.resize || '';
-        startX = (e as MouseEvent).clientX;
-        startY = (e as MouseEvent).clientY;
-        startWidth = win.offsetWidth;
-        startHeight = win.offsetHeight;
-        startLeft = win.offsetLeft;
-        startTop = win.offsetTop;
-        bringToFront(windowId);
+        const dir = (handle as HTMLElement).dataset.resize || '';
+        startResize((e as MouseEvent).clientX, (e as MouseEvent).clientY, dir);
       });
+  
+      // Touch events
+      handle.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const touch = (e as TouchEvent).touches[0];
+        const dir = (handle as HTMLElement).dataset.resize || '';
+        startResize(touch.clientX, touch.clientY, dir);
+      }, { passive: false });
     });
-
-    document.addEventListener('mousemove', (e) => {
+  
+    document.addEventListener('mousemove', (e) => doResize(e.clientX, e.clientY));
+    document.addEventListener('mouseup', endResize);
+  
+    document.addEventListener('touchmove', (e) => {
       if (!isResizing) return;
-
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      const minW = 250;
-      const minH = 150;
-
-      let newWidth = startWidth;
-      let newHeight = startHeight;
-      let newLeft = startLeft;
-      let newTop = startTop;
-
-      if (resizeDir.includes('e')) {
-        newWidth = Math.max(minW, startWidth + dx);
-      }
-      if (resizeDir.includes('w')) {
-        const w = Math.max(minW, startWidth - dx);
-        newLeft = startLeft + (startWidth - w);
-        newWidth = w;
-      }
-      if (resizeDir.includes('s')) {
-        newHeight = Math.max(minH, startHeight + dy);
-      }
-      if (resizeDir.includes('n')) {
-        const h = Math.max(minH, startHeight - dy);
-        newTop = startTop + (startHeight - h);
-        newHeight = h;
-      }
-
-      win.style.width = `${newWidth}px`;
-      win.style.height = `${newHeight}px`;
-      win.style.left = `${newLeft}px`;
-      win.style.top = `${newTop}px`;
-    });
-
-    document.addEventListener('mouseup', () => {
-      if (isResizing) {
-        isResizing = false;
-        saveWindowState(windowId, getWindowState(win));
-      }
-    });
+      e.preventDefault();
+      const touch = e.touches[0];
+      doResize(touch.clientX, touch.clientY);
+    }, { passive: false });
+  
+    document.addEventListener('touchend', endResize);
+    document.addEventListener('touchcancel', endResize);
   }
 
   // Expose global API
@@ -832,4 +982,6 @@
     toggleMaximize,
     bringToFront
   };
+
+  initResizeHandler();
 </script>
