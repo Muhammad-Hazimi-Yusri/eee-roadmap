@@ -690,19 +690,33 @@
       bodyEl.innerHTML = html;
     }
 
-    // Set initial state
+    // Set initial position and width
     const state = getInitialState(windowId);
     win.style.left = `${state.x}px`;
     win.style.top = `${state.y}px`;
     win.style.width = `${state.width}px`;
-    win.style.height = `${state.height}px`;
+    win.style.height = 'auto'; // Temporary for measurement
 
     // Set z-index
     highestZIndex++;
     win.style.zIndex = String(highestZIndex);
 
-    // Add to DOM
+    // Add to DOM (needed to measure)
     container.appendChild(win);
+
+    // Measure and set final height
+    const titlebar = win.querySelector('.concept-window-titlebar') as HTMLElement;
+    const content = win.querySelector('.concept-window-content') as HTMLElement;
+    const titlebarH = titlebar?.offsetHeight || 40;
+    const contentH = content?.scrollHeight || 100;
+    const idealHeight = titlebarH + contentH + 2; // 2px for border
+
+    // Clamp between min and max
+    const minH = 150;
+    const maxH = Math.min(state.height, window.innerHeight - 80);
+    const finalHeight = Math.max(minH, Math.min(idealHeight, maxH));
+
+    win.style.height = `${finalHeight}px`;
 
     // Track window
     const windowData: OpenWindow = {
