@@ -6,7 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.10)
+## Current Features (v0.11)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -23,8 +23,13 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - Swipe trail effect for visual feedback
 - Touch support (single finger draws, two fingers scroll)
 - Comprehensive homepage demo
-
----
+- **Concept Windows:** Draggable, resizable windows for notes and PDFs
+  - Multiple windows open simultaneously
+  - Drag by titlebar, resize via corner/edge handles
+  - Minimize to taskbar, maximize/restore
+  - Window positions saved to localStorage
+  - Mobile responsive positioning
+  - z-index management (click to bring front)
 
 ---
 
@@ -32,58 +37,19 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-**v0.9 - Code Quality & Testing** ✓
-- [x] Remove duplicate CustomCursor from RoadmapSettings (v0.9.1)
-- [x] Fix duplicate forEach loop in DemoRoadmap (v0.9.1)
-- [x] Delete unused CircuitLine.astro (v0.9.1)
-- [x] Set up Vitest testing infrastructure (v0.9.2)
-- [x] Extract progress utilities with tests (v0.9.2)
-- [x] Extract URL helper with trailing slash fix (v0.9.4)
-- [x] Extract trail utilities with tests (v0.9.6)
-- [x] Extract tools utilities with tests (v0.9.7)
-- [x] Refactor progress store for sessionStorage support (v0.9.8)
-- [x] Consolidate duplicate CSS to global.css (v0.9.9)
-- [x] Enable stricter tsconfig options (v0.9.10)
-- [x] Add JSDoc comments to utility functions (v0.9.10)
-- [x] Document types in roadmap.ts (v0.9.11)
-- [x] Create CONTRIBUTING.md (v0.9.11)
-
-### v0.10 - Testing Infrastructure ✓
-
-**Goal:** Comprehensive test coverage to catch regressions early.
-
-#### Unit Tests (Vitest)
-- [x] Progress utilities (toggle, save, load)
-- [x] Tool action logic
-- [x] State calculations — *skipped, DOM-dependent; covered by E2E*
-
-#### Integration Tests (Playwright)
-- [x] Page navigation and routing
-- [x] Hash anchor navigation and auto-expand
-- [x] Prerequisite link behavior (same-tab, new-tab, smart)
-- [x] Dark mode toggle persistence
-
-#### E2E Tests (Playwright)
-- [x] Simple mode interactions (click, dblclick, shift+click)
-- [x] Tools mode swipe gestures — *skipped, complex touch simulation*
-- [x] Progress persistence across page reloads
-- [x] Demo component full flow
-- [x] Cross-track prerequisite navigation
-
-#### CI/CD Enhancements
-- [x] Add test step to deploy.yml (run before build)
-- [x] Add test coverage reporting
-- [x] Visual regression tests — *deferred, not useful during active solo development*
-
-### v0.11 - Notes & Deep-dives
+### v0.11 - Notes & Deep-dives (In Progress)
 
 **Goal:** Add depth to learning with explanatory content and personal notes.
 
-- [ ] Clickable concepts → modal/popup with explanations
+- [x] Draggable, resizable concept windows
+- [x] Multiple windows with z-index management
+- [x] Minimize to taskbar / maximize toggle
+- [x] localStorage persistence for window positions
+- [x] PDF viewer in windows
+- [ ] Fix window swipe scrolling page (#9)
+- [ ] Test resize handles on real mobile device
 - [ ] Markdown notes per topic
 - [ ] LaTeX support for equations
-- [ ] PDF export via GitHub Actions
-- [ ] A4 paper aesthetic: draggable, pinnable note cards
 
 ### v0.12 - Custom Roadmaps & Self-Hosting
 

@@ -60,7 +60,7 @@
   </button>
 </template>
 
-<style>
+<style is:global>
   .concept-windows-container {
     position: fixed;
     inset: 0;
@@ -226,11 +226,15 @@
     padding: 1rem;
     overflow-y: auto;
     flex: 1;
+    min-height: 0;
   }
 
   .concept-window-body {
     font-size: 0.875rem;
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
   .concept-window-placeholder {
@@ -242,16 +246,20 @@
 
   .concept-window-notes {
     font-family: inherit;
+    flex-shrink: 0;
   }
 
   .concept-window-divider {
     border: none;
     border-top: 1px solid var(--color-border);
     margin: 1rem 0;
+    flex-shrink: 0;
   }
 
   .concept-window-pdf-container {
     margin-top: 0.5rem;
+    flex: 1;
+    min-height: 300px;
   }
 
   .concept-window-pdf {

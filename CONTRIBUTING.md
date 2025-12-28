@@ -55,6 +55,24 @@ src/
 - Component-specific styles stay in component `<style>` blocks
 - Use CSS variables from `:root` for theming
 
+### CSS Scoping & Dynamic DOM
+
+Astro scopes component CSS by default, adding `data-astro-cid-*` attributes to both selectors and HTML elements at build time.
+
+**This breaks when elements are created dynamically at runtime** via:
+- `template.content.cloneNode()`
+- `document.createElement()`
+- `element.innerHTML = '...'`
+
+Dynamically created elements don't receive the scoping attribute, so scoped CSS won't match them.
+
+**Solutions:**
+1. **`<style is:global>`** — Disables scoping for that style block (used in ConceptWindows.astro)
+2. **Inline styles in JS** — Apply styles when creating elements
+3. **Global CSS file** — Add to `src/styles/global.css`
+
+**Tradeoff:** Global styles can leak to other components. Use prefixed class names (e.g., `.concept-window-*`) to avoid collisions.
+
 ### Testing
 ```bash
 # Run tests

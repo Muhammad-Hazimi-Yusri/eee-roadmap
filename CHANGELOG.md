@@ -10,6 +10,29 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 > - Detailed patch history lives in git commits, not this changelog
 
 ---
+## [0.11.0] - 2025-12-28
+
+**Notes & Deep-dives**
+
+### Added
+- Concept Windows system for displaying notes and PDFs
+  - Draggable windows (titlebar drag)
+  - Resizable via corner and edge handles (mouse + touch)
+  - Minimize to taskbar at bottom
+  - Maximize/restore with icon toggle
+  - Window positions persisted to localStorage
+  - Mobile responsive initial positioning
+  - Viewport resize/orientation revalidation
+  - z-index management (click to bring front)
+  - Taskbar z-index (10000) above windows
+  - Settings panel z-index (10001) topmost
+
+### Fixed
+- CSS scoping issue with dynamically cloned template elements
+  - Changed `<style>` to `<style is:global>` in ConceptWindows.astro
+
+### Technical Notes
+- Astro's scoped CSS doesn't work with runtime-cloned DOM; use `is:global` for components that create elements dynamically
 
 ## [0.10.0] - 2025-12-20
 
