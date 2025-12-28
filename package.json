@@ -1,7 +1,7 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.11.0",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "dev": "astro dev",
