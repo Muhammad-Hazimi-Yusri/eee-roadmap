@@ -6,7 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.11)
+## Current Features (v0.11.8)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -46,7 +46,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Minimize to taskbar / maximize toggle
 - [x] localStorage persistence for window positions
 - [x] PDF viewer in windows
-- [ ] Fix window swipe scrolling page (#9)
+- [x] Fix window swipe scrolling page (#9)
 - [ ] Test resize handles on real mobile device
 - [ ] Markdown notes per topic
 - [ ] LaTeX support for equations

@@ -131,6 +131,7 @@
     flex-direction: column;
     pointer-events: auto;
     border: 1px solid #d0d0d0;
+    touch-action: none;
   }
 
   .concept-window--maximized {
@@ -227,6 +228,8 @@
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
 
   .concept-window-body {
@@ -839,13 +842,18 @@
     // Resize
     setupResize(win, windowId);
 
-    // Prevent page scroll when touching window (except content area)
+    // Prevent page scroll when touching anywhere on window
     win.addEventListener('touchmove', (e) => {
       const target = e.target as HTMLElement;
-      const content = win.querySelector('.concept-window-content');
-    
-      // Allow scroll inside content area
+      const content = win.querySelector('.concept-window-content') as HTMLElement;
+
+      // If inside content area, only allow if content is actually scrollable
       if (content?.contains(target)) {
+        const isScrollable = content.scrollHeight > content.clientHeight;
+        if (!isScrollable) {
+          e.preventDefault();
+        }
+        // If scrollable, let it scroll naturally (overscroll-behavior handles edge case)
         return;
       }
 
