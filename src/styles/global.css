@@ -301,9 +301,14 @@
   }
 
   /* Tools mode - hide system cursor */
+  /* Hide native cursor in tools mode - including child elements */
+  .demo-tools-active,
+  .demo-tools-active .concept-pill,
+  .demo-tools-active .prereq-tag,
+  .demo-tools-active .demo-node-button,
   .tools-mode-active,
-  .tools-mode-active * {
-    cursor: none !important;
-    user-select: none !important;
+  .tools-mode-active .concept-pill,
+  .tools-mode-active .prereq-tag {
+    cursor: none;
   }
 }

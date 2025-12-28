@@ -198,7 +198,7 @@ npm run check-links
 
 ## Contributing
 
-Contributions welcome! Please:
+Contributions welcome! Make sure to read [CONTIRBUTING.MD](CONTRIBUTING.md). Please:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)

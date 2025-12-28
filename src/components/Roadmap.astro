@@ -287,13 +287,14 @@ for (const section of sections) {
           // Shift+Click → toggle important
           const important = toggleImportant(key);
           pill.classList.toggle('concept-pill--important', important);
+          return; // Don't also open notes on shift+click
         } 
 
         // Delay to allow double-click detection
         if (clickTimer) {
           clearTimeout(clickTimer);
           clickTimer = null;
-          return;
+          return; // Don't also open notes on double-click
         }
 
         clickTimer = window.setTimeout(() => {

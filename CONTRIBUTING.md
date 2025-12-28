@@ -74,16 +74,50 @@ Dynamically created elements don't receive the scoping attribute, so scoped CSS 
 **Tradeoff:** Global styles can leak to other components. Use prefixed class names (e.g., `.concept-window-*`) to avoid collisions.
 
 ### Testing
+
+This project uses a comprehensive testing strategy:
+
+#### Unit Tests (Vitest)
+Tests for utility functions in `src/utils/`:
 ```bash
-# Run tests
+# Run unit tests
 npm test
+
+# Run with coverage
+npm run test:coverage
+```
+
+#### Integration Tests (Playwright)
+Tests for page navigation, routing, and component interactions:
+```bash
+# Run integration tests
+npx playwright test tests/integration/
+```
+
+#### E2E Tests (Playwright)
+Full user journey tests including progress persistence:
+```bash
+# Run E2E tests
+npx playwright test tests/e2e/
+```
+
+#### All Tests
+```bash
+# Run everything
+npm test && npx playwright test
 
 # Build and check for errors
 npm run build
 
-# Check for broken links
+# Check for broken links (after build)
 npm run check-links
 ```
+
+#### Writing Tests
+- Unit tests go in `src/utils/*.test.ts` alongside the module
+- Integration/E2E tests go in `tests/integration/` or `tests/e2e/`
+- Follow existing patterns in the codebase
+- Tests run in CI before deploy — PRs with failing tests won't merge
 
 ### Commits
 Follow [Conventional Commits](https://www.conventionalcommits.org/):

@@ -82,10 +82,16 @@ export function drawTrailLine(
 ): void {
   if (!state.ctx) return;
 
+  // Check dark mode for pen color
+  let strokeColor = config.colors[tool] || config.colors.pen;
+  if (tool === 'pen' && typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
+    strokeColor = '#5b9bd5'; // Blue for dark mode
+  }
+
   state.ctx.beginPath();
   state.ctx.moveTo(from.x, from.y);
   state.ctx.lineTo(to.x, to.y);
-  state.ctx.strokeStyle = config.colors[tool] || config.colors.pen;
+  state.ctx.strokeStyle = strokeColor;
   state.ctx.lineWidth = config.widths[tool] || 2;
   state.ctx.lineCap = 'round';
   state.ctx.lineJoin = 'round';
