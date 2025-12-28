@@ -26,6 +26,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - z-index management (click to bring front)
   - Taskbar z-index (10000) above windows
   - Settings panel z-index (10001) topmost
+  - PDF.js v5.4.449 integration for cross-browser PDF rendering
+  - PDFs now display on Android browsers (Samsung Internet, Chrome) that lack native support
+  
 
 ### Fixed
 - CSS scoping issue with dynamically cloned template elements

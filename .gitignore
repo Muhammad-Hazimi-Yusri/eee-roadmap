@@ -33,3 +33,6 @@ public/ # Only if used as build output, not for static assets
 /playwright/.cache/
 /playwright/.auth/
 /coverage/
+
+# PDF.js viewer (downloaded via postinstall)
+public/pdfjs/

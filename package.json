@@ -1,9 +1,10 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.11.8",
+  "version": "0.11.9",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
+    "postinstall": "node scripts/setup-pdfjs.mjs",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",

@@ -30,6 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - Window positions saved to localStorage
   - Mobile responsive positioning
   - z-index management (click to bring front)
+  - PDF.js integration for cross-browser PDF viewing (including Android)
 
 ---
 
@@ -47,6 +48,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] localStorage persistence for window positions
 - [x] PDF viewer in windows
 - [x] Fix window swipe scrolling page (#9)
+- [x] PDF.js support for Android, added to gitignore and setup package.json with scripts/setup-pdfjs.mjs
 - [ ] Test resize handles on real mobile device
 - [ ] Markdown notes per topic
 - [ ] LaTeX support for equations

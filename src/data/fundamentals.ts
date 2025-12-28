@@ -95,11 +95,11 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           { 
             name: 'KVL & KCL',
             notes: "Kirchhoff's Voltage Law (KVL):\n\r\nThe sum of all voltages around any closed loop equals zero.\n\nΣV = 0\n\nKirchhoff's Current Law (KCL):\nThe sum of currents entering a node equals the sum leaving.\nΣI_in = ΣI_out",
-            pdf: "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf"
+            pdf: "/pdfs/sample-test.pdf"
           },
           { 
             name: 'Thevenin & Norton',
-            pdf: "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf"
+            pdf: "/pdfs/sample-test.pdf"
           },
         ],
         resources: [

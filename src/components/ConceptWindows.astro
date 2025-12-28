@@ -713,11 +713,12 @@
       }
 
       if (concept.pdf) {
+        const pdfUrl = encodeURIComponent(concept.pdf);
         html += `
           <div class="concept-window-pdf-container">
             ${concept.notes ? '<hr class="concept-window-divider">' : ''}
             <iframe 
-              src="${concept.pdf}" 
+              src="/pdfjs/web/viewer.html?file=${pdfUrl}" 
               class="concept-window-pdf"
               title="PDF: ${conceptName}"
             ></iframe>
