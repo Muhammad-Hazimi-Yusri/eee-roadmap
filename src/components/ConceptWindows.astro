@@ -382,6 +382,9 @@
   let openWindows: OpenWindow[] = [];
   let highestZIndex = BASE_Z_INDEX;
   let cascadeCount = 0;
+  // Reference viewport (set once at first window open, used for proportional scaling)
+  let referenceViewportW: number | null = null;
+  let referenceViewportH: number | null = null;
 
   // Load saved states from localStorage
   function loadStates(): Record<string, WindowState> {
@@ -553,10 +556,27 @@
       win.element.classList.remove('concept-window--maximized');
       
       if (win.preMaximizeState) {
-        win.element.style.left = `${win.preMaximizeState.x}px`;
-        win.element.style.top = `${win.preMaximizeState.y}px`;
-        win.element.style.width = `${win.preMaximizeState.width}px`;
-        win.element.style.height = `${win.preMaximizeState.height}px`;
+        // Clamp size to current viewport
+        const viewportW = window.innerWidth;
+        const viewportH = window.innerHeight;
+        
+        const width = Math.min(win.preMaximizeState.width, viewportW - 16);
+        const height = Math.min(win.preMaximizeState.height, viewportH - 80);
+        
+        // Clamp position to keep window on screen
+        const maxX = viewportW - width - 8;
+        const maxY = viewportH - height - 60;
+        
+        const x = Math.max(0, Math.min(win.preMaximizeState.x, maxX));
+        const y = Math.max(0, Math.min(win.preMaximizeState.y, maxY));
+        
+        win.element.style.left = `${x}px`;
+        win.element.style.top = `${y}px`;
+        win.element.style.width = `${width}px`;
+        win.element.style.height = `${height}px`;
+        
+        // Save corrected state
+        saveWindowState(windowId, { x, y, width, height });
       }
     } else {
       // Maximize
@@ -568,65 +588,80 @@
 
   // Revalidate all window positions on viewport resize
   function initResizeHandler() {
-    let resizeTimeout: number | null = null;
+    // Use ResizeObserver for reliable viewport change detection
+    const resizeObserver = new ResizeObserver(() => {
+      revalidateAllWindows();
+    });
     
-    window.addEventListener('resize', () => {
-      // Debounce to avoid excessive calls
-      if (resizeTimeout) {
-        clearTimeout(resizeTimeout);
-      }
-      
-      resizeTimeout = window.setTimeout(() => {
-        resizeTimeout = null;
+    // Observe the document element (catches all viewport changes)
+    resizeObserver.observe(document.documentElement);
+    
+    // Also handle orientation changes on mobile
+    window.addEventListener('orientationchange', () => {
+      setTimeout(revalidateAllWindows, 100);
+    });
+    
+    // Fallback resize event
+    window.addEventListener('resize', revalidateAllWindows);
+    
+    // Handle visibility change (e.g., switching monitors while minimized)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
         revalidateAllWindows();
-      }, 150);
+      }
     });
   }
   
-  // Reposition windows to fit current viewport
+  // Reposition windows proportionally relative to reference viewport
   function revalidateAllWindows() {
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
+    
+    // No reference yet (no windows opened)
+    if (referenceViewportW === null || referenceViewportH === null) return;
+    
+    // Calculate scale factors from reference
+    const scaleX = viewportW / referenceViewportW;
+    const scaleY = viewportH / referenceViewportH;
+    
     const isMobile = viewportW < 640;
     
     openWindows.forEach((winData) => {
       if (winData.isMinimized || winData.isMaximized) return;
       
       const win = winData.element;
-      let x = win.offsetLeft;
-      let y = win.offsetTop;
-      let width = win.offsetWidth;
-      let height = win.offsetHeight;
       
-      // Constrain size to viewport
+      // Get saved state (original position at reference viewport)
+      const saved = loadStates()[winData.id];
+      if (!saved) return;
+      
+      // Scale from saved position
+      let x = saved.x * scaleX;
+      let y = saved.y * scaleY;
+      let width = saved.width * scaleX;
+      let height = saved.height * scaleY;
+      
+      // Clamp size to min/max
+      const minW = 250;
+      const minH = 150;
       const maxW = viewportW - 16;
       const maxH = viewportH - 80;
       
-      if (width > maxW) {
-        width = maxW;
-        win.style.width = `${width}px`;
-      }
-      if (height > maxH) {
-        height = maxH;
-        win.style.height = `${height}px`;
-      }
+      width = Math.max(minW, Math.min(width, maxW));
+      height = Math.max(minH, Math.min(height, maxH));
       
-      // Constrain position to keep window visible
-      const minVisible = 100; // At least 100px must be visible
-      const maxX = viewportW - minVisible;
-      const maxY = viewportH - minVisible;
+      // Clamp position to keep window on screen
+      const maxX = viewportW - width - 8;
+      const maxY = viewportH - height - 60;
       
-      if (x > maxX || x < 0) {
-        x = isMobile ? Math.max(8, (viewportW - width) / 2) : Math.min(Math.max(0, x), maxX);
-        win.style.left = `${x}px`;
-      }
-      if (y > maxY || y < 0) {
-        y = Math.min(Math.max(0, y), maxY);
-        win.style.top = `${y}px`;
-      }
+      x = Math.max(0, Math.min(x, maxX));
+      y = Math.max(0, Math.min(y, maxY));
       
-      // Save corrected state
-      saveWindowState(winData.id, getWindowState(win));
+      // Apply new position and size
+      win.style.left = `${x}px`;
+      win.style.top = `${y}px`;
+      win.style.width = `${width}px`;
+      win.style.height = `${height}px`;
     });
   }
 
@@ -735,6 +770,12 @@
       isMaximized: false
     };
     openWindows.push(windowData);
+
+    // Set reference viewport on first window open
+    if (referenceViewportW === null) {
+      referenceViewportW = window.innerWidth;
+      referenceViewportH = window.innerHeight;
+    }
 
     // Setup event listeners
     setupWindowEvents(win, windowId);
@@ -847,7 +888,20 @@
     document.addEventListener('mouseup', () => {
       if (isDragging) {
         isDragging = false;
+        // Save normalized to reference viewport
+      if (referenceViewportW && referenceViewportH) {
+        const state = getWindowState(win);
+        const scaleX = referenceViewportW / window.innerWidth;
+        const scaleY = referenceViewportH / window.innerHeight;
+        saveWindowState(windowId, {
+          x: state.x * scaleX,
+          y: state.y * scaleY,
+          width: state.width * scaleX,
+          height: state.height * scaleY
+        });
+      } else {
         saveWindowState(windowId, getWindowState(win));
+      }
       }
     });
 
@@ -883,7 +937,20 @@
     document.addEventListener('touchend', () => {
       if (isDragging) {
         isDragging = false;
-        saveWindowState(windowId, getWindowState(win));
+        // Save normalized to reference viewport
+        if (referenceViewportW && referenceViewportH) {
+          const state = getWindowState(win);
+          const scaleX = referenceViewportW / window.innerWidth;
+          const scaleY = referenceViewportH / window.innerHeight;
+          saveWindowState(windowId, {
+            x: state.x * scaleX,
+            y: state.y * scaleY,
+            width: state.width * scaleX,
+            height: state.height * scaleY
+          });
+        } else {
+          saveWindowState(windowId, getWindowState(win));
+}
       }
     });
   }
@@ -959,7 +1026,20 @@
   function endResize() {
     if (isResizing) {
       isResizing = false;
-      saveWindowState(windowId, getWindowState(win));
+      // Save normalized to reference viewport
+      if (referenceViewportW && referenceViewportH) {
+        const state = getWindowState(win);
+        const scaleX = referenceViewportW / window.innerWidth;
+        const scaleY = referenceViewportH / window.innerHeight;
+        saveWindowState(windowId, {
+          x: state.x * scaleX,
+          y: state.y * scaleY,
+          width: state.width * scaleX,
+          height: state.height * scaleY
+        });
+      } else {
+        saveWindowState(windowId, getWindowState(win));
+      }
     }
   }
 
