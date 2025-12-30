@@ -36,3 +36,8 @@ public/ # Only if used as build output, not for static assets
 
 # PDF.js viewer (downloaded via postinstall)
 public/pdfjs/
+
+# Downloaded PDFs (regenerated on build)
+public/pdfs/
+public/pdf-manifest.json
+src/data/pdf-manifest.json

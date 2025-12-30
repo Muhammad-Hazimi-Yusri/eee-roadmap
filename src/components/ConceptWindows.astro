@@ -376,6 +376,20 @@
     preMaximizeState?: WindowState;
   }
 
+  // PDF manifest for resolving external URLs to local paths
+  let pdfManifest: Record<string, string> = {};
+
+  // Load manifest on startup
+  fetch('/pdf-manifest.json')
+    .then(res => res.ok ? res.json() : {})
+    .then(data => { pdfManifest = data; })
+    .catch(() => { pdfManifest = {}; });
+
+  // Resolve PDF URL (external → local if available)
+  function resolvePdfUrl(url: string): string {
+    return pdfManifest[url] || url;
+  }
+
   const STORAGE_KEY = 'eee-concept-window-states';
   const CASCADE_OFFSET = 30;
   const BASE_Z_INDEX = 1000;
@@ -627,8 +641,6 @@
     const scaleX = viewportW / referenceViewportW;
     const scaleY = viewportH / referenceViewportH;
     
-    const isMobile = viewportW < 640;
-    
     openWindows.forEach((winData) => {
       if (winData.isMinimized || winData.isMaximized) return;
       
@@ -713,7 +725,8 @@
       }
 
       if (concept.pdf) {
-        const pdfUrl = encodeURIComponent(concept.pdf);
+        const resolvedPdf = resolvePdfUrl(concept.pdf);
+        const pdfUrl = encodeURIComponent(resolvedPdf);
         html += `
           <div class="concept-window-pdf-container">
             ${concept.notes ? '<hr class="concept-window-divider">' : ''}

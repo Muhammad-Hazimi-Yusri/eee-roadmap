@@ -6,7 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.11.8)
+## Current Features (v0.11.10)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -31,6 +31,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - Mobile responsive positioning
   - z-index management (click to bring front)
   - PDF.js integration for cross-browser PDF viewing (including Android)
+  - Automatic external PDF downloading at build time (CORS-free)
 
 ---
 
@@ -48,8 +49,9 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] localStorage persistence for window positions
 - [x] PDF viewer in windows
 - [x] Fix window swipe scrolling page (#9)
-- [x] PDF.js support for Android, added to gitignore and setup package.json with scripts/setup-pdfjs.mjs
-- [ ] Test resize handles on real mobile device
+- [x] Test resize handles on real mobile device
+- [x] PDF.js support for Android, added to .gitignore with setup script
+- [x] Build-time PDF downloading (CORS-free external PDFs)
 - [ ] Markdown notes per topic
 - [ ] LaTeX support for equations
 
@@ -104,9 +106,16 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ```
 eee-roadmap/
 ├── public/
-│   └── favicon.svg
+│   ├── favicon.svg
+│   ├── pdfjs/                  # PDF.js viewer (auto-downloaded via postinstall)
+│   ├── pdfs/                   # Downloaded PDFs (auto-generated)
+│   └── pdf-manifest.json       # URL → local path mapping (auto-generated)
+├── scripts/
+│   ├── setup-pdfjs.mjs         # Downloads PDF.js on npm install
+│   └── download-pdfs.mjs       # Downloads external PDFs from data files
 ├── src/
 │   ├── components/
+│   │   ├── ConceptWindows.astro
 │   │   ├── CTA.astro
 │   │   ├── CustomCursor.astro
 │   │   ├── DemoRoadmap.astro
@@ -147,6 +156,9 @@ eee-roadmap/
 │       ├── trail.test.ts
 │       ├── url.ts
 │       └── url.test.ts
+├── tests/
+│   ├── integration/            # Playwright integration tests
+│   └── e2e/                    # Playwright E2E tests
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml
@@ -154,8 +166,10 @@ eee-roadmap/
 ├── tailwind.config.mjs
 ├── tsconfig.json
 ├── vitest.config.ts
+├── playwright.config.ts
 ├── package.json
 ├── CONTRIBUTING.md
+├── CHANGELOG.md
 └── README.md
 ```
 
@@ -166,35 +180,36 @@ eee-roadmap/
 - [Node.js](https://nodejs.org) v18 or higher
 - npm (comes with Node.js)
 
-### Steps
+### Development Steps
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap.git
 cd eee-roadmap
 
-# 2. Install dependencies
-npm install
-
-# 3. Start development server
-npm run dev
+### Setup
+npm install        # Installs dependencies + downloads PDF.js viewer
+npm run dev        # Downloads PDFs + starts dev server
 ```
 
-Open [http://localhost:4321](http://localhost:4321) in your browser.
+### Scripts
 
-### Other Commands
-```bash
-# Build for production
-npm run build
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Download PDFs and start dev server |
+| `npm run build` | Build for production (auto-downloads PDFs) |
+| `npm run test` | Run unit tests (Vitest) in watch mode |
+| `npm run test:run` | Run unit tests once |
+| `npm run test:e2e` | Run Playwright integration/E2E tests |
+| `npm run test:all` | Run all tests (Vitest + Playwright) |
+| `npm run download:pdfs` | Manually download external PDFs |
 
-# Preview production build locally
-npm run preview
+### Adding PDFs
 
-# Run tests
-npm test
+External PDF URLs in data files are automatically downloaded at build time:
 
-# Check for broken links (after build)
-npm run check-links
-```
+1. Add `pdf: "https://example.com/document.pdf"` to a concept in `src/data/`
+2. Run `npm run download:pdfs` (or it runs automatically on build/dev)
+3. PDFs are saved to `public/pdfs/` and a manifest maps URLs to local paths
 
 ---
 

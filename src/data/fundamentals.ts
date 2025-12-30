@@ -90,7 +90,8 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         concepts: [
           { 
             name: "Ohm's Law",
-            notes: "V = IR\n\n\rVoltage (V) equals Current (I) times Resistance (R).\n\n• V in Volts (V)\n• I in Amperes (A)\n• R in Ohms (Ω)\n\nRearranged forms:\n• I = V / R\n• R = V / I\n\nPower relation: P = IV = I²R = V²/R"
+            notes: "V = IR\n\n\rVoltage (V) equals Current (I) times Resistance (R).\n\n• V in Volts (V)\n• I in Amperes (A)\n• R in Ohms (Ω)\n\nRearranged forms:\n• I = V / R\n• R = V / I\n\nPower relation: P = IV = I²R = V²/R",
+            pdf: "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf"
           },
           { 
             name: 'KVL & KCL',
