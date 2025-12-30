@@ -4,6 +4,7 @@
 import RoadmapSettings from './RoadmapSettings.astro';
 import ConceptModal from './ConceptWindows.astro';
 import { internalHref } from '../utils/url';
+import { parseNotes } from '../utils/parseNotes';
 
 interface Props {
   sections: import('../types/roadmap').RoadmapSection[];
@@ -11,16 +12,15 @@ interface Props {
 
 const { sections } = Astro.props;
 
-// Build concept data for modal
-const conceptData: Record<string, Record<string, { notes?: string; pdf?: string }>> = {};
+// Build concept data for windows (parse markdown at build time)
+const conceptData: Record<string, Record<string, { notesHtml?: string }>> = {};
 for (const section of sections) {
   for (const item of section.items) {
     if (item.concepts) {
       conceptData[item.id] = {};
       for (const concept of item.concepts) {
         conceptData[item.id][concept.name] = {
-          notes: concept.notes,
-          pdf: concept.pdf,
+          notesHtml: concept.notes ? parseNotes(concept.notes) : undefined,
         };
       }
     }

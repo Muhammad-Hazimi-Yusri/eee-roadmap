@@ -88,21 +88,66 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Calculate power dissipation',
         ],
         concepts: [
-          { 
-            name: "Ohm's Law",
-            notes: "V = IR\n\n\rVoltage (V) equals Current (I) times Resistance (R).\n\n• V in Volts (V)\n• I in Amperes (A)\n• R in Ohms (Ω)\n\nRearranged forms:\n• I = V / R\n• R = V / I\n\nPower relation: P = IV = I²R = V²/R",
-            pdf: "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf"
-          },
-          { 
-            name: 'KVL & KCL',
-            notes: "Kirchhoff's Voltage Law (KVL):\n\r\nThe sum of all voltages around any closed loop equals zero.\n\nΣV = 0\n\nKirchhoff's Current Law (KCL):\nThe sum of currents entering a node equals the sum leaving.\nΣI_in = ΣI_out",
-            pdf: "/pdfs/sample-test.pdf"
-          },
-          { 
-            name: 'Thevenin & Norton',
-            pdf: "/pdfs/sample-test.pdf"
-          },
-        ],
+  { 
+  name: "Ohm's Law",
+  notes: `# Ohm's Law
+
+V = IR — Voltage equals Current times Resistance.
+
+![Circuit diagram](https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Ohm%27s_Law_Pie_chart.svg/220px-Ohm%27s_Law_Pie_chart.svg.png)
+
+## The Formula
+
+- **V** in Volts (V)
+- **I** in Amperes (A)  
+- **R** in Ohms (Ω)
+
+Here's a reference PDF:
+
+![Ohm's Law Reference](https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf)
+
+## Rearranged Forms
+
+You can solve for any variable:
+- I = V / R
+- R = V / I
+
+![Resistor photo](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Resistor.jpg/220px-Resistor.jpg)
+
+## Power Relations
+
+Power can be calculated multiple ways:
+- P = IV
+- P = I²R
+- P = V²/R
+
+And here's another PDF for reference:
+
+![Sample Test PDF](/pdfs/sample-test.pdf)
+
+That's all for Ohm's Law!
+`
+},
+  { 
+    name: 'KVL & KCL',
+    notes: `Kirchhoff's Voltage Law (KVL):
+
+The sum of all voltages around any closed loop equals zero.
+
+ΣV = 0
+
+Kirchhoff's Current Law (KCL):
+The sum of currents entering a node equals the sum leaving.
+ΣI_in = ΣI_out
+
+![KVL & KCL PDF](/pdfs/sample-test.pdf)
+`
+  },
+  { 
+    name: 'Thevenin & Norton',
+    notes: `![Thevenin & Norton PDF](/pdfs/sample-test.pdf)`
+  },
+],
         resources: [
           { label: 'MIT OCW 6.002', url: 'https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/' },
           { label: 'All About Circuits', url: 'https://www.allaboutcircuits.com/textbook/direct-current/' },

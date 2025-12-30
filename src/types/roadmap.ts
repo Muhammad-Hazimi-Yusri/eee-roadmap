@@ -19,10 +19,26 @@ export interface Resource {
 export interface Concept {
   /** Display name of the concept */
   name: string;
-  /** Markdown explanation (optional) */
+  /** 
+   * Markdown explanation (optional).
+   * 
+   * IMPORTANT: When using template literals, avoid leading whitespace on lines.
+   * Markdown treats 4+ spaces as code blocks, breaking embeds.
+   * 
+   * @example
+   * // ❌ Bad - indented lines become code blocks
+   * notes: `
+   *   Some text
+   *   ![PDF](/file.pdf)
+   * `
+   * 
+   * // ✅ Good - no leading whitespace
+   * notes: `Some text
+   * 
+   * ![PDF](/file.pdf)
+   * `
+   */
   notes?: string;
-  /** URL to PDF file - local ("/notes/topic.pdf") or external (optional) */
-  pdf?: string;
 }
 
 /**

@@ -252,6 +252,34 @@
     flex-shrink: 0;
   }
 
+  /* Inline PDF embeds (from markdown) */
+  .notes-pdf-embed {
+    margin: 1rem 0;
+    min-height: 400px;
+    flex: 1;
+  }
+
+  .notes-pdf-iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: #f5f5f5;
+  }
+
+  .dark .notes-pdf-iframe {
+    background: #222;
+  }
+
+  /* Inline images (from markdown) */
+  .notes-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 1rem 0;
+  }
+
   .concept-window-divider {
     border: none;
     border-top: 1px solid var(--color-border);
@@ -356,8 +384,7 @@
 
 <script>
   interface ConceptData {
-    notes?: string;
-    pdf?: string;
+    notesHtml?: string;
   }
 
   interface WindowState {
@@ -374,20 +401,6 @@
     isMinimized: boolean;
     isMaximized: boolean;
     preMaximizeState?: WindowState;
-  }
-
-  // PDF manifest for resolving external URLs to local paths
-  let pdfManifest: Record<string, string> = {};
-
-  // Load manifest on startup
-  fetch('/pdf-manifest.json')
-    .then(res => res.ok ? res.json() : {})
-    .then(data => { pdfManifest = data; })
-    .catch(() => { pdfManifest = {}; });
-
-  // Resolve PDF URL (external → local if available)
-  function resolvePdfUrl(url: string): string {
-    return pdfManifest[url] || url;
   }
 
   const STORAGE_KEY = 'eee-concept-window-states';
@@ -719,27 +732,9 @@
     if (bodyEl) {
       let html = '';
 
-      if (concept.notes) {
-        const formattedNotes = concept.notes.replace(/\n/g, '<br>');
-        html += `<div class="concept-window-notes">${formattedNotes}</div>`;
-      }
-
-      if (concept.pdf) {
-        const resolvedPdf = resolvePdfUrl(concept.pdf);
-        const pdfUrl = encodeURIComponent(resolvedPdf);
-        html += `
-          <div class="concept-window-pdf-container">
-            ${concept.notes ? '<hr class="concept-window-divider">' : ''}
-            <iframe 
-              src="/pdfjs/web/viewer.html?file=${pdfUrl}" 
-              class="concept-window-pdf"
-              title="PDF: ${conceptName}"
-            ></iframe>
-          </div>
-        `;
-      }
-
-      if (!concept.notes && !concept.pdf) {
+      if (concept.notesHtml) {
+        html = `<div class="concept-window-notes">${concept.notesHtml}</div>`;
+      } else {
         html = `
           <div class="concept-window-placeholder">
             📝 Notes not yet uploaded for this concept.

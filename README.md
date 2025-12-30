@@ -6,7 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.11.10)
+## Current Features (v0.11.11)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -32,6 +32,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - z-index management (click to bring front)
   - PDF.js integration for cross-browser PDF viewing (including Android)
   - Automatic external PDF downloading at build time (CORS-free)
+  - Markdown notes with inline PDF and image embedding
 
 ---
 
@@ -52,8 +53,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Test resize handles on real mobile device
 - [x] PDF.js support for Android, added to .gitignore with setup script
 - [x] Build-time PDF downloading (CORS-free external PDFs)
-- [ ] Markdown notes per topic
+- [x] Markdown notes with inline embeds (PDFs, images)
 - [ ] LaTeX support for equations
+
+#### Technical Notes
+- **Markdown in template literals**: Avoid leading whitespace in `notes` fields. Markdown interprets 4+ leading spaces as code blocks, which prevents image/PDF embeds from rendering. Keep lines flush-left within the template literal.
 
 ### v0.12 - Custom Roadmaps & Self-Hosting
 
