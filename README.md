@@ -6,7 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.11.11)
+## Current Features (v0.11.13)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -34,6 +34,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - Automatic external PDF downloading at build time (CORS-free)
   - Markdown notes with inline PDF and image embedding
   - Resizable PDF viewers with drag handle (height persisted to localStorage)
+  - LaTeX support for equations (KaTeX)
 
 ---
 
@@ -56,10 +57,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Build-time PDF downloading (CORS-free external PDFs)
 - [x] Markdown notes with inline embeds (PDFs, images)
 - [x] Resizable PDF viewers with drag-to-resize handle
-- [ ] LaTeX support for equations
+- [x] LaTeX support for equations (KaTeX)
 
 #### Technical Notes
 - **Markdown in template literals**: Avoid leading whitespace in `notes` fields. Markdown interprets 4+ leading spaces as code blocks, which prevents image/PDF embeds from rendering. Keep lines flush-left within the template literal.
+- **LaTeX equations**: Use `$...$` for inline and `$$...$$` for block math. Block equations must be on their own line with a blank line before and after. Use double backslashes in JS strings (e.g., `\\frac{1}{2}`).
 
 ### v0.12 - Custom Roadmaps & Self-Hosting
 

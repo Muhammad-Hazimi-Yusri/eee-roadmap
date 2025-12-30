@@ -18,7 +18,33 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
           'Perform vector operations',
         ],
         concepts: [
-          { name: 'Complex numbers' },
+          { name: 'Complex numbers', 
+            notes: `## Test Formulas
+
+Inline: $V = IR$, $P = I^2 R$, $\\omega = 2\\pi f$
+
+Greek: $\\alpha$, $\\beta$, $\\Omega$, $\\mu$, $\\tau$
+
+Fractions: $\\frac{V_{out}}{V_{in}}$
+
+Transfer function:
+
+$$H(s) = \\frac{1}{1 + sRC}$$
+
+Euler's identity:
+
+$$e^{j\\theta} = \\cos\\theta + j\\sin\\theta$$
+
+Integral:
+
+$$W = \\int_0^T p(t) \\, dt$$
+
+Matrix:
+
+$$\\begin{bmatrix} V_1 \\\\ V_2 \\end{bmatrix} = \\begin{bmatrix} Z_{11} & Z_{12} \\\\ Z_{21} & Z_{22} \\end{bmatrix} \\begin{bmatrix} I_1 \\\\ I_2 \\end{bmatrix}$$
+
+
+`},
           { name: 'Trig identities' },
           { name: 'Vectors' },
         ],
@@ -90,9 +116,12 @@ export const fundamentalsRoadmap: RoadmapSection[] = [
         concepts: [
   { 
   name: "Ohm's Law",
-  notes: `# Ohm's Law
+  notes: `
+Ohm's Law: $V = IR$
 
-V = IR — Voltage equals Current times Resistance.
+Impedance formula:
+
+$$Z = \\sqrt{R^2 + (X_L - X_C)^2}$$
 
 ![Circuit diagram](https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Ohm%27s_Law_Pie_chart.svg/220px-Ohm%27s_Law_Pie_chart.svg.png)
 

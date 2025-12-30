@@ -1,4 +1,5 @@
 import { marked } from 'marked';
+import markedKatex from 'marked-katex-extension';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -21,6 +22,8 @@ const pdfManifest = loadPdfManifest();
 function resolvePdfUrl(url: string): string {
   return pdfManifest[url] || url;
 }
+
+marked.use(markedKatex({ throwOnError: false }));
 
 // Configure marked with custom image renderer
 marked.use({

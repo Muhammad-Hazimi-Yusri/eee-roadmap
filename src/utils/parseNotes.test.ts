@@ -227,3 +227,30 @@ describe('parseNotes', () => {
     });
   });
 });
+
+describe('LaTeX rendering', () => {
+  it('should render inline math with single $', () => {
+    const result = parseNotes("Ohm\\'s Law: $V = IR$");
+    expect(result).toContain('<span class="katex">');
+  });
+
+  it('should render block math with $$', () => {
+    const result = parseNotes('Formula:\n\n$$Z = \\\\sqrt{R^2}$$');
+    expect(result).toContain('<span class="katex-display">');
+  });
+
+  it('should handle fractions', () => {
+    const result = parseNotes('$\\\\frac{1}{2}$');
+    expect(result).toContain('katex');
+  });
+
+  it('should handle Greek letters', () => {
+    const result = parseNotes('$\\\\omega = 2\\\\pi f$');
+    expect(result).toContain('katex');
+  });
+
+  it('should not crash on invalid LaTeX', () => {
+    const result = parseNotes('$\\\\invalidcommand$');
+    expect(result).toBeDefined();
+  });
+});
