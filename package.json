@@ -8,7 +8,7 @@
     "postinstall": "node scripts/setup-pdfjs.mjs",
     "dev": "npm run download:pdfs && astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "npm run download:pdfs && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "check-links": "npx linkinator ./dist",
