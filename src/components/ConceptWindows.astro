@@ -1169,12 +1169,18 @@
     }
   }
 
-  function savePdfHeight(pdfSrc: string, height: number) {
+  function savePdfHeight(pdfSrc: string, heightPercent: number) {
     try {
       const heights = loadPdfHeights();
-      heights[pdfSrc] = height;
+      // Store as percentage (0-100+)
+      heights[pdfSrc] = heightPercent;
       localStorage.setItem(PDF_HEIGHT_STORAGE_KEY, JSON.stringify(heights));
     } catch {}
+  }
+
+  function getWindowContentHeight(embed: HTMLElement): number {
+    const content = embed.closest('.concept-window-content') as HTMLElement;
+    return content?.clientHeight || window.innerHeight;
   }
 
   function initPdfResizers() {
@@ -1198,8 +1204,18 @@
       const onMouseMove = (e: MouseEvent) => {
         const delta = e.clientY - startY;
         const newHeight = Math.max(200, startHeight + delta);
-        console.log('resizing to:', newHeight);
         iframe.style.height = `${newHeight}px`;
+        
+        // Auto-scroll the content area to follow the resize
+        const content = embed.closest('.concept-window-content') as HTMLElement;
+        if (content) {
+          const resizerRect = resizer.getBoundingClientRect();
+          const contentRect = content.getBoundingClientRect();
+          // If resizer is near or below the visible area, scroll to keep it visible
+          if (resizerRect.bottom > contentRect.bottom - 20) {
+            content.scrollTop += delta;
+          }
+        }
       };
 
       const onMouseUp = () => {
@@ -1208,12 +1224,14 @@
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
 
-        // Save height based on PDF src
+        // Save height as percentage of content area
         const src = iframe.getAttribute('src') || '';
         const match = src.match(/file=([^&]+)/);
         if (match) {
           const pdfPath = decodeURIComponent(match[1]);
-          savePdfHeight(pdfPath, iframe.offsetHeight);
+          const contentHeight = getWindowContentHeight(embed);
+          const heightPercent = (iframe.offsetHeight / contentHeight) * 100;
+          savePdfHeight(pdfPath, heightPercent);
         }
       };
 
@@ -1253,7 +1271,9 @@
         const match = src.match(/file=([^&]+)/);
         if (match) {
           const pdfPath = decodeURIComponent(match[1]);
-          savePdfHeight(pdfPath, iframe.offsetHeight);
+          const contentHeight = getWindowContentHeight(embed);
+          const heightPercent = (iframe.offsetHeight / contentHeight) * 100;
+          savePdfHeight(pdfPath, heightPercent);
         }
       };
 
@@ -1265,6 +1285,8 @@
   function applyStoredPdfHeights(container: HTMLElement) {
     const heights = loadPdfHeights();
     const iframes = container.querySelectorAll('.notes-pdf-iframe') as NodeListOf<HTMLElement>;
+    const content = container.closest('.concept-window-content') as HTMLElement || container;
+    const contentHeight = content.clientHeight || 400;
     
     iframes.forEach((iframe) => {
       const src = iframe.getAttribute('src') || '';
@@ -1272,7 +1294,9 @@
       if (match) {
         const pdfPath = decodeURIComponent(match[1]);
         if (heights[pdfPath]) {
-          iframe.style.height = `${heights[pdfPath]}px`;
+          // Convert percentage back to pixels, with min/max constraints
+          const heightPx = Math.max(200, Math.min((heights[pdfPath] / 100) * contentHeight, contentHeight - 50));
+          iframe.style.height = `${heightPx}px`;
         }
       }
     });
