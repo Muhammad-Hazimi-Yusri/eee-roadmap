@@ -34,13 +34,21 @@ async function downloadPdf(url, filename) {
 }
 
 function extractPdfUrls(content) {
-  // Match pdf: "https://..." or pdf: 'https://...'
-  const regex = /pdf:\s*['"]((https?:\/\/[^'"]+\.pdf[^'"]*))['"]/gi;
   const urls = [];
+  
+  // Match pdf: "https://..." or pdf: 'https://...'
+  const pdfPropRegex = /pdf:\s*['"]((https?:\/\/[^'"]+\.pdf)[^'"]*)['"]?/gi;
   let match;
-  while ((match = regex.exec(content)) !== null) {
+  while ((match = pdfPropRegex.exec(content)) !== null) {
     urls.push(match[1]);
   }
+  
+  // Match markdown images: ![...](https://...pdf)
+  const markdownRegex = /!\[[^\]]*\]\((https?:\/\/[^)]+\.pdf)\)/gi;
+  while ((match = markdownRegex.exec(content)) !== null) {
+    urls.push(match[1]);
+  }
+  
   return urls;
 }
 
