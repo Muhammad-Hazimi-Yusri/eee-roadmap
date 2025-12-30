@@ -43,6 +43,7 @@ marked.use({
               class="notes-pdf-iframe"
               loading="lazy"
             ></iframe>
+            <div class="notes-pdf-resizer" title="Drag to resize PDF"></div>
           </div>
         `.trim();
       }

@@ -255,21 +255,59 @@
   /* Inline PDF embeds (from markdown) */
   .notes-pdf-embed {
     margin: 1rem 0;
-    min-height: 400px;
-    flex: 1;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    width: 85%;
   }
 
   .notes-pdf-iframe {
     width: 100%;
-    height: 100%;
-    min-height: 400px;
+    flex: none;
+    height: 600px;
+    min-height: 200px;
     border: 1px solid var(--color-border);
-    border-radius: 4px;
+    border-radius: 4px 4px 0 0;
     background: #f5f5f5;
   }
 
   .dark .notes-pdf-iframe {
     background: #222;
+  }
+
+/* Resize divider for PDF embeds */
+  .notes-pdf-resizer {
+    height: 12px;
+    background: var(--color-border);
+    cursor: ns-resize;
+    border-radius: 0 0 4px 4px;
+    margin: 0;
+    transition: background 0.15s;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-top: none;
+  }
+
+  .notes-pdf-resizer:hover,
+  .notes-pdf-resizer.resizing {
+    background: var(--color-copper);
+  }
+
+  .notes-pdf-resizer::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: var(--color-text-muted);
+    border-radius: 2px;
+    margin: 4px auto;
+    opacity: 0.7;
+  }
+
+  .notes-pdf-resizer:hover::after,
+  .notes-pdf-resizer.resizing::after {
+    background: white;
+    opacity: 1;
   }
 
   /* Inline images (from markdown) */
@@ -379,6 +417,16 @@
   /* Hide resize handles when maximized */
   .concept-window--maximized .resize-handle {
     display: none;
+  }
+
+  /* Disable iframe interaction during PDF resize */
+  body.pdf-resizing iframe {
+    pointer-events: none;
+  }
+
+  body.pdf-resizing {
+    cursor: ns-resize;
+    user-select: none;
   }
 </style>
 
@@ -791,6 +839,9 @@
 
     // Setup event listeners
     setupWindowEvents(win, windowId);
+
+    // Apply stored PDF heights
+    applyStoredPdfHeights(win);
   }
 
   // Close a window
@@ -1103,4 +1154,130 @@
   };
 
   initResizeHandler();
+
+  // ============================================
+  // PDF RESIZER LOGIC
+  // ============================================
+  const PDF_HEIGHT_STORAGE_KEY = 'eee-pdf-heights';
+
+  function loadPdfHeights(): Record<string, number> {
+    try {
+      const saved = localStorage.getItem(PDF_HEIGHT_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function savePdfHeight(pdfSrc: string, height: number) {
+    try {
+      const heights = loadPdfHeights();
+      heights[pdfSrc] = height;
+      localStorage.setItem(PDF_HEIGHT_STORAGE_KEY, JSON.stringify(heights));
+    } catch {}
+  }
+
+  function initPdfResizers() {
+    document.addEventListener('mousedown', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.classList.contains('notes-pdf-resizer')) return;
+
+      e.preventDefault();
+      const resizer = target;
+      const embed = resizer.closest('.notes-pdf-embed') as HTMLElement;
+      const iframe = embed?.querySelector('.notes-pdf-iframe') as HTMLElement;
+      if (!embed || !iframe) return;
+
+      // CRITICAL: Disable iframe pointer events during drag
+      document.body.classList.add('pdf-resizing');
+      resizer.classList.add('resizing');
+      
+      const startY = e.clientY;
+      const startHeight = iframe.offsetHeight;
+
+      const onMouseMove = (e: MouseEvent) => {
+        const delta = e.clientY - startY;
+        const newHeight = Math.max(200, startHeight + delta);
+        console.log('resizing to:', newHeight);
+        iframe.style.height = `${newHeight}px`;
+      };
+
+      const onMouseUp = () => {
+        document.body.classList.remove('pdf-resizing');
+        resizer.classList.remove('resizing');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        // Save height based on PDF src
+        const src = iframe.getAttribute('src') || '';
+        const match = src.match(/file=([^&]+)/);
+        if (match) {
+          const pdfPath = decodeURIComponent(match[1]);
+          savePdfHeight(pdfPath, iframe.offsetHeight);
+        }
+      };
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+
+    // Touch support
+    document.addEventListener('touchstart', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.classList.contains('notes-pdf-resizer')) return;
+
+      const resizer = target;
+      const embed = resizer.closest('.notes-pdf-embed') as HTMLElement;
+      const iframe = embed?.querySelector('.notes-pdf-iframe') as HTMLElement;
+      if (!embed || !iframe) return;
+
+      document.body.classList.add('pdf-resizing');
+      resizer.classList.add('resizing');
+      
+      const startY = e.touches[0].clientY;
+      const startHeight = iframe.offsetHeight;
+
+      const onTouchMove = (e: TouchEvent) => {
+        const delta = e.touches[0].clientY - startY;
+        const newHeight = Math.max(200, startHeight + delta);
+        iframe.style.height = `${newHeight}px`;
+      };
+
+      const onTouchEnd = () => {
+        document.body.classList.remove('pdf-resizing');
+        resizer.classList.remove('resizing');
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+
+        const src = iframe.getAttribute('src') || '';
+        const match = src.match(/file=([^&]+)/);
+        if (match) {
+          const pdfPath = decodeURIComponent(match[1]);
+          savePdfHeight(pdfPath, iframe.offsetHeight);
+        }
+      };
+
+      document.addEventListener('touchmove', onTouchMove, { passive: true });
+      document.addEventListener('touchend', onTouchEnd);
+    }, { passive: true });
+  }
+
+  function applyStoredPdfHeights(container: HTMLElement) {
+    const heights = loadPdfHeights();
+    const iframes = container.querySelectorAll('.notes-pdf-iframe') as NodeListOf<HTMLElement>;
+    
+    iframes.forEach((iframe) => {
+      const src = iframe.getAttribute('src') || '';
+      const match = src.match(/file=([^&]+)/);
+      if (match) {
+        const pdfPath = decodeURIComponent(match[1]);
+        if (heights[pdfPath]) {
+          iframe.style.height = `${heights[pdfPath]}px`;
+        }
+      }
+    });
+  }
+
+  // Initialize on load
+  initPdfResizers();
 </script>

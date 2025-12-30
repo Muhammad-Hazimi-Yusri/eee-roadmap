@@ -33,6 +33,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - PDF.js integration for cross-browser PDF viewing (including Android)
   - Automatic external PDF downloading at build time (CORS-free)
   - Markdown notes with inline PDF and image embedding
+  - Resizable PDF viewers with drag handle (height persisted to localStorage)
 
 ---
 
@@ -54,6 +55,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] PDF.js support for Android, added to .gitignore with setup script
 - [x] Build-time PDF downloading (CORS-free external PDFs)
 - [x] Markdown notes with inline embeds (PDFs, images)
+- [x] Resizable PDF viewers with drag-to-resize handle
 - [ ] LaTeX support for equations
 
 #### Technical Notes
