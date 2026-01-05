@@ -6,7 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.11.13)
+## Current Features (v0.11.14)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -22,7 +22,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - Custom cursor matching active tool
 - Swipe trail effect for visual feedback
 - Touch support (single finger draws, two fingers scroll)
-- Comprehensive homepage demo
+- Comprehensive homepage demo with working ConceptWindows (LaTeX, images, PDFs)
 - **Concept Windows:** Draggable, resizable windows for notes and PDFs
   - Multiple windows open simultaneously
   - Drag by titlebar, resize via corner/edge handles

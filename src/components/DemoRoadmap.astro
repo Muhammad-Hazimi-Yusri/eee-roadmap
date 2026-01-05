@@ -2,6 +2,138 @@
 // src/components/DemoRoadmap.astro
 // Interactive demo that doesn't persist to localStorage
 
+import { parseNotes } from '../utils/parseNotes';
+
+const demoNotes: Record<string, Record<string, string>> = {
+  'demo-basics': {
+    'Click me': `
+## ✅ Correct!
+
+You clicked. Welcome to the **Concept Window**.
+
+---
+
+### Notes support:
+
+- **Markdown** formatting
+- LaTeX equations: $V = IR$
+- Images and diagrams
+- Embedded PDFs
+
+### Example equation
+
+Power dissipated in a resistor:
+
+$$P = I^2 R = \\frac{V^2}{R}$$
+
+![Resistor](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Resistor.jpg/220px-Resistor.jpg)
+
+↑ Images can be embedded inline
+
+---
+
+### Sample PDF
+
+![Sample PDF](/pdfs/sample-test.pdf)
+`,
+    'Double-click me': `
+🤨 **Wait...** you single-clicked?
+
+The pill says *double-click*.
+
+---
+
+Double-click marks concepts as ● complete.
+
+Try it on this pill!
+`,
+    'Shift+click me': `
+## ⭐ IMPORTANT NOTE!!!
+
+Shift+click marks concepts as ★ important.
+
+Gold border = "come back to this later".
+`,
+  },
+  'demo-tools': {
+    'Swipe with pen': `
+## 🖊️ Pen go brrr
+
+In **Tools Mode**, swipe across multiple pills in one motion.
+
+---
+
+### Available tools:
+
+- 🖱️ **Cursor** — Click to open notes
+- ✓ **Complete** — Swipe to mark done
+- ★ **Important** — Swipe to highlight
+- ✕ **Eraser** — Swipe to reset
+`,
+    'Highlight me': `
+## 🟡 IMPORTANT NOTE!!!
+
+Yellow = *"I should probably remember this"*
+
+---
+
+Progress saves to \`localStorage\` automatically.
+`,
+    'Erase me': '',
+  },
+  'demo-topic-1': {
+    'Basics (concept 1)': `
+## 📚 The Foundation
+
+Kirchhoff's Laws:
+
+**KCL:** $\\sum I = 0$ at any node
+
+**KVL:** $\\sum V = 0$ around any loop
+`,
+    'Setup (concept 2)': `
+## ⚙️ Environment Setup
+
+The part where you spend 3 hours configuring before writing code.
+`,
+  },
+  'demo-topic-2': {
+    'Theory (concept 3)': `
+## 🧠 Theory
+
+> "In theory, theory and practice are the same."
+
+Capacitor impedance: $Z_C = \\frac{1}{j\\omega C}$
+`,
+    'Practice (concept 4)': `
+## 🔨 Practice
+
+Where edge cases live.
+`,
+  },
+  'demo-topic-3': {
+    'Design (concept 5)': `
+## 🎨 Design
+
+Making it look good before making it work.
+
+*(Don't actually do this.)*
+`,
+    'Implementation (concept 6)': '',
+  },
+};
+
+// Parse all notes at build time
+const demoConceptData: Record<string, Record<string, { notesHtml: string }>> = {};
+for (const [topicId, concepts] of Object.entries(demoNotes)) {
+  demoConceptData[topicId] = {};
+  for (const [conceptName, markdown] of Object.entries(concepts)) {
+    demoConceptData[topicId][conceptName] = {
+      notesHtml: markdown ? parseNotes(markdown) : '',
+    };
+  }
+}
+
 const demoData = {
   title: 'Try It Out',
   description: 'Simple mode (clicks) works best on desktop. Tools mode (swipe gestures) shines on tablet/stylus. Both work everywhere.',
@@ -87,6 +219,10 @@ const demoData = {
   ],
 };
 ---
+<!-- Expose demo concept data to client script -->
+<script define:vars={{ demoConceptData }}>
+  window.__demoConceptData = demoConceptData;
+</script>
 
 <section class="section" id="demo">
   <div class="container">
@@ -652,7 +788,21 @@ const demoData = {
     initDemoPills();
     initDemoSwipe();
     initDemoTrail();
+    initDemoConceptData()
     initDemoReset();
+  }
+
+  // ============================================
+  // CONCEPT-WINDOW
+  // ============================================
+  // Demo concept data for ConceptWindows
+  function initDemoConceptData() {
+    const demoConceptData = (window as any).__demoConceptData || {};
+    
+    (window as any).conceptData = {
+      ...(window as any).conceptData,
+      ...demoConceptData,
+    };
   }
 
   // ============================================
@@ -735,6 +885,7 @@ const demoData = {
       if (!topicId || !concept) return;
       
       const key = `${topicId}:${concept}`;
+      let clickTimer: number | null = null;
 
       pill.addEventListener('click', (e) => {
         if (demoMode !== 'simple') return;
@@ -742,13 +893,28 @@ const demoData = {
         
         if (event.shiftKey) {
           toggleDemoImportant(pill as HTMLElement, key);
-        } else {
-          console.log('Demo: Open notes for', key);
+          return;
         }
+
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+          return;
+        }
+
+        clickTimer = window.setTimeout(() => {
+          clickTimer = null;
+          const [topicId, conceptName] = key.split(':');
+          (window as any).conceptModal?.open(topicId, conceptName);
+        }, 250);
       });
 
       pill.addEventListener('dblclick', () => {
         if (demoMode !== 'simple') return;
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+        }
         toggleDemoComplete(pill as HTMLElement, key);
       });
     });
@@ -883,24 +1049,42 @@ const demoData = {
       const key = getDemoPillKey(pill);
       if (!key) return;
 
-      // Simple mode: click, dblclick, shift+click
+      let clickTimer: number | null = null;
+
+      // Simple mode: click = notes, dblclick = complete, shift+click = important
       pill.addEventListener('click', (e) => {
         if (demoMode !== 'simple') return;
         const event = e as MouseEvent;
         
         if (event.shiftKey) {
           toggleDemoImportant(pill as HTMLElement, key);
-        } else {
-          console.log('Demo: Open notes for', key);
+          return;
         }
+
+        // Delay to allow double-click detection
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+          return;
+        }
+
+        clickTimer = window.setTimeout(() => {
+          clickTimer = null;
+          const [topicId, conceptName] = key.split(':');
+          (window as any).conceptModal?.open(topicId, conceptName);
+        }, 250);
       });
 
       pill.addEventListener('dblclick', () => {
         if (demoMode !== 'simple') return;
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+        }
         toggleDemoComplete(pill as HTMLElement, key);
       });
     });
-  
+
     // Pre-set "Erase me" as completed + important
     const erasePill = document.querySelector('[data-demo-concept="Erase me"]') as HTMLElement;
     if (erasePill) {
@@ -988,7 +1172,8 @@ const demoData = {
         if (demoMode !== 'tools') return;
 
         if (demoTool === 'cursor') {
-          console.log('Demo: Open notes for', key);
+          const [topicId, conceptName] = key.split(':');
+          (window as any).conceptModal?.open(topicId, conceptName);
           e.preventDefault();
           return;
         }
@@ -1003,7 +1188,8 @@ const demoData = {
         if (demoMode !== 'tools') return;
 
         if (demoTool === 'cursor') {
-          console.log('Demo: Open notes for', key);
+          const [topicId, conceptName] = key.split(':');
+          (window as any).conceptModal?.open(topicId, conceptName);
           return;
         }
 

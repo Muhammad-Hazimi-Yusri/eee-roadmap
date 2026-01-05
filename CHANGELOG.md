@@ -28,6 +28,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Settings panel z-index (10001) topmost
   - PDF.js v5.4.449 integration for cross-browser PDF rendering
   - PDFs now display on Android browsers (Samsung Internet, Chrome) that lack native support
+- Demo page ConceptWindows integration
+  - Interactive demo pills open real ConceptWindows
+  - Showcases LaTeX, images, PDF viewer with resizer
+  - Build-time markdown parsing for full feature parity
+- Updated Features section to highlight Rich Notes
   
 
 ### Fixed
