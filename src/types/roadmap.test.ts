@@ -1,15 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import type { RoadmapSection, Topic, Concept, Resource } from './roadmap';
-import { fundamentalsRoadmap } from '../data/fundamentals';
-import { coreRoadmap } from '../data/core';
-import { advancedRoadmap } from '../data/advanced';
+import type { RoadmapSection } from './roadmap';
+import { roadmaps } from '../data';
 
 describe('Roadmap data validation', () => {
-  const allRoadmaps: { name: string; data: RoadmapSection[] }[] = [
-    { name: 'fundamentals', data: fundamentalsRoadmap },
-    { name: 'core', data: coreRoadmap },
-    { name: 'advanced', data: advancedRoadmap },
-  ];
+  const allRoadmaps = Object.entries(roadmaps).map(([name, data]) => ({ name, data }));
 
   describe.each(allRoadmaps)('$name roadmap', ({ data }) => {
     it('should have at least one section', () => {

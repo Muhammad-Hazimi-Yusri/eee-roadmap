@@ -41,3 +41,7 @@ public/pdfjs/
 public/pdfs/
 public/pdf-manifest.json
 src/data/pdf-manifest.json
+
+# Generated data files (built from YAML sources)
+src/data/*.json
+!src/data/sample.json

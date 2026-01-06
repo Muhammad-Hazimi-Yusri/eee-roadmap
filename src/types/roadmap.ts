@@ -2,7 +2,7 @@
 
 /**
  * Core data types for roadmap content structure.
- * Used by fundamentals.ts, core.ts, and advanced.ts data files.
+ * Used to type roadmap JSON data loaded from content/*.yaml files.
  * 
  * @module roadmap
  */

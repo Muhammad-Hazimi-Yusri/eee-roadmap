@@ -15,11 +15,17 @@ npm install
 npm run dev
 ```
 
-## Project Structure
+## Project Structure (Full dir tree in README.md)
 ```
+content/                # Roadmap YAML source files (edit these!)
+├── fundamentals.yaml
+├── core.yaml
+└── advanced.yaml
 src/
 ├── components/     # Astro components
-├── data/           # Roadmap content (fundamentals.ts, core.ts, advanced.ts)
+├── data/           # Generated JSON + loader (don't edit JSONs directly)
+│   ├── index.ts    # Dynamic loader
+│   └── sample.json # Example structure
 ├── layouts/        # Page layouts
 ├── pages/          # Route pages
 ├── styles/         # Global CSS
@@ -30,9 +36,66 @@ src/
 ## Ways to Contribute
 
 ### 1. Content Improvements
-- Fix typos or unclear descriptions in `src/data/*.ts`
+
+Edit roadmap content in `content/*.yaml` files:
+- Fix typos or unclear descriptions
 - Add or improve learning resources (ensure links are valid)
 - Suggest new topics or reorganize existing ones
+
+**YAML format example:**
+```yaml
+- id: section-id
+  title: Section Title
+  items:
+    - id: topic-id
+      title: Topic Title
+      description: >-
+        A clear description of what this covers.
+      prerequisites:
+        - other-track/topic-id/Linked Prereq
+        - Plain text prerequisite
+      outcomes:
+        - What learners will achieve
+      concepts:
+        - name: Concept Name
+          notes: |
+            Optional markdown with $LaTeX$ support.
+            
+            $$E = mc^2$$
+      resources:
+        - label: Resource Name
+          url: https://example.com
+      optional: false
+```
+
+See `src/data/sample.json` for the complete structure reference.
+
+### Adding a New Topic
+
+Add a new item under the appropriate section in `content/*.yaml`:
+```yaml
+    - id: your-topic-id
+      title: Your Topic Title
+      description: >-
+        A clear, concise description of what this topic covers
+        and why it matters.
+      prerequisites:
+        - track/topic-id/Prerequisite Name
+      outcomes:
+        - What the learner will be able to do
+      concepts:
+        - name: Key Concept
+      resources:
+        - label: Resource Name
+          url: https://example.com
+```
+
+### Adding a New Track
+
+1. Create `content/your-track.yaml`
+2. Follow structure in existing YAML files
+3. Run `npm run dev` — auto-discovered!
+4. Add route in `src/pages/roadmaps/[slug].astro` `getStaticPaths()`
 
 ### 2. Bug Fixes
 - Check [Issues](https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap/issues) for known bugs
@@ -73,76 +136,35 @@ Dynamically created elements don't receive the scoping attribute, so scoped CSS 
 
 **Tradeoff:** Global styles can leak to other components. Use prefixed class names (e.g., `.concept-window-*`) to avoid collisions.
 
-### Testing
+### Content Notes
 
-This project uses a comprehensive testing strategy:
+- **Markdown in YAML**: Use `|` for multiline notes (preserves newlines). Keep lines flush-left to avoid code block interpretation.
+- **LaTeX equations**: Use `$...$` for inline and `$$...$$` for block math. Block equations need blank lines before and after. Use single backslashes in YAML (e.g., `\frac{1}{2}`).
 
-#### Unit Tests (Vitest)
-Tests for utility functions in `src/utils/`:
+## Testing
 ```bash
-# Run unit tests
-npm test
-
-# Run with coverage
-npm run test:coverage
+npm run test:run    # Unit tests
+npm run test:e2e    # E2E tests  
+npm run test:all    # Both
 ```
 
-#### Integration Tests (Playwright)
-Tests for page navigation, routing, and component interactions:
-```bash
-# Run integration tests
-npx playwright test tests/integration/
-```
+Roadmap structure is automatically validated — any YAML file in `content/` will be tested.
 
-#### E2E Tests (Playwright)
-Full user journey tests including progress persistence:
-```bash
-# Run E2E tests
-npx playwright test tests/e2e/
-```
+## Validation
 
-#### All Tests
-```bash
-# Run everything
-npm test && npx playwright test
-
-# Build and check for errors
-npm run build
-
-# Check for broken links (after build)
-npm run check-links
-```
-
-#### Writing Tests
-- Unit tests go in `src/utils/*.test.ts` alongside the module
-- Integration/E2E tests go in `tests/integration/` or `tests/e2e/`
-- Follow existing patterns in the codebase
-- Tests run in CI before deploy — PRs with failing tests won't merge
-
-### Commits
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
-- `feat:` new feature
-- `fix:` bug fix
-- `docs:` documentation
-- `style:` formatting (not CSS)
-- `refactor:` code restructure
-- `test:` adding tests
-
-## Adding Learning Resources
-
-When adding resources to `src/data/*.ts`:
-
-1. **Prefer primary sources** - Official docs, university courses (MIT OCW), established tutorials
-2. **Verify links work** - Run `npm run check-links` after changes
-3. **Keep descriptions concise** - One sentence explaining why this resource is useful
+- JSON Schema available at `roadmap.schema.json` for editor support
+- Run `npm run build:data` to manually rebuild JSON from YAML
 
 ## Pull Request Process
 
-1. Fork the repo and create a branch from `main`
-2. Make your changes
-3. Run `npm run build` and `npm test` to ensure nothing breaks
-4. Submit a PR with a clear description of changes
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`npm run test:all`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ## Questions?
 
-Open an issue or reach out via GitHub discussions.
+Open an issue or start a discussion. We're happy to help!

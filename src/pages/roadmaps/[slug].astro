@@ -4,11 +4,8 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import Placeholder from '../../components/Placeholder.astro';
 import Roadmap from '../../components/Roadmap.astro';
-import { fundamentalsRoadmap } from '../../data/fundamentals';
-import { coreRoadmap } from '../../data/core';
-import { advancedRoadmap } from '../../data/advanced';
+import { getRoadmap } from '../../data';
 
 export function getStaticPaths() {
   return [
@@ -25,39 +22,15 @@ const { title, description } = Astro.props;
 <Layout title={title}>
   <Header />
   <main>
-    {slug === 'fundamentals' ? (
-      <div class="container py-16">
-        <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">
-          // fundamentals track
-        </p>
-        <h1 class="text-2xl sm:text-3xl mb-2">{title}</h1>
-        <p class="max-w-xl text-muted mb-8">{description}</p>
-        
-        <Roadmap sections={fundamentalsRoadmap} />
-      </div>
-    ) : slug === 'core' ? (
-      <div class="container py-16">
-        <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">
-          // core track
-        </p>
-        <h1 class="text-2xl sm:text-3xl mb-2">{title}</h1>
-        <p class="max-w-xl text-muted mb-8">{description}</p>
-        
-        <Roadmap sections={coreRoadmap} />
-      </div>
-    ) : slug === 'advanced' ? (
-      <div class="container py-16">
-        <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">
-          // advanced track
-        </p>
-        <h1 class="text-2xl sm:text-3xl mb-2">{title}</h1>
-        <p class="max-w-xl text-muted mb-8">{description}</p>
-        
-        <Roadmap sections={advancedRoadmap} />
-      </div>
-    ) : (
-      <Placeholder title={title} description={description} />
-    )}
+    <div class="container py-16">
+      <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">
+        // {slug} track
+      </p>
+      <h1 class="text-2xl sm:text-3xl mb-2">{title}</h1>
+      <p class="max-w-xl text-muted mb-8">{description}</p>
+      
+      <Roadmap sections={getRoadmap(slug)} />
+    </div>
   </main>
   <Footer />
 </Layout>

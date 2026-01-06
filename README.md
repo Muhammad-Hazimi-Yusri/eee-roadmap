@@ -6,7 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.11.14)
+## Current Features (v0.12.0)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -63,15 +63,17 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **Markdown in template literals**: Avoid leading whitespace in `notes` fields. Markdown interprets 4+ leading spaces as code blocks, which prevents image/PDF embeds from rendering. Keep lines flush-left within the template literal.
 - **LaTeX equations**: Use `$...$` for inline and `$$...$$` for block math. Block equations must be on their own line with a blank line before and after. Use double backslashes in JS strings (e.g., `\\frac{1}{2}`).
 
-### v0.12 - Custom Roadmaps & Self-Hosting
+### v0.12 - Custom Roadmaps & Self-Hosting 
 
 **Goal:** Let developers create and host their own roadmaps.
 
-- [ ] JSON schema for roadmap data
+- [x] JSON schema for roadmap data
+- [x] YAML → JSON build pipeline
+- [x] Dynamic track auto-discovery
+- [x] Docs: how to fork and customize
+- [x] Example: blank template roadmap
 - [ ] Schema validator (CLI or web)
-- [ ] Docs: how to fork and customize
-- [ ] Example: blank template roadmap
-- [ ] Example: alternative track (e.g., Computer Engineering focus)
+- [ ] Example: alternative track
 
 ### v0.13 - Cross-Device Sync
 
@@ -113,6 +115,10 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ## Project Structure
 ```
 eee-roadmap/
+├── content/
+│   ├── fundamentals.yaml       # Fundamentals track (human-editable)
+│   ├── core.yaml               # Core track
+│   └── advanced.yaml           # Advanced track
 ├── public/
 │   ├── favicon.svg
 │   ├── pdfjs/                  # PDF.js viewer (auto-downloaded via postinstall)
@@ -137,9 +143,10 @@ eee-roadmap/
 │   │   ├── ThemeToggle.astro
 │   │   └── Tracks.astro
 │   ├── data/
-│   │   ├── advanced.ts
-│   │   ├── core.ts
-│   │   └── fundamentals.ts
+│   │   ├── index.ts            # Dynamic JSON loader
+│   │   ├── sample.json         # Example structure for contributors
+│   │   ├── *.json              # Generated from YAML (git-ignored)
+│   │   └── pdf-manifest.json   # URL → local path mapping (auto-generated)
 │   ├── layouts/
 │   │   └── Layout.astro
 │   ├── pages/
@@ -205,6 +212,7 @@ npm run dev        # Downloads PDFs + starts dev server
 |---------|-------------|
 | `npm run dev` | Download PDFs and start dev server |
 | `npm run build` | Build for production (auto-downloads PDFs) |
+| `npm run build:data` | Convert YAML to JSON |
 | `npm run test` | Run unit tests (Vitest) in watch mode |
 | `npm run test:run` | Run unit tests once |
 | `npm run test:e2e` | Run Playwright integration/E2E tests |
@@ -219,6 +227,38 @@ External PDF URLs in data files are automatically downloaded at build time:
 2. Run `npm run download:pdfs` (or it runs automatically on build/dev)
 3. PDFs are saved to `public/pdfs/` and a manifest maps URLs to local paths
 
+### Adding/Editing Roadmap Content
+
+Roadmap data lives in `content/*.yaml` files. These are human-readable and auto-convert to JSON on build.
+
+1. Edit or create a YAML file in `content/` (see `src/data/sample.json` for structure)
+2. Run `npm run dev` — conversion happens automatically
+3. Changes appear immediately in the browser
+
+**YAML format example:**
+```yaml
+- id: section-id
+  title: Section Title
+  items:
+    - id: topic-id
+      title: Topic Title
+      description: Brief description of the topic.
+      prerequisites:
+        - other-track/topic-id/Topic Name
+        - Plain text prerequisite
+      outcomes:
+        - What learners will be able to do
+      concepts:
+        - name: Concept Name
+          notes: |
+            Markdown notes with $LaTeX$ support.
+            
+            $$E = mc^2$$
+      resources:
+        - label: Resource Name
+          url: https://example.com
+      optional: false
+```
 ---
 
 ## Contributing

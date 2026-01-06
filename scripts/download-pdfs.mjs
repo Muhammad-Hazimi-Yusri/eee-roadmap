@@ -3,22 +3,21 @@
  * Run via: npm run download:pdfs
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { createHash } from 'crypto';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
+const DATA_DIR = join(ROOT, 'src/data');
 const PDF_DIR = join(ROOT, 'public/pdfs');
 const PUBLIC_MANIFEST_PATH = join(ROOT, 'public/pdf-manifest.json');
 
-// Find all data files with concepts
-const DATA_FILES = [
-  'src/data/fundamentals.ts',
-  'src/data/core.ts', 
-  'src/data/advanced.ts',
-];
+// Dynamically find all JSON files except sample.json
+const DATA_FILES = readdirSync(DATA_DIR)
+  .filter(f => f.endsWith('.json') && f !== 'sample.json')
+  .map(f => join(DATA_DIR, f));
 
 async function downloadPdf(url, filename) {
   console.log(`  Downloading: ${url}`);
@@ -36,20 +35,14 @@ async function downloadPdf(url, filename) {
 function extractPdfUrls(content) {
   const urls = [];
   
-  // Match pdf: "https://..." or pdf: 'https://...'
-  const pdfPropRegex = /pdf:\s*['"]((https?:\/\/[^'"]+\.pdf)[^'"]*)['"]?/gi;
+  // Match URLs ending in .pdf (works for both JSON strings and markdown)
+  const pdfUrlRegex = /https?:\/\/[^\s"')\]]+\.pdf/gi;
   let match;
-  while ((match = pdfPropRegex.exec(content)) !== null) {
-    urls.push(match[1]);
+  while ((match = pdfUrlRegex.exec(content)) !== null) {
+    urls.push(match[0]);
   }
   
-  // Match markdown images: ![...](https://...pdf)
-  const markdownRegex = /!\[[^\]]*\]\((https?:\/\/[^)]+\.pdf)\)/gi;
-  while ((match = markdownRegex.exec(content)) !== null) {
-    urls.push(match[1]);
-  }
-  
-  return urls;
+  return [...new Set(urls)]; // dedupe
 }
 
 function urlToFilename(url) {
@@ -78,12 +71,11 @@ async function main() {
   const allUrls = new Set();
   
   for (const file of DATA_FILES) {
-    const filepath = join(ROOT, file);
-    if (!existsSync(filepath)) {
+    if (!existsSync(file)) {
       console.log(`⚠️  Skipping missing file: ${file}`);
       continue;
     }
-    const content = readFileSync(filepath, 'utf-8');
+    const content = readFileSync(file, 'utf-8');
     const urls = extractPdfUrls(content);
     urls.forEach(url => allUrls.add(url));
   }

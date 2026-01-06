@@ -1,14 +1,14 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.11.13",
+  "version": "0.12.0",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs",
     "postinstall": "node scripts/setup-pdfjs.mjs",
-    "dev": "npm run download:pdfs && astro dev",
-    "start": "astro dev",
-    "build": "npm run download:pdfs && astro build",
+    "build:data": "node scripts/build-data.mjs",
+    "dev": "npm run build:data && npm run download:pdfs && astro dev",
+    "build": "npm run build:data && npm run download:pdfs && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "check-links": "npx linkinator ./dist",
@@ -39,6 +39,7 @@
     "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.3",
     "@vitest/coverage-v8": "^4.0.16",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "yaml": "^2.8.2"
   }
 }

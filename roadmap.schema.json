@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://eee-roadmap.muhammadhazimiyusri.uk/schemas/roadmap.schema.json",
+  "title": "EEE Roadmap",
+  "description": "Schema for EEE Roadmap track data files",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "$ref": "#/$defs/section"
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "required": ["id", "title", "items"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "title": { "type": "string" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/topic" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "topic": {
+      "type": "object",
+      "required": ["id", "title", "description"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "prerequisites": { "type": "array", "items": { "type": "string" } },
+        "outcomes": { "type": "array", "items": { "type": "string" } },
+        "concepts": { "type": "array", "items": { "$ref": "#/$defs/concept" } },
+        "resources": { "type": "array", "items": { "$ref": "#/$defs/resource" } },
+        "optional": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "concept": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "resource": {
+      "type": "object",
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "type": "string" },
+        "url": { "type": "string", "format": "uri" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

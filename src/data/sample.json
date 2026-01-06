@@ -1,0 +1,29 @@
+[
+  {
+    "id": "example-section",
+    "title": "Example Section",
+    "items": [
+      {
+        "id": "example-topic",
+        "title": "Example Topic",
+        "description": "A brief description of what this topic covers.",
+        "prerequisites": [
+          "other-track/topic-id/Topic Name",
+          "External knowledge (plain text)"
+        ],
+        "outcomes": [
+          "First learning outcome",
+          "Second learning outcome"
+        ],
+        "concepts": [
+          { "name": "Concept One" },
+          { "name": "Concept Two", "notes": "Optional markdown notes with $LaTeX$ support." }
+        ],
+        "resources": [
+          { "label": "Resource Name", "url": "https://example.com" }
+        ],
+        "optional": false
+      }
+    ]
+  }
+]

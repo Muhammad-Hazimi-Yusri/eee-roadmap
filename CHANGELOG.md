@@ -10,6 +10,33 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 > - Detailed patch history lives in git commits, not this changelog
 
 ---
+
+## [0.12.0] - 2025-01-06
+
+**Custom Roadmaps & Self-Hosting**
+
+### Added
+- YAML-based roadmap content (`content/*.yaml`)
+- Automatic YAML → JSON build pipeline
+- Dynamic track discovery (add YAML file, auto-loaded)
+- JSON Schema for roadmap validation (`roadmap.schema.json`)
+- Example template (`src/data/sample.json`)
+
+### Changed
+- Migrated roadmap data from TypeScript to YAML
+- Simplified `[slug].astro` with dynamic `getRoadmap()` loader
+- Updated tests to dynamically validate all tracks
+- PDF download script now auto-discovers JSON files
+
+### Removed
+- `src/data/fundamentals.ts`, `core.ts`, `advanced.ts` (replaced by YAML)
+
+### Developer Experience
+- Contributors can now edit human-readable YAML instead of TypeScript
+- New tracks auto-discovered without code changes
+- Build script runs automatically on `npm run dev`
+
+
 ## [0.11.0] - 2025-12-28
 
 **Notes & Deep-dives**
