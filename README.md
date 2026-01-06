@@ -51,7 +51,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Dynamic track auto-discovery
 - [x] Docs: how to fork and customize
 - [x] Example: blank template roadmap
-- [ ] Schema validator (CLI or web)
+- [x] Schema validator (CLI)
 - [ ] Example: alternative track
 
 ### v0.13 - Cross-Device Sync
@@ -67,7 +67,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **Goal:** Let non-devs create roadmaps without touching code.
 
-- [ ] Form-based web editor
+- [ ] Form-based web editor with validation etc
 - [ ] Live preview
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
@@ -197,6 +197,7 @@ npm run dev        # Downloads PDFs + starts dev server
 | `npm run dev` | Download PDFs and start dev server |
 | `npm run build` | Build for production (auto-downloads PDFs) |
 | `npm run build:data` | Convert YAML to JSON |
+| `npm run validate` | Validate YAML against schema |
 | `npm run test` | Run unit tests (Vitest) in watch mode |
 | `npm run test:run` | Run unit tests once |
 | `npm run test:e2e` | Run Playwright integration/E2E tests |
