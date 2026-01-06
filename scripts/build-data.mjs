@@ -13,10 +13,15 @@ const ROOT = join(__dirname, '..');
 const CONTENT_DIR = join(ROOT, 'content');
 const DATA_DIR = join(ROOT, 'src/data');
 
+// Files to exclude from conversion (templates, examples)
+const EXCLUDE = ['sample'];
+
 // Dynamically find all YAML files
 const FILES = readdirSync(CONTENT_DIR)
   .filter(f => f.endsWith('.yaml'))
-  .map(f => f.replace('.yaml', ''));
+  .map(f => f.replace('.yaml', ''))
+  .filter(f => !EXCLUDE.includes(f));
+
 function buildData() {
   console.log('🔄 Converting YAML to JSON...\n');
 

@@ -1,0 +1,69 @@
+# EEE Roadmap - Sample Template
+# 
+# This is a template for creating your own roadmap track.
+# Copy this file and rename it (e.g., my-track.yaml).
+# 
+# NOTE: This file is excluded from the build process.
+# See src/data/sample.json for the equivalent JSON output.
+
+- id: section-id
+  title: Section Title
+  items:
+    - id: topic-id
+      title: Topic Title
+      description: >-
+        A clear, concise description of what this topic covers and why it
+        matters. Use >- for multi-line text that should flow as a single
+        paragraph.
+      prerequisites:
+        # Linkable prerequisite (navigates to that topic):
+        - other-track/topic-id/Display Name
+        # Static prerequisite (plain text, not clickable):
+        - Basic algebra
+      outcomes:
+        - What the learner will be able to do after completing this topic
+        - Another measurable learning outcome
+      concepts:
+        - name: Concept Name
+          # Notes are optional. Use | for multi-line markdown:
+          notes: |
+            Markdown content with **bold** and *italic*.
+
+            LaTeX inline: $V = IR$
+
+            LaTeX block (needs blank lines around it):
+
+            $$P = \frac{V^2}{R}$$
+
+            Embed an image:
+            ![Alt text](https://example.com/image.png)
+
+            Embed a PDF (auto-downloaded at build time):
+            ![PDF label](/pdfs/example.pdf)
+        - name: Another Concept
+          # Concept without notes - just displays as a pill
+      resources:
+        - label: Resource Name
+          url: https://example.com
+        - label: Another Resource
+          url: https://example.com/page
+      # Optional topics are styled differently (muted)
+      optional: false
+
+    - id: another-topic
+      title: Another Topic
+      description: >-
+        Minimal example with only required fields.
+      concepts:
+        - name: Key Concept
+
+# Add more sections as needed:
+- id: another-section
+  title: Another Section
+  items:
+    - id: section-two-topic
+      title: Section Two Topic
+      description: >-
+        Topics are grouped under sections for organization.
+      concepts:
+        - name: Example Concept

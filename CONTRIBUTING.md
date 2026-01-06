@@ -37,6 +37,8 @@ src/
 
 ### 1. Content Improvements
 
+> **Note:** This is the authoritative reference for YAML format. README.md links here.
+
 Edit roadmap content in `content/*.yaml` files:
 - Fix typos or unclear descriptions
 - Add or improve learning resources (ensure links are valid)
@@ -68,7 +70,7 @@ Edit roadmap content in `content/*.yaml` files:
       optional: false
 ```
 
-See `src/data/sample.json` for the complete structure reference.
+See `content/sample.yaml` for the complete template, or `src/data/sample.json` for the JSON equivalent.
 
 ### Adding a New Topic
 

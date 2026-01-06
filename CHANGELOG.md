@@ -11,7 +11,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.12.0] - 2025-01-06
+## [0.12.X] - 2025-01-06
 
 **Custom Roadmaps & Self-Hosting**
 
@@ -20,24 +20,29 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Automatic YAML → JSON build pipeline
 - Dynamic track discovery (add YAML file, auto-loaded)
 - JSON Schema for roadmap validation (`roadmap.schema.json`)
-- Example template (`src/data/sample.json`)
+- `content/sample.yaml` — human-readable template for contributors
+- `src/data/sample.json` — example JSON output for reference
 
 ### Changed
 - Migrated roadmap data from TypeScript to YAML
 - Simplified `[slug].astro` with dynamic `getRoadmap()` loader
 - Updated tests to dynamically validate all tracks
 - PDF download script now auto-discovers JSON files
+- Build script excludes `sample.yaml` from conversion
+- README.md: consolidated YAML docs, links to CONTRIBUTING.md
+- CONTRIBUTING.md: marked as authoritative YAML format reference
 
 ### Removed
 - `src/data/fundamentals.ts`, `core.ts`, `advanced.ts` (replaced by YAML)
 
 ### Developer Experience
-- Contributors can now edit human-readable YAML instead of TypeScript
+- Contributors edit human-readable YAML instead of TypeScript
 - New tracks auto-discovered without code changes
 - Build script runs automatically on `npm run dev`
+- Single source of truth for YAML documentation
 
 
-## [0.11.0] - 2025-12-28
+## [0.11.X] - 2025-12-28
 
 **Notes & Deep-dives**
 
@@ -69,7 +74,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Technical Notes
 - Astro's scoped CSS doesn't work with runtime-cloned DOM; use `is:global` for components that create elements dynamically
 
-## [0.10.0] - 2025-12-20
+## [0.10.X] - 2025-12-20
 
 **Testing Infrastructure**
 
@@ -87,7 +92,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Visual regression tests (not useful during active solo development; revisit when UI stabilizes or contributors join)
 
 
-## [0.9.0] - 2025-12-19
+## [0.9.X] - 2025-12-19
 
 **Code Quality & Testing**
 
@@ -113,7 +118,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.8.0] - 2025-12-17
+## [0.8.X] - 2025-12-17
 
 **Progress Tracking & Tools Mode**
 
@@ -133,7 +138,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.7.0] - 2025-12-11
+## [0.7.X] - 2025-12-11
 
 **Navigation & Linking**
 
@@ -150,7 +155,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.6.0] - 2025-12-09
+## [0.6.X] - 2025-12-09
 
 **Content & Polish**
 
@@ -165,7 +170,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.5.0] - 2025-12-08
+## [0.5.X] - 2025-12-08
 
 **Content Population**
 
@@ -175,7 +180,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.4.0] - 2025-12-07
+## [0.4.X] - 2025-12-07
 
 **Interactive Roadmap**
 
@@ -186,7 +191,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.3.0] - 2025-12-02
+## [0.3.X] - 2025-12-02
 
 **Initial Release**
 

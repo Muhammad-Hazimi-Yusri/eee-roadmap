@@ -42,27 +42,6 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### v0.11 - Notes & Deep-dives (In Progress)
-
-**Goal:** Add depth to learning with explanatory content and personal notes.
-
-- [x] Draggable, resizable concept windows
-- [x] Multiple windows with z-index management
-- [x] Minimize to taskbar / maximize toggle
-- [x] localStorage persistence for window positions
-- [x] PDF viewer in windows
-- [x] Fix window swipe scrolling page (#9)
-- [x] Test resize handles on real mobile device
-- [x] PDF.js support for Android, added to .gitignore with setup script
-- [x] Build-time PDF downloading (CORS-free external PDFs)
-- [x] Markdown notes with inline embeds (PDFs, images)
-- [x] Resizable PDF viewers with drag-to-resize handle
-- [x] LaTeX support for equations (KaTeX)
-
-#### Technical Notes
-- **Markdown in template literals**: Avoid leading whitespace in `notes` fields. Markdown interprets 4+ leading spaces as code blocks, which prevents image/PDF embeds from rendering. Keep lines flush-left within the template literal.
-- **LaTeX equations**: Use `$...$` for inline and `$$...$$` for block math. Block equations must be on their own line with a blank line before and after. Use double backslashes in JS strings (e.g., `\\frac{1}{2}`).
-
 ### v0.12 - Custom Roadmaps & Self-Hosting 
 
 **Goal:** Let developers create and host their own roadmaps.
@@ -101,6 +80,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Expand/collapse all controls
 - [ ] Filter: show only important concepts
 - [ ] Filter: show only incomplete nodes
+- [ ] Concept windows: translucent/glass effect when unfocused (reduce clutter)
+- [ ] iOS Safari: dark mode arrow visibility fix
+- [ ] iOS Safari: two-finger swipe trail persistence in tools mode
+- [ ] Mobile: fullscreen mode bottom bar overlap
+- [ ] PDF.js: open-in-new-tab and fullscreen viewer icons
 
 ---
 
@@ -231,35 +215,11 @@ External PDF URLs in data files are automatically downloaded at build time:
 
 Roadmap data lives in `content/*.yaml` files. These are human-readable and auto-convert to JSON on build.
 
-1. Edit or create a YAML file in `content/` (see `src/data/sample.json` for structure)
+1. Edit or create a YAML file in `content/` (see `content/sample.yaml` for template)
 2. Run `npm run dev` — conversion happens automatically
 3. Changes appear immediately in the browser
 
-**YAML format example:**
-```yaml
-- id: section-id
-  title: Section Title
-  items:
-    - id: topic-id
-      title: Topic Title
-      description: Brief description of the topic.
-      prerequisites:
-        - other-track/topic-id/Topic Name
-        - Plain text prerequisite
-      outcomes:
-        - What learners will be able to do
-      concepts:
-        - name: Concept Name
-          notes: |
-            Markdown notes with $LaTeX$ support.
-            
-            $$E = mc^2$$
-      resources:
-        - label: Resource Name
-          url: https://example.com
-      optional: false
-```
----
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full YAML format reference.
 
 ## Contributing
 
