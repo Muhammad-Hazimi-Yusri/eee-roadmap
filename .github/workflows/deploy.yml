@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build data files
+        run: npm run build:data
+
       - name: Run unit tests with coverage
         run: npm run test:coverage
 
