@@ -16,7 +16,6 @@ function getIcon(iconName: string) {
   return (LucideIcons as any)[pascalName] || LucideIcons.HelpCircle;
 }
 
-// Prepare data for client-side
 const tracksData = allTracks.map(({ slug, meta }) => ({
   slug,
   title: meta.title,
@@ -32,97 +31,127 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
 
 <Layout title="All Tracks">
   <Header />
-  <main class="pcb-page">
+  <main class="tracks-page">
     <div class="container py-12">
-      <h1 class="text-2xl font-bold mb-8">All Learning Tracks</h1>
+      <h1 class="text-2xl font-bold mb-2">All Learning Tracks</h1>
+      <p class="text-muted mb-8">Click a box to see what's inside</p>
       
       <div class="tracks-grid">
         {allTracks.map(({ slug, meta }) => {
           const IconComponent = getIcon(meta.icon);
           const sections = roadmaps[slug]?.sections ?? [];
+          const topicCount = sections.reduce((sum, s) => sum + s.items.length, 0);
           
           return (
-            <article class="pcb-card" data-slug={slug}>
-              <div class="pcb-card__inner">
-                {/* Copper traces decoration */}
-                <svg class="pcb-card__traces" viewBox="0 0 300 200" preserveAspectRatio="none">
-                  <path d="M0,30 H20 V50 H40" />
-                  <path d="M300,25 H280 V45 H260 V65" />
-                  <path d="M30,200 V180 H50 V160" />
-                  <path d="M270,200 V175 H250" />
-                  <circle cx="20" cy="30" r="4" />
-                  <circle cx="280" cy="25" r="4" />
-                  <circle cx="30" cy="180" r="4" />
-                  <circle cx="270" cy="175" r="4" />
-                </svg>
-                
-                {/* Content */}
-                <div class="pcb-card__content">
-                  <div class="pcb-card__header">
-                    <IconComponent class="pcb-card__icon" />
-                    <span class="pcb-card__title">{meta.title}</span>
-                  </div>
-                  
-                  <p class="pcb-card__desc">{meta.description}</p>
-                  
-                  <div class="pcb-card__meta">
-                    <span class="pcb-card__stat">{sections.length} sections</span>
-                    <span class="pcb-card__stat">
-                      {sections.reduce((sum, s) => sum + s.items.length, 0)} topics
-                    </span>
-                  </div>
-
-                  <div class="pcb-card__sections">
-                    {sections.map((section, i) => (
-                      <div class="pcb-card__section">
-                        <span class="pcb-card__section-name">{section.title}</span>
-                      </div>
-                    ))}
+            <article class="box-card" data-slug={slug}>
+              {/* Box lid (opens on hover) */}
+              <div class="box-card__lid">
+                <div class="box-card__lid-front">
+                  <span class="box-card__fragile">⚡ FRAGILE</span>
+                </div>
+                <div class="box-card__lid-top"></div>
+              </div>
+              
+              {/* Box base with PCB inside */}
+              <div class="box-card__base">
+                {/* PCB preview peeking out */}
+                <div class="box-card__pcb-preview">
+                  <div class="pcb-peek">
+                    <div class="pcb-peek__traces"></div>
                   </div>
                 </div>
                 
-                {/* Corner vias */}
-                <div class="pcb-via pcb-via--tl"></div>
-                <div class="pcb-via pcb-via--tr"></div>
-                <div class="pcb-via pcb-via--bl"></div>
-                <div class="pcb-via pcb-via--br"></div>
+                {/* Box content */}
+                <div class="box-card__content">
+                  <div class="box-card__header">
+                    <IconComponent class="box-card__icon" />
+                    <span class="box-card__title">{meta.title}</span>
+                  </div>
+                  
+                  <p class="box-card__desc">{meta.description}</p>
+                  
+                  <div class="box-card__meta">
+                    <span class="box-card__stat">{sections.length} sections</span>
+                    <span class="box-card__stat">{topicCount} topics</span>
+                  </div>
+                  
+                  <div class="box-card__sections">
+                    {sections.map((section) => (
+                      <span class="box-card__section">{section.title}</span>
+                    ))}
+                  </div>
+                </div>
               </div>
+              
+              {/* Tape strips */}
+              <div class="box-card__tape box-card__tape--h"></div>
+              <div class="box-card__tape box-card__tape--v"></div>
             </article>
           );
         })}
       </div>
     </div>
 
-    {/* Modal */}
+    {/* PCB Modal */}
     <div class="pcb-modal-backdrop" id="modal-backdrop">
       <div class="pcb-modal" id="modal">
-        <button class="pcb-modal__close" id="modal-close" aria-label="Close">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"/>
+        {/* Solder mask green background with traces */}
+        <div class="pcb-modal__board">
+          {/* Mounting holes */}
+          <div class="pcb-hole pcb-hole--tl"></div>
+          <div class="pcb-hole pcb-hole--tr"></div>
+          <div class="pcb-hole pcb-hole--bl"></div>
+          <div class="pcb-hole pcb-hole--br"></div>
+          
+          {/* Decorative traces */}
+          <svg class="pcb-modal__traces" viewBox="0 0 600 400" preserveAspectRatio="none">
+            <!-- Top left corner traces -->
+            <path d="M0,40 H30 V60 H50 V40 H80" />
+            <path d="M40,0 V25 H60 V45" />
+            <!-- Top right -->
+            <path d="M600,50 H570 V30 H540 V50 H510" />
+            <path d="M550,0 V20 H530 V40" />
+            <!-- Bottom left -->
+            <path d="M0,360 H40 V340 H70" />
+            <path d="M30,400 V370 H60" />
+            <!-- Bottom right -->
+            <path d="M600,350 H560 V370 H530" />
+            <path d="M570,400 V380 H540 V360" />
+            <!-- Random middle traces -->
+            <path d="M100,200 H130 V180 H160 V200 H190" />
+            <path d="M450,250 H480 V230 H510" />
           </svg>
-        </button>
-        
-        <div class="pcb-modal__header">
-          <span class="pcb-modal__icon" id="modal-icon"></span>
-          <h2 class="pcb-modal__title" id="modal-title"></h2>
+          
+          {/* Silkscreen content */}
+          <div class="pcb-modal__silkscreen">
+            <button class="pcb-modal__close" id="modal-close" aria-label="Close">×</button>
+            
+            <div class="pcb-modal__header">
+              <div class="pcb-modal__chip">
+                <span class="pcb-modal__chip-notch"></span>
+                <span class="pcb-modal__chip-label" id="modal-title">Track Name</span>
+              </div>
+            </div>
+            
+            <p class="pcb-modal__desc" id="modal-desc"></p>
+            
+            <a class="pcb-modal__cta" id="modal-link" href="#">
+              <span class="pcb-modal__cta-pad"></span>
+              Open Roadmap →
+              <span class="pcb-modal__cta-pad"></span>
+            </a>
+            
+            <div class="pcb-modal__sections" id="modal-sections">
+              <!-- Populated by JS -->
+            </div>
+            
+            {/* Reference designator */}
+            <div class="pcb-modal__refdes">
+              <span>REV 0.13</span>
+              <span>EEE-ROADMAP</span>
+            </div>
+          </div>
         </div>
-        
-        <p class="pcb-modal__desc" id="modal-desc"></p>
-        
-        <a class="pcb-modal__cta" id="modal-link" href="#">
-          Open Roadmap
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </a>
-        
-        <div class="pcb-modal__sections" id="modal-sections"></div>
-        
-        {/* Decorative elements */}
-        <div class="pcb-modal__corner pcb-modal__corner--tl"></div>
-        <div class="pcb-modal__corner pcb-modal__corner--tr"></div>
-        <div class="pcb-modal__corner pcb-modal__corner--bl"></div>
-        <div class="pcb-modal__corner pcb-modal__corner--br"></div>
       </div>
     </div>
   </main>
@@ -160,34 +189,35 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
 
     activeCard = cardEl;
     
-    // Populate modal
-    modalTitle.textContent = data.title;
+    modalTitle.textContent = data.title.toUpperCase();
     modalDesc.textContent = data.description;
     modalLink.href = data.href;
     
     modalSections.innerHTML = data.sections.map(section => `
-      <div class="pcb-modal__section">
-        <h3 class="pcb-modal__section-title">${section.title}</h3>
-        <ul class="pcb-modal__topics">
-          ${section.topics.map(topic => `
-            <li class="pcb-modal__topic">
-              <span class="pcb-modal__topic-dot"></span>
-              ${topic.title}
-            </li>
+      <div class="pcb-section">
+        <div class="pcb-section__header">
+          <span class="pcb-section__marker">◆</span>
+          <h3 class="pcb-section__title">${section.title}</h3>
+        </div>
+        <div class="pcb-section__topics">
+          ${section.topics.map((topic, i) => `
+            <div class="pcb-topic">
+              <span class="pcb-topic__designator">U${i + 1}</span>
+              <span class="pcb-topic__name">${topic.title}</span>
+              <span class="pcb-topic__pads">
+                <span class="pcb-topic__pad"></span>
+                <span class="pcb-topic__pad"></span>
+              </span>
+            </div>
           `).join('')}
-        </ul>
+        </div>
       </div>
     `).join('');
 
-    // Get card position for animation origin
     const rect = cardEl.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    modal.style.setProperty('--origin-x', `${rect.left + rect.width / 2}px`);
+    modal.style.setProperty('--origin-y', `${rect.top + rect.height / 2}px`);
     
-    modal.style.setProperty('--origin-x', `${centerX}px`);
-    modal.style.setProperty('--origin-y', `${centerY}px`);
-    
-    // Show
     backdrop.classList.add('is-open');
     cardEl.classList.add('is-selected');
     document.body.style.overflow = 'hidden';
@@ -202,11 +232,9 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     document.body.style.overflow = '';
   }
 
-  // Card clicks
-  document.querySelectorAll('.pcb-card').forEach(card => {
+  document.querySelectorAll('.box-card').forEach(card => {
     card.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      // Don't open modal if clicking a link
       if (target.closest('a')) return;
       
       const slug = card.getAttribute('data-slug');
@@ -214,7 +242,6 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     });
   });
 
-  // Close handlers
   modalClose.addEventListener('click', closeModal);
   backdrop.addEventListener('click', (e) => {
     if (e.target === backdrop) closeModal();
@@ -226,174 +253,240 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
 
 <style>
   /* ==================== PAGE ==================== */
-  .pcb-page {
+  .tracks-page {
     min-height: 100vh;
   }
 
   .tracks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
   }
 
-  /* ==================== CARD ==================== */
-  .pcb-card {
-    perspective: 1000px;
-    cursor: pointer;
-  }
-
-  .pcb-card__inner {
+  /* ==================== BOX CARD ==================== */
+  .box-card {
+    --box-color: #d4a574;
+    --box-dark: #b8956a;
+    --box-light: #e6c9a8;
+    --tape-color: #c9a86c;
+    
     position: relative;
+    cursor: pointer;
+    perspective: 800px;
+  }
+
+  .box-card__base {
+    position: relative;
+    background: linear-gradient(145deg, var(--box-light) 0%, var(--box-color) 50%, var(--box-dark) 100%);
+    border: 2px solid var(--box-dark);
     padding: 1.5rem;
-    background: var(--color-bg);
-    border: 2px solid var(--color-border);
-    transition: 
-      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.3s ease,
-      border-color 0.2s ease;
+    padding-top: 2rem;
+    min-height: 200px;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .box-card:hover .box-card__base {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Lid */
+  .box-card__lid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    z-index: 10;
     transform-style: preserve-3d;
+    transform-origin: top center;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .pcb-card:hover .pcb-card__inner {
-    transform: translateY(-8px) rotateX(2deg);
-    box-shadow: 
-      0 20px 40px -10px rgba(0, 0, 0, 0.15),
-      0 10px 20px -10px rgba(184, 115, 51, 0.1);
-    border-color: var(--color-copper);
+  .box-card:hover .box-card__lid {
+    transform: rotateX(-95deg);
   }
 
-  .pcb-card.is-selected .pcb-card__inner {
-    transform: translateY(-12px) scale(1.02);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    border-color: var(--color-copper);
-  }
-
-  /* Traces SVG */
-  .pcb-card__traces {
+  .box-card__lid-front {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(180deg, var(--box-light) 0%, var(--box-color) 100%);
+    border: 2px solid var(--box-dark);
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backface-visibility: hidden;
+  }
+
+  .box-card__lid-top {
+    position: absolute;
+    bottom: 100%;
+    left: -2px;
+    right: -2px;
+    height: 20px;
+    background: var(--box-color);
+    border: 2px solid var(--box-dark);
+    border-bottom: none;
+    transform-origin: bottom center;
+    transform: rotateX(90deg);
+  }
+
+  .box-card__fragile {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: #c0392b;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: #fff3cd;
+    padding: 0.125rem 0.5rem;
+    border: 1px dashed #c0392b;
+  }
+
+  /* Tape */
+  .box-card__tape {
+    position: absolute;
+    background: var(--tape-color);
+    opacity: 0.7;
+    z-index: 11;
     pointer-events: none;
-    opacity: 0.15;
   }
 
-  .pcb-card__traces path,
-  .pcb-card__traces circle {
-    fill: none;
-    stroke: var(--color-copper);
-    stroke-width: 2;
+  .box-card__tape--h {
+    top: 30px;
+    left: 20%;
+    right: 20%;
+    height: 24px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--tape-color),
+      var(--tape-color) 10px,
+      transparent 10px,
+      transparent 12px
+    );
   }
 
-  .pcb-card__traces circle {
-    fill: var(--color-copper);
-  }
-
-  .pcb-card:hover .pcb-card__traces {
-    opacity: 0.25;
-  }
-
-  /* Via holes */
-  .pcb-via {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border: 2px solid var(--color-copper);
-    border-radius: 50%;
-    background: var(--color-bg);
-    opacity: 0.6;
-    transition: opacity 0.2s;
-  }
-
-  .pcb-via::after {
-    content: '';
-    position: absolute;
-    top: 50%;
+  .box-card__tape--v {
+    top: 18px;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 3px;
-    height: 3px;
-    background: var(--color-copper);
-    border-radius: 50%;
+    width: 20px;
+    height: 45px;
+    transform: translateX(-50%);
+    background: var(--tape-color);
   }
 
-  .pcb-via--tl { top: 10px; left: 10px; }
-  .pcb-via--tr { top: 10px; right: 10px; }
-  .pcb-via--bl { bottom: 10px; left: 10px; }
-  .pcb-via--br { bottom: 10px; right: 10px; }
+  .box-card:hover .box-card__tape {
+    opacity: 0.3;
+  }
 
-  .pcb-card:hover .pcb-via {
+  /* PCB Preview (peeking out) */
+  .box-card__pcb-preview {
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 30px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
+  }
+
+  .box-card:hover .box-card__pcb-preview {
     opacity: 1;
+    transform: translateY(0);
   }
 
-  /* Card content */
-  .pcb-card__content {
+  .pcb-peek {
+    height: 60px;
+    background: #1a5c38;
+    border: 2px solid #0d4028;
+    border-radius: 2px;
+  }
+
+  .pcb-peek__traces {
+    height: 100%;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 8px,
+      #b8860b 8px,
+      #b8860b 9px
+    );
+    opacity: 0.3;
+  }
+
+  /* Box content */
+  .box-card__content {
     position: relative;
     z-index: 1;
   }
 
-  .pcb-card__header {
+  .box-card__header {
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.5rem;
   }
 
-  .pcb-card__icon {
+  .box-card__icon {
     width: 1.25rem;
     height: 1.25rem;
-    color: var(--color-copper);
+    color: #5d4e37;
     flex-shrink: 0;
   }
 
-  .pcb-card__title {
+  .box-card__title {
     font-family: "IBM Plex Mono", monospace;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--color-text);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #3d2e1f;
   }
 
-  .pcb-card__desc {
+  .box-card__desc {
     font-size: 0.8125rem;
-    color: var(--color-text-muted);
+    color: #5d4e37;
     line-height: 1.5;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
 
-  .pcb-card__meta {
+  .box-card__meta {
     display: flex;
     gap: 1rem;
+    margin-bottom: 0.75rem;
   }
 
-  .pcb-card__stat {
+  .box-card__stat {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.6875rem;
-    color: var(--color-copper);
+    color: #8b7355;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  .pcb-card__sections {
+  .box-card__sections {
     display: flex;
     flex-wrap: wrap;
     gap: 0.375rem;
-    margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px dashed var(--color-border);
+    border-top: 1px dashed #b8956a;
   }
 
-  .pcb-card__section {
+  .box-card__section {
     font-family: "IBM Plex Mono", monospace;
-    font-size: 0.625rem;
+    font-size: 0.5625rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    color: var(--color-text-muted);
-    padding: 0.25rem 0.5rem;
-    background: var(--color-bg-grid);
-    border: 1px solid var(--color-border);
+    color: #5d4e37;
+    padding: 0.1875rem 0.375rem;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid #b8956a;
   }
 
-  /* ==================== MODAL ==================== */
+  /* ==================== PCB MODAL ==================== */
   .pcb-modal-backdrop {
     position: fixed;
     inset: 0;
@@ -403,17 +496,12 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     justify-content: center;
     padding: 1rem;
     background: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
     visibility: hidden;
-    transition: 
-      background 0.3s ease,
-      backdrop-filter 0.3s ease,
-      visibility 0.3s;
+    transition: background 0.3s ease, visibility 0.3s;
   }
 
   .pcb-modal-backdrop.is-open {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.7);
     visibility: visible;
   }
 
@@ -421,177 +509,302 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     --origin-x: 50%;
     --origin-y: 50%;
     
-    position: relative;
     width: 100%;
-    max-width: 550px;
+    max-width: 600px;
     max-height: 85vh;
     overflow-y: auto;
-    background: var(--color-bg);
-    border: 3px solid var(--color-copper);
-    padding: 2rem;
-    
-    transform-origin: var(--origin-x) var(--origin-y);
-    transform: scale(0.8) translateY(20px);
+    transform: scale(0.7) rotateX(20deg);
     opacity: 0;
     transition: 
-      transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
       opacity 0.3s ease;
   }
 
   .pcb-modal-backdrop.is-open .pcb-modal {
-    transform: scale(1) translateY(0);
+    transform: scale(1) rotateX(0deg);
     opacity: 1;
+  }
+
+  /* The actual PCB board */
+  .pcb-modal__board {
+    --pcb-green: #1a5c38;
+    --pcb-green-light: #228b4a;
+    --pcb-copper: #b8860b;
+    --pcb-gold: #daa520;
+    --pcb-silkscreen: #f5f5f0;
+    
+    position: relative;
+    background: var(--pcb-green);
+    border: 3px solid #0d4028;
+    border-radius: 4px;
+    padding: 1.5rem;
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* Mounting holes */
+  .pcb-hole {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 3px solid var(--pcb-copper);
+    border-radius: 50%;
+    background: #111;
+  }
+
+  .pcb-hole::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: #333;
+    border-radius: 50%;
+  }
+
+  .pcb-hole--tl { top: 8px; left: 8px; }
+  .pcb-hole--tr { top: 8px; right: 8px; }
+  .pcb-hole--bl { bottom: 8px; left: 8px; }
+  .pcb-hole--br { bottom: 8px; right: 8px; }
+
+  /* Traces SVG */
+  .pcb-modal__traces {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .pcb-modal__traces path {
+    fill: none;
+    stroke: var(--pcb-copper);
+    stroke-width: 2.5;
+    opacity: 0.5;
+  }
+
+  /* Silkscreen layer */
+  .pcb-modal__silkscreen {
+    position: relative;
+    z-index: 1;
+    color: var(--pcb-silkscreen);
   }
 
   .pcb-modal__close {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    padding: 0.5rem;
-    background: none;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-muted);
+    top: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--pcb-copper);
+    border: none;
+    color: #111;
+    font-size: 1.25rem;
+    font-weight: bold;
     cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
+    transition: background 0.2s;
   }
 
   .pcb-modal__close:hover {
-    border-color: var(--color-copper);
-    color: var(--color-copper);
+    background: var(--pcb-gold);
   }
 
+  /* Chip header */
   .pcb-modal__header {
-    display: flex;
+    margin-bottom: 1rem;
+    padding-right: 2.5rem;
+  }
+
+  .pcb-modal__chip {
+    display: inline-flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 0.5rem;
-    padding-right: 3rem;
+    background: #111;
+    padding: 0.5rem 1rem;
+    border: 1px solid #333;
+    position: relative;
   }
 
-  .pcb-modal__title {
+  .pcb-modal__chip::before,
+  .pcb-modal__chip::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    width: 4px;
+    height: 8px;
+    background: var(--pcb-copper);
+  }
+
+  .pcb-modal__chip::before { top: 25%; }
+  .pcb-modal__chip::after { bottom: 25%; }
+
+  .pcb-modal__chip-notch {
+    width: 8px;
+    height: 8px;
+    border: 2px solid #444;
+    border-radius: 50%;
+    background: #222;
+  }
+
+  .pcb-modal__chip-label {
     font-family: "IBM Plex Mono", monospace;
-    font-size: 1.25rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    margin: 0;
-    color: var(--color-text);
+    letter-spacing: 0.1em;
   }
 
   .pcb-modal__desc {
-    color: var(--color-text-muted);
-    font-size: 0.9375rem;
-    line-height: 1.5;
-    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    opacity: 0.9;
   }
 
+  /* CTA button as a component */
   .pcb-modal__cta {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.625rem 1rem;
-    background: var(--color-copper);
-    color: white;
+    padding: 0.5rem 1rem;
+    background: var(--pcb-copper);
+    color: #111;
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.8125rem;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none;
     margin-bottom: 1.5rem;
     transition: background 0.2s, transform 0.2s;
   }
 
   .pcb-modal__cta:hover {
-    background: color-mix(in srgb, var(--color-copper), black 15%);
-    transform: translateX(4px);
+    background: var(--pcb-gold);
+    transform: translateY(-2px);
   }
 
+  .pcb-modal__cta-pad {
+    width: 6px;
+    height: 6px;
+    background: #111;
+    border-radius: 1px;
+  }
+
+  /* Sections */
   .pcb-modal__sections {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
-  .pcb-modal__section {
-    padding-left: 1rem;
-    border-left: 2px solid var(--color-copper);
+  .pcb-section {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
   }
 
-  .pcb-modal__section-title {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text);
-    margin: 0 0 0.5rem 0;
-  }
-
-  .pcb-modal__topics {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-  }
-
-  .pcb-modal__topic {
+  .pcb-section__header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.8125rem;
-    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
   }
 
-  .pcb-modal__topic-dot {
-    width: 6px;
-    height: 6px;
-    border: 1.5px solid var(--color-copper);
-    border-radius: 50%;
-    flex-shrink: 0;
+  .pcb-section__marker {
+    color: var(--pcb-copper);
+    font-size: 0.625rem;
   }
 
-  /* Corner decorations */
-  .pcb-modal__corner {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-color: var(--color-copper);
-    border-style: solid;
-    opacity: 0.4;
+  .pcb-section__title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0;
+    color: var(--pcb-silkscreen);
   }
 
-  .pcb-modal__corner--tl {
-    top: 8px;
-    left: 8px;
-    border-width: 2px 0 0 2px;
+  .pcb-section__topics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
-  .pcb-modal__corner--tr {
-    top: 8px;
-    right: 8px;
-    border-width: 2px 2px 0 0;
+  /* Topic as IC chip */
+  .pcb-topic {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: #111;
+    border: 1px solid #333;
+    font-size: 0.75rem;
   }
 
-  .pcb-modal__corner--bl {
-    bottom: 8px;
-    left: 8px;
-    border-width: 0 0 2px 2px;
+  .pcb-topic__designator {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.5625rem;
+    color: var(--pcb-copper);
+    min-width: 24px;
   }
 
-  .pcb-modal__corner--br {
-    bottom: 8px;
-    right: 8px;
-    border-width: 0 2px 2px 0;
+  .pcb-topic__name {
+    flex: 1;
+    color: var(--pcb-silkscreen);
+    font-size: 0.75rem;
   }
+
+  .pcb-topic__pads {
+    display: flex;
+    gap: 2px;
+  }
+
+  .pcb-topic__pad {
+    width: 4px;
+    height: 8px;
+    background: var(--pcb-copper);
+  }
+
+  /* Reference designator */
+  .pcb-modal__refdes {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.5625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.5;
+  }
+
+  /* ==================== DARK MODE ==================== */
+  :global(.dark) .box-card {
+    --box-color: #8b7355;
+    --box-dark: #6b5544;
+    --box-light: #a08060;
+    --tape-color: #9a8050;
+  }
+
+  :global(.dark) .box-card__title { color: #2d1f0f; }
+  :global(.dark) .box-card__desc { color: #4d3e2f; }
+  :global(.dark) .box-card__icon { color: #4d3e2f; }
 
   /* ==================== RESPONSIVE ==================== */
   @media (max-width: 640px) {
+    .tracks-grid {
+      gap: 1.5rem;
+    }
+
     .pcb-modal {
-      padding: 1.5rem;
       max-height: 90vh;
     }
 
-    .pcb-modal__title {
-      font-size: 1.125rem;
+    .pcb-modal__board {
+      padding: 1rem;
     }
   }
 </style>
