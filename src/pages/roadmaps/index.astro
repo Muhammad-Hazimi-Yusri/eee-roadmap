@@ -5,6 +5,9 @@ import Footer from '../../components/Footer.astro';
 import { internalHref } from '../../utils/url';
 import { getAllTracks, roadmaps } from '../../data';
 import * as LucideIcons from '@lucide/astro';
+import pkg from '../../../package.json';
+
+const VERSION = pkg.version;  
 
 const allTracks = getAllTracks();
 
@@ -112,7 +115,7 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
           <div class="pcb-hole pcb-hole--br"></div>
           
           {/* Decorative traces */}
-          <svg class="pcb-modal__traces" id="modal-traces" viewBox="0 0 600 400" preserveAspectRatio="none">
+          <svg class="pcb-modal__traces" id="modal-traces" viewBox="0 0 600 400">
             <!-- Populated by JS -->
           </svg>
           
@@ -141,7 +144,7 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
             
             {/* Reference designator */}
             <div class="pcb-modal__refdes">
-              <span>REV 0.13</span>
+              <span>REV {VERSION}</span>
               <span>EEE-ROADMAP</span>
             </div>
           </div>
@@ -174,52 +177,100 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   const modalDesc = document.getElementById('modal-desc')!;
   const modalLink = document.getElementById('modal-link') as HTMLAnchorElement;
   const modalSections = document.getElementById('modal-sections')!;
+  const tracesSvg = document.getElementById('modal-traces')!;
 
   let activeCard: HTMLElement | null = null;
 
-  function generateTraces(seed: number, sections: number, topics: number): string {
+  // Draw traces connecting elements after DOM is updated
+  function drawTraces() {
+    const board = document.querySelector('.pcb-modal__board') as HTMLElement;
+    if (!board) return;
+    
+    const boardRect = board.getBoundingClientRect();
+    const width = Math.round(boardRect.width);
+    const height = Math.round(boardRect.height);
+    
+    tracesSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    
+    const COPPER = '#b8860b';
     const paths: string[] = [];
+    const vias: string[] = [];
     
-    // Top-left corner
-    const tl1 = 25 + (seed % 15);
-    const tl2 = 40 + (seed % 20);
-    paths.push(`<path d="M0,${tl1} H${20 + (seed % 10)} V${tl2} H${45 + (seed % 15)}" />`);
+    // Helper: create path with 45° routing
+    const trace = (d: string, opacity = 0.5, strokeWidth = 2.5) => 
+      `<path d="${d}" stroke="${COPPER}" stroke-width="${strokeWidth}" fill="none" opacity="${opacity}" stroke-linecap="round" stroke-linejoin="round" />`;
     
-    // Top-right corner  
-    const tr1 = 30 + (seed % 20);
-    paths.push(`<path d="M600,${tr1} H${575 - (seed % 15)} V${tr1 + 25} H${550 - (seed % 10)}" />`);
+    const via = (x: number, y: number, r = 5, opacity = 0.6) =>
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="${COPPER}" opacity="${opacity}" /><circle cx="${x}" cy="${y}" r="${r * 0.4}" fill="#0d4028" opacity="0.8" />`;
+
+    // === TOP LEFT CORNER ===
+    paths.push(trace(`M0,30 H15 L30,45 V70`, 0.5));
+    paths.push(trace(`M0,50 H10 L25,65`, 0.4, 2));
+    paths.push(trace(`M20,0 V15 L35,30 H55`, 0.5));
+    paths.push(trace(`M40,0 V10 L50,20`, 0.4, 2));
+    vias.push(via(30, 45));
+    vias.push(via(35, 30));
     
-    // Bottom-left
-    const bl1 = 370 - (seed % 20);
-    paths.push(`<path d="M0,${bl1} H${25 + (seed % 15)} V400" />`);
+    // === TOP RIGHT CORNER ===
+    paths.push(trace(`M${width},35 H${width-20} L${width-40},55 V75`, 0.5));
+    paths.push(trace(`M${width},55 H${width-15} L${width-30},70`, 0.4, 2));
+    paths.push(trace(`M${width-25},0 V20 L${width-45},40`, 0.5));
+    paths.push(trace(`M${width-50},0 V15 L${width-65},30 H${width-85}`, 0.4, 2));
+    vias.push(via(width - 40, 55));
+    vias.push(via(width - 45, 40));
     
-    // Bottom-right
-    const br1 = 360 - (seed % 25);
-    paths.push(`<path d="M600,${br1} H${570 - (seed % 20)} V400" />`);
+    // === BOTTOM LEFT CORNER ===
+    paths.push(trace(`M0,${height-40} H20 L40,${height-60} V${height-80}`, 0.5));
+    paths.push(trace(`M0,${height-70} H15 L30,${height-85}`, 0.4, 2));
+    paths.push(trace(`M25,${height} V${height-20} L45,${height-40}`, 0.5));
+    vias.push(via(40, height - 60));
+    vias.push(via(25, height - 20));
     
-    // Horizontal traces based on sections
-    for (let i = 0; i < Math.min(sections, 5); i++) {
-      const y = 100 + (i * 60) + ((seed * (i + 1)) % 30);
-      const isLeft = i % 2 === 0;
-      const len = 40 + ((seed + i) % 50);
-      
-      if (isLeft) {
-        paths.push(`<path d="M0,${y} H${len} V${y + 20 + (i * 5)}" />`);
-      } else {
-        paths.push(`<path d="M600,${y} H${600 - len} V${y - 15 - (i * 3)}" />`);
+    // === BOTTOM RIGHT CORNER ===
+    paths.push(trace(`M${width},${height-45} H${width-25} L${width-50},${height-70}`, 0.5));
+    paths.push(trace(`M${width-30},${height} V${height-25} L${width-55},${height-50} H${width-80}`, 0.5));
+    paths.push(trace(`M${width},${height-80} H${width-20} L${width-35},${height-95}`, 0.4, 2));
+    vias.push(via(width - 50, height - 70));
+    vias.push(via(width - 55, height - 50));
+    
+    // === LEFT EDGE - busy traces ===
+    for (let i = 0; i < 6; i++) {
+      const y = 100 + i * 50;
+      if (y < height - 100) {
+        const len = 25 + (i * 13) % 35;
+        const drop = 15 + (i * 7) % 25;
+        paths.push(trace(`M0,${y} H${len} L${len + drop},${y + drop}`, 0.35 + (i % 2) * 0.15, 2));
+        if (i % 2 === 0) vias.push(via(len + drop, y + drop, 4, 0.5));
       }
     }
     
-    // Via holes
-    const vias: string[] = [];
-    for (let i = 0; i < Math.min(topics, 6); i++) {
-      const x = 30 + ((seed + i * 17) % 80);
-      const y = 60 + ((seed + i * 23) % 280);
-      const side = i % 2 === 0;
-      vias.push(`<circle cx="${side ? x : 600 - x}" cy="${y}" r="4" />`);
+    // === RIGHT EDGE - busy traces ===
+    for (let i = 0; i < 6; i++) {
+      const y = 120 + i * 50;
+      if (y < height - 100) {
+        const len = 30 + (i * 11) % 40;
+        const drop = 20 + (i * 9) % 20;
+        const dir = i % 2 === 0 ? 1 : -1;
+        paths.push(trace(`M${width},${y} H${width - len} L${width - len - drop},${y + drop * dir}`, 0.35 + (i % 2) * 0.15, 2));
+        if (i % 3 === 0) vias.push(via(width - len - drop, y + drop * dir, 4, 0.5));
+      }
     }
     
-    return paths.join('\n') + '\n' + vias.join('\n');
+    // === HORIZONTAL RUNS with 45° jogs ===
+    paths.push(trace(`M0,${height * 0.3} H40 L55,${height * 0.3 + 15} H90`, 0.3, 1.5));
+    paths.push(trace(`M${width},${height * 0.4} H${width - 50} L${width - 70},${height * 0.4 - 20} H${width - 100}`, 0.3, 1.5));
+    paths.push(trace(`M0,${height * 0.6} H30 L50,${height * 0.6 - 20}`, 0.3, 1.5));
+    paths.push(trace(`M${width},${height * 0.7} H${width - 35} L${width - 55},${height * 0.7 + 20}`, 0.3, 1.5));
+    
+    // === DIAGONAL CROSS TRACES (background interest) ===
+    paths.push(trace(`M60,${height - 30} L90,${height - 60} V${height - 90}`, 0.25, 1.5));
+    paths.push(trace(`M${width - 70},${height - 25} L${width - 100},${height - 55}`, 0.25, 1.5));
+    
+    // === POWER/GROUND RAILS (thicker, top and bottom) ===
+    paths.push(trace(`M50,15 H${width - 50}`, 0.2, 4));
+    paths.push(trace(`M50,${height - 15} H${width - 50}`, 0.2, 4));
+    
+    tracesSvg.innerHTML = paths.join('\n') + '\n' + vias.join('\n');
   }
 
   function openModal(slug: string, cardEl: HTMLElement) {
@@ -232,31 +283,29 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     modalDesc.textContent = data.description;
     modalLink.href = data.href;
     
-    modalSections.innerHTML = data.sections.map(section => `
-      <div class="pcb-section">
-        <div class="pcb-section__header">
-          <span class="pcb-section__icon">◆</span>
-          <h3 class="pcb-section__title">${section.title}</h3>
-          <span class="pcb-section__count">${section.topics.length}</span>
+    // Build sections HTML
+    modalSections.innerHTML = data.sections.map((section, sectionIndex) => {
+      const pinCount = Math.min(Math.max(section.topics.length, 2), 6);
+      const pins = Array(pinCount).fill(0).map(() => '<span class="pcb-section__pin"></span>').join('');
+      
+      return `
+        <div class="pcb-section" data-section-index="${sectionIndex}">
+          <div class="pcb-section__header">
+            <span class="pcb-section__title">${section.title}</span>
+          </div>
+          <ul class="pcb-section__topics">
+            ${section.topics.map((topic) => `
+              <li class="pcb-topic">
+                <span class="pcb-topic__pad"></span>
+                <span class="pcb-topic__name">${topic.title}</span>
+              </li>
+            `).join('')}
+          </ul>
+          <div class="pcb-section__pins-left">${pins}</div>
+          <div class="pcb-section__pins-right">${pins}</div>
         </div>
-        <ul class="pcb-section__topics">
-          ${section.topics.map((topic) => `
-            <li class="pcb-topic">
-              <span class="pcb-topic__pad"></span>
-              <span class="pcb-topic__name">${topic.title}</span>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    `).join('');
-
-    // Generate dynamic traces
-    const tracesSvg = document.getElementById('modal-traces');
-    if (tracesSvg) {
-      const seed = data.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      tracesSvg.innerHTML = generateTraces(seed, data.sections.length, 
-        data.sections.reduce((sum, s) => sum + s.topics.length, 0));
-    }
+      `;
+    }).join('');
 
     const rect = cardEl.getBoundingClientRect();
     modal.style.setProperty('--origin-x', `${rect.left + rect.width / 2}px`);
@@ -265,6 +314,13 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     backdrop.classList.add('is-open');
     cardEl.classList.add('is-selected');
     document.body.style.overflow = 'hidden';
+    
+    // Draw traces after modal is visible and laid out
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        drawTraces();
+      });
+    });
   }
 
   function closeModal() {
@@ -276,35 +332,30 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     document.body.style.overflow = '';
   }
 
+  // Card click handlers
   const tapHint = document.getElementById('tap-hint');
   let hintTimeout: ReturnType<typeof setTimeout> | null = null;
 
   document.querySelectorAll('.box-card').forEach(card => {
-    // Track if card is "opened" (for mobile)
     let isOpened = false;
     
     card.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       if (target.closest('a')) return;
       
-      // Check if mobile (no hover capability)
       const isMobile = window.matchMedia('(hover: none)').matches;
       
       if (isMobile && !isOpened) {
-        // First tap: open the box
         document.querySelectorAll('.box-card').forEach(c => {
           c.classList.remove('is-opened');
         });
         card.classList.add('is-opened');
         isOpened = true;
         
-        // Show hint after 1 second if not tapped again
         if (hintTimeout) clearTimeout(hintTimeout);
         hintTimeout = setTimeout(() => {
           if (card.classList.contains('is-opened')) {
             tapHint?.classList.add('is-visible');
-            
-            // Hide hint after 2 seconds
             setTimeout(() => {
               tapHint?.classList.remove('is-visible');
             }, 2000);
@@ -314,7 +365,6 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
         return;
       }
       
-      // Second tap (mobile) or click (desktop): open modal
       if (hintTimeout) clearTimeout(hintTimeout);
       tapHint?.classList.remove('is-visible');
       
@@ -323,7 +373,6 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     });
   });
 
-  // Close opened cards when clicking outside
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     if (!target.closest('.box-card')) {
@@ -341,6 +390,13 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();
+  });
+  
+  // Redraw traces on resize
+  window.addEventListener('resize', () => {
+    if (backdrop.classList.contains('is-open')) {
+      drawTraces();
+    }
   });
 </script>
 
@@ -378,6 +434,34 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     transition: box-shadow 0.3s ease;
   }
 
+  /* Inner shadow to show box depth */
+  .box-card__base::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .box-card:hover .box-card__base::before,
+  .box-card.is-opened .box-card__base::before {
+    opacity: 1;
+  }
+
+  .box-card:hover .box-card__base,
+  .box-card.is-opened .box-card__base {
+    box-shadow: 
+      inset 0 15px 30px -10px rgba(0, 0, 0, 0.25),
+      inset 2px 0 8px -4px rgba(0, 0, 0, 0.15),
+    inset -2px 0 8px -4px rgba(0, 0, 0, 0.15),
+    0 8px 25px rgba(0, 0, 0, 0.2);
+}
   .box-card:hover .box-card__base {
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   }
@@ -448,11 +532,6 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     color: #047857;
     background: #d1fae5;
     border-color: #047857;
-  }
-
-  /* Lid shadow when open */
-  .box-card:hover .box-card__lid-front {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   }
 
   /* Box base shadow on hover/open */
@@ -793,19 +872,15 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0;
+    z-index: 0; /* Behind silkscreen content */
   }
 
   .pcb-modal__traces path {
     fill: none;
-    stroke: var(--pcb-copper);
-    stroke-width: 2;
-    opacity: 0.4;
   }
 
   .pcb-modal__traces circle {
-    fill: var(--pcb-copper);
-    opacity: 0.5;
+    /* styles applied inline */
   }
 
   /* Silkscreen layer */
@@ -913,79 +988,142 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     border-radius: 1px;
   }
 
-  /* Section container */
-  .pcb-section {
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.75rem;
+/* ==================== PCB SECTIONS (Components on PCB) ==================== */
+  .pcb-modal__sections {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 2; /* Above traces */
   }
 
+  /* Section = Surface mount component */
+  .pcb-section {
+    position: relative;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+    border: 1px solid #333;
+    border-radius: 3px;
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.5),
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+  }
+
+  /* Chip marking dot */
+  .pcb-section::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #444 0%, #222 100%);
+    border-radius: 50%;
+    border: 1px solid #555;
+  }
+
+  /* Section header - component label area */
   .pcb-section__header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.625rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.5rem 0.75rem;
+    padding-left: 1.25rem; /* Space for dot */
+    background: linear-gradient(180deg, #222 0%, #151515 100%);
+    border-bottom: 1px solid #333;
   }
 
   .pcb-section__icon {
-    color: var(--pcb-copper);
-    font-size: 0.75rem;
-    line-height: 1;
+    display: none; /* Using ::before dot instead */
   }
 
   .pcb-section__title {
     font-family: "IBM Plex Mono", monospace;
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: 0.6875rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--pcb-silkscreen);
-    margin: 0;
-    flex: 1;
-  }
-
-  .pcb-section__count {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.625rem;
-    color: var(--pcb-copper);
-    background: rgba(0, 0, 0, 0.4);
-    padding: 0.125rem 0.375rem;
-    border-radius: 2px;
+    letter-spacing: 0.1em;
+    color: #ccc;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
   /* Topics list */
   .pcb-section__topics {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0.25rem 0;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
   }
 
   .pcb-topic {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0;
-    padding-left: 1.25rem;
-    font-size: 0.8125rem;
-    color: rgba(245, 245, 240, 0.85);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
   }
 
+  .pcb-topic:hover {
+    background: rgba(184, 134, 11, 0.15);
+    border-left-color: var(--pcb-copper);
+  }
+
+  /* Solder pad for each topic */
   .pcb-topic__pad {
-    width: 8px;
-    height: 8px;
-    background: var(--pcb-copper);
-    border-radius: 1px;
+    width: 10px;
+    height: 6px;
+    background: linear-gradient(180deg, #d4a84b 0%, #b8860b 50%, #8a6508 100%);
+    margin-right: 0.625rem;
     flex-shrink: 0;
-    opacity: 0.7;
+    border-radius: 1px;
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .pcb-topic__name {
-    color: rgba(245, 245, 240, 0.85);
+    color: rgba(245, 245, 240, 0.9);
+  }
+
+  /* Decorative pins on sides of component */
+  .pcb-section__pins-right {
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 3;
+  }
+
+  .pcb-section__pin {
+    width: 6px;
+    height: 3px;
+    background: linear-gradient(90deg, #8a6508 0%, #b8860b 50%, #d4a84b 100%);
+    border-radius: 0 1px 1px 0;
+    box-shadow: 1px 0 2px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Left side pins */
+  .pcb-section__pins-left {
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 3;
+  }
+
+  .pcb-section__pins-left .pcb-section__pin {
+    background: linear-gradient(90deg, #d4a84b 0%, #b8860b 50%, #8a6508 100%);
+    border-radius: 1px 0 0 1px;
+    box-shadow: -1px 0 2px rgba(0, 0, 0, 0.3);
   }
 
   /* Reference designator */
@@ -999,7 +1137,8 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     font-size: 0.5625rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    opacity: 0.5;
+    opacity: 0.6;
+    color: var(--pcb-silkscreen);
   }
 
   /* ==================== DARK MODE ==================== */
