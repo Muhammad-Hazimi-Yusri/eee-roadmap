@@ -18,22 +18,29 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - YAML-based roadmap content (`content/*.yaml`)
 - Automatic YAML → JSON build pipeline
-- Dynamic track discovery (add YAML file, auto-loaded)
 - JSON Schema for roadmap validation (`roadmap.schema.json`)
 - `content/sample.yaml` — human-readable template for contributors
 - `src/data/sample.json` — example JSON output for reference
+- `npm run validate` — CLI schema validator for YAML files
+- New track: `distributed-generation` (domestic microgeneration & grid integration)
+- Track metadata system (`meta:` block in YAML)
+  - `title`, `description`, `icon`, `featured`, `category`, `order`
+  - Defaults applied automatically if not specified
+- Lucide icons for track display (`@lucide/astro`)
+- Fully dynamic track discovery — no manual route config needed
 
 ### Changed
 - Migrated roadmap data from TypeScript to YAML
-- Simplified `[slug].astro` with dynamic `getRoadmap()` loader
-- Updated tests to dynamically validate all tracks
-- PDF download script now auto-discovers JSON files
-- Build script excludes `sample.yaml` from conversion
+- YAML structure now uses `meta:` + `sections:` format
+- `[slug].astro` generates routes dynamically from data
+- `Tracks.astro` reads from data instead of hardcoded array
+- Updated schema, types, and data loader for new structure
 - README.md: consolidated YAML docs, links to CONTRIBUTING.md
-- CONTRIBUTING.md: marked as authoritative YAML format reference
+- CONTRIBUTING.md: updated format examples, marked as authoritative
 
 ### Removed
 - `src/data/fundamentals.ts`, `core.ts`, `advanced.ts` (replaced by YAML)
+- Hardcoded track definitions in components
 
 ### Developer Experience
 - Contributors edit human-readable YAML instead of TypeScript

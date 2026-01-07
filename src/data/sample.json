@@ -1,67 +1,77 @@
-[
-  {
-    "id": "section-id",
+{
+  "meta": {
     "title": "Section Title",
-    "items": [
-      {
-        "id": "topic-id",
-        "title": "Topic Title",
-        "description": "A clear, concise description of what this topic covers and why it matters. Use >- for multi-line text that should flow as a single paragraph.",
-        "prerequisites": [
-          "other-track/topic-id/Display Name",
-          "Basic algebra"
-        ],
-        "outcomes": [
-          "What the learner will be able to do after completing this topic",
-          "Another measurable learning outcome"
-        ],
-        "concepts": [
-          {
-            "name": "Concept Name",
-            "notes": "Markdown content with **bold** and *italic*.\n\nLaTeX inline: $V = IR$\n\nLaTeX block (needs blank lines around it):\n\n$$P = \\frac{V^2}{R}$$\n\nEmbed an image:\n![Alt text](https://example.com/image.png)\n\nEmbed a PDF (auto-downloaded at build time):\n![PDF label](/pdfs/example.pdf)\n"
-          },
-          {
-            "name": "Another Concept"
-          }
-        ],
-        "resources": [
-          {
-            "label": "Resource Name",
-            "url": "https://example.com"
-          },
-          {
-            "label": "Another Resource",
-            "url": "https://example.com/page"
-          }
-        ],
-        "optional": false
-      },
-      {
-        "id": "another-topic",
-        "title": "Another Topic",
-        "description": "Minimal example with only required fields.",
-        "concepts": [
-          {
-            "name": "Key Concept"
-          }
-        ]
-      }
-    ]
+    "description": "A brief description of what this track covers.",
+    "icon": "grid-3x3",
+    "featured": false,
+    "category": "uncategorized",
+    "order": 999
   },
-  {
-    "id": "another-section",
-    "title": "Another Section",
-    "items": [
-      {
-        "id": "section-two-topic",
-        "title": "Section Two Topic",
-        "description": "Topics are grouped under sections for organization.",
-        "concepts": [
-          {
-            "name": "Example Concept"
-          }
-        ]
-      }
-    ]
-  }
-]
+  "sections": [
+    {
+      "id": "section-id",
+      "title": "Section Title",
+      "items": [
+        {
+          "id": "topic-id",
+          "title": "Topic Title",
+          "description": "A clear, concise description of what this topic covers and why it matters. Use >- for multi-line text that should flow as a single paragraph.",
+          "prerequisites": [
+            "other-track/topic-id/Display Name",
+            "Basic algebra"
+          ],
+          "outcomes": [
+            "What the learner will be able to do after completing this topic",
+            "Another measurable learning outcome"
+          ],
+          "concepts": [
+            {
+              "name": "Concept Name",
+              "notes": "Markdown content with **bold** and *italic*.\n\nLaTeX inline: $V = IR$\n\nLaTeX block (needs blank lines around it):\n\n$$P = \\frac{V^2}{R}$$\n\nEmbed an image:\n![Alt text](https://example.com/image.png)\n\nEmbed a PDF (auto-downloaded at build time):\n![PDF label](/pdfs/example.pdf)\n"
+            },
+            {
+              "name": "Another Concept"
+            }
+          ],
+          "resources": [
+            {
+              "label": "Resource Name",
+              "url": "https://example.com"
+            },
+            {
+              "label": "Another Resource",
+              "url": "https://example.com/page"
+            }
+          ],
+          "optional": false
+        },
+        {
+          "id": "another-topic",
+          "title": "Another Topic",
+          "description": "Minimal example with only required fields.",
+          "concepts": [
+            {
+              "name": "Key Concept"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "another-section",
+      "title": "Another Section",
+      "items": [
+        {
+          "id": "section-two-topic",
+          "title": "Section Two Topic",
+          "description": "Topics are grouped under sections for organization.",
+          "concepts": [
+            {
+              "name": "Example Concept"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

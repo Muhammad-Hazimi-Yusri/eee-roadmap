@@ -46,28 +46,37 @@ Edit roadmap content in `content/*.yaml` files:
 
 **YAML format example:**
 ```yaml
-- id: section-id
-  title: Section Title
-  items:
-    - id: topic-id
-      title: Topic Title
-      description: >-
-        A clear description of what this covers.
-      prerequisites:
-        - other-track/topic-id/Linked Prereq
-        - Plain text prerequisite
-      outcomes:
-        - What learners will achieve
-      concepts:
-        - name: Concept Name
-          notes: |
-            Optional markdown with $LaTeX$ support.
-            
-            $$E = mc^2$$
-      resources:
-        - label: Resource Name
-          url: https://example.com
-      optional: false
+meta:
+  title: Track Title
+  description: Brief description of this track.
+  icon: grid-3x3        # Lucide icon (https://lucide.dev/icons/)
+  featured: false       # Show on homepage?
+  category: core        # core, specialization, misc
+  order: 10             # Display order (lower = first)
+
+sections:
+  - id: section-id
+    title: Section Title
+    items:
+      - id: topic-id
+        title: Topic Title
+        description: >-
+          A clear description of what this covers.
+        prerequisites:
+          - other-track/topic-id/Linked Prereq
+          - Plain text prerequisite
+        outcomes:
+          - What learners will achieve
+        concepts:
+          - name: Concept Name
+            notes: |
+              Optional markdown with $LaTeX$ support.
+              
+              $$E = mc^2$$
+        resources:
+          - label: Resource Name
+            url: https://example.com
+        optional: false
 ```
 
 See `content/sample.yaml` for the complete template, or `src/data/sample.json` for the JSON equivalent.
@@ -95,9 +104,11 @@ Add a new item under the appropriate section in `content/*.yaml`:
 ### Adding a New Track
 
 1. Create `content/your-track.yaml`
-2. Follow structure in existing YAML files
-3. Run `npm run dev` — auto-discovered!
-4. Add route in `src/pages/roadmaps/[slug].astro` `getStaticPaths()`
+2. Add `meta:` block with title, description, and optional fields
+3. Add `sections:` with your content
+4. Run `npm run dev` — auto-discovered!
+
+No manual route configuration needed — tracks are fully dynamic.
 
 ### 2. Bug Fixes
 - Check [Issues](https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap/issues) for known bugs

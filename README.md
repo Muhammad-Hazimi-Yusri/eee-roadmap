@@ -6,7 +6,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.12.0)
+## Current Features (v0.12.3)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -35,14 +35,22 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - Markdown notes with inline PDF and image embedding
   - Resizable PDF viewers with drag handle (height persisted to localStorage)
   - LaTeX support for equations (KaTeX)
-
+- **Dynamic Track System:**
+  - Track metadata (title, description, icon, category, order)
+  - Automatic route generation from YAML files
+  - Lucide icons for track display
+  - Featured tracks on homepage, all tracks browsable
+- **Developer Tooling:**
+  - `npm run validate` — CLI schema validator for YAML files
+  - Human-readable YAML format with auto-defaults
+- **Tracks:** Fundamentals, Core, Advanced, Distributed Generation
 ---
 
 ## Roadmap
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### v0.12 - Custom Roadmaps & Self-Hosting 
+### v0.12 - Custom Roadmaps & Self-Hosting ✓
 
 **Goal:** Let developers create and host their own roadmaps.
 
@@ -52,9 +60,23 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Docs: how to fork and customize
 - [x] Example: blank template roadmap
 - [x] Schema validator (CLI)
-- [ ] Example: alternative track
+- [x] Example: alternative track (distributed-generation)
+- [x] Dynamic track discovery with metadata
+- [x] Lucide icons for tracks
 
-### v0.13 - Cross-Device Sync
+### v0.13 - Search & Discovery
+
+**Goal:** Find content quickly across all tracks.
+
+- [ ] `/roadmaps/` index page (browse all tracks)
+- [ ] Search bar in navigation
+- [ ] Track filtering by category
+- [ ] Build-time search index generation
+- [ ] Full-text search (track > topic > concept priority)
+- [ ] Deep links to exact location (concept of X topic of Y roadmap)
+- [ ] Search results page
+
+### v0.14 - Cross-Device Sync
 
 **Goal:** Access progress from any device.
 
@@ -63,7 +85,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Import/export progress as JSON fallback
 - [ ] Sync custom notes
 
-### v0.14 - Roadmap Editor
+### v0.15 - Roadmap Editor
 
 **Goal:** Let non-devs create roadmaps without touching code.
 
@@ -81,10 +103,10 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Filter: show only important concepts
 - [ ] Filter: show only incomplete nodes
 - [ ] Concept windows: translucent/glass effect when unfocused (reduce clutter)
-- [ ] iOS Safari: dark mode arrow visibility fix
-- [ ] iOS Safari: two-finger swipe trail persistence in tools mode
-- [ ] Mobile: fullscreen mode bottom bar overlap
-- [ ] PDF.js: open-in-new-tab and fullscreen viewer icons
+- [ ] iOS Safari: dark mode demo tools switch menu arrow visibility fix
+- [ ] iOS Safari: in two-finger swipe, trail persistence in tools mode
+- [ ] Mobile: fullscreen mode bottom bar overlap causing last line not visible
+- [ ] PDF.js: option to open-in-new-tab and fullscreen viewer via icons feasibility
 
 ---
 
@@ -102,7 +124,9 @@ eee-roadmap/
 ├── content/
 │   ├── fundamentals.yaml       # Fundamentals track (human-editable)
 │   ├── core.yaml               # Core track
-│   └── advanced.yaml           # Advanced track
+│   ├── advanced.yaml           # Advanced track
+│   ├── distributed-generation.yaml  # Specialization track
+│   └── sample.yaml             # Template for new tracks (excluded from build)
 ├── public/
 │   ├── favicon.svg
 │   ├── pdfjs/                  # PDF.js viewer (auto-downloaded via postinstall)

@@ -16,6 +16,27 @@ const DATA_DIR = join(ROOT, 'src/data');
 // Files to exclude from conversion (templates, examples)
 const EXCLUDE = ['sample'];
 
+// Default meta values
+const META_DEFAULTS = {
+  title: '',       // Will derive from filename if empty
+  description: '',
+  icon: 'grid-3x3',
+  featured: false,
+  category: 'uncategorized',
+  order: 999
+};
+
+/**
+ * Convert filename to title case
+ * e.g., 'distributed-generation' → 'Distributed Generation'
+ */
+function filenameToTitle(filename) {
+  return filename
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 // Dynamically find all YAML files
 const FILES = readdirSync(CONTENT_DIR)
   .filter(f => f.endsWith('.yaml'))
@@ -44,7 +65,20 @@ function buildData() {
     const yamlContent = readFileSync(yamlPath, 'utf-8');
     const data = YAML.parse(yamlContent);
     
-    writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+    // Apply meta defaults
+    const meta = {
+      ...META_DEFAULTS,
+      title: filenameToTitle(name), // Default title from filename
+      ...data.meta                   // Override with provided values
+    };
+    
+    // Output structure with meta and sections
+    const output = {
+      meta,
+      sections: data.sections || []
+    };
+    
+    writeFileSync(jsonPath, JSON.stringify(output, null, 2));
     console.log(`  ✅ ${name}.yaml → ${name}.json`);
     converted++;
   }

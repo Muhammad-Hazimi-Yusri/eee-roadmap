@@ -1,0 +1,186 @@
+# EEE Roadmap - Power Systems Track
+# Focus: Low-voltage domestic generation and grid integration
+
+meta:
+  title: Distributed Generation
+  description: Low-voltage domestic generation and grid integration.
+  icon: house-plug
+  featured: true
+  category: specialization
+
+sections:
+  - id: distributed-generation
+    title: Distributed Generation Basics
+    items:
+      - id: domestic-generation-overview
+        title: Domestic Generation Overview
+        description: >-
+          Introduction to small-scale power generation at homes and buildings.
+          Covers solar PV, small wind, and battery storage systems. Understand
+          why distributed generation is growing and its role in the energy transition.
+        outcomes:
+          - Identify common domestic generation technologies
+          - Understand the difference between grid-tied and off-grid systems
+          - Explain the benefits and challenges of distributed generation
+        concepts:
+          - name: Solar PV systems
+          - name: Battery energy storage
+          - name: Grid-tied vs off-grid
+          - name: Feed-in tariffs
+        resources:
+          - label: Wikipedia - Distributed Generation
+            url: https://en.wikipedia.org/wiki/Distributed_generation
+
+      - id: lv-systems
+        title: Low Voltage Systems
+        description: >-
+          Understanding low voltage (LV) electrical systems as defined by
+          standards. Single-phase vs three-phase supplies, voltage levels,
+          and how domestic properties connect to the distribution network.
+        prerequisites:
+          - fundamentals/ac-circuits/AC Circuits
+        outcomes:
+          - Define low voltage ranges per IEC/BS standards
+          - Explain single-phase and three-phase supply differences
+          - Describe the point of common coupling (PCC)
+        concepts:
+          - name: LV definitions
+          - name: Single-phase supply
+          - name: Three-phase supply
+          - name: Point of common coupling
+        resources:
+          - label: IEC 60038 - Standard Voltages
+            url: https://en.wikipedia.org/wiki/IEC_60038
+
+  - id: grid-connection
+    title: Grid Connection & Power Quality
+    items:
+      - id: grid-tied-inverters
+        title: Grid-Tied Inverters
+        description: >-
+          How inverters synchronize with the grid to export power safely.
+          Covers grid-following vs grid-forming inverters, synchronization
+          requirements, and maximum power point tracking (MPPT).
+        prerequisites:
+          - advanced/inverters/Inverters & Rectifiers
+        outcomes:
+          - Explain how grid-tied inverters synchronize with mains
+          - Differentiate grid-following and grid-forming inverters
+          - Understand MPPT and its role in solar systems
+        concepts:
+          - name: Grid synchronization
+          - name: Grid-following inverter
+          - name: Grid-forming inverter
+          - name: MPPT
+        resources:
+          - label: SMA - How a Grid-Tied Inverter Works
+            url: https://www.sma.de/en/solar-inverters
+
+      - id: power-quality
+        title: Power Quality
+        description: >-
+          Ensuring domestic generation doesn't degrade the grid. Covers
+          harmonics, voltage rise, flicker, and power factor. Why utilities
+          care about power quality and how inverters must comply.
+        prerequisites:
+          - fundamentals/ac-circuits/AC Circuits
+        outcomes:
+          - Define key power quality metrics (THD, voltage deviation, flicker)
+          - Explain how inverters can inject harmonics
+          - Understand voltage rise from exporting power
+        concepts:
+          - name: Harmonics & THD
+          - name: Voltage rise
+          - name: Power factor
+          - name: Flicker
+        resources:
+          - label: Wikipedia - Electric Power Quality
+            url: https://en.wikipedia.org/wiki/Electric_power_quality
+
+      - id: export-limiting
+        title: Export Limiting & Zero Export
+        description: >-
+          Techniques to limit or prevent power export to the grid. Required
+          when grid capacity is constrained or feed-in is not permitted.
+          Covers export limiting, zero export, and dynamic curtailment.
+        prerequisites:
+          - power-systems/grid-tied-inverters/Grid-Tied Inverters
+        outcomes:
+          - Explain why export limiting may be required
+          - Describe zero-export system configurations
+          - Understand dynamic export limiting
+        concepts:
+          - name: Export limiting
+          - name: Zero export
+          - name: CT clamp monitoring
+          - name: Dynamic curtailment
+        resources:
+          - label: Solar Quotes - Export Limiting Explained
+            url: https://www.solarquotes.com.au/blog/export-limiting/
+
+  - id: protection-compliance
+    title: Protection & Compliance
+    items:
+      - id: anti-islanding
+        title: Anti-Islanding Protection
+        description: >-
+          Preventing dangerous situations when the grid goes down. If generation
+          continues during an outage, it creates an "island" that endangers
+          utility workers. Covers detection methods and protection requirements.
+        prerequisites:
+          - power-systems/grid-tied-inverters/Grid-Tied Inverters
+        outcomes:
+          - Explain the islanding hazard
+          - Describe passive and active anti-islanding methods
+          - Understand loss-of-mains protection requirements
+        concepts:
+          - name: Islanding
+          - name: Loss of mains (LoM)
+          - name: Passive detection
+          - name: Active detection
+        resources:
+          - label: Wikipedia - Islanding
+            url: https://en.wikipedia.org/wiki/Islanding
+
+      - id: standards-regulations
+        title: Standards & Regulations
+        description: >-
+          UK and international standards for connecting generation to the grid.
+          G98 for small installations, G99 for larger ones. DNO notification
+          and approval processes.
+        prerequisites:
+          - power-systems/anti-islanding/Anti-Islanding Protection
+        outcomes:
+          - Differentiate G98 and G99 requirements
+          - Understand DNO notification process
+          - Identify key compliance requirements
+        concepts:
+          - name: G98 (formerly G83)
+          - name: G99 (formerly G59)
+          - name: DNO notification
+          - name: Type testing
+        resources:
+          - label: ENA - G98 Overview
+            url: https://www.energynetworks.org/
+
+      - id: earthing-safety
+        title: Earthing & Safety
+        description: >-
+          Proper earthing for domestic generation systems. Covers TN-C-S, TN-S,
+          and TT earthing arrangements, RCD protection, and DC safety for
+          solar PV systems.
+        prerequisites:
+          - fundamentals/dc-circuits/DC Circuits
+        outcomes:
+          - Identify UK earthing arrangements
+          - Explain RCD and RCBO protection
+          - Understand DC isolation requirements for PV
+        concepts:
+          - name: Earthing arrangements
+          - name: RCD protection
+          - name: DC isolation
+          - name: Arc fault detection
+        optional: true
+        resources:
+          - label: IET - Earthing Arrangements
+            url: https://electrical.theiet.org/

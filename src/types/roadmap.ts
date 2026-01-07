@@ -81,3 +81,27 @@ export interface RoadmapSection {
   /** Topics within this section */
   items: Topic[];
 }
+
+/** Track metadata for display in track listings */
+export interface TrackMeta {
+  /** Display title (defaults to filename in title case) */
+  title: string;
+  /** Brief description of the track */
+  description: string;
+  /** Lucide icon name (defaults to 'grid-3x3') */
+  icon: string;
+  /** Show on homepage featured section (defaults to false) */
+  featured: boolean;
+  /** Category for filtering: 'core', 'specialization', 'misc', etc. */
+  category: string;
+  /** Display order, lower = first (defaults to 999) */
+  order: number;
+}
+
+/** Complete roadmap data structure */
+export interface Roadmap {
+  /** Track metadata */
+  meta: TrackMeta;
+  /** Roadmap sections */
+  sections: RoadmapSection[];
+}

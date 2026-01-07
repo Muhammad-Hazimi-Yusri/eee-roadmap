@@ -5,14 +5,18 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import Roadmap from '../../components/Roadmap.astro';
-import { getRoadmap } from '../../data';
+import { getRoadmap, getAllTracks } from '../../data';
 
 export function getStaticPaths() {
-  return [
-    { params: { slug: 'fundamentals' }, props: { title: 'Fundamentals', description: 'Circuit theory, engineering math, electromagnetism, and core building blocks.' }},
-    { params: { slug: 'core' }, props: { title: 'Core Topics', description: 'Analog electronics, digital logic, signals & systems, and embedded basics.' }},
-    { params: { slug: 'advanced' }, props: { title: 'Advanced', description: 'Power electronics, control systems, RF, and communications.' }},
-  ];
+  const tracks = getAllTracks();
+  
+  return tracks.map(({ slug, meta }) => ({
+    params: { slug },
+    props: { 
+      title: meta.title, 
+      description: meta.description 
+    }
+  }));
 }
 
 const { slug } = Astro.params;
