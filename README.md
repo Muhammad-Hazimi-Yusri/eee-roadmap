@@ -4,6 +4,10 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **[Live Demo →](https://eee-roadmap.muhammadhazimiyusri.uk)**
 
+> ⚠️ **Content Notice:** Roadmap content (descriptions, concepts, resources) is AI-generated and has not been manually verified. Links may be outdated or broken. Use as a learning guide, not authoritative reference. Contributions and corrections welcome!
+
+---
+
 ---
 
 ## Current Features (v0.12.3)
@@ -94,7 +98,28 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
 
-### Future
+### v0.16 - Test Coverage
+
+**Goal:** Comprehensive test coverage for all features.
+
+- [ ] Unit tests for all utilities
+- [ ] Integration tests for all components
+- [ ] E2E tests for all user flows
+- [ ] Visual regression tests
+- [ ] Accessibility tests (a11y)
+- [ ] Pre-commit hooks for test/lint/build
+
+### v0.17 - Content Verification
+
+**Goal:** Manually vet all AI-generated content before 1.0 release.
+
+- [ ] Review all topic descriptions for accuracy
+- [ ] Verify all external resource links
+- [ ] Fact-check concept explanations
+- [ ] Add "Verified by" badges with contributor attribution
+- [ ] Verification status indicators (section/track level)
+
+### Before Release
 - [ ] Hand-drawn aesthetic overhaul
 - [ ] WebAssembly circuit simulator (Rust)
 - [ ] PWA support for offline access
@@ -107,6 +132,17 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] iOS Safari: in two-finger swipe, trail persistence in tools mode
 - [ ] Mobile: fullscreen mode bottom bar overlap causing last line not visible
 - [ ] PDF.js: option to open-in-new-tab and fullscreen viewer via icons feasibility
+
+### v1.0.0 - Official Release
+
+**Goal:** Production-ready, verified educational resource.
+
+- [ ] All content manually verified
+- [ ] Full test coverage
+- [ ] Performance optimized
+- [ ] Accessibility audit passed
+- [ ] User feedback system (comments per section)
+- [ ] Contributor recognition page
 
 ---
 

@@ -9,7 +9,7 @@
     "build:data": "node scripts/build-data.mjs",
     "validate": "node scripts/validate.mjs",
     "dev": "npm run build:data && npm run download:pdfs && astro dev",
-    "build": "npm run build:data && npm run download:pdfs && astro build",
+    "dev:check": "npm run build:data && npm run validate && npm run test:run && npm run build && npm run check-links",    "build": "npm run build:data && npm run download:pdfs && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "check-links": "npx linkinator ./dist",
