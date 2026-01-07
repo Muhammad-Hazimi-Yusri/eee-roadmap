@@ -73,8 +73,8 @@ sections:
           - name: Grid-forming inverter
           - name: MPPT
         resources:
-          - label: SMA - How a Grid-Tied Inverter Works
-            url: https://www.sma.de/en/solar-inverters
+          - label: Wikipedia - Solar Inverter
+            url: https://en.wikipedia.org/wiki/Solar_inverter
 
       - id: power-quality
         title: Power Quality
@@ -104,7 +104,7 @@ sections:
           when grid capacity is constrained or feed-in is not permitted.
           Covers export limiting, zero export, and dynamic curtailment.
         prerequisites:
-          - power-systems/grid-tied-inverters/Grid-Tied Inverters
+          - distributed-generation/grid-tied-inverters/Grid-Tied Inverters
         outcomes:
           - Explain why export limiting may be required
           - Describe zero-export system configurations
@@ -115,8 +115,8 @@ sections:
           - name: CT clamp monitoring
           - name: Dynamic curtailment
         resources:
-          - label: Solar Quotes - Export Limiting Explained
-            url: https://www.solarquotes.com.au/blog/export-limiting/
+          - label: Wikipedia - Feed-in Tariff
+            url: https://en.wikipedia.org/wiki/Feed-in_tariff
 
   - id: protection-compliance
     title: Protection & Compliance
@@ -128,7 +128,7 @@ sections:
           continues during an outage, it creates an "island" that endangers
           utility workers. Covers detection methods and protection requirements.
         prerequisites:
-          - power-systems/grid-tied-inverters/Grid-Tied Inverters
+          - distributed-generation/grid-tied-inverters/Grid-Tied Inverters
         outcomes:
           - Explain the islanding hazard
           - Describe passive and active anti-islanding methods
@@ -149,7 +149,7 @@ sections:
           G98 for small installations, G99 for larger ones. DNO notification
           and approval processes.
         prerequisites:
-          - power-systems/anti-islanding/Anti-Islanding Protection
+          - distributed-generation/anti-islanding/Anti-Islanding Protection
         outcomes:
           - Differentiate G98 and G99 requirements
           - Understand DNO notification process
@@ -160,8 +160,8 @@ sections:
           - name: DNO notification
           - name: Type testing
         resources:
-          - label: ENA - G98 Overview
-            url: https://www.energynetworks.org/
+          - label: RENEW-ABLE SOLUTIONS - What is G98, G99 & G100? All explained here
+            url: https://www.renew-able.co.uk/what-is-g98-g99-g100-all-explained-here/
 
       - id: earthing-safety
         title: Earthing & Safety
