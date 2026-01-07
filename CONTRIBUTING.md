@@ -149,6 +149,10 @@ Dynamically created elements don't receive the scoping attribute, so scoped CSS 
 
 **Tradeoff:** Global styles can leak to other components. Use prefixed class names (e.g., `.concept-window-*`) to avoid collisions.
 
+Affected components:
+- `src/pages/roadmaps/index.astro` - PCB modal sections/topics
+- `src/components/ConceptWindow.astro` - dynamic content window
+
 ### Content Notes
 
 - **Markdown in YAML**: Use `|` for multiline notes (preserves newlines). Keep lines flush-left to avoid code block interpretation.

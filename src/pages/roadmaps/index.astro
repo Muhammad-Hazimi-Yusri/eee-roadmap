@@ -284,28 +284,21 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     modalLink.href = data.href;
     
     // Build sections HTML
-    modalSections.innerHTML = data.sections.map((section, sectionIndex) => {
-      const pinCount = Math.min(Math.max(section.topics.length, 2), 6);
-      const pins = Array(pinCount).fill(0).map(() => '<span class="pcb-section__pin"></span>').join('');
-      
-      return `
-        <div class="pcb-section" data-section-index="${sectionIndex}">
-          <div class="pcb-section__header">
-            <span class="pcb-section__title">${section.title}</span>
-          </div>
-          <ul class="pcb-section__topics">
-            ${section.topics.map((topic) => `
-              <li class="pcb-topic">
-                <span class="pcb-topic__pad"></span>
-                <span class="pcb-topic__name">${topic.title}</span>
-              </li>
-            `).join('')}
-          </ul>
-          <div class="pcb-section__pins-left">${pins}</div>
-          <div class="pcb-section__pins-right">${pins}</div>
+    modalSections.innerHTML = data.sections.map((section, sectionIndex) => `
+      <div class="pcb-section" data-section-index="${sectionIndex}">
+        <div class="pcb-section__header">
+          <span class="pcb-section__title">${section.title}</span>
         </div>
-      `;
-    }).join('');
+        <ul class="pcb-section__topics">
+          ${section.topics.map((topic) => `
+            <li class="pcb-topic">
+              <span class="pcb-topic__pad"></span>
+              <span class="pcb-topic__name">${topic.title}</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `).join('');
 
     const rect = cardEl.getBoundingClientRect();
     modal.style.setProperty('--origin-x', `${rect.left + rect.width / 2}px`);
@@ -400,7 +393,7 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   });
 </script>
 
-<style>
+<style is:global>
   /* ==================== PAGE ==================== */
   .tracks-page {
     min-height: 100vh;
@@ -988,54 +981,71 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     border-radius: 1px;
   }
 
-/* ==================== PCB SECTIONS (Components on PCB) ==================== */
+  /* ==================== PCB SECTIONS (IC + SMD Layout) ==================== */
   .pcb-modal__sections {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1.25rem;
     position: relative;
-    z-index: 2; /* Above traces */
+    z-index: 2;
   }
 
-  /* Section = Surface mount component */
+  /* Container for each section group */
   .pcb-section {
-    position: relative;
-    background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
-    border: 1px solid #333;
-    border-radius: 3px;
-    box-shadow: 
-      0 2px 8px rgba(0, 0, 0, 0.5),
-      0 1px 2px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    overflow: hidden;
-  }
-
-  /* Chip marking dot */
-  .pcb-section::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    width: 6px;
-    height: 6px;
-    background: radial-gradient(circle, #444 0%, #222 100%);
-    border-radius: 50%;
-    border: 1px solid #555;
-  }
-
-  /* Section header - component label area */
-  .pcb-section__header {
     display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* Section header = IC Chip */
+  .pcb-section__header {
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    padding-left: 1.25rem; /* Space for dot */
-    background: linear-gradient(180deg, #222 0%, #151515 100%);
-    border-bottom: 1px solid #333;
+    padding: 0.5rem 0.875rem;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+    border: 2px solid #333;
+    border-radius: 2px;
+    width: fit-content;
+    position: relative;
+    box-shadow: 
+      0 3px 8px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* IC notch/dot */
+  .pcb-section__header::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #333 30%, #1a1a1a 70%);
+    border-radius: 50%;
+    border: 1px solid #444;
+    flex-shrink: 0;
+  }
+
+  /* IC pins on left */
+  .pcb-section__header::after {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 60%;
+    background: repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 3px,
+      var(--pcb-copper) 3px,
+      var(--pcb-copper) 6px,
+      transparent 6px,
+      transparent 9px
+    );
   }
 
   .pcb-section__icon {
-    display: none; /* Using ::before dot instead */
+    display: none;
   }
 
   .pcb-section__title {
@@ -1045,85 +1055,98 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: #ccc;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
-  /* Topics list */
+  /* Topics container = SMD components layout */
   .pcb-section__topics {
     list-style: none;
     margin: 0;
-    padding: 0.25rem 0;
+    padding: 0;
+    padding-left: 1rem;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    position: relative;
   }
 
+  /* Trace from IC to topics area */
+  .pcb-section__topics::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(
+      180deg,
+      var(--pcb-copper) 0%,
+      var(--pcb-copper) 85%,
+      transparent 100%
+    );
+    opacity: 0.5;
+    border-radius: 2px;
+  }
+
+  /* Topic = SMD component */
   .pcb-topic {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-    transition: background 0.15s;
-    border-left: 3px solid transparent;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.5rem;
+    background: linear-gradient(180deg, #1f1f1f 0%, #141414 100%);
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    font-size: 0.6875rem;
+    transition: all 0.15s;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   .pcb-topic:hover {
-    background: rgba(184, 134, 11, 0.15);
-    border-left-color: var(--pcb-copper);
+    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-color: var(--pcb-copper);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   }
 
-  /* Solder pad for each topic */
+  /* SMD pads on sides */
   .pcb-topic__pad {
-    width: 10px;
-    height: 6px;
+    width: 4px;
+    height: 10px;
     background: linear-gradient(180deg, #d4a84b 0%, #b8860b 50%, #8a6508 100%);
-    margin-right: 0.625rem;
-    flex-shrink: 0;
     border-radius: 1px;
-    box-shadow: 
-      0 1px 2px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+    box-shadow: 0 0 2px rgba(184, 134, 11, 0.5);
   }
 
   .pcb-topic__name {
-    color: rgba(245, 245, 240, 0.9);
+    color: rgba(245, 245, 240, 0.85);
+    white-space: nowrap;
   }
 
-  /* Decorative pins on sides of component */
-  .pcb-section__pins-right {
-    position: absolute;
-    right: -6px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    z-index: 3;
+  /* Right pad */
+  .pcb-topic::after {
+    content: '';
+    width: 4px;
+    height: 10px;
+    background: linear-gradient(180deg, #d4a84b 0%, #b8860b 50%, #8a6508 100%);
+    border-radius: 1px;
+    box-shadow: 0 0 2px rgba(184, 134, 11, 0.5);
   }
 
-  .pcb-section__pin {
-    width: 6px;
-    height: 3px;
-    background: linear-gradient(90deg, #8a6508 0%, #b8860b 50%, #d4a84b 100%);
-    border-radius: 0 1px 1px 0;
-    box-shadow: 1px 0 2px rgba(0, 0, 0, 0.3);
-  }
-
-  /* Left side pins */
-  .pcb-section__pins-left {
-    position: absolute;
-    left: -6px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    z-index: 3;
-  }
-
-  .pcb-section__pins-left .pcb-section__pin {
-    background: linear-gradient(90deg, #d4a84b 0%, #b8860b 50%, #8a6508 100%);
-    border-radius: 1px 0 0 1px;
-    box-shadow: -1px 0 2px rgba(0, 0, 0, 0.3);
+  /* Section divider line */
+  .pcb-section:not(:last-child)::after {
+    content: '';
+    display: block;
+    margin-top: 0.75rem;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(184, 134, 11, 0.3) 10%,
+      rgba(184, 134, 11, 0.3) 90%,
+      transparent 100%
+    );
   }
 
   /* Reference designator */
@@ -1142,16 +1165,37 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   }
 
   /* ==================== DARK MODE ==================== */
+
   :global(.dark) .box-card {
-    --box-color: #8b7355;
-    --box-dark: #6b5544;
-    --box-light: #a08060;
-    --tape-color: #9a8050;
+    --box-color: #6b5a4d;
+    --box-dark: #4a3f36;
+    --box-light: #8b7a6b;
+    --tape-color: #7a6850;
   }
 
-  :global(.dark) .box-card__title { color: #2d1f0f; }
-  :global(.dark) .box-card__desc { color: #4d3e2f; }
-  :global(.dark) .box-card__icon { color: #4d3e2f; }
+  :global(.dark) .box-card__title { 
+    color: #f5f0e8; 
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+  :global(.dark) .box-card__desc { 
+    color: #e0d8cc; 
+  }
+  :global(.dark) .box-card__icon { 
+    color: #d4c4a8; 
+  }
+  :global(.dark) .box-card__stat {
+    color: #c4b89c;
+  }
+  :global(.dark) .box-card__section {
+    color: #e0d8cc;
+    background: rgba(0, 0, 0, 0.25);
+    border-color: #5a4a3a;
+  }
+  :global(.dark) .box-card__label--unverified {
+    background: #4a3520;
+    color: #f0c060;
+    border-color: #6a4a20;
+  }
 
   /* ==================== RESPONSIVE ==================== */
   @media (max-width: 640px) {
@@ -1204,4 +1248,52 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     visibility: visible;
     transform: translateX(-50%) translateY(0);
   }
+
+  /* DEBUG - Force styles */
+.pcb-section {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.pcb-section__header {
+  display: inline-flex !important;
+  background: #0a0a0a !important;
+  border: 2px solid #444 !important;
+  padding: 0.5rem 0.875rem !important;
+  width: fit-content !important;
+}
+
+.pcb-section__topics {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+  padding-left: 1rem !important;
+}
+
+.pcb-topic {
+  display: inline-flex !important;
+  background: #141414 !important;
+  border: 1px solid #333 !important;
+  padding: 0.375rem 0.5rem !important;
+  border-radius: 2px !important;
+  align-items: center !important;
+  gap: 0.375rem !important;
+}
+
+.pcb-topic__pad {
+  width: 4px !important;
+  height: 12px !important;
+  background: #b8860b !important;
+  display: block !important;
+}
+
+.pcb-topic::after {
+  content: '' !important;
+  width: 4px !important;
+  height: 12px !important;
+  background: #b8860b !important;
+  display: block !important;
+}
 </style>
