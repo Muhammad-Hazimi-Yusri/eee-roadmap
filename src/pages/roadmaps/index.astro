@@ -124,10 +124,11 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
             <button class="pcb-modal__close" id="modal-close" aria-label="Close">×</button>
             
             <div class="pcb-modal__header">
-              <div class="pcb-modal__chip">
+              <a href="#" class="pcb-modal__chip" id="modal-chip-link">
                 <span class="pcb-modal__chip-notch"></span>
                 <span class="pcb-modal__chip-label" id="modal-title">Track Name</span>
-              </div>
+                <span class="pcb-modal__chip-glow"></span>
+              </a>
             </div>
             
             <p class="pcb-modal__desc" id="modal-desc"></p>
@@ -282,18 +283,24 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     modalTitle.textContent = data.title.toUpperCase();
     modalDesc.textContent = data.description;
     modalLink.href = data.href;
+
+    const modalChipLink = document.getElementById('modal-chip-link') as HTMLAnchorElement;
+    if (modalChipLink) modalChipLink.href = data.href;
     
     // Build sections HTML
     modalSections.innerHTML = data.sections.map((section, sectionIndex) => `
       <div class="pcb-section" data-section-index="${sectionIndex}">
-        <div class="pcb-section__header">
+        <a href="${data.href}#${section.id}" class="pcb-section__header">
+          <span class="pcb-section__led"></span>
           <span class="pcb-section__title">${section.title}</span>
-        </div>
+        </a>
         <ul class="pcb-section__topics">
           ${section.topics.map((topic) => `
             <li class="pcb-topic">
-              <span class="pcb-topic__pad"></span>
-              <span class="pcb-topic__name">${topic.title}</span>
+              <a href="${data.href}#${topic.id}" class="pcb-topic__link">
+                <span class="pcb-topic__pad"></span>
+                <span class="pcb-topic__name">${topic.title}</span>
+              </a>
             </li>
           `).join('')}
         </ul>
@@ -720,17 +727,23 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   }
 
   .box-card__meta {
-    display: flex;
-    gap: 1rem;
+    display: inline-flex;
+    gap: 0.5rem;
     margin-bottom: 0.75rem;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
   }
 
   .box-card__stat {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.6875rem;
-    color: #8b7355;
+    color: #5d4e37;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    background: rgba(255, 255, 255, 0.4);
+    padding: 0.125rem 0.375rem;
+    border-radius: 2px;
   }
 
   .box-card__sections {
@@ -908,14 +921,112 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     padding-right: 2.5rem;
   }
 
+  /* Chip as clickable link */
   .pcb-modal__chip {
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
     background: #111;
     padding: 0.5rem 1rem;
-    border: 1px solid #333;
+    border: 2px solid #333;
     position: relative;
+    text-decoration: none;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+
+  .pcb-modal__chip:hover {
+    border-color: #b8860b;
+    transform: translateY(-2px);
+  }
+
+  /* Electric flow glow element */
+  .pcb-modal__chip-glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: opacity 0.2s;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0) 35%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 65%,
+      transparent 100%
+    );
+  }
+
+  .pcb-modal__chip:hover .pcb-modal__chip-glow {
+    opacity: 1;
+    animation: electric-flow 0.8s ease-in-out infinite, glow-rgb 2s linear infinite;
+  }
+
+  @keyframes electric-flow {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .pcb-modal__chip:hover .pcb-modal__chip-notch {
+    border-color: transparent;
+    animation: rgb-led 2s linear infinite;
+  }
+
+  @keyframes rgb-led {
+    0% {
+      background: #ff0000;
+      box-shadow: 0 0 8px #ff0000, 0 0 16px #ff0000;
+    }
+    16% {
+      background: #ff8800;
+      box-shadow: 0 0 8px #ff8800, 0 0 16px #ff8800;
+    }
+    33% {
+      background: #ffff00;
+      box-shadow: 0 0 8px #ffff00, 0 0 16px #ffff00;
+    }
+    50% {
+      background: #00ff00;
+      box-shadow: 0 0 8px #00ff00, 0 0 16px #00ff00;
+    }
+    66% {
+      background: #00ffff;
+      box-shadow: 0 0 8px #00ffff, 0 0 16px #00ffff;
+    }
+    83% {
+      background: #8800ff;
+      box-shadow: 0 0 8px #8800ff, 0 0 16px #8800ff;
+    }
+    100% {
+      background: #ff0000;
+      box-shadow: 0 0 8px #ff0000, 0 0 16px #ff0000;
+    }
+  }
+
+  /* LED in chip pulses on hover */
+  .pcb-modal__chip-notch {
+    width: 8px;
+    height: 8px;
+    border: 2px solid #444;
+    border-radius: 50%;
+    background: #222;
+    transition: all 0.3s;
+  }
+
+  .pcb-modal__chip-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #f5f5f0;
+    position: relative;
+    z-index: 1;
   }
 
   .pcb-modal__chip::before,
@@ -930,14 +1041,6 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
 
   .pcb-modal__chip::before { top: 25%; }
   .pcb-modal__chip::after { bottom: 25%; }
-
-  .pcb-modal__chip-notch {
-    width: 8px;
-    height: 8px;
-    border: 2px solid #444;
-    border-radius: 50%;
-    background: #222;
-  }
 
   .pcb-modal__chip-label {
     font-family: "IBM Plex Mono", monospace;
@@ -997,7 +1100,28 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     gap: 0.5rem;
   }
 
-  /* Section header = IC Chip */
+  .pcb-section__title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #e0e0e0;
+  }
+
+  /* LED indicator */
+  .pcb-section__led {
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+    border: 1px solid #444;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+  }
+
+  /* Section header as link */
   .pcb-section__header {
     display: inline-flex;
     align-items: center;
@@ -1011,20 +1135,43 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     box-shadow: 
       0 3px 8px rgba(0, 0, 0, 0.5),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
   }
 
-  /* IC notch/dot */
-  .pcb-section__header::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    background: radial-gradient(circle, #333 30%, #1a1a1a 70%);
-    border-radius: 50%;
-    border: 1px solid #444;
-    flex-shrink: 0;
+  .pcb-section__header:hover {
+    border-color: #555;
+    transform: translateY(-1px);
   }
 
-  /* IC pins on left */
+  /* LED colors on hover - randomized via nth-child */
+  .pcb-section:nth-child(5n+1) .pcb-section__header:hover .pcb-section__led {
+    background: #ff4444;
+    box-shadow: 0 0 8px #ff4444, 0 0 12px #ff4444, inset 0 0 4px rgba(255,255,255,0.3);
+  }
+
+  .pcb-section:nth-child(5n+2) .pcb-section__header:hover .pcb-section__led {
+    background: #44ff44;
+    box-shadow: 0 0 8px #44ff44, 0 0 12px #44ff44, inset 0 0 4px rgba(255,255,255,0.3);
+  }
+
+  .pcb-section:nth-child(5n+3) .pcb-section__header:hover .pcb-section__led {
+    background: #ffaa00;
+    box-shadow: 0 0 8px #ffaa00, 0 0 12px #ffaa00, inset 0 0 4px rgba(255,255,255,0.3);
+  }
+
+  .pcb-section:nth-child(5n+4) .pcb-section__header:hover .pcb-section__led {
+    background: #44aaff;
+    box-shadow: 0 0 8px #44aaff, 0 0 12px #44aaff, inset 0 0 4px rgba(255,255,255,0.3);
+  }
+
+  .pcb-section:nth-child(5n+5) .pcb-section__header:hover .pcb-section__led {
+    background: #ff44ff;
+    box-shadow: 0 0 8px #ff44ff, 0 0 12px #ff44ff, inset 0 0 4px rgba(255,255,255,0.3);
+  }
+
+  /* IC pins on left - keep this */
   .pcb-section__header::after {
     content: '';
     position: absolute;
@@ -1037,76 +1184,49 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
       180deg,
       transparent 0px,
       transparent 3px,
-      var(--pcb-copper) 3px,
-      var(--pcb-copper) 6px,
+      #b8860b 3px,
+      #b8860b 6px,
       transparent 6px,
       transparent 9px
     );
   }
 
-  .pcb-section__icon {
-    display: none;
-  }
-
-  .pcb-section__title {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #ccc;
-  }
-
-  /* Topics container = SMD components layout */
-  .pcb-section__topics {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    padding-left: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-    position: relative;
-  }
-
-  /* Trace from IC to topics area */
-  .pcb-section__topics::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(
-      180deg,
-      var(--pcb-copper) 0%,
-      var(--pcb-copper) 85%,
-      transparent 100%
-    );
-    opacity: 0.5;
-    border-radius: 2px;
-  }
-
-  /* Topic = SMD component */
+  /* Topic as clickable link */
   .pcb-topic {
+    display: inline-flex;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  .pcb-topic__link {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    padding: 0.3125rem 0.5rem;
+    padding: 0.375rem 0.5rem;
     background: linear-gradient(180deg, #1f1f1f 0%, #141414 100%);
     border: 1px solid #2a2a2a;
     border-radius: 2px;
     font-size: 0.6875rem;
+    text-decoration: none;
     transition: all 0.15s;
-    position: relative;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
-  .pcb-topic:hover {
+  .pcb-topic__link:hover {
     background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-    border-color: var(--pcb-copper);
+    border-color: #b8860b;
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .pcb-topic__link::after {
+    content: '';
+    width: 4px;
+    height: 12px;
+    background: linear-gradient(180deg, #d4a84b 0%, #b8860b 50%, #8a6508 100%);
+    border-radius: 1px;
   }
 
   /* SMD pads on sides */
@@ -1122,16 +1242,6 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   .pcb-topic__name {
     color: rgba(245, 245, 240, 0.85);
     white-space: nowrap;
-  }
-
-  /* Right pad */
-  .pcb-topic::after {
-    content: '';
-    width: 4px;
-    height: 10px;
-    background: linear-gradient(180deg, #d4a84b 0%, #b8860b 50%, #8a6508 100%);
-    border-radius: 1px;
-    box-shadow: 0 0 2px rgba(184, 134, 11, 0.5);
   }
 
   /* Section divider line */
@@ -1164,37 +1274,51 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     color: var(--pcb-silkscreen);
   }
 
-  /* ==================== DARK MODE ==================== */
-
-  :global(.dark) .box-card {
-    --box-color: #6b5a4d;
-    --box-dark: #4a3f36;
-    --box-light: #8b7a6b;
-    --tape-color: #7a6850;
+  /* ==================== DARK MODE BOX CARDS ==================== */
+  :root.dark .box-card,
+  .dark .box-card {
+    --box-color: #5a4d42;
+    --box-dark: #3d342c;
+    --box-light: #7a6b5a;
+    --tape-color: #6a5840;
   }
 
-  :global(.dark) .box-card__title { 
+  :root.dark .box-card__title,
+  .dark .box-card__title { 
     color: #f5f0e8; 
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
-  :global(.dark) .box-card__desc { 
-    color: #e0d8cc; 
+
+  :root.dark .box-card__desc,
+  .dark .box-card__desc { 
+    color: #e8e0d4; 
   }
-  :global(.dark) .box-card__icon { 
-    color: #d4c4a8; 
+
+  :root.dark .box-card__icon,
+  .dark .box-card__icon { 
+    color: #d4c8b8; 
   }
-  :global(.dark) .box-card__stat {
-    color: #c4b89c;
+
+  :root.dark .box-card__stat,
+  .dark .box-card__stat {
+    color: #d4c8b8;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.125rem 0.375rem;
+    border-radius: 2px;
   }
-  :global(.dark) .box-card__section {
+
+  :root.dark .box-card__section,
+  .dark .box-card__section {
     color: #e0d8cc;
-    background: rgba(0, 0, 0, 0.25);
-    border-color: #5a4a3a;
+    background: rgba(0, 0, 0, 0.3);
+    border-color: #4a3a2a;
   }
-  :global(.dark) .box-card__label--unverified {
-    background: #4a3520;
+
+  :root.dark .box-card__label--unverified,
+  .dark .box-card__label--unverified {
+    background: #3a2810;
     color: #f0c060;
-    border-color: #6a4a20;
+    border-color: #5a4020;
   }
 
   /* ==================== RESPONSIVE ==================== */
@@ -1249,51 +1373,4 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     transform: translateX(-50%) translateY(0);
   }
 
-  /* DEBUG - Force styles */
-.pcb-section {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.5rem !important;
-  margin-bottom: 1rem !important;
-}
-
-.pcb-section__header {
-  display: inline-flex !important;
-  background: #0a0a0a !important;
-  border: 2px solid #444 !important;
-  padding: 0.5rem 0.875rem !important;
-  width: fit-content !important;
-}
-
-.pcb-section__topics {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 0.5rem !important;
-  padding-left: 1rem !important;
-}
-
-.pcb-topic {
-  display: inline-flex !important;
-  background: #141414 !important;
-  border: 1px solid #333 !important;
-  padding: 0.375rem 0.5rem !important;
-  border-radius: 2px !important;
-  align-items: center !important;
-  gap: 0.375rem !important;
-}
-
-.pcb-topic__pad {
-  width: 4px !important;
-  height: 12px !important;
-  background: #b8860b !important;
-  display: block !important;
-}
-
-.pcb-topic::after {
-  content: '' !important;
-  width: 4px !important;
-  height: 12px !important;
-  background: #b8860b !important;
-  display: block !important;
-}
 </style>
