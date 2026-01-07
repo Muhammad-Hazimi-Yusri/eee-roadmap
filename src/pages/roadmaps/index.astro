@@ -34,7 +34,10 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   <main class="tracks-page">
     <div class="container py-12">
       <h1 class="text-2xl font-bold mb-2">All Learning Tracks</h1>
-      <p class="text-muted mb-8">Click a box to see what's inside</p>
+      <p class="tracks-instruction text-muted mb-8">
+        <span class="instruction-desktop">Click a box to see what's inside</span>
+        <span class="instruction-mobile">Double-tap a box to see what's inside</span>
+      </p>
       
       <div class="tracks-grid">
         {allTracks.map(({ slug, meta }) => {
@@ -47,7 +50,7 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
               {/* Box lid (opens on hover) */}
               <div class="box-card__lid">
                 <div class="box-card__lid-front">
-                  <span class="box-card__fragile">⚡ FRAGILE</span>
+                  <span class="box-card__label box-card__label--unverified">⚠ UNVERIFIED</span>
                 </div>
                 <div class="box-card__lid-top"></div>
               </div>
@@ -90,6 +93,11 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
           );
         })}
       </div>
+
+      {/* Mobile hint popup */}
+      <div class="tap-hint" id="tap-hint">
+        Tap again to open
+      </div>
     </div>
 
     {/* PCB Modal */}
@@ -104,22 +112,8 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
           <div class="pcb-hole pcb-hole--br"></div>
           
           {/* Decorative traces */}
-          <svg class="pcb-modal__traces" viewBox="0 0 600 400" preserveAspectRatio="none">
-            <!-- Top left corner traces -->
-            <path d="M0,40 H30 V60 H50 V40 H80" />
-            <path d="M40,0 V25 H60 V45" />
-            <!-- Top right -->
-            <path d="M600,50 H570 V30 H540 V50 H510" />
-            <path d="M550,0 V20 H530 V40" />
-            <!-- Bottom left -->
-            <path d="M0,360 H40 V340 H70" />
-            <path d="M30,400 V370 H60" />
-            <!-- Bottom right -->
-            <path d="M600,350 H560 V370 H530" />
-            <path d="M570,400 V380 H540 V360" />
-            <!-- Random middle traces -->
-            <path d="M100,200 H130 V180 H160 V200 H190" />
-            <path d="M450,250 H480 V230 H510" />
+          <svg class="pcb-modal__traces" id="modal-traces" viewBox="0 0 600 400" preserveAspectRatio="none">
+            <!-- Populated by JS -->
           </svg>
           
           {/* Silkscreen content */}
@@ -183,6 +177,51 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
 
   let activeCard: HTMLElement | null = null;
 
+  function generateTraces(seed: number, sections: number, topics: number): string {
+    const paths: string[] = [];
+    
+    // Top-left corner
+    const tl1 = 25 + (seed % 15);
+    const tl2 = 40 + (seed % 20);
+    paths.push(`<path d="M0,${tl1} H${20 + (seed % 10)} V${tl2} H${45 + (seed % 15)}" />`);
+    
+    // Top-right corner  
+    const tr1 = 30 + (seed % 20);
+    paths.push(`<path d="M600,${tr1} H${575 - (seed % 15)} V${tr1 + 25} H${550 - (seed % 10)}" />`);
+    
+    // Bottom-left
+    const bl1 = 370 - (seed % 20);
+    paths.push(`<path d="M0,${bl1} H${25 + (seed % 15)} V400" />`);
+    
+    // Bottom-right
+    const br1 = 360 - (seed % 25);
+    paths.push(`<path d="M600,${br1} H${570 - (seed % 20)} V400" />`);
+    
+    // Horizontal traces based on sections
+    for (let i = 0; i < Math.min(sections, 5); i++) {
+      const y = 100 + (i * 60) + ((seed * (i + 1)) % 30);
+      const isLeft = i % 2 === 0;
+      const len = 40 + ((seed + i) % 50);
+      
+      if (isLeft) {
+        paths.push(`<path d="M0,${y} H${len} V${y + 20 + (i * 5)}" />`);
+      } else {
+        paths.push(`<path d="M600,${y} H${600 - len} V${y - 15 - (i * 3)}" />`);
+      }
+    }
+    
+    // Via holes
+    const vias: string[] = [];
+    for (let i = 0; i < Math.min(topics, 6); i++) {
+      const x = 30 + ((seed + i * 17) % 80);
+      const y = 60 + ((seed + i * 23) % 280);
+      const side = i % 2 === 0;
+      vias.push(`<circle cx="${side ? x : 600 - x}" cy="${y}" r="4" />`);
+    }
+    
+    return paths.join('\n') + '\n' + vias.join('\n');
+  }
+
   function openModal(slug: string, cardEl: HTMLElement) {
     const data = tracksData.find(t => t.slug === slug);
     if (!data) return;
@@ -196,23 +235,28 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     modalSections.innerHTML = data.sections.map(section => `
       <div class="pcb-section">
         <div class="pcb-section__header">
-          <span class="pcb-section__marker">◆</span>
+          <span class="pcb-section__icon">◆</span>
           <h3 class="pcb-section__title">${section.title}</h3>
+          <span class="pcb-section__count">${section.topics.length}</span>
         </div>
-        <div class="pcb-section__topics">
-          ${section.topics.map((topic, i) => `
-            <div class="pcb-topic">
-              <span class="pcb-topic__designator">U${i + 1}</span>
+        <ul class="pcb-section__topics">
+          ${section.topics.map((topic) => `
+            <li class="pcb-topic">
+              <span class="pcb-topic__pad"></span>
               <span class="pcb-topic__name">${topic.title}</span>
-              <span class="pcb-topic__pads">
-                <span class="pcb-topic__pad"></span>
-                <span class="pcb-topic__pad"></span>
-              </span>
-            </div>
+            </li>
           `).join('')}
-        </div>
+        </ul>
       </div>
     `).join('');
+
+    // Generate dynamic traces
+    const tracesSvg = document.getElementById('modal-traces');
+    if (tracesSvg) {
+      const seed = data.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      tracesSvg.innerHTML = generateTraces(seed, data.sections.length, 
+        data.sections.reduce((sum, s) => sum + s.topics.length, 0));
+    }
 
     const rect = cardEl.getBoundingClientRect();
     modal.style.setProperty('--origin-x', `${rect.left + rect.width / 2}px`);
@@ -232,14 +276,63 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     document.body.style.overflow = '';
   }
 
+  const tapHint = document.getElementById('tap-hint');
+  let hintTimeout: ReturnType<typeof setTimeout> | null = null;
+
   document.querySelectorAll('.box-card').forEach(card => {
+    // Track if card is "opened" (for mobile)
+    let isOpened = false;
+    
     card.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       if (target.closest('a')) return;
       
+      // Check if mobile (no hover capability)
+      const isMobile = window.matchMedia('(hover: none)').matches;
+      
+      if (isMobile && !isOpened) {
+        // First tap: open the box
+        document.querySelectorAll('.box-card').forEach(c => {
+          c.classList.remove('is-opened');
+        });
+        card.classList.add('is-opened');
+        isOpened = true;
+        
+        // Show hint after 1 second if not tapped again
+        if (hintTimeout) clearTimeout(hintTimeout);
+        hintTimeout = setTimeout(() => {
+          if (card.classList.contains('is-opened')) {
+            tapHint?.classList.add('is-visible');
+            
+            // Hide hint after 2 seconds
+            setTimeout(() => {
+              tapHint?.classList.remove('is-visible');
+            }, 2000);
+          }
+        }, 1000);
+        
+        return;
+      }
+      
+      // Second tap (mobile) or click (desktop): open modal
+      if (hintTimeout) clearTimeout(hintTimeout);
+      tapHint?.classList.remove('is-visible');
+      
       const slug = card.getAttribute('data-slug');
       if (slug) openModal(slug, card as HTMLElement);
     });
+  });
+
+  // Close opened cards when clicking outside
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('.box-card')) {
+      document.querySelectorAll('.box-card').forEach(c => {
+        c.classList.remove('is-opened');
+      });
+      tapHint?.classList.remove('is-visible');
+      if (hintTimeout) clearTimeout(hintTimeout);
+    }
   });
 
   modalClose.addEventListener('click', closeModal);
@@ -334,52 +427,153 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     transform: rotateX(90deg);
   }
 
-  .box-card__fragile {
+  /* Label on lid */
+  .box-card__label {
     font-family: "IBM Plex Mono", monospace;
-    font-size: 0.625rem;
+    font-size: 0.5625rem;
     font-weight: 700;
-    color: #c0392b;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: #fff3cd;
     padding: 0.125rem 0.5rem;
-    border: 1px dashed #c0392b;
+    border: 1px dashed;
+  }
+
+  .box-card__label--unverified {
+    color: #b45309;
+    background: #fef3c7;
+    border-color: #b45309;
+  }
+
+  .box-card__label--verified {
+    color: #047857;
+    background: #d1fae5;
+    border-color: #047857;
+  }
+
+  /* Lid shadow when open */
+  .box-card:hover .box-card__lid-front {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Box base shadow on hover/open */
+  .box-card:hover .box-card__base,
+  .box-card.is-opened .box-card__base {
+    box-shadow: 
+      inset 0 20px 30px -15px rgba(0, 0, 0, 0.3),
+      0 8px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Lid gets depth when open */
+  .box-card:hover .box-card__lid-front,
+  .box-card.is-opened .box-card__lid-front {
+    box-shadow: 
+      0 10px 25px rgba(0, 0, 0, 0.4),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Lid top face */
+  .box-card__lid-top {
+    position: absolute;
+    bottom: 100%;
+    left: -2px;
+    right: -2px;
+    height: 25px;
+    background: linear-gradient(180deg, var(--box-dark) 0%, var(--box-color) 100%);
+    border: 2px solid var(--box-dark);
+    border-bottom: none;
+    transform-origin: bottom center;
+    transform: rotateX(90deg);
+  }
+
+  /* Inner shadow to show depth of box */
+  .box-card__base::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .box-card:hover .box-card__base::after,
+  .box-card.is-opened .box-card__base::after {
+    opacity: 1;
+  }
+
+  /* PCB peek styling */
+  .box-card__pcb-preview {
+    position: absolute;
+    top: 8px;
+    left: 8%;
+    right: 8%;
+    height: 35px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s;
+    z-index: 2;
+  }
+
+  .box-card:hover .box-card__pcb-preview {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .pcb-peek {
+    height: 70px;
+    background: #1a5c38;
+    border: 2px solid #0d4028;
+    border-radius: 2px;
+    box-shadow: 
+      inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+      0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+
+  .pcb-peek__traces {
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(90deg, transparent 8px, #b8860b 8px, #b8860b 9px, transparent 9px),
+      linear-gradient(0deg, transparent 8px, #b8860b 8px, #b8860b 9px, transparent 9px);
+    background-size: 12px 12px;
+    opacity: 0.25;
   }
 
   /* Tape */
   .box-card__tape {
     position: absolute;
     background: var(--tape-color);
-    opacity: 0.7;
-    z-index: 11;
+    opacity: 0.6;
+    z-index: 5; /* Below lid (10) */
     pointer-events: none;
+    transition: opacity 0.3s;
   }
 
   .box-card__tape--h {
-    top: 30px;
-    left: 20%;
-    right: 20%;
-    height: 24px;
-    background: repeating-linear-gradient(
-      90deg,
-      var(--tape-color),
-      var(--tape-color) 10px,
-      transparent 10px,
-      transparent 12px
+    top: 38px; /* Move below lid */
+    left: 15%;
+    right: 15%;
+    height: 18px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      var(--tape-color) 15%,
+      var(--tape-color) 85%,
+      transparent 100%
     );
   }
 
   .box-card__tape--v {
-    top: 18px;
-    left: 50%;
-    width: 20px;
-    height: 45px;
-    transform: translateX(-50%);
-    background: var(--tape-color);
+    display: none; /* Remove vertical tape, too cluttered */
   }
 
   .box-card:hover .box-card__tape {
-    opacity: 0.3;
+    opacity: 0.2;
   }
 
   /* PCB Preview (peeking out) */
@@ -486,6 +680,28 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     border: 1px solid #b8956a;
   }
 
+  /* Mobile tap-to-open state */
+  .box-card.is-opened .box-card__lid {
+    transform: rotateX(-95deg);
+  }
+
+  .box-card.is-opened .box-card__base {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .box-card.is-opened .box-card__pcb-preview {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .box-card.is-opened .box-card__tape {
+    opacity: 0.2;
+  }
+
+  .box-card.is-opened .box-card__lid-front {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+
   /* ==================== PCB MODAL ==================== */
   .pcb-modal-backdrop {
     position: fixed;
@@ -577,12 +793,18 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     width: 100%;
     height: 100%;
     pointer-events: none;
+    z-index: 0;
   }
 
   .pcb-modal__traces path {
     fill: none;
     stroke: var(--pcb-copper);
-    stroke-width: 2.5;
+    stroke-width: 2;
+    opacity: 0.4;
+  }
+
+  .pcb-modal__traces circle {
+    fill: var(--pcb-copper);
     opacity: 0.5;
   }
 
@@ -691,80 +913,79 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     border-radius: 1px;
   }
 
-  /* Sections */
-  .pcb-modal__sections {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
+  /* Section container */
   .pcb-section {
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 0.75rem;
-    background: rgba(0, 0, 0, 0.2);
   }
 
   .pcb-section__header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.625rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   }
 
-  .pcb-section__marker {
+  .pcb-section__icon {
     color: var(--pcb-copper);
-    font-size: 0.625rem;
+    font-size: 0.75rem;
+    line-height: 1;
   }
 
   .pcb-section__title {
     font-family: "IBM Plex Mono", monospace;
-    font-size: 0.6875rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin: 0;
+    letter-spacing: 0.05em;
     color: var(--pcb-silkscreen);
+    margin: 0;
+    flex: 1;
   }
 
+  .pcb-section__count {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.625rem;
+    color: var(--pcb-copper);
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0.125rem 0.375rem;
+    border-radius: 2px;
+  }
+
+  /* Topics list */
   .pcb-section__topics {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
   }
 
-  /* Topic as IC chip */
   .pcb-topic {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    background: #111;
-    border: 1px solid #333;
-    font-size: 0.75rem;
-  }
-
-  .pcb-topic__designator {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.5625rem;
-    color: var(--pcb-copper);
-    min-width: 24px;
-  }
-
-  .pcb-topic__name {
-    flex: 1;
-    color: var(--pcb-silkscreen);
-    font-size: 0.75rem;
-  }
-
-  .pcb-topic__pads {
-    display: flex;
-    gap: 2px;
+    padding: 0.25rem 0;
+    padding-left: 1.25rem;
+    font-size: 0.8125rem;
+    color: rgba(245, 245, 240, 0.85);
   }
 
   .pcb-topic__pad {
-    width: 4px;
+    width: 8px;
     height: 8px;
     background: var(--pcb-copper);
+    border-radius: 1px;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  .pcb-topic__name {
+    color: rgba(245, 245, 240, 0.85);
   }
 
   /* Reference designator */
@@ -806,5 +1027,42 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     .pcb-modal__board {
       padding: 1rem;
     }
+  }
+
+  .instruction-mobile {
+    display: none;
+  }
+
+  @media (hover: none) {
+    .instruction-desktop {
+      display: none;
+    }
+    .instruction-mobile {
+      display: inline;
+    }
+  }
+
+  .tap-hint {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--color-copper);
+    color: white;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .tap-hint.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
   }
 </style>
