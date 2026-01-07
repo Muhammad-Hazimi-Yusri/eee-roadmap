@@ -3,7 +3,7 @@ import type { RoadmapSection } from './roadmap';
 import { roadmaps } from '../data';
 
 describe('Roadmap data validation', () => {
-  const allRoadmaps = Object.entries(roadmaps).map(([name, data]) => ({ name, data }));
+  const allRoadmaps = Object.entries(roadmaps).map(([name, roadmap]) => ({ name, data: roadmap.sections }));
 
   describe.each(allRoadmaps)('$name roadmap', ({ data }) => {
     it('should have at least one section', () => {
