@@ -2,6 +2,7 @@
   "recurse": true,
   "skip": [
     "https://www.electronics-tutorials.ws/*",
+    "https://energysavingtrust.org.uk/advice/solar-panels/*",
     "og-image\\.png",
     ".*/og-image\\.png"       
   ]
