@@ -91,11 +91,21 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Deep links to exact location (concept of X topic of Y roadmap)- [x] Search results page (modal with grouped results)
 - [ ] Options to show sections and topics in roadmap 
 - [x] Automatic update for Hero section for no. of tracks and topics
-- [ ] Search concept notes content (Phase 2)
+- [x] Search concept notes content (Phase 2)
 - [ ] Experiment with category filter UI (fit box/PCB aesthetic, animate transitions)
 - [ ] Personal filters (incomplete concepts, highlighted items) integrated with progress tracking
 
-### v0.14 - Cross-Device Sync
+### v0.14 - Glossary & Acronyms
+
+**Goal:** Quick reference for technical terms with auto-linking in notes.
+
+- [ ] Glossary data source (glossary.yaml)
+- [ ] `/glossary/` page with A-Z navigation and search
+- [ ] Build-time scan of concept notes for acronym detection
+- [ ] Auto-link acronyms in notes (clickable with tooltip/popup)
+- [ ] "See also" references showing where terms appear
+
+### v0.15 - Cross-Device Sync
 
 **Goal:** Access progress from any device.
 
@@ -104,7 +114,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Import/export progress as JSON fallback
 - [ ] Sync custom notes
 
-### v0.15 - Roadmap Editor
+### v0.16 - Roadmap Editor
 
 **Goal:** Let non-devs create roadmaps without touching code.
 
@@ -113,7 +123,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
 
-### v0.16 - Test Coverage
+### v0.17 - Test Coverage
 
 **Goal:** Comprehensive test coverage for all features.
 
@@ -124,7 +134,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Accessibility tests (a11y)
 - [ ] Pre-commit hooks for test/lint/build
 
-### v0.17 - Content Verification
+### v0.18 - Content Verification
 
 **Goal:** Manually vet all AI-generated content before 1.0 release.
 
