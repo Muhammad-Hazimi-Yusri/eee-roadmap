@@ -10,7 +10,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.13.8)
+## Current Features (v0.13.9)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -44,6 +44,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - Automatic route generation from YAML files
   - Lucide icons for track display
   - Featured tracks on homepage, all tracks browsable
+  - Filter by category on `/roadmaps/` page
 - **Developer Tooling:**
   - `npm run validate` — CLI schema validator for YAML files
   - `npm run version:bump` — Interactive version updater
@@ -83,7 +84,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 - [x] `/roadmaps/` index page (browse all tracks)
 - [x] Search bar in navigation (Fuse.js fuzzy search)
-- [ ] Track filtering by category
+- [x] Track filtering by category
 - [x] Build-time search index generation
 - [x] Full-text search (track > topic > concept priority)
 - [ ] Deep links to exact location (concept of X topic of Y roadmap)
@@ -91,6 +92,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Options to show sections and topics in roadmap 
 - [x] Automatic update for Hero section for no. of tracks and topics
 - [ ] Search concept notes content (Phase 2)
+- [ ] Experiment with category filter UI (fit box/PCB aesthetic, animate transitions)
+- [ ] Personal filters (incomplete concepts, highlighted items) integrated with progress tracking
 
 ### v0.14 - Cross-Device Sync
 
@@ -133,6 +136,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ### Before Release
 - [ ] Hand-drawn aesthetic overhaul
+- [ ] Explore alternative color palette (current copper/green fits notebook aesthetic but resembles Claude.ai)
 - [ ] WebAssembly circuit simulator (Rust)
 - [ ] PWA support for offline access
 - [ ] Community contributions workflow

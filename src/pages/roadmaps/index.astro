@@ -11,6 +11,9 @@ const VERSION = pkg.version;
 
 const allTracks = getAllTracks();
 
+// Get unique categories
+const categories = [...new Set(allTracks.map(t => t.meta.category))].sort();
+
 function getIcon(iconName: string) {
   const pascalName = iconName
     .split('-')
@@ -41,6 +44,15 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
         <span class="instruction-desktop">Click a box to see what's inside</span>
         <span class="instruction-mobile">Double-tap a box to see what's inside</span>
       </p>
+
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn filter-btn--active" data-category="all">All</button>
+        {categories.map(cat => (
+          <button class="filter-btn" data-category={cat}>
+            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+          </button>
+        ))}
+      </div>
       
       <div class="tracks-grid">
         {allTracks.map(({ slug, meta }) => {
@@ -49,7 +61,11 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
           const topicCount = sections.reduce((sum, s) => sum + s.items.length, 0);
           
           return (
-            <article class="box-card" data-slug={slug}>
+            <article 
+              class="box-card"
+              data-track={slug}
+              data-category={meta.category}
+            >
               {/* Box lid (opens on hover) */}
               <div class="box-card__lid">
                 <div class="box-card__lid-front">
@@ -397,6 +413,31 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     if (backdrop.classList.contains('is-open')) {
       drawTraces();
     }
+  });
+
+  // Category filtering
+  const filterBar = document.getElementById('filter-bar');
+  const filterBtns = filterBar?.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.box-card');
+
+  filterBtns?.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+      
+      // Update active button
+      filterBtns.forEach(b => b.classList.remove('filter-btn--active'));
+      btn.classList.add('filter-btn--active');
+      
+      // Filter cards
+      cards.forEach(card => {
+        const cardCategory = card.getAttribute('data-category');
+        if (category === 'all' || cardCategory === category) {
+          card.classList.remove('is-hidden');
+        } else {
+          card.classList.add('is-hidden');
+        }
+      });
+    });
   });
 </script>
 
@@ -1373,4 +1414,40 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     transform: translateX(-50%) translateY(0);
   }
 
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .filter-btn {
+    padding: 0.375rem 0.875rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+
+  .filter-btn--active {
+    background: var(--color-copper, #b8860b);
+    border-color: var(--color-copper, #b8860b);
+    color: #111;
+  }
+
+  .box-card.is-hidden {
+    display: none;
+  }
 </style>

@@ -48,6 +48,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Version bump script (`npm run version:bump`)
 - Pre-commit hooks via Husky (build:data, validate, check-links, test:all)
 - JSON schema updated with `order` property for track meta
+- Track filtering by category on `/roadmaps/` page
+- Filter buttons derived dynamically from track metadata
 
 ### Changed
 - Hero section stats computed at build time from YAML
