@@ -10,7 +10,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.13.6)
+## Current Features (v0.13.7)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -52,6 +52,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - Fuse.js fuzzy matching
   - Results grouped by type (track > topic > concept)
   - Breadcrumb context in results
+  - Full-text search in concept notes
+  - Highlighted snippets showing match context
 - **Tracks:** Fundamentals, Core, Advanced, Distributed Generation
 ---
 

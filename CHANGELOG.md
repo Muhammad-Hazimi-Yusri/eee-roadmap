@@ -41,6 +41,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Responsive trigger (full hint desktop, short mobile)
 - Search index build script (`npm run build:search`)
 - Dynamic Hero stats (concepts, topics, tracks from data)
+- Full-text search in concept notes (Phase 2)
+- Highlighted snippets showing match context in search results
+- "In notes" badge for matches found in concept content
+- Exact match boosting (name matches rank higher than note matches)
 
 ### Changed
 - Hero section stats computed at build time from YAML

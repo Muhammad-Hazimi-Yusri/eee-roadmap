@@ -58,7 +58,7 @@ function buildSearchIndex() {
             track: meta.title,
             trackSlug: slug,
             path: `/roadmaps/${slug}/#${item.id}`,
-            content: ''  // Reserved for notes in Phase 2
+            content: concept.notes || ''
           });
         }
       }
