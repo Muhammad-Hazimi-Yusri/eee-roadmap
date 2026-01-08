@@ -26,7 +26,8 @@
         "description": { "type": "string" },
         "icon": { "type": "string" },
         "featured": { "type": "boolean" },
-        "category": { "type": "string" }
+        "category": { "type": "string" },
+        "order": { "type": "integer" }
       },
       "additionalProperties": false
     },

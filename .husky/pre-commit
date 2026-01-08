@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Check if src/ or content/ files are staged (feature work)
+FEATURE_FILES=$(git diff --cached --name-only | grep -E '^(src/|content/)' | head -1)
+
+if [ -n "$FEATURE_FILES" ]; then
+  # Check if package.json is also staged (version bumped)
+  PKG_STAGED=$(git diff --cached --name-only | grep '^package.json$')
+  
+  if [ -z "$PKG_STAGED" ]; then
+    echo ""
+    echo "⚠️  Feature files changed but version not bumped!"
+    echo "   Run: npm run version:bump"
+    echo ""
+  fi
+fi
+
+# Fast checks only (heavy tests left for manual/CI)
+echo "🔄 Building data..."
+npm run build:data || exit 1
+
+echo "🔍 Validating schema..."
+npm run validate || exit 1
+
+echo ""
+echo "✅ Pre-commit checks passed"
+echo "💡 Run 'npm run test:all' manually before pushing"

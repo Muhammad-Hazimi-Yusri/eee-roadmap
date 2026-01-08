@@ -45,6 +45,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Highlighted snippets showing match context in search results
 - "In notes" badge for matches found in concept content
 - Exact match boosting (name matches rank higher than note matches)
+- Version bump script (`npm run version:bump`)
+- Pre-commit hooks via Husky (build:data, validate, check-links, test:all)
+- JSON schema updated with `order` property for track meta
 
 ### Changed
 - Hero section stats computed at build time from YAML

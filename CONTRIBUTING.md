@@ -158,6 +158,40 @@ Affected components:
 - **Markdown in YAML**: Use `|` for multiline notes (preserves newlines). Keep lines flush-left to avoid code block interpretation.
 - **LaTeX equations**: Use `$...$` for inline and `$$...$$` for block math. Block equations need blank lines before and after. Use single backslashes in YAML (e.g., `\frac{1}{2}`).
 
+## Pre-commit Hooks
+
+This project uses [Husky](https://typicode.github.io/husky/) for pre-commit hooks. On every commit, these fast checks run automatically:
+```bash
+npm run build:data    # Rebuild JSON from YAML
+npm run validate      # Validate against schema
+```
+
+Before pushing, run the full test suite manually:
+```bash
+npm run test:all      # Unit + E2E tests
+npm run check-links   # Check for broken links
+```
+
+If any check fails, the commit is blocked. Fix the issues and try again.
+
+### Version Bumping
+
+When making feature changes to `src/` or `content/`, you'll see a warning if you haven't bumped the version:
+```bash
+⚠️  Feature files changed but version not bumped!
+   Run: npm run version:bump
+```
+
+To bump the version interactively:
+```bash
+npm run version:bump
+# Enter: patch, minor, major, or a specific version (e.g., 0.14.0)
+```
+
+This updates both `package.json` and `README.md` automatically.
+
+For small fixes where a version bump isn't needed, you can ignore the warning — it won't block your commit.
+
 ## Testing
 ```bash
 npm run test:run    # Unit tests

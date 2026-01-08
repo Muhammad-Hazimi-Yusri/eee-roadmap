@@ -10,7 +10,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.13.7)
+## Current Features (v0.13.8)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -46,7 +46,9 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - Featured tracks on homepage, all tracks browsable
 - **Developer Tooling:**
   - `npm run validate` — CLI schema validator for YAML files
+  - `npm run version:bump` — Interactive version updater
   - Human-readable YAML format with auto-defaults
+  - Pre-commit hooks (check version bump, build, validate)
 - **Search:**
   - Global search modal (Ctrl+K)
   - Fuse.js fuzzy matching

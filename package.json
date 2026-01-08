@@ -1,7 +1,7 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.13.7",
+  "version": "0.13.8",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs",
@@ -19,7 +19,9 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:all": "vitest run && playwright test"
+    "test:all": "vitest run && playwright test",
+    "version:bump": "node scripts/bump-version.mjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.0",
@@ -47,6 +49,7 @@
     "@vitest/coverage-v8": "^4.0.16",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "husky": "^9.1.7",
     "vitest": "^4.0.16",
     "yaml": "^2.8.2"
   }
