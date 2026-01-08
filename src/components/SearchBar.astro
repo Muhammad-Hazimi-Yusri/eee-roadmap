@@ -280,6 +280,35 @@
     padding: 0.5rem 0;
   }
 
+  .search-group + .search-group {
+    border-top: 1px solid var(--color-border);
+    position: relative;
+  }
+
+  .search-group + .search-group::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 1rem;
+    width: 6px;
+    height: 6px;
+    background: var(--color-copper, #b8860b);
+    border-radius: 50%;
+    transform: translateY(-50%);
+  }
+
+  .search-group + .search-group::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 1rem;
+    width: 6px;
+    height: 6px;
+    background: var(--color-copper, #b8860b);
+    border-radius: 50%;
+    transform: translateY(-50%);
+  }
+
   .search-group-label {
     padding: 0.375rem 1rem;
     font-family: 'IBM Plex Mono', monospace;
