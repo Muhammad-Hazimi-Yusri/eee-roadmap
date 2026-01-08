@@ -185,25 +185,34 @@ for (const section of sections) {
   function initHashNavigation() {
     // Auto-expand on page load if hash exists
     if (window.location.hash) {
-      expandNode(window.location.hash.slice(1));
+      const topicId = window.location.hash.slice(1);
+      expandNode(topicId);
+      
+      // Check for concept query param
+      const params = new URLSearchParams(window.location.search);
+      const conceptName = params.get('concept');
+      if (conceptName) {
+        // Delay to ensure node is expanded and modal is ready
+        setTimeout(() => {
+          (window as any).conceptModal?.open(topicId, conceptName);
+        }, 300);
+      }
     }
 
     // Handle hash changes (same-page navigation)
     window.addEventListener('hashchange', () => {
       if (window.location.hash) {
-        expandNode(window.location.hash.slice(1));
-      }
-    });
-
-    // Handle prereq link clicks (fixes re-click on same hash)
-    document.querySelectorAll('.prereq-tag--link').forEach((link) => {
-      link.addEventListener('click', () => {
-        const href = link.getAttribute('href') || '';
-        const hash = href.split('#')[1];
-        if (hash && window.location.hash === `#${hash}`) {
-          expandNode(hash);
+        const topicId = window.location.hash.slice(1);
+        expandNode(topicId);
+        
+        const params = new URLSearchParams(window.location.search);
+        const conceptName = params.get('concept');
+        if (conceptName) {
+          setTimeout(() => {
+            (window as any).conceptModal?.open(topicId, conceptName);
+          }, 300);
         }
-      });
+      }
     });
   }
 

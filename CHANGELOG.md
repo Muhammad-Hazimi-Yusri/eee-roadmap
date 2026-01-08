@@ -50,6 +50,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - JSON schema updated with `order` property for track meta
 - Track filtering by category on `/roadmaps/` page
 - Filter buttons derived dynamically from track metadata
+- Deep links to concepts from search (auto-opens concept window)
+- URL format: `/roadmaps/track/?concept=Name#topic-id`
 
 ### Changed
 - Hero section stats computed at build time from YAML

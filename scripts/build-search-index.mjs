@@ -55,9 +55,10 @@ function buildSearchIndex() {
             type: 'concept',
             name: concept.name,
             topic: item.title,
+            topicId: item.id,
             track: meta.title,
             trackSlug: slug,
-            path: `/roadmaps/${slug}/#${item.id}`,
+            path: `/roadmaps/${slug}/?concept=${encodeURIComponent(concept.name)}#${item.id}`,
             content: concept.notes || ''
           });
         }

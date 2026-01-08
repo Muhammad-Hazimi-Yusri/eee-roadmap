@@ -10,7 +10,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.13.9)
+## Current Features (v0.13.10)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -57,6 +57,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
   - Breadcrumb context in results
   - Full-text search in concept notes
   - Highlighted snippets showing match context
+  - Deep links to concepts (auto-opens window)
 - **Tracks:** Fundamentals, Core, Advanced, Distributed Generation
 ---
 
@@ -87,8 +88,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Track filtering by category
 - [x] Build-time search index generation
 - [x] Full-text search (track > topic > concept priority)
-- [ ] Deep links to exact location (concept of X topic of Y roadmap)
-- [x] Search results page (modal with grouped results)
+- [x] Deep links to exact location (concept of X topic of Y roadmap)- [x] Search results page (modal with grouped results)
 - [ ] Options to show sections and topics in roadmap 
 - [x] Automatic update for Hero section for no. of tracks and topics
 - [ ] Search concept notes content (Phase 2)
