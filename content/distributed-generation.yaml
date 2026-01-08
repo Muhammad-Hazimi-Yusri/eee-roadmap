@@ -24,9 +24,197 @@ sections:
           - Explain the benefits and challenges of distributed generation
         concepts:
           - name: Solar PV systems
+            notes: |
+              ## Photovoltaic Effect Fundamentals
+
+              Solar photovoltaic (PV) systems convert sunlight directly into electricity using semiconductor materials. When photons strike a PV cell, they excite electrons in the semiconductor material, creating electron-hole pairs. The built-in electric field of the p-n junction separates these charge carriers, producing direct current.
+
+              ![Photovoltaic cell schematic](https://upload.wikimedia.org/wikipedia/commons/e/e4/Photovoltaic_cell.svg)
+
+              ## Cell Types and Characteristics
+
+              | Cell Type | Efficiency | Characteristics |
+              |-----------|------------|-----------------|
+              | **Monocrystalline** | 17-22% | Uniform dark appearance, highest efficiency |
+              | **Polycrystalline** | 15-18% | Blue speckled appearance, good value |
+              | **Thin-film** | 10-13% | Flexible, lower cost per watt |
+
+              ## Series and Parallel Configurations
+
+              Modules in **series** increase voltage while maintaining current:
+              $$V_{string} = n \times V_{module}$$
+              $$I_{string} = I_{module}$$
+
+              Modules in **parallel** increase current while maintaining voltage:
+              $$V_{array} = V_{module}$$
+              $$I_{array} = n \times I_{module}$$
+
+              ## I-V Curve and Key Parameters
+
+              The current-voltage relationship follows the diode equation. Key points:
+              - **Short-circuit current ($I_{SC}$)**: Maximum current when V = 0
+              - **Open-circuit voltage ($V_{OC}$)**: Maximum voltage when I = 0
+              - **Maximum Power Point (MPP)**: Where $P = V \times I$ is maximized
+
+              ## Fill Factor
+
+              Fill factor quantifies how "square" the I-V curve is:
+              $$FF = \frac{V_{MPP} \times I_{MPP}}{V_{OC} \times I_{SC}} = \frac{P_{max}}{V_{OC} \times I_{SC}}$$
+
+              Typical values: 0.7-0.85 for crystalline silicon cells.
+
+              ## Module Efficiency
+              $$\eta = \frac{P_{max}}{G \times A} \times 100\%$$
+
+              Where $G$ = irradiance (W/m²) and $A$ = module area (m²).
+
+              ![Basic Photovoltaic Principles - NREL](https://docs.nrel.gov/docs/legosti/old/1448.pdf)
+
           - name: Battery energy storage
+            notes: |
+              ## Battery Types for Energy Storage
+
+              | Chemistry | Voltage | Energy Density | Cycle Life |
+              |-----------|---------|----------------|------------|
+              | **Lithium-ion (NMC)** | 3.6-3.7V | 150-250 Wh/kg | 1000-2000 |
+              | **LiFePO4 (LFP)** | 3.2V | 90-120 Wh/kg | 2000-5000 |
+              | **Lead-acid** | 2.0V | 30-50 Wh/kg | 500-1000 |
+
+              ![Battery Energy Storage System](https://upload.wikimedia.org/wikipedia/commons/3/3b/BESS_%28battery_energy_storage_system%29.svg)
+
+              ## Capacity Calculations
+
+              **Amp-hour capacity (Ah):**
+              $$C_{Ah} = I_{discharge} \times t_{hours}$$
+
+              **Energy capacity (kWh):**
+              $$E_{kWh} = \frac{V_{nominal} \times C_{Ah}}{1000}$$
+
+              ## C-Rate
+
+              C-rate defines charge/discharge rate relative to capacity:
+              $$\text{C-rate} = \frac{I_{charge/discharge}}{C_{rated}}$$
+
+              A 100Ah battery at 1C discharges at 100A (fully discharged in 1 hour).
+              At 0.5C: 50A (2 hours). At 2C: 200A (30 minutes).
+
+              ## Depth of Discharge (DoD) and State of Charge (SoC)
+
+              $$DoD = \frac{C_{used}}{C_{rated}} \times 100\%$$
+
+              $$SoC = 100\% - DoD = \frac{C_{remaining}}{C_{rated}} \times 100\%$$
+
+              ## Usable Capacity
+
+              $$C_{usable} = C_{rated} \times (DoD_{max} - DoD_{min})$$
+
+              For LFP batteries with 90% usable DoD: $C_{usable} = 0.9 \times C_{rated}$
+
+              ## Round-trip Efficiency
+
+              $$\eta_{RT} = \frac{E_{discharged}}{E_{charged}} \times 100\%$$
+
+              Typical values: Li-ion 86-88%, Lead-acid 79-85%.
+
+              ![Behind-The-Meter Battery Storage - NREL](https://docs.nrel.gov/docs/fy21osti/79393.pdf)
+
           - name: Grid-tied vs off-grid
+            notes: |
+              ## Grid-tied (On-Grid) Systems
+
+              Grid-tied systems operate in parallel with the utility network.
+
+              **Architecture:**
+              PV array → Grid-tie inverter → AC panel → Utility meter → Grid
+
+              ![Photovoltaic power station diagram](https://upload.wikimedia.org/wikipedia/commons/4/40/Photovoltaic-power-station-diagram.svg)
+
+              **Advantages:**
+              - Lower initial cost (no batteries)
+              - Higher overall efficiency
+              - Net metering benefits
+              - Grid acts as infinite "storage"
+
+              **Limitations:**
+              - No backup during outages (anti-islanding protection)
+              - Subject to grid regulations and export limits
+
+              ## Off-grid (Stand-alone) Systems
+
+              Off-grid systems operate independently without utility connection.
+
+              **Architecture:**
+              PV array → Charge controller → Battery bank → Off-grid inverter → AC loads
+
+              **Battery sizing requirement:**
+              $$C_{battery} = \frac{E_{daily} \times \text{Days of autonomy}}{V_{system} \times DoD_{max} \times \eta_{inverter}}$$
+
+              ## Hybrid Systems
+
+              Combine grid connection with battery backup:
+              - AC-coupled or DC-coupled configurations
+              - Seamless transfer during outages
+              - Can operate in grid-tied or island mode
+
+              ## Self-consumption vs Export
+
+              **Self-consumption ratio:**
+              $$SCR = \frac{E_{consumed\text{ }directly}}{E_{generated}} \times 100\%$$
+
+              Higher self-consumption = better economics when export rates are low.
+
+              ![Grid-Scale Energy Storage - NREL](https://docs.nrel.gov/docs/fy21osti/76097.pdf)
+
           - name: Feed-in tariffs
+            notes: |
+              ## Feed-in Tariff (FIT) Fundamentals
+
+              A feed-in tariff is a policy mechanism offering long-term contracts to renewable energy producers, typically based on cost of generation.
+
+              ![Electricity grid schematic](https://upload.wikimedia.org/wikipedia/commons/7/77/Electricity_Grid_Schematic_English.svg)
+
+              **Three key provisions:**
+              1. Guaranteed grid access
+              2. Stable, long-term purchase contracts (10-25 years)
+              3. Cost-based payment rates
+
+              ## Payment Structures
+
+              | Model | Description |
+              |-------|-------------|
+              | **Fixed-price FIT** | Set rate regardless of wholesale price |
+              | **Premium FIT** | Bonus added to wholesale market price |
+              | **Sliding premium** | Premium varies with market conditions |
+
+              ## Net Metering vs Net Billing
+
+              **Net Energy Metering:**
+              - Bill credits at full retail rate
+              - Grid acts as "financial storage"
+              - Meter runs backward during export
+
+              **Net Billing:**
+              - Export credited at predetermined sell rate
+              - Usually lower than retail rate
+              - Separate import/export accounting
+
+              ## UK Smart Export Guarantee (SEG)
+
+              Replaced FIT for new installations from January 2020:
+              - Suppliers with 150,000+ customers must offer SEG
+              - Rate must be greater than zero
+              - Requires MCS certification and DNO notification
+
+              ## Economic Analysis
+
+              **Simple payback period:**
+              $$Payback = \frac{System\text{ }Cost}{Annual\text{ }Savings + Annual\text{ }Export}$$
+
+              **Levelized Cost of Energy (LCOE):**
+              $$LCOE = \frac{\sum_{t=1}^{n}\frac{I_t + M_t}{(1+r)^t}}{\sum_{t=1}^{n}\frac{E_t}{(1+r)^t}}$$
+
+              ![Feed-in Tariff Policy Design - NREL](https://docs.nrel.gov/docs/fy10osti/44849.pdf)
+
         resources:
           - label: Wikipedia - Distributed Generation
             url: https://en.wikipedia.org/wiki/Distributed_generation
@@ -45,9 +233,204 @@ sections:
           - Describe the point of common coupling (PCC)
         concepts:
           - name: LV definitions
+            notes: |
+              ## IEC 60038 Voltage Classifications
+
+              | Classification | AC Voltage (RMS) | DC Voltage |
+              |---------------|------------------|------------|
+              | **Extra-Low Voltage (ELV)** | < 50V | < 120V |
+              | **Low Voltage (LV)** | 50V – 1000V | 120V – 1500V |
+              | **High Voltage (HV)** | > 1000V | > 1500V |
+
+              ![World map of mains voltages](https://upload.wikimedia.org/wikipedia/commons/4/45/World_Map_of_Mains_Voltages_and_Frequencies%2C_Detailed.svg)
+
+              ## Extra-Low Voltage Categories
+
+              - **SELV:** Separated Extra-Low Voltage (no earth connection, double insulation)
+              - **PELV:** Protective Extra-Low Voltage (earth connection permitted)
+              - **FELV:** Functional Extra-Low Voltage (requires additional protection measures)
+
+              ## Regional Voltage Differences
+
+              | Region | Single-Phase | Three-Phase | Frequency |
+              |--------|--------------|-------------|-----------|
+              | **UK/EU** | 230V (±10%) | 400V | 50 Hz |
+              | **USA** | 120V | 208V/480V | 60 Hz |
+              | **Japan** | 100V/200V | 200V | 50/60 Hz |
+
+              ## Supply Voltage Tolerance
+
+              Per EN 50160 and BS EN 50160:
+              $$V_{supply} = V_{nominal} \pm 10\%$$
+
+              For 230V nominal: $207V \leq V_{supply} \leq 253V$
+
+              ## Why LV Matters for Distributed Generation
+
+              Most domestic and small commercial generation connects at LV level:
+              - Simpler protection requirements
+              - Lower cost interconnection
+              - G98/G99 regulations apply
+
+              ![IEC 60038 Standard Voltages](https://cdn.standards.iteh.ai/samples/14766/5e8e5d23162846b6881a9e03244e63e8/IEC-60038-2009.pdf)
+
           - name: Single-phase supply
+            notes: |
+              ## 230V 50Hz System Configuration
+
+              Single-phase supply consists of three conductors:
+              - **Live (L):** Carries AC current at 230V RMS to neutral
+              - **Neutral (N):** Return path, connected to earth at transformer star point
+              - **Earth (E/PE):** Safety conductor for fault current
+
+              ![Single-phase wiring diagram](https://upload.wikimedia.org/wikipedia/commons/9/92/Wiring_diagram_of_single_phase_electrical_panel_for_apartment.JPG)
+
+              ## Voltage Waveform
+
+              $$v(t) = V_m \sin(\omega t)$$
+
+              Where:
+              - $V_m = \sqrt{2} \times 230 = 325V$ (peak voltage)
+              - $\omega = 2\pi f = 314.16$ rad/s (at 50Hz)
+              - Period $T = 1/f = 20$ ms
+
+              ## RMS and Peak Relationship
+
+              $$V_{rms} = \frac{V_m}{\sqrt{2}} = \frac{V_{peak}}{\sqrt{2}}$$
+
+              ## Power Calculations
+
+              **Resistive loads (unity power factor):**
+              $$P = V_{rms} \times I_{rms} = VI$$
+
+              **Reactive loads (with power factor):**
+              $$P = VI\cos\phi \text{ (Real power in Watts)}$$
+              $$Q = VI\sin\phi \text{ (Reactive power in VAr)}$$
+              $$S = VI \text{ (Apparent power in VA)}$$
+
+              ## Power Triangle
+
+              $$S^2 = P^2 + Q^2$$
+              $$S = \sqrt{P^2 + Q^2}$$
+
+              ## Typical Domestic Capacity
+
+              UK domestic supplies typically:
+              - 60A or 80A main fuse (older properties)
+              - 100A main fuse (modern properties)
+              - Maximum demand: ~23kW at 100A
+
+              ![Three-Phase Power Fundamentals - Purdue](https://extension.purdue.edu/4-H/_docs/projects/electric/Level5-Taking-the-Mystery-out-of-ThreePhase.pdf)
+
           - name: Three-phase supply
+            notes: |
+              ## Fundamental Relationships
+
+              Three phases displaced by 120° (or 2π/3 radians):
+              $$V_A = V_m\sin(\omega t)$$
+              $$V_B = V_m\sin(\omega t - 120°)$$
+              $$V_C = V_m\sin(\omega t + 120°)$$
+
+              ![Three-phase AC waveform](https://upload.wikimedia.org/wikipedia/commons/4/48/3_phase_AC_waveform.svg)
+
+              ## The √3 Factor
+
+              Line voltage to phase voltage relationship:
+              $$V_L = \sqrt{3} \times V_P$$
+
+              For EU systems: $V_L = \sqrt{3} \times 230V = 400V$
+
+              This factor arises from the vector sum of two phase voltages 120° apart.
+
+              ## Star (Wye) Connection
+
+              $$V_L = \sqrt{3} \times V_P$$
+              $$I_L = I_P$$
+
+              - Neutral available for single-phase loads
+              - Common for distribution systems
+
+              ## Delta Connection
+
+              $$V_L = V_P$$
+              $$I_L = \sqrt{3} \times I_P$$
+
+              - No neutral conductor
+              - Common for motors and transformers
+
+              ## Three-Phase Power
+
+              $$P_{3\phi} = \sqrt{3} \times V_L \times I_L \times \cos\phi$$
+              $$P_{3\phi} = 3 \times V_P \times I_P \times \cos\phi$$
+
+              ## Balanced System Property
+
+              In a balanced three-phase system:
+              $$I_A + I_B + I_C = 0$$ (vector sum)
+
+              This means neutral current is zero for balanced loads.
+
+              ## Why Three-Phase for Larger Installations?
+
+              - More power for same conductor size
+              - Constant instantaneous power (no pulsation)
+              - More efficient for motors
+              - Required for generation >3.68kW single-phase
+
+              ![Three-Phase Fundamentals - Oregon State](https://web.engr.oregonstate.edu/~webbky/ENGR202_files/SECTION%207%20Three%20Phase%20Circuit%20Fundamentals.pdf)
+
           - name: Point of common coupling
+            notes: |
+              ## Definition
+
+              The Point of Common Coupling (PCC) is the interface point where a distributed energy resource connects to the utility distribution network. It's the electrical location where:
+              - Power quality measurements are taken
+              - Interconnection requirements are enforced
+              - Protection coordination is established
+              - Multiple customers may share the connection
+
+              ![Electricity grid schematic](https://upload.wikimedia.org/wikipedia/commons/7/77/Electricity_Grid_Schematic_English.svg)
+
+              ## Why PCC Matters for Distributed Generation
+
+              **Power Quality Control:**
+              - THD limits measured at PCC (typically <5%)
+              - Voltage regulation requirements apply at PCC
+              - Flicker limits (Pst, Plt) assessed at PCC
+
+              **Voltage Impact:**
+              $$\Delta V_{PCC} = \frac{P \times R + Q \times X}{V_{PCC}}$$
+
+              ## Protection Coordination at PCC
+
+              IEEE 1547 voltage ride-through requirements:
+
+              | Condition | Voltage Range | Max Trip Time |
+              |-----------|---------------|---------------|
+              | OV2 | V > 1.20 pu | 0.16s |
+              | OV1 | 1.10 < V ≤ 1.20 pu | 1.0-13.0s |
+              | UV1 | 0.70 ≤ V < 0.88 pu | 2.0-21.0s |
+              | UV2 | V < 0.50 pu | 0.16s |
+
+              ## Fault Current at PCC
+
+              Total fault current includes utility and DER contributions:
+              $$I_{fault(total)} = I_{fault(utility)} + I_{fault(DER)}$$
+
+              ## Power Flow Direction at PCC
+
+              $$P_{PCC} = P_{generation} - P_{load}$$
+
+              - Positive $P_{PCC}$: Export to grid
+              - Negative $P_{PCC}$: Import from grid
+
+              ## Short Circuit Ratio at PCC
+
+              $$SCR = \frac{S_{SC}}{S_{DER}}$$
+
+              - SCR > 20: Stiff grid (small voltage impact)
+              - SCR < 10: Weak grid (significant voltage impact)
+
         resources:
           - label: IEC 60038 - Standard Voltages
             url: https://en.wikipedia.org/wiki/IEC_60038
@@ -69,9 +452,194 @@ sections:
           - Understand MPPT and its role in solar systems
         concepts:
           - name: Grid synchronization
+            notes: |
+              ## Grid Synchronization
+
+              Grid-tied inverters must precisely match the grid's voltage, frequency, and phase before connecting. Failure to synchronize properly causes large transient currents that can damage equipment and trip protection.
+
+              ### Synchronization Requirements
+
+              Three conditions must be met before closing the grid connection:
+
+              | Parameter | Tolerance | Typical Grid (UK) |
+              |-----------|-----------|-------------------|
+              | Voltage magnitude | ±5% | 230V ±10% |
+              | Frequency | ±0.1 Hz | 50 Hz ±0.5 Hz |
+              | Phase angle | ±5° | 0° reference |
+
+              ### Phase-Locked Loop (PLL)
+
+              The PLL is the core synchronization mechanism. It continuously tracks the grid voltage and generates a reference signal locked to the grid phase:
+
+              $$\theta_{grid} = \int \omega_{grid} \, dt$$
+
+              The PLL uses feedback to minimize phase error:
+
+              $$e_{\phi} = \theta_{ref} - \theta_{measured}$$
+
+              A PI controller adjusts the internal oscillator frequency until $e_{\phi} \rightarrow 0$.
+
+              ### Synchronization Sequence
+
+              1. **Monitoring**: Measure grid V, f, φ continuously
+              2. **Ramping**: Adjust inverter output to match grid
+              3. **Verification**: Confirm all parameters within tolerance
+              4. **Connection**: Close contactor when synchronized
+              5. **Current injection**: Begin power export
+
+              The synchronization time typically ranges from 20ms to 5 seconds depending on grid stability and inverter design.
+
+              ![Grid-tied inverter diagram](https://upload.wikimedia.org/wikipedia/commons/b/b0/Grid-tied_inverter_system_diagram.svg)
+
+              ![NREL Inverter Testing](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
           - name: Grid-following inverter
+            notes: |
+              ## Grid-Following Inverter
+
+              Grid-following (also called grid-feeding) inverters treat the grid as a stiff voltage source and inject current synchronized to the grid voltage. This is the dominant topology for residential and commercial solar installations.
+
+              ### Operating Principle
+
+              The inverter acts as a **controlled current source**:
+
+              $$i_{inv}(t) = I_m \sin(\omega_{grid} t + \phi)$$
+
+              Where:
+              - $I_m$ = current amplitude (controlled by MPPT)
+              - $\omega_{grid}$ = grid angular frequency (from PLL)
+              - $\phi$ = phase angle (typically 0° for unity power factor)
+
+              ### Control Architecture
+              ```
+              PV Array → DC-DC (MPPT) → DC Link → DC-AC Inverter → Filter → Grid
+                                          ↑                           ↓
+                                     DC voltage              Current control
+                                      control                   (PLL-based)
+              ```
+
+              ### Power Control
+
+              Real and reactive power are controlled via current magnitude and phase:
+
+              $$P = V_{grid} \cdot I_{inv} \cdot \cos(\phi)$$
+              $$Q = V_{grid} \cdot I_{inv} \cdot \sin(\phi)$$
+
+              ### Limitations
+
+              - **Cannot operate without grid**: Requires grid voltage reference
+              - **Stability concerns**: High penetration can cause voltage/frequency issues
+              - **No black start capability**: Cannot energize a dead grid
+
+              Grid-following inverters comply with IEEE 1547 and G98/G99 requirements for anti-islanding - they must disconnect within 2 seconds of grid loss.
+
+              ![Solar inverter](https://upload.wikimedia.org/wikipedia/commons/0/09/SMA_Sunny_Boy_3000.jpg)
+
           - name: Grid-forming inverter
+            notes: |
+              ## Grid-Forming Inverter
+
+              Grid-forming inverters create their own voltage and frequency reference, behaving as a **voltage source** rather than current source. They can operate independently or support weak grids.
+
+              ### Operating Principle
+
+              The inverter maintains a controlled output voltage:
+
+              $$v_{inv}(t) = V_m \sin(\omega_0 t + \delta)$$
+
+              Where:
+              - $V_m$ = voltage amplitude (regulated)
+              - $\omega_0$ = internal frequency reference
+              - $\delta$ = power angle (determines power flow)
+
+              ### Droop Control
+
+              Grid-forming inverters use droop characteristics to share load and maintain stability:
+
+              **Frequency droop** (P-f):
+              $$f = f_0 - m_p (P - P_0)$$
+
+              **Voltage droop** (Q-V):
+              $$V = V_0 - n_q (Q - Q_0)$$
+
+              Where $m_p$ and $n_q$ are droop coefficients (typically 2-5%).
+
+              ### Comparison Table
+
+              | Feature | Grid-Following | Grid-Forming |
+              |---------|----------------|--------------|
+              | Voltage source | No (current source) | Yes |
+              | Grid required | Yes | No |
+              | Black start | No | Yes |
+              | Weak grid support | Limited | Excellent |
+              | Inertia provision | No | Yes (virtual) |
+              | Complexity | Lower | Higher |
+              | Cost | Lower | Higher |
+
+              ### Virtual Synchronous Machine (VSM)
+
+              Advanced grid-forming control emulates synchronous generator behaviour:
+
+              $$J \frac{d\omega}{dt} = P_{ref} - P_{out} - D(\omega - \omega_0)$$
+
+              Where $J$ = virtual inertia, $D$ = damping coefficient.
+
+              This provides synthetic inertia to stabilize grid frequency during disturbances.
+
+              ![NREL Grid-Forming Research](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
           - name: MPPT
+            notes: |
+              ## Maximum Power Point Tracking (MPPT)
+
+              Solar panels have a unique operating point where power output is maximized. MPPT algorithms continuously find and track this point as conditions change.
+
+              ### I-V and P-V Curves
+
+              A PV panel's output varies with voltage:
+
+              ![PV I-V curve](https://upload.wikimedia.org/wikipedia/commons/2/21/PVcurve.svg)
+
+              The maximum power point (MPP) occurs where:
+
+              $$\frac{dP}{dV} = 0$$
+
+              Since $P = V \times I$:
+
+              $$\frac{d(VI)}{dV} = I + V\frac{dI}{dV} = 0$$
+
+              At MPP: $\frac{dI}{dV} = -\frac{I}{V}$
+
+              ### Environmental Effects
+
+              | Condition | Effect on $V_{MPP}$ | Effect on $I_{MPP}$ | Effect on $P_{MPP}$ |
+              |-----------|---------------------|---------------------|---------------------|
+              | ↑ Irradiance | Slight ↑ | Proportional ↑ | ↑↑ |
+              | ↑ Temperature | ↓↓ | Slight ↑ | ↓ |
+              | Shading | Complex | ↓ | ↓↓ |
+
+              Temperature coefficient (typical): $-0.4\%/°C$ for power.
+
+              ### MPPT Algorithms
+
+              **Perturb & Observe (P&O)**:
+              - Simplest, most common algorithm
+              - Periodically changes $V$ and observes $\Delta P$
+              - If $\Delta P > 0$, continue same direction
+              - Oscillates around MPP (1-3% power loss)
+
+              **Incremental Conductance**:
+              - Compare $\frac{dI}{dV}$ with $-\frac{I}{V}$
+              - More accurate tracking
+              - Better performance under rapidly changing conditions
+
+              **MPPT efficiency**:
+              $$\eta_{MPPT} = \frac{\int P_{actual} \, dt}{\int P_{MPP,ideal} \, dt} \times 100\%$$
+
+              Typical MPPT efficiency: 98-99.5% for quality inverters.
+
+              ![NREL PV System Testing](https://docs.nrel.gov/docs/legosti/old/1448.pdf)
+
         resources:
           - label: Wikipedia - Solar Inverter
             url: https://en.wikipedia.org/wiki/Solar_inverter
@@ -90,9 +658,233 @@ sections:
           - Understand voltage rise from exporting power
         concepts:
           - name: Harmonics & THD
+            notes: |
+              ## Harmonics & Total Harmonic Distortion
+
+              Harmonics are integer multiples of the fundamental frequency (50Hz). Non-linear loads and switching inverters inject harmonic currents that distort the voltage waveform.
+
+              ### Harmonic Series
+
+              For a 50Hz fundamental:
+
+              | Harmonic | Frequency | Common Sources |
+              |----------|-----------|----------------|
+              | 1st (fundamental) | 50 Hz | Pure sine wave |
+              | 3rd | 150 Hz | Single-phase rectifiers, LEDs |
+              | 5th | 250 Hz | VFDs, three-phase rectifiers |
+              | 7th | 350 Hz | VFDs, UPS systems |
+              | 11th, 13th | 550, 650 Hz | Large industrial drives |
+
+              ### Fourier Representation
+
+              Any periodic waveform can be decomposed:
+
+              $$v(t) = V_1 \sin(\omega t) + \sum_{h=2}^{\infty} V_h \sin(h\omega t + \phi_h)$$
+
+              Where $V_h$ = magnitude of harmonic $h$.
+
+              ### Total Harmonic Distortion (THD)
+
+              THD quantifies total harmonic content relative to fundamental:
+
+              $$THD = \frac{\sqrt{\sum_{h=2}^{\infty} V_h^2}}{V_1} \times 100\%$$
+
+              For current: $THD_I = \frac{\sqrt{\sum_{h=2}^{\infty} I_h^2}}{I_1} \times 100\%$
+
+              ### Limits and Standards
+
+              | Standard | Current THD Limit | Voltage THD Limit |
+              |----------|-------------------|-------------------|
+              | IEEE 519 | 5% (general) | 5% |
+              | G98/G99 | 5% | N/A (result of current) |
+              | EN 50160 | N/A | 8% |
+
+              ### Harmonic Effects
+
+              - **Overheating**: Transformers, cables, motors
+              - **Resonance**: With power factor correction capacitors
+              - **Nuisance tripping**: RCDs sensitive to high-frequency
+              - **Meter errors**: Older meters may read incorrectly
+
+              Inverters use output filters (L, LC, or LCL) to limit harmonic injection below regulatory limits.
+
+              ![Harmonic waveform](https://upload.wikimedia.org/wikipedia/commons/9/9a/Mains_hum_harmonics.svg)
+
+              ![NREL Power Quality Study](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
           - name: Voltage rise
+            notes: |
+              ## Voltage Rise from Power Export
+
+              When distributed generation exports power, current flows "backwards" through the distribution network impedance, causing voltage to rise at the point of connection.
+
+              ### The Voltage Rise Problem
+
+              In a simple radial network:
+              ```
+              Substation ──R+jX──┬── Load A
+                                 │
+                                 └── PV System (exporting)
+              ```
+
+              Voltage at PV connection point:
+
+              $$V_{PCC} = V_{sub} + \frac{P \cdot R + Q \cdot X}{V_{PCC}}$$
+
+              For power export (P negative by convention, or positive export):
+
+              $$\Delta V \approx \frac{P_{export} \cdot R + Q \cdot X}{V_{nominal}}$$
+
+              ### Simplified Approximation
+
+              For LV networks where $R >> X$:
+
+              $$\Delta V \approx \frac{P \cdot R}{V}$$
+
+              **Example**: 4kW export, 0.5Ω line resistance, 230V:
+              $$\Delta V = \frac{4000 \times 0.5}{230} = 8.7V \approx 3.8\%$$
+
+              ### Voltage Limits
+
+              | Standard | Steady-State Limit |
+              |----------|-------------------|
+              | EN 50160 | 230V +10%/-6% (216-253V) |
+              | G98/G99 | Must not cause voltage >+10% |
+              | DNO planning | Typically +6% headroom |
+
+              ### Mitigation Strategies
+
+              1. **Reactive power control**: Absorb Q to offset voltage rise
+                 $$Q_{absorb} = -\frac{P \cdot R}{X}$$ (if X significant)
+
+              2. **Export limiting**: Reduce P when V approaches limit
+
+              3. **Volt-VAr mode**: Automatic Q adjustment based on voltage
+                 $$Q = f(V) \text{ per programmed curve}$$
+
+              4. **Network reinforcement**: DNO upgrades cables/transformers
+
+              Modern inverters implement Volt-VAr and Volt-Watt response curves per G98/G99 requirements.
+
+              ![Distribution network](https://upload.wikimedia.org/wikipedia/commons/c/c5/Electricity_grid_simple-_North_America.svg)
+
           - name: Power factor
+            notes: |
+              ## Power Factor in Grid-Tied Systems
+
+              Power factor describes the phase relationship between voltage and current, and the ratio of real power to apparent power.
+
+              ### Power Factor Definition
+
+              $$PF = \frac{P}{S} = \frac{P}{\sqrt{P^2 + Q^2}} = \cos(\phi)$$
+
+              Where:
+              - $P$ = Real power (W) - does useful work
+              - $Q$ = Reactive power (VAr) - energy storage in L/C
+              - $S$ = Apparent power (VA) - total current × voltage
+              - $\phi$ = Phase angle between V and I
+
+              ### Power Triangle
+              ```
+                    S (VA)
+                   /|
+                  / |
+                 /  | Q (VAr)
+                /φ  |
+               ─────┘
+                P (W)
+              ```
+
+              $$S^2 = P^2 + Q^2$$
+
+              ### Displacement vs Distortion Power Factor
+
+              **Displacement PF** (fundamental only):
+              $$PF_{disp} = \cos(\phi_1)$$
+
+              **Distortion PF** (due to harmonics):
+              $$PF_{dist} = \frac{1}{\sqrt{1 + THD_I^2}}$$
+
+              **True Power Factor**:
+              $$PF_{true} = PF_{disp} \times PF_{dist}$$
+
+              ### Grid Code Requirements
+
+              | Condition | G98/G99 Requirement |
+              |-----------|---------------------|
+              | Default | Unity PF (1.0) |
+              | Volt-VAr mode | 0.95 leading to 0.95 lagging |
+              | DNO request | Adjustable setpoint |
+
+              ### Inverter Capability
+
+              Modern inverters can operate across four quadrants:
+
+              | Quadrant | P | Q | Mode |
+              |----------|---|---|------|
+              | I | + | + | Export, supply reactive |
+              | II | - | + | Import, supply reactive |
+              | III | - | - | Import, absorb reactive |
+              | IV | + | - | Export, absorb reactive |
+
+              Reactive power capability is limited by inverter VA rating:
+              $$Q_{max} = \sqrt{S_{rated}^2 - P^2}$$
+
+              ![Power triangle](https://upload.wikimedia.org/wikipedia/commons/6/6a/Power_Triangle.svg)
+
           - name: Flicker
+            notes: |
+              ## Voltage Flicker
+
+              Flicker is rapid, repetitive voltage fluctuation that causes visible light intensity changes. Human eyes are most sensitive to fluctuations around 8-10 Hz.
+
+              ### Causes of Flicker
+
+              - **Cloud transients**: Rapid irradiance changes on PV
+              - **Inverter switching**: Connection/disconnection events
+              - **Motor starting**: Large inrush currents
+              - **Arc furnaces**: Industrial loads with erratic current
+
+              ### Flicker Metrics
+
+              **Short-term flicker severity** ($P_{st}$):
+              - Measured over 10 minutes
+              - $P_{st} = 1.0$ means threshold of irritability
+              - Limit: typically $P_{st} < 1.0$
+
+              **Long-term flicker severity** ($P_{lt}$):
+              $$P_{lt} = \sqrt[3]{\frac{1}{12}\sum_{i=1}^{12} P_{st,i}^3}$$
+
+              Measured over 2 hours (12 × 10-minute intervals).
+
+              ### Voltage Change Limits
+
+              | Standard | Rapid Voltage Change | Flicker Limit |
+              |----------|---------------------|---------------|
+              | EN 50160 | ±10% max | $P_{lt} < 1.0$ |
+              | G98 | 3% per event | $P_{st} < 1.0$ |
+              | IEEE 1547 | 5% per event | Per utility |
+
+              ### Flicker from PV Systems
+
+              Cloud-induced ramp rates can be severe:
+
+              $$\frac{dP}{dt} \text{ up to } 100\%/\text{second}$$
+
+              Voltage change per power step:
+              $$\Delta V = \frac{\Delta P \cdot R}{V}$$
+
+              ### Mitigation
+
+              1. **Ramp rate limiting**: Limit $dP/dt$ to 10-20%/minute
+              2. **Energy storage**: Buffer rapid power changes
+              3. **Reactive power**: Fast Q response to oppose ΔV
+              4. **Network stiffness**: Lower impedance reduces ΔV
+
+              Modern inverters include configurable ramp rate limits and Volt-VAr response to minimize flicker contribution.
+
+              ![NREL PV Variability](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
         resources:
           - label: Wikipedia - Electric Power Quality
             url: https://en.wikipedia.org/wiki/Electric_power_quality
@@ -111,9 +903,249 @@ sections:
           - Understand dynamic export limiting
         concepts:
           - name: Export limiting
+            notes: |
+              ## Export Limiting
+
+              Export limiting restricts the maximum power that can be exported to the grid, regardless of generation capacity or load conditions.
+
+              ### Why Limit Export?
+
+              1. **Grid capacity constraints**: DNO network cannot accept more power
+              2. **Connection agreement**: G99 approval may specify export limit
+              3. **Tariff restrictions**: Some feed-in tariffs cap export
+              4. **Network charges**: Avoid capacity-based export charges
+              5. **Self-consumption optimization**: Maximize own use
+
+              ### Export Limit Calculation
+
+              At the meter point:
+
+              $$P_{export} = P_{generation} - P_{load}$$
+
+              Export limiting ensures:
+
+              $$P_{export} \leq P_{limit}$$
+
+              Therefore generation must be curtailed when:
+
+              $$P_{generation} > P_{load} + P_{limit}$$
+
+              ### Implementation Methods
+
+              **Fixed export limit**:
+              - Inverter configured with maximum export (e.g., 3.68kW for G98)
+              - Simple but may curtail unnecessarily
+
+              **Dynamic export limiting**:
+              - CT clamp measures actual export
+              - Real-time curtailment only when needed
+              - Maximizes generation within limits
+
+              ### G98/G99 Context
+
+              | Connection Type | Typical Export Limit |
+              |-----------------|---------------------|
+              | G98 (single-phase) | 3.68 kW |
+              | G98 (three-phase) | 11.04 kW |
+              | G99 | Per DNO agreement |
+
+              Some DNOs offer "flexible connections" with lower limits but faster approval.
+
+              ![NREL Grid Integration](https://docs.nrel.gov/docs/fy10osti/44849.pdf)
+
           - name: Zero export
+            notes: |
+              ## Zero Export Systems
+
+              Zero export prevents any power flow to the grid, keeping all generated power within the premises. Required in some jurisdictions or where grid export is prohibited.
+
+              ### Use Cases
+
+              - **No export permitted**: Some countries/utilities prohibit export
+              - **Complex metering**: Avoid issues with non-bidirectional meters
+              - **Off-grid backup**: Systems that can island but normally grid-tied
+              - **Demand charge reduction**: Industrial sites avoiding export complications
+
+              ### Control Strategy
+
+              The system must satisfy:
+
+              $$P_{export} = 0 \Rightarrow P_{generation} \leq P_{load}$$
+
+              Control loop:
+              1. Measure $P_{grid}$ at meter point (CT clamp)
+              2. If $P_{grid} < 0$ (exporting): reduce inverter output
+              3. Target: $P_{grid} \geq 0$ with small margin
+
+              $$P_{inverter,setpoint} = P_{load} - P_{margin}$$
+
+              Typical margin: 50-200W to prevent accidental export.
+
+              ### Response Time Requirements
+
+              | Scenario | Required Response |
+              |----------|-------------------|
+              | Load switching off | < 100ms typical |
+              | Cloud burst (irradiance spike) | < 500ms |
+              | Acceptable export duration | < 5 seconds |
+
+              ### System Architecture
+              ```
+              Grid ──[Meter]──┬── Main Loads
+                      ↑       │
+                     CT       └── [Inverter] ←── PV Array
+                      │              ↑
+                      └── Signal ────┘
+              ```
+
+              The CT signal feeds directly to the inverter (Modbus, analog, or proprietary).
+
+              ### Limitations
+
+              - **Wasted energy**: Cannot export excess generation
+              - **Battery recommended**: Store excess for later use
+              - **Rapid response needed**: Fast communication essential
+              - **Partial self-consumption**: May not use all available solar
+
+              ![Electricity meter](https://upload.wikimedia.org/wikipedia/commons/8/86/Electrical_meter.jpg)
+
           - name: CT clamp monitoring
+            notes: |
+              ## CT Clamp Monitoring
+
+              Current transformers (CTs) measure power flow at key points in the system, enabling intelligent control of generation and export.
+
+              ### CT Operating Principle
+
+              A CT is a transformer with the measured conductor as primary:
+
+              $$\frac{I_p}{I_s} = \frac{N_s}{N_p}$$
+
+              For a clamp-on CT with single primary turn ($N_p = 1$):
+
+              $$I_s = \frac{I_p}{N_s}$$
+
+              **Example**: 100A:50mA CT (2000:1 ratio)
+              - Primary current: 100A
+              - Secondary current: 50mA
+              - Turns ratio: 2000:1
+
+              ### Measurement Points
+              ```
+              Grid ──[CT1]── Main Panel ──[CT2]── Sub-panel
+                                │
+                           [CT3]└── Inverter ── PV
+              ```
+
+              | CT Location | Measures | Purpose |
+              |-------------|----------|---------|
+              | CT1 (Grid) | Import/export | Export limiting |
+              | CT2 (Sub-panel) | Critical loads | Backup sizing |
+              | CT3 (Inverter) | Generation | Monitoring |
+
+              ### Power Calculation
+
+              With voltage reference:
+
+              $$P = V \cdot I \cdot \cos(\phi)$$
+
+              For single-phase:
+              $$P = V_{rms} \cdot I_{rms} \cdot PF$$
+
+              For three-phase balanced:
+              $$P = \sqrt{3} \cdot V_L \cdot I_L \cdot PF$$
+
+              ### CT Specifications
+
+              | Parameter | Typical Values |
+              |-----------|----------------|
+              | Ratio | 100:5A, 100:50mA, 200:50mA |
+              | Accuracy class | 0.5, 1.0, 3.0 |
+              | Burden | 1-5 VA |
+              | Window size | 10-25mm diameter |
+
+              ### Communication Protocols
+
+              | Method | Latency | Common Use |
+              |--------|---------|------------|
+              | Analog (0-5V, 4-20mA) | <10ms | Direct inverter input |
+              | Modbus RTU | 50-200ms | Energy meters |
+              | Modbus TCP | 20-100ms | Network meters |
+              | Pulse output | Per-pulse | Simple metering |
+
+              ![Current transformer](https://upload.wikimedia.org/wikipedia/commons/1/14/Current_transformer.jpg)
+
           - name: Dynamic curtailment
+            notes: |
+              ## Dynamic Curtailment
+
+              Dynamic curtailment adjusts generation in real-time based on grid conditions, maximizing output while respecting network constraints.
+
+              ### Curtailment Triggers
+
+              | Trigger | Response |
+              |---------|----------|
+              | Voltage high ($V > V_{max}$) | Reduce P and/or absorb Q |
+              | Frequency high ($f > f_{max}$) | Reduce P |
+              | Export limit reached | Cap P at limit |
+              | DNO signal | Reduce per instruction |
+
+              ### Volt-Watt Response
+
+              G98/G99 mandates Volt-Watt curtailment:
+              ```
+              P(%)
+              100├────────┐
+                 │        │
+                 │        ╲
+               20│         ╲
+                 │          ╲────
+                 └──────────────── V(%)
+                    100  106  110
+              ```
+
+              $$P = \begin{cases} 
+              P_{max} & V < V_1 \\
+              P_{max} \cdot \frac{V_2 - V}{V_2 - V_1} & V_1 \leq V \leq V_2 \\
+              P_{min} & V > V_2
+              \end{cases}$$
+
+              Typical settings: $V_1 = 106\%$, $V_2 = 110\%$, $P_{min} = 20\%$
+
+              ### Frequency-Watt Response
+
+              For high frequency events:
+
+              $$\Delta P = -k_f \cdot \Delta f$$
+
+              Where $k_f$ = droop coefficient (typically 40%/Hz).
+
+              At $f > 50.5$ Hz: Begin reducing power
+              At $f > 52$ Hz: Disconnect (protection)
+
+              ### Curtailment Calculation
+
+              Energy curtailed over period T:
+
+              $$E_{curtailed} = \int_0^T (P_{available} - P_{actual}) \, dt$$
+
+              Annual curtailment percentage:
+              $$\text{Curtailment} = \frac{E_{curtailed}}{E_{potential}} \times 100\%$$
+
+              Typical values: 0-5% for well-designed systems, up to 20% in constrained networks.
+
+              ### Economic Impact
+
+              Lost revenue from curtailment:
+
+              $$\text{Loss} = E_{curtailed} \times (\text{Export tariff} + \text{Avoided import})$$
+
+              Battery storage can capture otherwise-curtailed energy:
+
+              $$\text{Recovery} = \min(E_{curtailed}, E_{battery,available}) \times \eta_{battery}$$
+
+              ![NREL Curtailment Analysis](https://docs.nrel.gov/docs/fy21osti/76097.pdf)
+
         resources:
           - label: Wikipedia - Feed-in Tariff
             url: https://en.wikipedia.org/wiki/Feed-in_tariff
@@ -135,9 +1167,241 @@ sections:
           - Understand loss-of-mains protection requirements
         concepts:
           - name: Islanding
+            notes: |
+              ## Islanding
+
+              Islanding occurs when a distributed generator continues to power a section of the network after the grid supply has been disconnected. This creates a dangerous "island" of live conductors.
+
+              ### The Hazard
+              ```
+              [Grid] ──X── [Local Network] ←── [DG]
+                     ↑              ↓
+                  Open         Still energized!
+                  breaker      
+              ```
+
+              **Dangers**:
+              - **Electrocution**: Workers assume lines are dead after isolation
+              - **Equipment damage**: Voltage/frequency may drift outside limits
+              - **Out-of-phase reconnection**: When grid returns, severe transients
+              - **Fire risk**: Uncontrolled energy source
+
+              ### Islanding Conditions
+
+              For an island to persist, generation must match load:
+
+              $$P_{generation} \approx P_{load}$$
+              $$Q_{generation} \approx Q_{load}$$
+
+              The probability of exact balance is low, but the consequences are severe enough to require active prevention.
+
+              ### Non-Detection Zone (NDZ)
+
+              The NDZ defines the power mismatch range where islanding may go undetected:
+
+              $$\Delta P = P_{gen} - P_{load}$$
+              $$\Delta Q = Q_{gen} - Q_{load}$$
+
+              If $|\Delta P| < \Delta P_{threshold}$ AND $|\Delta Q| < \Delta Q_{threshold}$, detection may fail.
+
+              ### Regulatory Requirements
+
+              | Standard | Disconnection Time |
+              |----------|-------------------|
+              | IEEE 1547 | < 2 seconds |
+              | G98/G99 | < 0.5 seconds (LoM) |
+              | VDE-AR-N 4105 | < 0.2 seconds |
+
+              All grid-tied inverters must include anti-islanding protection as a fundamental safety feature.
+
+              ![Islanding diagram](https://upload.wikimedia.org/wikipedia/commons/0/08/Islanding.svg)
+
           - name: Loss of mains (LoM)
+            notes: |
+              ## Loss of Mains (LoM) Protection
+
+              Loss of Mains detection identifies when the grid connection has been lost, triggering immediate disconnection of the distributed generator.
+
+              ### Detection Philosophy
+
+              The inverter must detect grid loss even when:
+              - Local generation exactly matches local load
+              - Voltage and frequency remain within normal bounds
+              - No obvious transient occurs
+
+              ### LoM Detection Methods
+
+              | Method | Type | Detection Time | Reliability |
+              |--------|------|----------------|-------------|
+              | Under/over voltage | Passive | Fast | Moderate |
+              | Under/over frequency | Passive | Fast | Moderate |
+              | Rate of change of frequency (RoCoF) | Passive | Very fast | Good |
+              | Vector shift | Passive | Very fast | Good |
+              | Impedance measurement | Active | Moderate | Excellent |
+              | Frequency shift | Active | Moderate | Excellent |
+
+              ### G98/G99 Requirements
+
+              UK installations must implement:
+
+              1. **Under-voltage**: Trip if $V < 0.87 \times V_{nom}$ for > 0.5s
+              2. **Over-voltage**: Trip if $V > 1.10 \times V_{nom}$ for > 1.0s
+              3. **Under-frequency**: Trip if $f < 47.5$ Hz for > 0.5s
+              4. **Over-frequency**: Trip if $f > 52$ Hz for > 0.5s
+              5. **RoCoF**: Trip if $|df/dt| > 1$ Hz/s (adjustable)
+
+              ### RoCoF Calculation
+
+              $$RoCoF = \frac{df}{dt} = \frac{f(t) - f(t-\Delta t)}{\Delta t}$$
+
+              Measured over 100-500ms window. Normal grid RoCoF: < 0.1 Hz/s. Islanding RoCoF: typically > 0.5 Hz/s.
+
+              ### Reconnection Requirements
+
+              After LoM trip, reconnection only permitted when:
+              - Voltage within ±10% for > 60 seconds
+              - Frequency within ±0.5 Hz for > 60 seconds
+              - Minimum delay: 20 seconds (G98) to 3 minutes (some utilities)
+
+              ![NREL Anti-Islanding](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
           - name: Passive detection
+            notes: |
+              ## Passive Anti-Islanding Detection
+
+              Passive methods monitor grid parameters without injecting any disturbance. They rely on natural changes when the grid disconnects.
+
+              ### Under/Over Voltage Protection (U/OVP)
+
+              Monitors RMS voltage against thresholds:
+
+              $$V_{min} < V_{measured} < V_{max}$$
+
+              | Stage | Threshold (G98/G99) | Trip Time |
+              |-------|---------------------|-----------|
+              | UV2 | < 0.80 × Vnom | < 0.5s |
+              | UV1 | < 0.87 × Vnom | < 2.5s |
+              | OV1 | > 1.10 × Vnom | < 1.0s |
+              | OV2 | > 1.14 × Vnom | < 0.5s |
+
+              ### Under/Over Frequency Protection (U/OFP)
+
+              Monitors grid frequency:
+
+              $$f_{min} < f_{measured} < f_{max}$$
+
+              | Stage | Threshold | Trip Time |
+              |-------|-----------|-----------|
+              | UF2 | < 47.0 Hz | < 0.5s |
+              | UF1 | < 47.5 Hz | < 20s |
+              | OF1 | > 52.0 Hz | < 0.5s |
+
+              ### Rate of Change of Frequency (RoCoF)
+
+              Detects rapid frequency excursions:
+
+              $$\left|\frac{df}{dt}\right| > RoCoF_{setting}$$
+
+              Typical setting: 0.5 - 1.0 Hz/s over 500ms window.
+
+              **Advantages**: Fast detection, simple implementation
+              **Disadvantages**: May trip on genuine grid events
+
+              ### Vector Shift (Phase Jump)
+
+              Detects sudden phase angle changes:
+
+              $$\Delta\theta = \theta(t) - \theta(t - T)$$
+
+              Where $T$ = one cycle (20ms at 50Hz).
+
+              Trip if $|\Delta\theta| > 6°$ to $12°$ (adjustable).
+
+              ### Limitations of Passive Methods
+
+              All passive methods have a **Non-Detection Zone** where islanding can persist:
+              - Balanced load/generation
+              - High-Q resonant loads
+              - Multiple inverters on same island
+
+              This is why active methods are also required.
+
+              ![Frequency response](https://upload.wikimedia.org/wikipedia/commons/8/89/50Hz_frequency_time_domain.svg)
+
           - name: Active detection
+            notes: |
+              ## Active Anti-Islanding Detection
+
+              Active methods deliberately inject small disturbances and measure the grid's response. A stiff grid resists change; an island drifts.
+
+              ### Principle
+              ```
+              Inject disturbance → Measure response → Grid present?
+                                                        ↓
+                    Minimal change ←─── Yes (stiff grid)
+                    Large drift ←───── No (island)
+              ```
+
+              ### Impedance Measurement
+
+              Inject a small current at non-fundamental frequency and measure resulting voltage:
+
+              $$Z_{grid} = \frac{V_{response}}{I_{inject}}$$
+
+              | Condition | Impedance |
+              |-----------|-----------|
+              | Grid connected | Low (< 1Ω typical) |
+              | Islanded | High (load impedance) |
+
+              Detection threshold: Typically 2-5× normal impedance.
+
+              ### Active Frequency Drift (AFD)
+
+              Also called Sandia Frequency Shift (SFS):
+
+              The inverter deliberately pushes frequency slightly:
+
+              $$f_{target} = f_{measured} + k \cdot (f_{measured} - f_{nom})$$
+
+              Where $k$ = positive feedback gain (typically 0.01-0.05).
+
+              - **Grid connected**: Grid holds frequency stable
+              - **Islanded**: Frequency drifts until U/OFP trips
+
+              ### Slip Mode Frequency Shift (SMS)
+
+              Phase is advanced when frequency exceeds nominal:
+
+              $$\theta_{inv} = \theta_{PLL} + k_{SMS} \cdot (f - f_{nom})$$
+
+              This accelerates frequency deviation during islanding.
+
+              ### Reactive Power Variation
+
+              Periodically vary Q output:
+
+              $$Q(t) = Q_0 + \Delta Q \cdot \sin(2\pi f_{probe} t)$$
+
+              Monitor voltage response at $f_{probe}$.
+
+              | Condition | Voltage Response |
+              |-----------|-----------------|
+              | Grid connected | Negligible |
+              | Islanded | Proportional to Q |
+
+              ### Comparison
+
+              | Method | NDZ | Power Quality Impact | Complexity |
+              |--------|-----|---------------------|------------|
+              | AFD/SFS | Very small | Low THD increase | Medium |
+              | SMS | Very small | Low | Medium |
+              | Impedance | None | Slight distortion | High |
+              | Q variation | Small | Minor flicker | Medium |
+
+              Modern inverters combine multiple methods for robust detection across all scenarios.
+
+              ![NREL Islanding Detection](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
         resources:
           - label: Wikipedia - Islanding
             url: https://en.wikipedia.org/wiki/Islanding
@@ -156,9 +1420,249 @@ sections:
           - Identify key compliance requirements
         concepts:
           - name: G98 (formerly G83)
+            notes: |
+              ## G98: Small-Scale Generation
+
+              G98 (formerly G83) is the UK standard for connecting small-scale embedded generators to the low voltage distribution network. It provides a simplified "fit and notify" process for domestic installations.
+
+              ### Scope
+
+              | Parameter | G98 Limit |
+              |-----------|-----------|
+              | Single-phase | ≤ 3.68 kW per phase |
+              | Three-phase | ≤ 11.04 kW total |
+              | Voltage | LV (≤ 400V) |
+              | Connection | Single premises |
+
+              The 3.68 kW limit derives from 16A × 230V = 3,680W.
+
+              ### Key Requirements
+
+              **Equipment**:
+              - Type-tested inverter to G98
+              - Protection settings factory-configured
+              - Installer cannot modify protection
+
+              **Protection Settings** (fixed):
+
+              | Function | Setting | Time |
+              |----------|---------|------|
+              | Over-voltage stage 1 | 264V (+14.8%) | 1.0s |
+              | Over-voltage stage 2 | 253V (+10%) | Instantaneous |
+              | Under-voltage stage 1 | 207V (-10%) | 2.5s |
+              | Under-voltage stage 2 | 195.5V (-15%) | 0.5s |
+              | Over-frequency | 52 Hz | 0.5s |
+              | Under-frequency | 47.5 Hz | 20s |
+              | Loss of mains | Per type test | 0.5s |
+
+              ### Notification Process
+
+              1. **Install**: Complete installation per BS 7671
+              2. **Notify**: Submit notification to DNO within 28 days
+              3. **Commission**: Inverter self-tests on first power-up
+              4. **Confirm**: DNO may inspect (rarely for G98)
+
+              Notification is via DNO portals or the national [MCS portal](https://www.microgenerationcertification.org/).
+
+              ### No Approval Required
+
+              Unlike G99, G98 installations **do not require prior DNO approval**. The installer simply notifies after completion.
+
+              ![Smart meter](https://upload.wikimedia.org/wikipedia/commons/8/87/Intelligenter_zaehler-_Smart_meter.jpg)
+
           - name: G99 (formerly G59)
+            notes: |
+              ## G99: Larger-Scale Generation
+
+              G99 (formerly G59) covers larger embedded generation systems requiring DNO assessment and approval before connection.
+
+              ### Scope
+
+              | Type | Capacity | Process |
+              |------|----------|---------|
+              | Type A | > 3.68 kW to 50 kW | Notification + approval |
+              | Type B | 50 kW to 1 MW | Full application |
+              | Type C | 1 MW to 10 MW | Detailed study |
+              | Type D | > 10 MW | Bespoke connection |
+
+              ### Application Process
+              ```
+              Application → DNO Assessment → Offer → Acceptance → Install → Commission
+                  ↓              ↓              ↓         ↓           ↓          ↓
+               4 weeks      4-12 weeks     28 days   Sign + pay   Build    Witness test
+              ```
+
+              **Assessment includes**:
+              - Fault level contribution
+              - Voltage rise calculation
+              - Thermal capacity check
+              - Protection coordination
+
+              ### Technical Requirements
+
+              **Protection** (Type A example):
+
+              | Function | Default | Range |
+              |----------|---------|-------|
+              | OV1 | 262.2V | 253-270V |
+              | UV1 | 216.2V | 195.5-216.2V |
+              | OF1 | 52 Hz | 50.5-52 Hz |
+              | UF1 | 47.5 Hz | 47-47.5 Hz |
+              | RoCoF | 1.0 Hz/s | 0.125-1.0 Hz/s |
+
+              Settings may be adjusted by DNO based on local network.
+
+              ### Additional Features (vs G98)
+
+              - **Remote disconnection**: DNO can disable generation
+              - **Power quality monitoring**: Continuous logging
+              - **Witness testing**: DNO attends commissioning
+              - **Interface protection**: Separate relay may be required
+
+              ### Export Limits
+
+              G99 applications often receive:
+              - **Firm connection**: Full export capacity guaranteed
+              - **Flexible connection**: Export limited during constraints
+              - **Timed connection**: Export only at certain times
+
+              ![NREL Interconnection](https://docs.nrel.gov/docs/fy10osti/44849.pdf)
+
           - name: DNO notification
+            notes: |
+              ## DNO Notification Process
+
+              Distribution Network Operators (DNOs) manage the electricity network and must be informed of all generation connections.
+
+              ### UK DNOs
+
+              | Region | DNO |
+              |--------|-----|
+              | South/South East | UK Power Networks (UKPN) |
+              | North West | Electricity North West (ENWL) |
+              | Midlands | Western Power Distribution (WPD) |
+              | North East/Yorkshire | Northern Powergrid |
+              | Scotland South | SP Energy Networks |
+              | Scotland North | SSE Networks |
+
+              ### G98 Notification (Simple)
+
+              **Information required**:
+              - Site address and MPAN
+              - Installer details (MCS certified)
+              - Equipment make/model
+              - Installed capacity (kW)
+              - Single/three-phase
+              - Commissioning date
+
+              **Timeline**:
+              - Notify within 28 days of commissioning
+              - No response required (deemed acceptance)
+
+              ### G99 Application (Detailed)
+
+              **Stage 1 - Budget Estimate** (optional):
+              - Basic site info
+              - Approximate capacity
+              - Response: ~2 weeks
+
+              **Stage 2 - Full Application**:
+              - Detailed design
+              - Protection settings
+              - Single-line diagram
+              - Site plans
+              - Response: 45-65 working days
+
+              ### Application Fees
+
+              | Capacity | Typical Fee |
+              |----------|-------------|
+              | G98 | Free |
+              | G99 Type A (< 50 kW) | £0 - £300 |
+              | G99 Type B (< 1 MW) | £500 - £2,000 |
+              | G99 Type C/D | £2,000+ |
+
+              Additional costs for network reinforcement may apply.
+
+              ### Common Issues
+
+              - **Voltage rise**: Export may be limited
+              - **Fault level**: May require current-limiting inverter
+              - **Protection coordination**: Settings adjustment needed
+              - **Reverse power flow**: Transformer issues
+
+              ![Distribution network](https://upload.wikimedia.org/wikipedia/commons/a/a7/Edf_branch_electricity_distribution.jpg)
+
           - name: Type testing
+            notes: |
+              ## Type Testing & Certification
+
+              Grid-connected equipment must be independently tested and certified before sale in the UK and EU.
+
+              ### Type Test Purpose
+
+              Demonstrates that a product design meets:
+              - Safety requirements
+              - Performance standards
+              - Grid code compliance
+              - EMC regulations
+
+              Individual units are not tested; the **type** (design) is certified.
+
+              ### G98/G99 Type Testing
+
+              Inverters must pass tests including:
+
+              | Test | Requirement |
+              |------|-------------|
+              | Anti-islanding | Detect island < 0.5s |
+              | Over/under voltage | Trip within specified times |
+              | Over/under frequency | Trip within specified times |
+              | RoCoF | Detect and respond correctly |
+              | Reconnection | Correct delay and ramping |
+              | Power quality | THD < 5%, PF adjustable |
+              | EMC | EN 61000-6-1/2/3/4 |
+
+              ### Test Laboratories
+
+              UK-recognised test houses:
+              - **DNV GL** (KEMA)
+              - **TÜV Rheinland/SÜD**
+              - **CSA Group**
+              - **Intertek**
+              - **SGS**
+
+              Testing typically costs £10,000 - £50,000 per product variant.
+
+              ### Certification Marks
+
+              | Mark | Meaning |
+              |------|---------|
+              | CE/UKCA | EU/UK safety compliance |
+              | G98 | UK small-scale connection |
+              | G99 | UK larger-scale connection |
+              | VDE-AR-N 4105 | German grid code |
+              | UL 1741 | US grid code |
+
+              ### Product Documentation
+
+              Compliant inverters include:
+              - Type test certificate (reference number)
+              - G98/G99 compliance declaration
+              - Protection settings table
+              - Installation manual with grid code section
+
+              **Installer responsibility**: Verify equipment has valid type test certificate before installation.
+
+              ### G100 (Power Limiting)
+
+              New standard for power limiting devices:
+              - Tested separately from inverter
+              - Ensures export limits are enforced
+              - Required for flexible connections
+
+              ![CE marking](https://upload.wikimedia.org/wikipedia/commons/e/e4/CE_marking_logo.svg)
+
         resources:
           - label: RENEW-ABLE SOLUTIONS - What is G98, G99 & G100? All explained here
             url: https://www.renew-able.co.uk/what-is-g98-g99-g100-all-explained-here/
@@ -175,12 +1679,967 @@ sections:
           - Identify UK earthing arrangements
           - Explain RCD and RCBO protection
           - Understand DC isolation requirements for PV
+        optional: true
         concepts:
           - name: Earthing arrangements
+            notes: |
+              ## Earthing Arrangements
+
+              The earthing system determines how fault currents return to source and how shock protection operates. UK domestic installations use three main arrangements.
+
+              ### TN-C-S (PME - Protective Multiple Earthing)
+
+              Most common in UK. The neutral and earth are combined in the supply cable, then separated at the premises.
+              ```
+              Substation          Service          Consumer Unit
+                  │                  │                  │
+              N ──┼──────────────────┼──────────────────┼── N
+                  │    PEN conductor │                  │
+              E ──┴──────────────────┼──────────────────┼── E
+                                     ↓                  │
+                               Separated here     Main earth
+              ```
+
+              **Characteristics**:
+              - Low impedance earth path
+              - Earth potential can rise during faults
+              - Restrictions on earthing in some zones
+
+              **PV considerations**:
+              - Additional earth electrode may be required
+              - PME earthing restrictions for outdoor equipment
+
+              ### TN-S (Separate Earth)
+
+              Separate earth conductor from substation. Less common but considered superior.
+              ```
+              Substation          Service          Consumer Unit
+                  │                  │                  │
+              N ──┼──────────────────┼──────────────────┼── N
+                  │                  │                  │
+              E ──┼──────────────────┼──────────────────┼── E
+                  │                  │                  │
+                 ═╧═               Cable             Main earth
+                Earth             sheath
+              s```
+
+              **Characteristics**:
+              - True earth reference
+              - No neutral/earth rise issues
+              - Often found in older installations
+
+              ### TT (Terra-Terra)
+
+              Earth electrode at premises; no earth from supply. Common in rural areas.
+              ```
+              Substation          Service          Consumer Unit
+                  │                  │                  │
+              N ──┼──────────────────┼──────────────────┼── N
+                  │                  │                  │
+                 ═╧═                None              ═╧═ ← Local electrode
+                Earth                               Premises earth
+              ```
+
+              **Characteristics**:
+              - Higher earth impedance (< 200Ω required)
+              - RCD protection mandatory
+              - Suitable for PV installations
+
+              ### Comparison Table
+
+              | Arrangement | Zs Typical | RCD Required? | PV Suitability |
+              |-------------|------------|---------------|----------------|
+              | TN-C-S (PME) | 0.35Ω | Recommended | Restrictions apply |
+              | TN-S | 0.8Ω | Recommended | Good |
+              | TT | 20-200Ω | Mandatory | Excellent |
+
+              ![Earthing systems](https://upload.wikimedia.org/wikipedia/commons/8/80/Earthing_Systems_%28TN-S%2C_TN-C%2C_TN-C-S%2C_TT%2C_IT%29.svg)
+
           - name: RCD protection
+            notes: |
+              ## RCD Protection
+
+              Residual Current Devices detect earth leakage and disconnect before dangerous shock or fire can occur. Essential for PV installations.
+
+              ### Operating Principle
+
+              An RCD sums the currents in live and neutral:
+
+              $$I_{residual} = I_L - I_N$$
+
+              Under normal conditions: $I_{residual} = 0$
+
+              If current leaks to earth: $I_{residual} = I_{fault}$
+
+              The RCD trips when $I_{residual} > I_{\Delta n}$ (rated sensitivity).
+
+              ### RCD Types
+
+              | Type | Detects | Application |
+              |------|---------|-------------|
+              | AC | Sinusoidal AC only | Basic circuits |
+              | A | AC + pulsating DC | Most equipment |
+              | F | AC + high frequency | VFDs, inverters |
+              | B | AC + smooth DC | PV, EV chargers |
+
+              **PV systems require Type B or Type A + upstream detection** due to potential DC fault currents from inverter.
+
+              ### Sensitivity Ratings
+
+              | Rating | Trip Current | Purpose |
+              |--------|--------------|---------|
+              | 30mA | 15-30mA | Personal protection |
+              | 100mA | 50-100mA | Fire protection |
+              | 300mA | 150-300mA | Main switch backup |
+
+              For shock protection, trip time at 5× $I_{\Delta n}$:
+              - 30mA RCD: < 40ms at 150mA
+              - Limits energy: $I^2t < 40 \text{ A}^2\text{s}$
+
+              ### RCBO (RCD + MCB)
+
+              Combined device provides:
+              - Residual current protection (earth leakage)
+              - Overcurrent protection (overload, short circuit)
+
+              $$\text{RCBO rating: } I_n / I_{\Delta n} \text{ e.g., 32A/30mA Type A}$$
+
+              ### PV-Specific Requirements
+
+              BS 7671 requires:
+              - RCD on AC circuits supplied by inverter
+              - Type B if inverter doesn't have DC fault detection
+              - Type A acceptable if inverter has internal DC detection
+
+              **Nuisance tripping**: High-frequency leakage from long DC cables can cause unwanted trips. Solutions:
+              - Type B RCD (less sensitive to HF)
+              - Ensure DC cable capacitance is low
+              - Quality inverter with internal filtering
+
+              ![RCD schematic](https://upload.wikimedia.org/wikipedia/commons/d/d3/RCD_principle_of_operation.svg)
+
           - name: DC isolation
+            notes: |
+              ## DC Isolation for PV Systems
+
+              Solar PV systems present unique DC hazards. Proper isolation ensures safe maintenance and emergency disconnection.
+
+              ### The DC Hazard
+
+              PV panels produce DC voltage whenever illuminated:
+
+              $$V_{OC,string} = V_{OC,module} \times n_{series}$$
+
+              **Example**: 10 panels × 45V = 450V DC (lethal!)
+
+              Unlike AC, DC arcs don't self-extinguish at zero-crossing. DC arc temperatures exceed 3,000°C.
+
+              ### Isolation Requirements
+
+              BS 7671 and EN 62446 require:
+
+              | Location | Isolation Device |
+              |----------|-----------------|
+              | Array (roof) | DC isolator at array |
+              | String entry | Fused disconnect (if multiple strings) |
+              | Inverter input | DC isolator (often integral) |
+              | Inverter output | AC isolator |
+
+              ### DC Isolator Ratings
+
+              Must be rated for PV service:
+
+              | Parameter | Typical Requirement |
+              |-----------|---------------------|
+              | Voltage | 1.2 × $V_{OC,max}$ at -10°C |
+              | Current | 1.25 × $I_{SC}$ |
+              | Utilisation category | DC-PV1 or DC-PV2 |
+              | IP rating | IP65+ for outdoor |
+
+              **Warning**: Standard AC isolators will fail catastrophically on DC!
+
+              ### Firefighter Safety Switch
+
+              Rapid shutdown requirement (increasing adoption):
+              - Reduces array voltage to < 30V within seconds
+              - Triggered by AC disconnect
+              - Module-level or string-level shutdown
+
+              $$V_{safe} < 30V \text{ DC within } 30 \text{ seconds}$$
+
+              ### Isolation Sequence
+
+              **Safe shutdown procedure**:
+              1. Switch off AC isolator (stops current flow)
+              2. Wait 5 minutes (capacitor discharge)
+              3. Switch off DC isolator
+              4. Verify with multimeter before touching
+
+              **Never disconnect DC under load!** Open-circuit voltage always present when illuminated.
+
+              ### Testing
+
+              | Test | Method | Requirement |
+              |------|--------|-------------|
+              | Insulation | 500V DC megger | > 1MΩ per string |
+              | Polarity | Multimeter | Correct at all points |
+              | $V_{OC}$ | Multimeter | Within ±5% of expected |
+              | $I_{SC}$ | Clamp meter | Within ±10% of expected |
+
+              ![PV isolator](https://upload.wikimedia.org/wikipedia/commons/5/56/DC_isolator.jpg)
+
           - name: Arc fault detection
-        optional: true
+            notes: |
+              ## Arc Fault Detection
+
+              DC arc faults in PV systems cause fires. Arc Fault Circuit Interrupters (AFCIs) detect and interrupt arcs before damage occurs.
+
+              ### Arc Fault Causes
+
+              - **Loose connections**: Corroded or poorly torqued terminals
+              - **Damaged cables**: Rodent damage, UV degradation, mechanical
+              - **Connector faults**: Mismatched or damaged MC4 connectors
+              - **Water ingress**: Tracking across wet insulation
+
+              ### Series vs Parallel Arcs
+
+              **Series arc** (in current path):
+              ```
+              PV → ─╱╲─ → Load
+                   arc
+              ```
+              - Current limited by load/PV characteristics
+              - Harder to detect (current may be normal)
+              - Most common type
+
+              **Parallel arc** (line to line/ground):
+              ```
+              PV+ ─────┐
+                       ⚡ arc
+              PV- ─────┘
+              ```
+              - High current, easier to detect
+              - Requires low impedance path
+              - Often causes immediate failure
+
+              ### Arc Signatures
+
+              DC arcs have characteristic signatures:
+
+              | Parameter | Normal | Arc Fault |
+              |-----------|--------|-----------|
+              | Noise spectrum | Low HF | Broadband noise 1-500kHz |
+              | Current pattern | Smooth | Chaotic fluctuation |
+              | Voltage | Stable | Unstable dips |
+
+              AFCI detection algorithm:
+
+              $$P_{arc} = \int_{f_1}^{f_2} |FFT(I(t))|^2 \, df$$
+
+              Trip if $P_{arc}$ exceeds threshold for sustained period.
+
+              ### AFCI Implementation
+
+              | Level | Device Location | Coverage |
+              |-------|-----------------|----------|
+              | String | At inverter input | Entire string |
+              | Module | At each module | Individual module |
+              | Inverter | Integrated | Entire array |
+
+              US NEC 690.11 requires AFCI for all new PV installations. UK currently recommends but doesn't mandate.
+
+              ### Limitations
+
+              - **False positives**: Inverter switching, poor connections
+              - **Nuisance trips**: During commissioning, testing
+              - **Cost**: Adds £50-200 per string
+              - **Compatibility**: Must work with specific inverter
+
+              ### Best Practice
+
+              Prevent arcs through good installation:
+              - Torque all connections to specification
+              - Use matched MC4 connectors only
+              - Protect cables from mechanical damage
+              - Regular thermographic inspection
+
+              ![NREL Arc Fault Research](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
         resources:
           - label: IET - Earthing Arrangements
             url: https://electrical.theiet.org/
+
+  - id: system-design
+    title: System Design
+    items:
+      - id: system-sizing
+        title: System Sizing
+        description: >-
+          Designing a domestic generation system to meet energy needs.
+          Covers load analysis, generation estimation, and storage sizing.
+          Balance between self-consumption, export, and cost.
+        prerequisites:
+          - distributed-generation/domestic-generation-overview/Domestic Generation Overview
+          - distributed-generation/lv-systems/Low Voltage Systems
+        outcomes:
+          - Perform basic load analysis
+          - Size a PV system for a domestic property
+          - Determine appropriate battery storage capacity
+        concepts:
+          - name: Sizing methodology
+            notes: |
+              ## System Sizing Methodology
+
+              Proper sizing balances generation, consumption, storage, and economics. Oversizing wastes money; undersizing misses potential.
+
+              ### Design Objectives
+
+              Different goals lead to different designs:
+
+              | Objective | Sizing Approach |
+              |-----------|-----------------|
+              | Maximum self-consumption | Match generation to daytime load |
+              | Maximum export income | Largest affordable array |
+              | Energy independence | Size for worst month + storage |
+              | Bill reduction | Target 80-100% of annual consumption |
+              | Carbon reduction | Maximize renewable generation |
+
+              ### Sizing Process
+              ```
+              1. Load Analysis → Annual kWh, daily profile, seasonal variation
+                     ↓
+              2. Site Assessment → Roof area, orientation, shading
+                     ↓
+              3. Generation Estimate → Expected yield (kWh/kWp/year)
+                     ↓
+              4. System Size → Match objectives and constraints
+                     ↓
+              5. Storage Sizing → If battery included
+                     ↓
+              6. Economic Analysis → Payback, ROI, NPV
+              ```
+
+              ### Key Ratios
+
+              **Self-consumption ratio (SCR)**:
+              $$SCR = \frac{E_{consumed,direct}}{E_{generated}} \times 100\%$$
+
+              Typical without battery: 25-40%
+              With battery: 50-80%
+
+              **Self-sufficiency ratio (SSR)**:
+              $$SSR = \frac{E_{from,PV}}{E_{total,consumed}} \times 100\%$$
+
+              Also called "autarky" - how much of your consumption comes from your system.
+
+              **Specific yield**:
+              $$Y_{specific} = \frac{E_{annual}}{P_{rated}} \text{ kWh/kWp/year}$$
+
+              UK range: 800-1,000 kWh/kWp/year depending on location and orientation.
+
+              ### Rule of Thumb Sizing
+
+              | Annual Consumption | Suggested PV Size | Expected Yield |
+              |-------------------|-------------------|----------------|
+              | 2,500 kWh | 2.5-3 kWp | 2,200-2,700 kWh |
+              | 4,000 kWh | 4-5 kWp | 3,500-4,500 kWh |
+              | 6,000 kWh | 5-6 kWp | 4,400-5,400 kWh |
+
+              Oversizing by 20-30% is common to account for:
+              - System losses
+              - Future consumption growth (EV, heat pump)
+              - Degradation over lifetime
+
+              ![NREL System Design](https://docs.nrel.gov/docs/fy10osti/44849.pdf)
+
+          - name: Load analysis
+            notes: |
+              ## Load Analysis
+
+              Understanding consumption patterns is essential for optimal system design. Analysis reveals how much energy is used, when, and by what.
+
+              ### Data Sources
+
+              | Source | Resolution | Availability |
+              |--------|------------|--------------|
+              | Annual bills | Monthly | Universal |
+              | Smart meter | 30-minute | Most UK homes |
+              | Energy monitor | Real-time | If installed |
+              | Sub-metering | Per circuit | Detailed installs |
+
+              ### Key Metrics
+
+              **Annual consumption**:
+              $$E_{annual} = \sum_{i=1}^{12} E_{month,i} \text{ kWh}$$
+
+              UK domestic average: ~2,900 kWh (without electric heating)
+
+              **Daily average**:
+              $$E_{daily,avg} = \frac{E_{annual}}{365} \text{ kWh/day}$$
+
+              **Peak demand**:
+              $$P_{peak} = \max(P(t)) \text{ kW}$$
+
+              Typical domestic: 5-10 kW during cooking/kettle.
+
+              ### Load Profile Analysis
+
+              Half-hourly smart meter data reveals patterns:
+              ```
+              Power (kW)
+              3│        ┌─┐
+               │        │ │     ┌───┐
+              2│    ┌─┐ │ │     │   │
+               │    │ │ │ │  ┌──┤   │
+              1│────┤ ├─┤ ├──┤  │   │
+               │    │ │ │ │  │  │   │
+              0└────┴─┴─┴─┴──┴──┴───┴────
+                0  6  12  18  24 hour
+                    Morning  Evening
+                    peak     peak
+              ```
+
+              **Baseload**: Always-on consumption (fridge, standby, router)
+              - Typical: 100-300W continuous
+              - Annual: $P_{base} \times 8760 = 900-2,600$ kWh
+
+              ### Seasonal Variation
+
+              | Season | Factor vs Average | Notes |
+              |--------|-------------------|-------|
+              | Winter | 1.2-1.5× | Heating, lighting |
+              | Summer | 0.7-0.9× | Less heating, more daylight |
+              | Spring/Autumn | 1.0× | Baseline |
+
+              ### Load Categories
+
+              | Category | Typical % | Flexibility |
+              |----------|-----------|-------------|
+              | Baseload | 25-35% | None |
+              | Heating/cooling | 20-40% | Some (thermal mass) |
+              | Hot water | 10-20% | High (tank storage) |
+              | Cooking | 5-10% | Low |
+              | Appliances | 15-25% | Medium |
+              | EV charging | 0-30% | Very high |
+
+              **Load shifting potential**: Moving flexible loads to solar generation hours increases self-consumption significantly.
+
+              ![Smart meter](https://upload.wikimedia.org/wikipedia/commons/1/16/Intelligenter_zaehler-_Smart_meter.jpg)
+
+          - name: Generation estimation
+            notes: |
+              ## Generation Estimation
+
+              Predicting annual yield requires understanding irradiance data, system losses, and site-specific factors.
+
+              ### Solar Resource
+
+              UK annual irradiation varies by location:
+
+              | Region | Irradiation (kWh/m²/year) |
+              |--------|---------------------------|
+              | South Coast | 1,100-1,200 |
+              | Midlands | 1,000-1,100 |
+              | Scotland | 900-1,000 |
+              | Northern Ireland | 950-1,050 |
+
+              ### Orientation & Tilt Effects
+
+              Optimal UK orientation: South-facing, 30-40° tilt.
+
+              | Orientation | Tilt | Yield vs Optimal |
+              |-------------|------|------------------|
+              | South | 35° | 100% |
+              | South | 0° (flat) | 89% |
+              | South | 90° (vertical) | 70% |
+              | SE/SW | 35° | 96% |
+              | East/West | 35° | 85% |
+              | North | 35° | 55% |
+
+              **Dual-pitch (East-West)**: Common on modern roofs. Total yield ~85% but flatter generation curve improves self-consumption.
+
+              ### Generation Formula
+
+              $$E_{annual} = P_{rated} \times H_{POA} \times PR$$
+
+              Where:
+              - $P_{rated}$ = Array rated power (kWp)
+              - $H_{POA}$ = Plane-of-array irradiation (kWh/m²/year)
+              - $PR$ = Performance Ratio (typically 0.75-0.85)
+
+              ### Performance Ratio Components
+
+              $$PR = \eta_{temp} \times \eta_{soiling} \times \eta_{mismatch} \times \eta_{wiring} \times \eta_{inverter}$$
+
+              | Loss Factor | Typical Value | Notes |
+              |-------------|---------------|-------|
+              | Temperature | 0.90-0.95 | Higher in summer |
+              | Soiling | 0.97-0.99 | UK rain helps |
+              | Mismatch | 0.97-0.99 | String configuration |
+              | Wiring DC | 0.98-0.99 | Cable sizing |
+              | Inverter | 0.96-0.98 | Quality dependent |
+              | Wiring AC | 0.99 | Short runs |
+
+              Combined PR: typically 0.75-0.85 for well-designed systems.
+
+              ### Monthly Distribution
+
+              UK generation varies dramatically by month:
+
+              | Month | % of Annual Yield |
+              |-------|-------------------|
+              | December | 2-3% |
+              | January | 2-3% |
+              | June | 12-14% |
+              | July | 12-14% |
+
+              Winter months produce ~10× less than summer months.
+
+              ### Shading Analysis
+
+              Even small shadows cause disproportionate losses:
+
+              $$P_{loss,shading} > \text{Area}_{shaded}$$
+
+              One shaded cell can limit entire string current. Tools for analysis:
+              - Sun path diagrams
+              - 3D modelling (PVsyst, SketchUp)
+              - On-site horizon measurement
+
+              ![Solar irradiance map](https://upload.wikimedia.org/wikipedia/commons/c/c6/Europe_sunshine_hours_map.png)
+
+              ![NREL PV Performance](https://docs.nrel.gov/docs/legosti/old/1448.pdf)
+
+          - name: Storage sizing
+            notes: |
+              ## Battery Storage Sizing
+
+              Batteries store excess generation for later use, increasing self-consumption and providing backup capability.
+
+              ### Sizing Objectives
+
+              | Goal | Sizing Approach |
+              |------|-----------------|
+              | Maximise self-consumption | 1-day excess generation |
+              | Time-of-use arbitrage | Peak shaving capacity |
+              | Backup power | Critical load × duration |
+              | Grid independence | Multi-day autonomy |
+
+              ### Self-Consumption Sizing
+
+              Estimate daily excess generation:
+
+              $$E_{excess,daily} = E_{generated,daily} - E_{consumed,daytime}$$
+
+              **Practical rule**: Battery capacity = 50-100% of daily excess.
+
+              **Example**:
+              - 4 kWp system: ~11 kWh/day (summer average)
+              - Daytime consumption: 4 kWh
+              - Excess: 7 kWh
+              - Suggested battery: 5-7 kWh usable
+
+              ### Usable Capacity
+
+              Manufacturers quote total capacity; usable is less:
+
+              $$C_{usable} = C_{total} \times DoD_{max}$$
+
+              | Chemistry | Typical DoD | 10 kWh Total → Usable |
+              |-----------|-------------|----------------------|
+              | Li-ion NMC | 90-95% | 9.0-9.5 kWh |
+              | LFP (LiFePO4) | 95-100% | 9.5-10 kWh |
+              | Lead-acid | 50% | 5 kWh |
+
+              ### Cycle Life Consideration
+
+              Deeper cycles = fewer total cycles:
+
+              | DoD per Cycle | Typical Cycle Life |
+              |---------------|-------------------|
+              | 80% | 3,000-5,000 |
+              | 50% | 5,000-8,000 |
+              | 30% | 8,000-12,000 |
+
+              **Annual cycles**: ~250-350 (once daily average).
+
+              **Expected lifetime**: 10-15 years for quality lithium systems.
+
+              ### Power Rating
+
+              Battery power rating limits charge/discharge rate:
+
+              $$P_{battery} \text{ typically } 0.5C \text{ to } 1C$$
+
+              For 10 kWh battery at 0.5C: 5 kW max power.
+
+              Must cover:
+              - Peak export (to capture all excess)
+              - Peak consumption (to avoid grid import)
+              - Backup loads (if required)
+
+              ### Economic Sizing
+
+              Diminishing returns with larger batteries:
+
+              | Battery Size | Self-Consumption | Marginal Benefit |
+              |--------------|------------------|------------------|
+              | 0 kWh | 30% | - |
+              | 5 kWh | 55% | +25% |
+              | 10 kWh | 70% | +15% |
+              | 15 kWh | 78% | +8% |
+              | 20 kWh | 82% | +4% |
+
+              **Sweet spot**: Usually 1-1.5 × daily excess.
+
+              ### Backup Considerations
+
+              For backup power sizing:
+
+              $$C_{backup} = P_{critical} \times t_{autonomy} \times \frac{1}{\eta_{inverter}}$$
+
+              **Example**: 1 kW critical loads × 4 hours × 1.05 = 4.2 kWh minimum.
+
+              ![NREL Battery Sizing](https://docs.nrel.gov/docs/fy21osti/79393.pdf)
+
+        resources:
+          - label: Energy Saving Trust - Solar PV
+            url: https://energysavingtrust.org.uk/advice/solar-panels/
+
+      - id: metering-monitoring
+        title: Metering & Monitoring
+        description: >-
+          Measuring and monitoring system performance. Smart meters, generation
+          meters, and monitoring platforms. Understanding performance metrics
+          and identifying issues.
+        prerequisites:
+          - distributed-generation/system-sizing/System Sizing
+        outcomes:
+          - Understand metering arrangements for grid-tied systems
+          - Select appropriate monitoring solutions
+          - Calculate and interpret performance metrics
+        concepts:
+          - name: Smart meters
+            notes: |
+              ## Smart Meters
+
+              Smart meters enable accurate billing, export payments, and detailed consumption data essential for optimizing solar + storage systems.
+
+              ### UK Smart Meter Rollout
+
+              Two generations deployed:
+
+              | Generation | Communication | Status |
+              |------------|---------------|--------|
+              | SMETS1 | Proprietary | Legacy (some issues) |
+              | SMETS2 | Standardised DCC | Current standard |
+
+              SMETS2 meters communicate via the Data Communications Company (DCC) network and work with any supplier.
+
+              ### Meter Configuration for Solar
+
+              **Import/Export metering**:
+              ```
+              Grid ←──[Smart Meter]──→ Consumer Unit ←── Inverter ←── PV
+                        ↓                    ↓
+                   Measures:            Generation
+                   - Import (+)          meter
+                   - Export (-)         (separate)
+              ```
+
+              The smart meter records:
+              - **Import**: Energy drawn from grid (you pay)
+              - **Export**: Energy sent to grid (you're paid)
+
+              ### Meter Modes
+
+              | Mode | Export Measurement | Payment Basis |
+              |------|-------------------|---------------|
+              | Net metering | Bidirectional actual | Net consumption |
+              | Gross metering | Separate meters | Total generation |
+              | Deemed export | Estimated (50%) | Fixed percentage |
+              | Actual export | Smart meter reads | Metered export |
+
+              **SEG (Smart Export Guarantee)** requires actual export metering via smart meter or separate export meter.
+
+              ### Half-Hourly Data
+
+              Smart meters record consumption in 30-minute intervals:
+
+              $$E_{period} = \int_{t}^{t+30min} P(t) \, dt$$
+
+              This data enables:
+              - Accurate time-of-use billing
+              - Load profile analysis
+              - Self-consumption calculation
+              - System optimization
+
+              ### Data Access
+
+              | Method | Update Frequency | Detail Level |
+              |--------|------------------|--------------|
+              | In-home display (IHD) | Real-time | Instantaneous |
+              | Supplier app | Daily | 30-minute |
+              | Consumer Access Device | Real-time | 10-second |
+              | DCC Other User | On request | Full history |
+
+              Third-party apps (Loop, Hildebrand) can access data via CAD or DCC.
+
+              ### Generation Metering
+
+              Separate generation meter required for:
+              - Feed-in Tariff (FIT) legacy payments
+              - Renewable Energy Guarantees of Origin (REGOs)
+              - Some export tariffs
+
+              Must be MCS-certified meter, typically MID-approved.
+
+              ![Smart meter display](https://upload.wikimedia.org/wikipedia/commons/8/86/Electrical_meter.jpg)
+
+          - name: Monitoring systems
+            notes: |
+              ## Monitoring Systems
+
+              Monitoring systems track generation, consumption, and system health in real-time, enabling optimization and fault detection.
+
+              ### Monitoring Levels
+
+              | Level | Data Source | Visibility |
+              |-------|-------------|------------|
+              | Inverter | Built-in sensors | Generation only |
+              | Meter-level | CT clamps + meter | Full energy flows |
+              | Circuit-level | Individual CTs | Per-circuit detail |
+              | Module-level | Optimizers/microinverters | Per-panel data |
+
+              ### System Architecture
+              ```
+              Cloud Platform ←── Internet ←── Gateway/Logger
+                    ↓                              ↑
+               Mobile App                    ┌────┴────┐
+               Web Portal                    │         │
+                                          Inverter   Meter
+                                             ↑         ↑
+                                            PV      Grid CT
+              ```
+
+              ### Communication Protocols
+
+              | Protocol | Use Case | Typical Latency |
+              |----------|----------|-----------------|
+              | Modbus RTU | Inverter → logger | < 1s |
+              | Modbus TCP | LAN devices | < 1s |
+              | WiFi | Logger → cloud | 1-5 min upload |
+              | Cellular | Remote sites | 1-5 min upload |
+              | RS485 | Daisy-chain devices | < 1s |
+
+              ### Monitoring Parameters
+
+              **Generation metrics**:
+              - Instantaneous power (W)
+              - Daily/monthly/annual yield (kWh)
+              - DC voltage and current per string
+              - AC voltage, current, frequency
+
+              **Consumption metrics**:
+              - Grid import/export (W, kWh)
+              - Self-consumption (W, kWh)
+              - Load breakdown (if circuit monitoring)
+
+              **System health**:
+              - Inverter status and alarms
+              - String performance comparison
+              - Temperature (ambient, module)
+              - Communication status
+
+              ### Popular Platforms
+
+              | Platform | Compatible Inverters | Features |
+              |----------|---------------------|----------|
+              | SolarEdge | SolarEdge | Module-level, optimizer |
+              | Enphase | Enphase | Microinverter, per-panel |
+              | Fronius Solar.web | Fronius | Good analytics |
+              | SMA Sunny Portal | SMA | Comprehensive |
+              | GivEnergy | GivEnergy | Battery focus, open API |
+              | Solis Cloud | Solis | Budget-friendly |
+
+              ### Third-Party Aggregators
+
+              Combine data from multiple sources:
+              - **pvoutput.org**: Free, community comparison
+              - **Solar Analytics**: Advanced diagnostics
+              - **Home Assistant**: DIY integration, local control
+
+              ![NREL Monitoring Systems](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
+          - name: Data logging
+            notes: |
+              ## Data Logging
+
+              Systematic data collection enables performance analysis, fault detection, and long-term yield verification.
+
+              ### Logging Resolution
+
+              | Resolution | Storage/Year | Use Case |
+              |------------|--------------|----------|
+              | 1 second | ~1 GB | Transient analysis |
+              | 1 minute | ~50 MB | Detailed monitoring |
+              | 5 minute | ~10 MB | Standard monitoring |
+              | 15 minute | ~3 MB | Long-term storage |
+              | 30 minute | ~1.5 MB | Billing reconciliation |
+
+              Typical systems log at 5-minute intervals with daily upload.
+
+              ### Essential Data Points
+
+              **Minimum logging set**:
+              - Timestamp (UTC or local with timezone)
+              - AC power output (W)
+              - Daily yield (kWh)
+              - Grid import/export (kWh)
+              - Inverter status code
+
+              **Enhanced logging**:
+              - DC voltage per string
+              - DC current per string
+              - AC voltage, current, frequency
+              - Power factor
+              - Temperature (inverter, ambient)
+              - Irradiance (if sensor installed)
+
+              ### Data Quality
+
+              Common issues and solutions:
+
+              | Issue | Cause | Solution |
+              |-------|-------|----------|
+              | Gaps | Communication failure | Local buffer, retry |
+              | Spikes | Sensor glitch | Filtering, validation |
+              | Drift | Clock skew | NTP sync |
+              | Missing days | Logger offline | Redundant logging |
+
+              **Data validation checks**:
+              $$P_{max,expected} = G \times A \times \eta$$
+              Flag if $P_{measured} > 1.2 \times P_{max,expected}$
+
+              ### Storage Options
+
+              | Location | Pros | Cons |
+              |----------|------|------|
+              | Cloud | Accessible anywhere, backed up | Requires internet, ongoing cost |
+              | Local SD card | No internet needed, private | Manual download, card failure |
+              | Local NAS/server | Full control, high capacity | Setup complexity |
+              | Hybrid | Best of both | More complex |
+
+              ### Data Export Formats
+
+              | Format | Use |
+              |--------|-----|
+              | CSV | Universal, spreadsheet analysis |
+              | JSON | API integration, programming |
+              | XML | Legacy systems |
+              | Modbus registers | Real-time integration |
+
+              ### Retention Requirements
+
+              | Purpose | Recommended Retention |
+              |---------|----------------------|
+              | Billing verification | 2 years |
+              | Warranty claims | System lifetime |
+              | Performance analysis | 5+ years |
+              | Research/benchmarking | Indefinite |
+
+              ![Data center](https://upload.wikimedia.org/wikipedia/commons/d/d7/CERN_Server_02.jpg)
+
+          - name: Performance metrics
+            notes: |
+              ## Performance Metrics
+
+              Key performance indicators (KPIs) quantify system health, enabling comparison against expectations and identification of issues.
+
+              ### Specific Yield
+
+              Energy produced per unit capacity:
+
+              $$Y_f = \frac{E_{out}}{P_{rated}} \text{ (kWh/kWp)}$$
+
+              Also called "final yield" or "capacity factor equivalent hours".
+
+              | Period | Good UK Performance |
+              |--------|---------------------|
+              | Daily (summer) | 4-5 kWh/kWp |
+              | Daily (winter) | 0.5-1 kWh/kWp |
+              | Annual | 850-1,000 kWh/kWp |
+
+              ### Performance Ratio (PR)
+
+              Actual vs theoretical output:
+
+              $$PR = \frac{E_{actual}}{E_{theoretical}} = \frac{E_{actual}}{H_{POA} \times P_{rated}}$$
+
+              Where $H_{POA}$ = plane-of-array irradiation.
+
+              | PR Value | Interpretation |
+              |----------|----------------|
+              | > 0.85 | Excellent |
+              | 0.75-0.85 | Good |
+              | 0.65-0.75 | Fair (investigate) |
+              | < 0.65 | Poor (fault likely) |
+
+              Temperature-corrected PR:
+              $$PR_{corr} = PR \times \frac{1}{1 + \gamma (T_{cell} - T_{STC})}$$
+
+              Where $\gamma$ ≈ -0.004/°C for crystalline silicon.
+
+              ### Capacity Factor
+
+              Utilisation of rated capacity:
+
+              $$CF = \frac{E_{actual}}{P_{rated} \times t_{period}}$$
+
+              For annual period: $CF = \frac{E_{annual}}{P_{rated} \times 8760}$
+
+              UK PV typical: 10-12% (vs 25-30% in sunny climates).
+
+              ### Self-Consumption Metrics
+
+              **Self-consumption ratio**:
+              $$SCR = \frac{E_{self-consumed}}{E_{generated}} \times 100\%$$
+
+              **Self-sufficiency ratio**:
+              $$SSR = \frac{E_{from-PV}}{E_{total-demand}} \times 100\%$$
+
+              | System Type | Typical SCR | Typical SSR |
+              |-------------|-------------|-------------|
+              | PV only | 25-40% | 20-35% |
+              | PV + battery | 60-80% | 50-70% |
+              | PV + battery + smart loads | 70-90% | 60-80% |
+
+              ### Degradation Tracking
+
+              PV modules degrade over time:
+
+              $$P_{year,n} = P_{year,0} \times (1 - d)^n$$
+
+              Where $d$ = annual degradation rate (typically 0.3-0.7%/year).
+
+              **Detecting abnormal degradation**:
+              - Compare year-on-year performance
+              - Temperature-correct for fair comparison
+              - Flag if degradation > 1%/year
+
+              ### Fault Detection Metrics
+
+              | Metric | Normal Range | Fault Indication |
+              |--------|--------------|------------------|
+              | String voltage ratio | 0.95-1.05 | String mismatch |
+              | PR sudden drop | < 5%/month | Inverter/shading issue |
+              | Yield vs neighbours | ±10% | System-specific problem |
+              | Morning start time | Consistent | Shading, orientation |
+
+              **Automated alerts**: Set thresholds for email/SMS notification when KPIs fall outside expected ranges.
+
+              ![NREL Performance Analysis](https://docs.nrel.gov/docs/fy21osti/73476.pdf)
+
+        resources:
+          - label: PVOutput - Live PV Data
+            url: https://pvoutput.org/

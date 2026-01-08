@@ -28,31 +28,127 @@ sections:
         concepts:
           - name: Complex numbers
             notes: |
-              ## Test Formulas
+              Complex numbers are essential for AC circuit analysis, letting us represent both magnitude and phase in a single quantity.
 
-              Inline: $V = IR$, $P = I^2 R$, $\omega = 2\pi f$
+              **Rectangular Form**
 
-              Greek: $\alpha$, $\beta$, $\Omega$, $\mu$, $\tau$
+              $$z = a + jb$$
 
-              Fractions: $\frac{V_{out}}{V_{in}}$
+              where $a$ = real part (Re{z}), $b$ = imaginary part (Im{z}), and $j = \sqrt{-1}$.
 
-              Transfer function:
+              **Why EE uses 'j' instead of 'i'**: In electrical engineering, $i$ is reserved for current. Using $j$ prevents confusion in circuit equations.
 
-              $$H(s) = \frac{1}{1 + sRC}$$
+              **Polar Form**
 
-              Euler's identity:
+              $$z = r\angle\theta = r(\cos\theta + j\sin\theta)$$
+
+              where $r = |z| = \sqrt{a^2 + b^2}$ (magnitude) and $\theta = \arctan(b/a)$ (angle).
+
+              **Euler's Formula** — the key connection:
 
               $$e^{j\theta} = \cos\theta + j\sin\theta$$
 
-              Integral:
+              This leads to the exponential form: $z = re^{j\theta}$
 
-              $$W = \int_0^T p(t) \, dt$$
+              **Form Conversions**
 
-              Matrix:
+              *Rectangular → Polar:*
+              $$r = \sqrt{a^2 + b^2}, \quad \theta = \arctan\left(\frac{b}{a}\right)$$
 
-              $$\begin{bmatrix} V_1 \\ V_2 \end{bmatrix} = \begin{bmatrix} Z_{11} & Z_{12} \\ Z_{21} & Z_{22} \end{bmatrix} \begin{bmatrix} I_1 \\ I_2 \end{bmatrix}$$
+              *Polar → Rectangular:*
+              $$a = r\cos\theta, \quad b = r\sin\theta$$
+
+              **Complex Conjugate**
+
+              The conjugate of $z = a + jb$ is $z^* = a - jb$. Key uses:
+              - Power calculation: Complex power $S = VI^*$
+              - Finding magnitude: $|z|^2 = z \cdot z^*$
+
+              **Why crucial for AC analysis?**
+
+              Sinusoidal signals like $v(t) = V_m\cos(\omega t + \phi)$ can be represented as phasors: $\mathbf{V} = V_m\angle\phi$. This turns calculus into algebra — differentiation becomes multiplication by $j\omega$.
+
+              For deeper study, see [Khan Academy: Complex Numbers](https://www.khanacademy.org/math/algebra-home/alg-complex-numbers).
+
           - name: Trig identities
-          - name: Vectors
+            notes: |
+              Trigonometric identities are tools for simplifying signal analysis and power calculations.
+
+              **Pythagorean Identity**
+
+              $$\sin^2\theta + \cos^2\theta = 1$$
+
+              **Double Angle Formulas**
+
+              $$\sin(2\theta) = 2\sin\theta\cos\theta$$
+
+              $$\cos(2\theta) = \cos^2\theta - \sin^2\theta = 2\cos^2\theta - 1$$
+
+              **Sum/Difference Formulas**
+
+              $$\sin(\alpha \pm \beta) = \sin\alpha\cos\beta \pm \cos\alpha\sin\beta$$
+
+              $$\cos(\alpha \pm \beta) = \cos\alpha\cos\beta \mp \sin\alpha\sin\beta$$
+
+              **Product-to-Sum (signal mixing)**
+
+              $$\cos\alpha\cos\beta = \frac{1}{2}[\cos(\alpha-\beta) + \cos(\alpha+\beta)]$$
+
+              **EE Applications**
+
+              - **Power calculations**: For $v(t) = V_m\cos(\omega t)$ and $i(t) = I_m\cos(\omega t - \phi)$:
+
+              $$p(t) = \frac{V_m I_m}{2}[\cos\phi + \cos(2\omega t - \phi)]$$
+
+              The DC term $\frac{V_m I_m}{2}\cos\phi$ is the average power.
+
+              - **RMS values**: The identity $\cos^2\theta = \frac{1}{2}(1 + \cos 2\theta)$ explains why $V_{rms} = V_m/\sqrt{2}$.
+
+              - **Phase shifts**: $\cos\theta = \sin(\theta + 90°)$ — capacitor current leads voltage by 90°.
+
+          - name: Unit conversions
+            notes: |
+              **SI Prefixes for EE**
+
+              | Prefix | Symbol | Factor | Example |
+              |--------|--------|--------|---------|
+              | giga | G | $10^{9}$ | GHz |
+              | mega | M | $10^{6}$ | MHz, MΩ |
+              | kilo | k | $10^{3}$ | kHz, kΩ |
+              | milli | m | $10^{-3}$ | mA, mV |
+              | micro | μ | $10^{-6}$ | μF, μH |
+              | nano | n | $10^{-9}$ | nF, ns |
+              | pico | p | $10^{-12}$ | pF |
+
+              **Decibel (dB) Calculations**
+
+              *Power ratio:*
+              $$dB = 10\log_{10}\left(\frac{P_2}{P_1}\right)$$
+
+              *Voltage ratio (equal impedances):*
+              $$dB = 20\log_{10}\left(\frac{V_2}{V_1}\right)$$
+
+              **Critical values to memorize:**
+
+              | dB | Power | Voltage |
+              |----|-------|---------|
+              | **3 dB** | **2×** | 1.414× |
+              | **6 dB** | 4× | **2×** |
+              | 10 dB | 10× | 3.16× |
+              | 20 dB | 100× | 10× |
+              | -3 dB | 0.5× | 0.707× |
+
+              **Key insight**: +3 dB = double power; +6 dB = double voltage
+
+              **Reference levels:**
+              - **dBm**: 0 dBm = 1 mW (used in RF)
+              - **dBV**: 0 dBV = 1 V
+
+              **Frequency conversions:**
+
+              $$f = \frac{1}{T}, \quad \omega = 2\pi f \text{ (rad/s)}$$
+
+              Quick ref: 60 Hz → $\omega$ = 377 rad/s (mains frequency)
         optional: true
         resources:
           - label: Khan Academy Algebra
@@ -73,8 +169,123 @@ sections:
           - Apply calculus to analyze changing quantities
         concepts:
           - name: Differentiation
+            notes: |
+              Differentiation describes how quantities change — essential for understanding capacitor and inductor behavior.
+
+              **Key Rules**
+
+              *Power Rule:* $\frac{d}{dx}[x^n] = nx^{n-1}$
+
+              *Chain Rule:* $\frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)$
+
+              *Product Rule:* $\frac{d}{dx}[uv] = u\frac{dv}{dx} + v\frac{du}{dx}$
+
+              *Exponential:* $\frac{d}{dx}[e^{ax}] = ae^{ax}$
+
+              *Trigonometric:*
+              $$\frac{d}{dt}[\sin(\omega t)] = \omega\cos(\omega t)$$
+              $$\frac{d}{dt}[\cos(\omega t)] = -\omega\sin(\omega t)$$
+
+              **Capacitor Behavior**
+
+              $$\boxed{i = C\frac{dv}{dt}}$$
+
+              Current through a capacitor is proportional to the *rate of change* of voltage.
+              - If voltage is constant (DC steady state): $i = 0$ — capacitor acts as **open circuit**
+              - Voltage cannot change instantaneously (would require infinite current)
+
+              **Inductor Behavior**
+
+              $$\boxed{v = L\frac{di}{dt}}$$
+
+              Voltage across an inductor is proportional to the *rate of change* of current.
+              - If current is constant (DC steady state): $v = 0$ — inductor acts as **short circuit**
+              - Current cannot change instantaneously (would require infinite voltage)
+
+              **Practical insight**: These relationships explain why capacitors block DC but pass AC, and why inductors do the opposite.
+
           - name: Integration
+            notes: |
+              Integration calculates accumulated quantities — charge, energy, and average values.
+
+              **Key Rules**
+
+              *Power Rule:* $\int x^n\,dx = \frac{x^{n+1}}{n+1} + C$ (for $n \neq -1$)
+
+              *Exponential:* $\int e^{ax}\,dx = \frac{1}{a}e^{ax} + C$
+
+              *Trigonometric:*
+              $$\int \sin(\omega t)\,dt = -\frac{1}{\omega}\cos(\omega t) + C$$
+              $$\int \cos(\omega t)\,dt = \frac{1}{\omega}\sin(\omega t) + C$$
+
+              **Energy Stored in a Capacitor**
+
+              Starting from $p = vi$ and $i = C\frac{dv}{dt}$:
+
+              $$\boxed{E = \frac{1}{2}CV^2}$$
+
+              Energy is stored in the electric field between the plates.
+
+              **Energy Stored in an Inductor**
+
+              $$\boxed{E = \frac{1}{2}LI^2}$$
+
+              Energy is stored in the magnetic field around the coil.
+
+              **Charge from Current**
+
+              Since $i = \frac{dq}{dt}$:
+
+              $$\boxed{Q = \int i\,dt}$$
+
+              **Average Value of a Periodic Signal**
+
+              $$f_{avg} = \frac{1}{T}\int_0^T f(t)\,dt$$
+
+              For a sinusoid: average is zero (symmetric about x-axis).
+              For $\sin^2$: average is $\frac{1}{2}$ — this is why $V_{rms} = V_m/\sqrt{2}$.
+
           - name: ODEs
+            notes: |
+              First-order ordinary differential equations model RC and RL circuit transients.
+
+              **RC Circuit (Capacitor Charging)**
+
+              Applying KVL: $V_s = RC\frac{dv_C}{dt} + v_C$
+
+              $$\boxed{\frac{dv_C}{dt} + \frac{v_C}{RC} = \frac{V_s}{RC}}$$
+
+              *Solution (step input):*
+              $$v_C(t) = V_s\left(1 - e^{-t/RC}\right)$$
+
+              *Time constant:* $\boxed{\tau = RC}$
+
+              **RL Circuit (Inductor Current)**
+
+              $$\boxed{\frac{di}{dt} + \frac{R}{L}i = \frac{V_s}{L}}$$
+
+              *Solution (step input):*
+              $$i(t) = \frac{V_s}{R}\left(1 - e^{-Rt/L}\right)$$
+
+              *Time constant:* $\boxed{\tau = \frac{L}{R}}$
+
+              **Universal Solution Pattern**
+
+              For any first-order system:
+              $$x(t) = x_{final} + (x_{initial} - x_{final})e^{-t/\tau}$$
+
+              **The 5τ Rule**
+
+              | Time | % of Final |
+              |------|-----------|
+              | 1τ | 63.2% |
+              | 2τ | 86.5% |
+              | 3τ | 95.0% |
+              | **5τ** | **99.3%** |
+
+              After **5 time constants**, the transient is essentially complete. This is a practical rule for estimating settling time.
+
+              **Why this matters**: When you flip a switch in a circuit, nothing changes instantly. The time constant tells you how fast the circuit responds.
         resources:
           - label: MIT OCW 18.01
             url: https://ocw.mit.edu/courses/18-01sc-single-variable-calculus-fall-2010/
@@ -97,8 +308,91 @@ sections:
           - Calculate and interpret eigenvalues
         concepts:
           - name: Matrix operations
+            notes: |
+              Matrices provide systematic methods for solving multi-loop circuits.
+
+              **Matrix Addition/Subtraction**
+
+              Add corresponding elements:
+              $$\begin{bmatrix} a & b \\ c & d \end{bmatrix} + \begin{bmatrix} e & f \\ g & h \end{bmatrix} = \begin{bmatrix} a+e & b+f \\ c+g & d+h \end{bmatrix}$$
+
+              **Matrix Multiplication**
+
+              For $\mathbf{C} = \mathbf{A}\mathbf{B}$, element $c_{ij}$ is the dot product of row $i$ of A with column $j$ of B:
+              $$c_{ij} = \sum_{k} a_{ik}b_{kj}$$
+
+              **Important**: Matrix multiplication is *not* commutative: $\mathbf{AB} \neq \mathbf{BA}$ in general.
+
+              **2×2 Matrix Inverse**
+
+              $$\mathbf{A}^{-1} = \frac{1}{ad-bc}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix}$$
+
+              The inverse exists only if determinant $(ad-bc) \neq 0$.
+
+              **Circuit Analysis Application**
+
+              Nodal or mesh analysis produces systems like $\mathbf{Y}\mathbf{V} = \mathbf{I}$
+
+              Solution: $\mathbf{V} = \mathbf{Y}^{-1}\mathbf{I}$
+
+              For larger circuits, use Gaussian elimination or computational tools.
+
           - name: Determinants
+            notes: |
+              Determinants tell us if a system has a unique solution and enable Cramer's Rule.
+
+              **2×2 Determinant**
+
+              $$\det\begin{bmatrix} a & b \\ c & d \end{bmatrix} = ad - bc$$
+
+              **3×3 Determinant** (expansion by first row)
+
+              $$\det\begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix} = a(ei-fh) - b(di-fg) + c(dh-eg)$$
+
+              **Cramer's Rule**
+
+              For system $\mathbf{A}\mathbf{x} = \mathbf{b}$:
+              $$x_i = \frac{\det(\mathbf{A}_i)}{\det(\mathbf{A})}$$
+
+              where $\mathbf{A}_i$ is matrix $\mathbf{A}$ with column $i$ replaced by $\mathbf{b}$.
+
+              **When to use**: Practical for 2×2 and 3×3 systems. For larger systems, use Gaussian elimination or software.
+
+              **Circuit interpretation**: If $\det(\mathbf{A}) = 0$, the circuit equations are dependent — usually indicates a modeling error.
+
           - name: Eigenvalues
+            notes: |
+              Eigenvalues predict system stability and natural response behavior.
+
+              **Definition**
+
+              For matrix $\mathbf{A}$, eigenvalue $\lambda$ and eigenvector $\mathbf{v}$ satisfy:
+              $$\mathbf{A}\mathbf{v} = \lambda\mathbf{v}$$
+
+              Eigenvalues are roots of the *characteristic equation*:
+              $$\det(\mathbf{A} - \lambda\mathbf{I}) = 0$$
+
+              **Stability Analysis**
+
+              For a system described by $\frac{d\mathbf{x}}{dt} = \mathbf{A}\mathbf{x}$:
+
+              | Eigenvalue Type | System Behavior |
+              |-----------------|-----------------|
+              | All Re{λ} < 0 | **Stable** (decays to zero) |
+              | Any Re{λ} > 0 | **Unstable** (grows unbounded) |
+              | Pure imaginary | Oscillates (marginally stable) |
+
+              **RLC Circuit Connection**
+
+              For a series RLC circuit, the characteristic equation is:
+              $$s^2 + \frac{R}{L}s + \frac{1}{LC} = 0$$
+
+              The roots (eigenvalues) determine:
+              - **Overdamped**: Two real negative roots
+              - **Critically damped**: One repeated real root
+              - **Underdamped**: Complex conjugate pair (oscillation)
+
+              This is why eigenvalues matter — they tell you how your circuit will naturally respond.
         optional: true
         resources:
           - label: MIT OCW 18.06
@@ -126,60 +420,120 @@ sections:
         concepts:
           - name: Ohm's Law
             notes: |
-              Ohm's Law: $V = IR$
+              The fundamental relationship between voltage, current, and resistance.
 
-              Impedance formula:
+              $$\boxed{V = IR}$$
 
-              $$Z = \sqrt{R^2 + (X_L - X_C)^2}$$
+              **The Variables**
 
-              ![Circuit diagram](https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Ohm%27s_Law_Pie_chart.svg/220px-Ohm%27s_Law_Pie_chart.svg.png)
+              - **V** = Voltage in Volts (V) — the "push" driving current
+              - **I** = Current in Amperes (A) — the flow of charge
+              - **R** = Resistance in Ohms (Ω) — opposition to current flow
 
-              ## The Formula
+              **Rearranged Forms**
 
-              - **V** in Volts (V)
-              - **I** in Amperes (A)
-              - **R** in Ohms (Ω)
+              $$I = \frac{V}{R} \qquad R = \frac{V}{I}$$
 
-              Here's a reference PDF:
+              **Power Relations**
 
-              ![Ohm's Law Reference](https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf)
+              Power can be calculated three ways:
+              $$P = IV = I^2R = \frac{V^2}{R}$$
 
-              ## Rearranged Forms
+              **Practical Example**
 
-              You can solve for any variable:
-              - I = V / R
-              - R = V / I
+              A 12V battery connected to a 4Ω resistor:
+              - Current: $I = 12/4 = 3$ A
+              - Power: $P = 12 \times 3 = 36$ W (dissipated as heat)
 
-              ![Resistor photo](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Resistor.jpg/220px-Resistor.jpg)
+              **Limitations**
 
-              ## Power Relations
+              Ohm's Law assumes:
+              - Linear (constant) resistance
+              - Temperature doesn't change significantly
+              - DC or instantaneous AC values
 
-              Power can be calculated multiple ways:
-              - P = IV
-              - P = I²R
-              - P = V²/R
+              Non-ohmic devices (diodes, transistors) don't follow this linear relationship.
 
-              And here's another PDF for reference:
+              For more examples, see [SparkFun: Voltage, Current, Resistance](https://learn.sparkfun.com/tutorials/voltage-current-resistance-and-ohms-law).
 
-              ![Sample Test PDF](/pdfs/sample-test.pdf)
-
-              That's all for Ohm's Law!
           - name: KVL & KCL
             notes: |
-              Kirchhoff's Voltage Law (KVL):
+              Kirchhoff's Laws are the foundation for analyzing any circuit.
 
-              The sum of all voltages around any closed loop equals zero.
+              **Kirchhoff's Voltage Law (KVL)**
 
-              ΣV = 0
+              *The sum of voltages around any closed loop equals zero.*
 
-              Kirchhoff's Current Law (KCL):
-              The sum of currents entering a node equals the sum leaving.
-              ΣI_in = ΣI_out
+              $$\sum V_{loop} = 0$$
 
-              ![KVL & KCL PDF](/pdfs/sample-test.pdf)
+              Think of it as conservation of energy: a charge gains and loses energy around a loop, returning to its starting potential.
+
+              **Sign convention**: 
+              - Voltage *rise* (− to +): positive
+              - Voltage *drop* (+ to −): negative
+
+              **Kirchhoff's Current Law (KCL)**
+
+              *The sum of currents entering any node equals zero.*
+
+              $$\sum I_{node} = 0$$
+
+              Think of it as conservation of charge: current in = current out.
+
+              **Sign convention**:
+              - Current *entering* node: positive
+              - Current *leaving* node: negative
+
+              **Example: Simple Loop**
+
+              For a battery ($V_s$) with two resistors ($R_1$, $R_2$) in series:
+
+              KVL: $-V_s + V_1 + V_2 = 0$
+
+              Therefore: $V_s = IR_1 + IR_2 = I(R_1 + R_2)$
+
+              This gives us the series resistance formula: $R_{total} = R_1 + R_2$
+
+              **Practical tip**: Label all currents and voltages with assumed directions first. If you get a negative answer, the actual direction is opposite to your assumption.
+
           - name: Thevenin & Norton
             notes: |
-              ![Thevenin & Norton PDF](/pdfs/sample-test.pdf)
+              These theorems let you simplify complex networks into simple equivalents.
+
+              **Thevenin's Theorem**
+
+              Any linear circuit with two terminals can be replaced by:
+              - A voltage source $V_{th}$ in series with
+              - A resistance $R_{th}$
+
+              **Norton's Theorem**
+
+              Same circuit can also be replaced by:
+              - A current source $I_N$ in parallel with
+              - A resistance $R_N$
+
+              **The Equivalence**
+
+              $$V_{th} = I_N \cdot R_N \qquad I_N = \frac{V_{th}}{R_{th}} \qquad R_{th} = R_N$$
+
+              **Finding Thevenin Equivalent — Step by Step**
+
+              1. **Remove the load** from terminals A-B
+              2. **Find $V_{th}$**: Calculate open-circuit voltage between A-B
+              3. **Find $R_{th}$**: Either:
+                 - Deactivate sources (V→short, I→open) and find equivalent R, or
+                 - Use $R_{th} = V_{OC}/I_{SC}$
+              4. **Draw equivalent**: $V_{th}$ in series with $R_{th}$
+
+              **Maximum Power Transfer**
+
+              Power to load is maximized when:
+              $$R_{load} = R_{th}$$
+
+              Maximum power delivered:
+              $$P_{max} = \frac{V_{th}^2}{4R_{th}}$$
+
+              **Why this matters**: Thevenin equivalents simplify analysis when you need to test different loads on the same circuit — you only solve the complex part once.
         resources:
           - label: MIT OCW 6.002
             url: https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/
@@ -203,9 +557,172 @@ sections:
           - Calculate real, reactive, and apparent power
         concepts:
           - name: Phasors
+            notes: |
+              Phasors transform sinusoidal time-domain signals into complex numbers, turning calculus into algebra.
+
+              **The Core Idea**
+
+              Any sinusoid $v(t) = V_m\cos(\omega t + \phi)$ can be represented as:
+
+              $$\mathbf{V} = V_m\angle\phi = V_m e^{j\phi}$$
+
+              The phasor captures amplitude ($V_m$) and phase ($\phi$) — frequency ($\omega$) is implicit and must be the same for all phasors in the analysis.
+
+              **Why Phasors Work**
+
+              Euler's formula: $e^{j\omega t} = \cos(\omega t) + j\sin(\omega t)$
+
+              So: $v(t) = \text{Re}\{V_m e^{j\phi} e^{j\omega t}\} = \text{Re}\{\mathbf{V} e^{j\omega t}\}$
+
+              **The Killer Advantage**
+
+              Differentiation becomes multiplication:
+              $$\frac{d}{dt} \rightarrow j\omega$$
+
+              Integration becomes division:
+              $$\int dt \rightarrow \frac{1}{j\omega}$$
+
+              **Phasor Arithmetic**
+
+              - Addition: Convert to rectangular, add real and imaginary parts
+              - Multiplication: Multiply magnitudes, add angles
+              - Division: Divide magnitudes, subtract angles
+
+              **Converting Back to Time Domain**
+
+              From phasor $\mathbf{V} = V_m\angle\phi$:
+              $$v(t) = V_m\cos(\omega t + \phi)$$
+
+              Remember to include $\omega$ which was "hidden" during phasor analysis.
+
           - name: Impedance
+            notes: |
+              Impedance extends Ohm's Law to AC circuits, relating phasor voltage to phasor current.
+
+              $$\mathbf{V} = \mathbf{Z}\mathbf{I}$$
+
+              **Component Impedances**
+
+              | Component | Impedance | Magnitude | Phase |
+              |-----------|-----------|-----------|-------|
+              | Resistor | $Z_R = R$ | $R$ | 0° |
+              | Capacitor | $Z_C = \frac{1}{j\omega C}$ | $\frac{1}{\omega C}$ | −90° |
+              | Inductor | $Z_L = j\omega L$ | $\omega L$ | +90° |
+
+              **Impedance Form**
+
+              $$Z = R + jX$$
+
+              where $R$ = resistance (real) and $X$ = reactance (imaginary)
+
+              - $X > 0$: Inductive (current lags voltage)
+              - $X < 0$: Capacitive (current leads voltage)
+
+              **Combining Impedances**
+
+              Series: $Z_{total} = Z_1 + Z_2 + Z_3 + ...$
+
+              Parallel: $\frac{1}{Z_{total}} = \frac{1}{Z_1} + \frac{1}{Z_2} + ...$
+
+              Or for two: $Z_{total} = \frac{Z_1 Z_2}{Z_1 + Z_2}$
+
+              **Admittance**
+
+              $$Y = \frac{1}{Z} = G + jB$$
+
+              where $G$ = conductance, $B$ = susceptance (units: Siemens)
+
+              **Memory aid**: "ELI the ICE man"
+              - **ELI**: In an inductor (L), voltage (E) leads current (I)
+              - **ICE**: In a capacitor (C), current (I) leads voltage (E)
+
           - name: Resonance
+            notes: |
+              At resonance, inductive and capacitive reactances cancel, creating special circuit behavior.
+
+              **Resonant Frequency**
+
+              $$\boxed{f_0 = \frac{1}{2\pi\sqrt{LC}}}$$
+
+              or in radians: $\omega_0 = \frac{1}{\sqrt{LC}}$
+
+              At resonance: $X_L = X_C$, so $\omega_0 L = \frac{1}{\omega_0 C}$
+
+              **Series RLC at Resonance**
+
+              - Impedance is **minimum**: $Z = R$ (purely resistive)
+              - Current is **maximum**: $I = V/R$
+              - Voltage across L and C can exceed source voltage!
+
+              **Parallel RLC at Resonance**
+
+              - Impedance is **maximum**: $Z = R$ (purely resistive)
+              - Current from source is **minimum**
+              - Large circulating currents between L and C
+
+              **Quality Factor (Q)**
+
+              Measures "sharpness" of resonance:
+
+              $$Q = \frac{f_0}{BW} = \frac{\omega_0 L}{R} = \frac{1}{\omega_0 CR}$$
+
+              Higher Q means:
+              - Narrower bandwidth
+              - Sharper frequency selection
+              - More energy stored vs. dissipated per cycle
+
+              **Bandwidth**
+
+              $$BW = \frac{f_0}{Q}$$
+
+              The −3dB points (half-power) occur at $f_0 \pm \frac{BW}{2}$
+
+              **Applications**: Radio tuning, filters, oscillators
+
           - name: Power factor
+            notes: |
+              Power factor measures how effectively a load converts current into useful power.
+
+              **AC Power Types**
+
+              For $v(t) = V_m\cos(\omega t)$ and $i(t) = I_m\cos(\omega t - \phi)$:
+
+              | Power Type | Formula | Unit | Meaning |
+              |------------|---------|------|---------|
+              | Real (P) | $V_{rms}I_{rms}\cos\phi$ | W | Actual work done |
+              | Reactive (Q) | $V_{rms}I_{rms}\sin\phi$ | VAR | Energy oscillating |
+              | Apparent (S) | $V_{rms}I_{rms}$ | VA | Total "burden" |
+
+              **Power Triangle**
+
+              $$S^2 = P^2 + Q^2$$
+
+              $$\mathbf{S} = P + jQ = \mathbf{V}\mathbf{I}^*$$
+
+              (Note: Use conjugate of current!)
+
+              **Power Factor**
+
+              $$\boxed{PF = \cos\phi = \frac{P}{S}}$$
+
+              - $PF = 1$: Purely resistive (ideal)
+              - $PF < 1$: Reactive component present
+              - Leading PF: Capacitive load
+              - Lagging PF: Inductive load (most common — motors, transformers)
+
+              **Why Utilities Care**
+
+              Low PF means higher current for the same real power:
+              $$I = \frac{P}{V \cdot PF}$$
+
+              This causes:
+              - Larger wire sizes needed
+              - Higher $I^2R$ losses
+              - Reduced system capacity
+
+              **Power Factor Correction**
+
+              Add capacitors in parallel with inductive loads to cancel reactive power and bring PF closer to 1. Industrial facilities often pay penalties for low PF.
         resources:
           - label: All About Circuits - AC
             url: https://www.allaboutcircuits.com/textbook/alternating-current/
@@ -231,8 +748,135 @@ sections:
           - Calculate capacitance of simple structures
         concepts:
           - name: Coulomb's law
+            notes: |
+              Coulomb's Law describes the force between electric charges — the foundation of electrostatics.
+
+              **The Law**
+
+              $$\boxed{F = k\frac{q_1 q_2}{r^2}}$$
+
+              where:
+              - $F$ = force in Newtons (N)
+              - $k = 8.99 \times 10^9$ N·m²/C² (Coulomb's constant)
+              - $q_1, q_2$ = charges in Coulombs (C)
+              - $r$ = distance between charges in meters (m)
+
+              **Alternative form** using permittivity:
+
+              $$F = \frac{q_1 q_2}{4\pi\varepsilon_0 r^2}$$
+
+              where $\varepsilon_0 = 8.854 \times 10^{-12}$ F/m (permittivity of free space)
+
+              **Key Properties**
+
+              - Like charges repel, opposite charges attract
+              - Force is along the line connecting the charges
+              - Inverse-square relationship: double distance → quarter force
+              - Superposition: Total force = vector sum of individual forces
+
+              **Electric Field**
+
+              Force per unit charge:
+
+              $$\mathbf{E} = \frac{\mathbf{F}}{q} = k\frac{Q}{r^2}\hat{r}$$
+
+              Units: Volts per meter (V/m) or Newtons per Coulomb (N/C)
+
+              **Point Charge Field**
+
+              $$E = \frac{Q}{4\pi\varepsilon_0 r^2}$$
+
+              Field points radially outward from positive charges, inward toward negative.
+
+              **Why this matters for EE**: Electric fields exist between capacitor plates, in semiconductors, and around any charged conductor. Understanding fields helps you understand how components actually work.
+
           - name: Electric potential
+            notes: |
+              Electric potential is the "voltage landscape" — energy per unit charge at a point.
+
+              **Definition**
+
+              $$V = \frac{U}{q} = -\int \mathbf{E} \cdot d\mathbf{l}$$
+
+              Units: Volts (V) = Joules per Coulomb (J/C)
+
+              **Potential from Point Charge**
+
+              $$V = \frac{kQ}{r} = \frac{Q}{4\pi\varepsilon_0 r}$$
+
+              Note: Falls off as $1/r$, not $1/r^2$ like the field.
+
+              **Potential Difference (Voltage)**
+
+              $$V_{ab} = V_a - V_b = -\int_b^a \mathbf{E} \cdot d\mathbf{l}$$
+
+              This is what voltmeters measure!
+
+              **Relationship to Electric Field**
+
+              $$\mathbf{E} = -\nabla V = -\frac{dV}{dx}\hat{x} - \frac{dV}{dy}\hat{y} - \frac{dV}{dz}\hat{z}$$
+
+              In 1D: $E = -\frac{dV}{dx}$
+
+              Field points from high to low potential (downhill on the voltage landscape).
+
+              **Equipotential Surfaces**
+
+              - Lines/surfaces of constant voltage
+              - Always perpendicular to electric field lines
+              - No work done moving charge along an equipotential
+
+              **Energy Stored**
+
+              Work to move charge $q$ through potential difference $V$:
+              $$W = qV$$
+
+              This is why $1 \text{ eV} = 1.6 \times 10^{-19}$ J (energy gained by electron through 1V).
+
           - name: Gauss's law
+            notes: |
+              Gauss's Law relates electric flux through a surface to the enclosed charge — powerful for symmetric geometries.
+
+              **The Law**
+
+              $$\boxed{\oint \mathbf{E} \cdot d\mathbf{A} = \frac{Q_{enc}}{\varepsilon_0}}$$
+
+              The total electric flux through any closed surface equals the enclosed charge divided by $\varepsilon_0$.
+
+              **Electric Flux**
+
+              $$\Phi_E = \int \mathbf{E} \cdot d\mathbf{A} = EA\cos\theta$$
+
+              For uniform field perpendicular to surface: $\Phi_E = EA$
+
+              Units: V·m or N·m²/C
+
+              **Using Gauss's Law**
+
+              1. Identify symmetry (spherical, cylindrical, planar)
+              2. Choose Gaussian surface matching the symmetry
+              3. On this surface, $E$ is constant and parallel (or perpendicular) to $d\mathbf{A}$
+              4. Solve for $E$
+
+              **Common Results**
+
+              *Infinite line charge (λ C/m):*
+              $$E = \frac{\lambda}{2\pi\varepsilon_0 r}$$
+
+              *Infinite plane (σ C/m²):*
+              $$E = \frac{\sigma}{2\varepsilon_0}$$
+
+              *Spherical shell (outside):*
+              $$E = \frac{Q}{4\pi\varepsilon_0 r^2}$$ (same as point charge!)
+
+              **Key Insight**
+
+              Inside a conductor at equilibrium:
+              - $E = 0$ (no field inside)
+              - All excess charge resides on the surface
+              - Surface is an equipotential
+
+              This is why coaxial cables shield signals and Faraday cages work!
         resources:
           - label: Khan Academy Electrostatics
             url: https://www.khanacademy.org/science/physics/electric-charge-electric-force-and-voltage
@@ -254,9 +898,189 @@ sections:
           - Calculate inductance of simple geometries
         concepts:
           - name: Magnetic force
+            notes: |
+              Moving charges experience forces in magnetic fields — the basis for motors and deflection.
+
+              **Force on Moving Charge**
+
+              $$\boxed{\mathbf{F} = q\mathbf{v} \times \mathbf{B}}$$
+
+              Magnitude: $F = qvB\sin\theta$
+
+              where:
+              - $q$ = charge (C)
+              - $v$ = velocity (m/s)
+              - $B$ = magnetic field (Tesla, T)
+              - $\theta$ = angle between $\mathbf{v}$ and $\mathbf{B}$
+
+              **Key Properties**
+
+              - Force is perpendicular to both velocity and field
+              - Stationary charges feel no magnetic force
+              - Magnetic force does no work (changes direction, not speed)
+
+              **Right-Hand Rule**
+
+              Point fingers in direction of $\mathbf{v}$, curl toward $\mathbf{B}$, thumb points in direction of $\mathbf{F}$ (for positive charge).
+
+              **Force on Current-Carrying Wire**
+
+              $$\mathbf{F} = I\mathbf{L} \times \mathbf{B}$$
+
+              Magnitude: $F = BIL\sin\theta$
+
+              This is how motors work — current in a magnetic field produces force.
+
+              **Magnetic Field Sources**
+
+              *Long straight wire:*
+              $$B = \frac{\mu_0 I}{2\pi r}$$
+
+              *Center of circular loop:*
+              $$B = \frac{\mu_0 I}{2R}$$
+
+              *Inside solenoid:*
+              $$B = \mu_0 n I$$
+
+              where $\mu_0 = 4\pi \times 10^{-7}$ H/m and $n$ = turns per meter.
+
           - name: Faraday's law
+            notes: |
+              Changing magnetic flux induces voltage — the principle behind transformers, generators, and inductors.
+
+              **Faraday's Law**
+
+              $$\boxed{\mathcal{E} = -\frac{d\Phi_B}{dt}}$$
+
+              Induced EMF equals the negative rate of change of magnetic flux.
+
+              **Magnetic Flux**
+
+              $$\Phi_B = \int \mathbf{B} \cdot d\mathbf{A} = BA\cos\theta$$
+
+              Units: Weber (Wb) = T·m²
+
+              **For N-turn Coil**
+
+              $$\mathcal{E} = -N\frac{d\Phi_B}{dt}$$
+
+              More turns = more voltage!
+
+              **Ways to Change Flux**
+
+              Flux can change by varying:
+              1. Magnetic field strength $B$
+              2. Area of the loop $A$
+              3. Angle between $\mathbf{B}$ and $\mathbf{A}$
+
+              **Generator Principle**
+
+              Rotating coil in magnetic field:
+              $$\Phi_B = BA\cos(\omega t)$$
+              $$\mathcal{E} = NBA\omega\sin(\omega t)$$
+
+              This produces AC voltage!
+
+              **Transformer Principle**
+
+              Changing current in primary creates changing flux:
+              $$\frac{V_2}{V_1} = \frac{N_2}{N_1}$$
+
+              Step-up: $N_2 > N_1$, Step-down: $N_2 < N_1$
+
           - name: Lenz's law
+            notes: |
+              Lenz's Law determines the direction of induced current — nature opposes change.
+
+              **The Law**
+
+              *The induced current flows in a direction that opposes the change in flux that produced it.*
+
+              This is why there's a negative sign in Faraday's law!
+
+              **Applying Lenz's Law**
+
+              1. Determine if flux through loop is increasing or decreasing
+              2. Induced current creates a magnetic field to oppose this change
+              3. Use right-hand rule to find current direction
+
+              **Examples**
+
+              *Magnet approaching coil (N pole first):*
+              - Flux into coil increasing
+              - Induced field opposes (points away from magnet)
+              - Induced current flows counterclockwise (viewed from magnet)
+
+              *Magnet leaving coil:*
+              - Flux decreasing
+              - Induced field tries to maintain flux
+              - Current reverses direction
+
+              **Energy Conservation**
+
+              Lenz's law is really conservation of energy:
+              - If induced current aided the change, you'd get energy from nothing
+              - Work must be done against the opposing force
+
+              **Eddy Currents**
+
+              Induced currents in bulk conductors:
+              - Cause energy loss (heating)
+              - Used for braking (magnetic brakes)
+              - Reduced by laminating transformer cores
+
           - name: Inductance
+            notes: |
+              Inductance quantifies a circuit's opposition to current change — energy stored in magnetic fields.
+
+              **Self-Inductance**
+
+              $$\boxed{v = L\frac{di}{dt}}$$
+
+              where $L$ = inductance in Henrys (H)
+
+              An inductor opposes changes in current by inducing a back-EMF.
+
+              **Energy Stored**
+
+              $$\boxed{E = \frac{1}{2}LI^2}$$
+
+              Energy is stored in the magnetic field, not the wire itself.
+
+              **Inductance of a Solenoid**
+
+              $$L = \frac{\mu_0 N^2 A}{l}$$
+
+              where:
+              - $N$ = number of turns
+              - $A$ = cross-sectional area
+              - $l$ = length
+
+              More turns, larger area = more inductance.
+
+              **Mutual Inductance**
+
+              When flux from one coil links another:
+              $$v_2 = M\frac{di_1}{dt}$$
+
+              Coupling coefficient: $k = \frac{M}{\sqrt{L_1 L_2}}$ (0 ≤ k ≤ 1)
+
+              **Inductor Behavior Summary**
+
+              | Condition | Inductor Acts Like |
+              |-----------|-------------------|
+              | DC steady state | Short circuit ($v = 0$) |
+              | High frequency | Open circuit ($Z_L = j\omega L$ large) |
+              | Current change | Voltage source opposing change |
+
+              **Practical Note**
+
+              Real inductors have:
+              - Wire resistance (series R)
+              - Parasitic capacitance (parallel C)
+              - Core losses (if magnetic core used)
+
+              These become significant at high frequencies.
         resources:
           - label: Khan Academy Magnetism
             url: https://www.khanacademy.org/science/physics/magnetic-forces-and-magnetic-fields
@@ -279,8 +1103,126 @@ sections:
           - Explain how changing E-fields create B-fields and vice versa
         concepts:
           - name: Differential form
+            notes: |
+              Maxwell's equations in differential form describe fields at a point — useful for deriving wave equations.
+
+              **The Four Equations**
+
+              *Gauss's Law (Electric):*
+              $$\nabla \cdot \mathbf{E} = \frac{\rho}{\varepsilon_0}$$
+              Charges are sources of electric field.
+
+              *Gauss's Law (Magnetic):*
+              $$\nabla \cdot \mathbf{B} = 0$$
+              No magnetic monopoles exist.
+
+              *Faraday's Law:*
+              $$\nabla \times \mathbf{E} = -\frac{\partial \mathbf{B}}{\partial t}$$
+              Changing magnetic field creates electric field.
+
+              *Ampère-Maxwell Law:*
+              $$\nabla \times \mathbf{B} = \mu_0\mathbf{J} + \mu_0\varepsilon_0\frac{\partial \mathbf{E}}{\partial t}$$
+              Current and changing electric field create magnetic field.
+
+              **The Operators**
+
+              *Divergence* ($\nabla \cdot$): Measures "outflow" from a point
+              $$\nabla \cdot \mathbf{F} = \frac{\partial F_x}{\partial x} + \frac{\partial F_y}{\partial y} + \frac{\partial F_z}{\partial z}$$
+
+              *Curl* ($\nabla \times$): Measures "rotation" around a point
+
+              **Maxwell's Key Contribution**
+
+              The displacement current term $\varepsilon_0\frac{\partial \mathbf{E}}{\partial t}$ was Maxwell's addition. Without it, the equations wouldn't predict electromagnetic waves!
+
           - name: Integral form
+            notes: |
+              Maxwell's equations in integral form relate fields to charges and currents over regions — often easier to apply.
+
+              **The Four Equations**
+
+              *Gauss's Law (Electric):*
+              $$\oint \mathbf{E} \cdot d\mathbf{A} = \frac{Q_{enc}}{\varepsilon_0}$$
+              Electric flux through closed surface = enclosed charge / ε₀
+
+              *Gauss's Law (Magnetic):*
+              $$\oint \mathbf{B} \cdot d\mathbf{A} = 0$$
+              Magnetic flux through any closed surface = 0
+
+              *Faraday's Law:*
+              $$\oint \mathbf{E} \cdot d\mathbf{l} = -\frac{d\Phi_B}{dt}$$
+              EMF around loop = negative rate of change of magnetic flux
+
+              *Ampère-Maxwell Law:*
+              $$\oint \mathbf{B} \cdot d\mathbf{l} = \mu_0 I_{enc} + \mu_0\varepsilon_0\frac{d\Phi_E}{dt}$$
+              Magnetic circulation = μ₀ × (conduction + displacement current)
+
+              **Physical Meaning**
+
+              | Equation | What It Says |
+              |----------|--------------|
+              | Gauss (E) | Charges create diverging E fields |
+              | Gauss (B) | B field lines always close on themselves |
+              | Faraday | Changing B creates circulating E |
+              | Ampère-Maxwell | Current and changing E create circulating B |
+
+              **Connection Between Forms**
+
+              Integral and differential forms are related by:
+              - Divergence theorem: $\oint \mathbf{F} \cdot d\mathbf{A} = \int (\nabla \cdot \mathbf{F}) dV$
+              - Stokes' theorem: $\oint \mathbf{F} \cdot d\mathbf{l} = \int (\nabla \times \mathbf{F}) \cdot d\mathbf{A}$
+
           - name: Wave equation
+            notes: |
+              Maxwell's equations predict electromagnetic waves — light, radio, WiFi are all the same phenomenon.
+
+              **Derivation Sketch**
+
+              In free space ($\rho = 0$, $\mathbf{J} = 0$):
+
+              Take curl of Faraday's law, substitute Ampère-Maxwell:
+
+              $$\nabla^2 \mathbf{E} = \mu_0\varepsilon_0\frac{\partial^2 \mathbf{E}}{\partial t^2}$$
+
+              This is the **wave equation**!
+
+              **Speed of Light**
+
+              Comparing to standard wave equation $\nabla^2 f = \frac{1}{v^2}\frac{\partial^2 f}{\partial t^2}$:
+
+              $$\boxed{c = \frac{1}{\sqrt{\mu_0\varepsilon_0}} = 3 \times 10^8 \text{ m/s}}$$
+
+              Maxwell calculated this in 1864 — it matched the measured speed of light, proving light is an EM wave!
+
+              **Plane Wave Solution**
+
+              $$\mathbf{E} = E_0\cos(kz - \omega t)\hat{x}$$
+              $$\mathbf{B} = B_0\cos(kz - \omega t)\hat{y}$$
+
+              where $k = \omega/c = 2\pi/\lambda$
+
+              **Key Properties**
+
+              - E and B are perpendicular to each other
+              - Both perpendicular to direction of propagation (transverse wave)
+              - $E_0 = cB_0$
+              - In phase, oscillating together
+
+              **The Electromagnetic Spectrum**
+
+              | Type | Frequency | Wavelength |
+              |------|-----------|------------|
+              | Radio | kHz–GHz | km–cm |
+              | Microwave | GHz | cm–mm |
+              | Infrared | THz | μm |
+              | Visible | ~500 THz | 400–700 nm |
+              | X-rays | ~10¹⁸ Hz | nm |
+
+              All travel at $c$ in vacuum — only frequency/wavelength differs!
+
+              **Why This Matters for EE**
+
+              At "low" frequencies, circuits work. At high frequencies (RF, microwave), you must think in terms of waves, transmission lines, and antennas. Maxwell's equations are the bridge.
         optional: true
         resources:
           - label: MIT OCW 8.03
@@ -306,9 +1248,155 @@ sections:
           - Understand SMD package sizes
         concepts:
           - name: Color codes
+            notes: |
+              Resistor color bands encode resistance value and tolerance — essential for identifying components.
+
+              **4-Band Resistors**
+
+              | Band | Meaning |
+              |------|---------|
+              | 1st | First digit |
+              | 2nd | Second digit |
+              | 3rd | Multiplier (×10ⁿ) |
+              | 4th | Tolerance |
+
+              **5-Band Resistors** (precision)
+
+              | Band | Meaning |
+              |------|---------|
+              | 1st | First digit |
+              | 2nd | Second digit |
+              | 3rd | Third digit |
+              | 4th | Multiplier |
+              | 5th | Tolerance |
+
+              **Color Values**
+
+              | Color | Digit | Multiplier | Tolerance |
+              |-------|-------|------------|-----------|
+              | Black | 0 | ×1 | — |
+              | Brown | 1 | ×10 | ±1% |
+              | Red | 2 | ×100 | ±2% |
+              | Orange | 3 | ×1k | — |
+              | Yellow | 4 | ×10k | — |
+              | Green | 5 | ×100k | ±0.5% |
+              | Blue | 6 | ×1M | ±0.25% |
+              | Violet | 7 | ×10M | ±0.1% |
+              | Gray | 8 | — | ±0.05% |
+              | White | 9 | — | — |
+              | Gold | — | ×0.1 | ±5% |
+              | Silver | — | ×0.01 | ±10% |
+
+              **Mnemonic**: "**B**etter **B**e **R**ight **O**r **Y**our **G**reat **B**ig **V**enture **G**oes **W**rong"
+
+              **Example**
+
+              Brown-Black-Red-Gold = 1, 0, ×100, ±5% = **1 kΩ ±5%**
+
+              **SMD Resistor Codes**
+
+              3-digit: First two = digits, third = multiplier
+              - "103" = 10 × 10³ = 10 kΩ
+              - "4R7" = 4.7 Ω (R marks decimal)
+
           - name: Power ratings
-          - name: Tolerance
-          - name: SMD vs through-hole
+            notes: |
+              Power rating determines how much heat a resistor can safely dissipate.
+
+              **Power Dissipation**
+
+              $$P = I^2R = \frac{V^2}{R} = IV$$
+
+              This power becomes heat — exceed the rating and the resistor burns.
+
+              **Common Through-Hole Ratings**
+
+              | Size | Power Rating | Typical Use |
+              |------|--------------|-------------|
+              | 1/8 W | 0.125 W | Low-power signal circuits |
+              | 1/4 W | 0.25 W | General purpose (most common) |
+              | 1/2 W | 0.5 W | Moderate power |
+              | 1 W | 1 W | Power circuits |
+              | 2 W+ | 2+ W | High power, heat sinks |
+
+              **SMD Power Ratings**
+
+              | Package | Power Rating |
+              |---------|--------------|
+              | 0201 | 0.05 W |
+              | 0402 | 0.063 W |
+              | 0603 | 0.1 W |
+              | 0805 | 0.125 W |
+              | 1206 | 0.25 W |
+              | 2512 | 1 W |
+
+              **Derating**
+
+              Manufacturers specify ratings at 25°C. At higher temperatures, derate:
+              - Typical: 50% at 70°C, 0% at 125°C
+              - Always check datasheet curves
+
+              **Design Rule of Thumb**
+
+              Use a resistor rated for **at least 2× the expected power** dissipation. This provides margin for:
+              - Component tolerances
+              - Temperature rise
+              - Transient conditions
+
+          - name: Resistor types
+            notes: |
+              Different resistor technologies suit different applications.
+
+              **Carbon Composition**
+
+              - Oldest type, rarely used now
+              - High noise, poor stability
+              - Good for high-energy pulse absorption
+
+              **Carbon Film**
+
+              - Thin carbon layer on ceramic
+              - Inexpensive, general purpose
+              - Tolerance: ±5%
+              - Temperature coefficient: ~−200 to −500 ppm/°C
+
+              **Metal Film**
+
+              - Thin metal alloy layer
+              - Low noise, stable
+              - Tolerance: ±1% or better
+              - Temp coefficient: ±50 to ±100 ppm/°C
+              - **Best choice for precision analog circuits**
+
+              **Wirewound**
+
+              - Wire wrapped on ceramic core
+              - High power capability (5W to 100W+)
+              - Very low noise
+              - **Problem**: Significant inductance — avoid in high-frequency circuits
+
+              **Thick Film (SMD)**
+
+              - Most common SMD type
+              - Good for general purpose
+              - Tolerance: ±1% to ±5%
+
+              **Thin Film (SMD)**
+
+              - Higher precision than thick film
+              - Lower noise
+              - Tolerance: ±0.1% available
+              - **Use for precision applications**
+
+              **Selection Guidelines**
+
+              | Application | Best Type |
+              |-------------|-----------|
+              | General digital | Carbon/thick film |
+              | Precision analog | Metal/thin film |
+              | High power | Wirewound |
+              | High frequency | Metal film (non-inductive) |
+              | Current sensing | Low-value wirewound or metal strip |
         resources:
           - label: SparkFun Resistors
             url: https://learn.sparkfun.com/tutorials/resistors
@@ -330,11 +1418,157 @@ sections:
           - Design basic decoupling and filtering circuits
           - Read capacitor markings and datasheets
         concepts:
-          - name: Ceramic
-          - name: Electrolytic
-          - name: Film
-          - name: ESR
-          - name: Decoupling
+          - name: Capacitance
+            notes: |
+              Capacitance measures the ability to store charge — fundamental to filtering, timing, and energy storage.
+
+              **Definition**
+
+              $$\boxed{C = \frac{Q}{V}}$$
+
+              Units: Farads (F) — typically μF, nF, or pF in practice
+
+              **Parallel Plate Capacitor**
+
+              $$C = \varepsilon_0\varepsilon_r\frac{A}{d}$$
+
+              where:
+              - $\varepsilon_0 = 8.854 \times 10^{-12}$ F/m
+              - $\varepsilon_r$ = relative permittivity (dielectric constant)
+              - $A$ = plate area
+              - $d$ = plate separation
+
+              **Increasing Capacitance**
+
+              - Larger plates (more area)
+              - Plates closer together (smaller $d$)
+              - Higher dielectric constant material
+
+              **Current-Voltage Relationship**
+
+              $$i = C\frac{dv}{dt}$$
+
+              - Capacitor opposes voltage changes
+              - DC steady state: $i = 0$ (open circuit)
+              - Voltage cannot change instantaneously
+
+              **Energy Stored**
+
+              $$E = \frac{1}{2}CV^2$$
+
+              **Impedance**
+
+              $$Z_C = \frac{1}{j\omega C} = \frac{-j}{\omega C}$$
+
+              - Low frequency: High impedance (blocks DC)
+              - High frequency: Low impedance (passes AC)
+
+              **Combining Capacitors**
+
+              *Parallel* (like adding plate area):
+              $$C_{total} = C_1 + C_2 + C_3 + ...$$
+
+              *Series* (like increasing plate separation):
+              $$\frac{1}{C_{total}} = \frac{1}{C_1} + \frac{1}{C_2} + ...$$
+
+              Note: Opposite of resistors!
+
+          - name: Dielectrics
+            notes: |
+              The dielectric material between plates determines capacitor properties and limitations.
+
+              **Dielectric Constant (εᵣ)**
+
+              | Material | εᵣ | Notes |
+              |----------|-----|-------|
+              | Vacuum | 1.0 | Reference |
+              | Air | 1.0006 | ~Vacuum |
+              | PTFE (Teflon) | 2.1 | Very stable |
+              | Polypropylene | 2.2 | Film caps |
+              | Polyester (PET) | 3.3 | Common film |
+              | Paper | 3.5 | Old style |
+              | Glass | 4–10 | Stable |
+              | Mica | 6–8 | Precision |
+              | Aluminum oxide | 7–10 | Electrolytic |
+              | Tantalum oxide | 25 | High density |
+              | Ceramic (X7R) | 2000–4000 | High capacitance |
+              | Ceramic (Y5V) | 4000–14000 | Very high, unstable |
+
+              **Breakdown Voltage**
+
+              Every dielectric has a maximum field strength before breakdown:
+              - Air: ~3 kV/mm
+              - Ceramic: ~10–20 kV/mm
+              - Plastic film: ~100–300 kV/mm
+
+              **Voltage Rating**
+
+              Always derate! Use capacitor rated for **≥1.5× operating voltage**.
+
+              **Temperature Effects**
+
+              Different dielectrics behave differently with temperature:
+              - **C0G/NP0**: ±30 ppm/°C — very stable
+              - **X7R**: ±15% over −55°C to +125°C — moderate
+              - **Y5V**: +22%/−82% over −30°C to +85°C — terrible!
+
+              **Dielectric Absorption**
+
+              After discharging, some capacitors "recover" voltage — stored charge in dielectric. Important in sample-and-hold circuits.
+
+              Film caps (polypropylene) have lowest absorption (~0.01%).
+
+          - name: Capacitor types
+            notes: |
+              Choose capacitor type based on application requirements.
+
+              **Ceramic Capacitors**
+
+              - Range: 1 pF to 100 μF
+              - Voltage: Up to 100V+ (varies with capacitance)
+              - Non-polarized
+              - **C0G/NP0**: Stable, linear, low loss — use for precision/RF
+              - **X7R**: Moderate stability — general decoupling
+              - **Y5V**: High capacitance density, terrible stability — bulk storage only
+              - **Beware**: Capacitance drops significantly with applied DC voltage!
+
+              **Electrolytic (Aluminum)**
+
+              - Range: 0.1 μF to 1 F
+              - Voltage: 6.3V to 450V
+              - **Polarized** — observe polarity or explosion risk!
+              - High ESR (equivalent series resistance)
+              - Limited life (~2000–10000 hours at rated temp)
+              - Use for: Bulk power supply filtering
+
+              **Tantalum**
+
+              - Range: 0.1 μF to 1000 μF
+              - Voltage: 4V to 50V typical
+              - **Polarized**
+              - Lower ESR than aluminum electrolytic
+              - Can fail short (fire risk!) — derate voltage heavily
+              - Use for: Space-constrained power filtering
+
+              **Film Capacitors**
+
+              - Range: 100 pF to 100 μF
+              - Voltage: 50V to 2000V+
+              - Non-polarized
+              - Low ESR, excellent stability
+              - Types: Polypropylene (best), Polyester (cheaper)
+              - Use for: Audio, precision timing, AC applications
+
+              **Selection Summary**
+
+              | Application | Recommended Type |
+              |-------------|------------------|
+              | RF/precision | C0G ceramic, mica |
+              | IC decoupling | X7R ceramic |
+              | Power supply bulk | Aluminum electrolytic |
+              | Audio coupling | Film (polypropylene) |
+              | Timing circuits | Film or C0G ceramic |
+              | High voltage | Film |
         resources:
           - label: SparkFun Capacitors
             url: https://learn.sparkfun.com/tutorials/capacitors
@@ -355,10 +1589,166 @@ sections:
           - Apply transformer turns ratio for voltage conversion
           - Select inductors for filtering applications
         concepts:
-          - name: Inductance
-          - name: Saturation
-          - name: Transformers
-          - name: Turns ratio
+          - name: Inductance basics
+            notes: |
+              Inductors store energy in magnetic fields — essential for filters, power supplies, and RF circuits.
+
+              **Definition**
+
+              $$\boxed{v = L\frac{di}{dt}}$$
+
+              Units: Henrys (H) — typically μH, mH, or nH in practice
+
+              **Physical Basis**
+
+              Changing current creates changing magnetic flux, which induces back-EMF opposing the change. More turns or better magnetic coupling = more inductance.
+
+              **Solenoid Inductance**
+
+              $$L = \frac{\mu_0 \mu_r N^2 A}{l}$$
+
+              where:
+              - $\mu_0 = 4\pi \times 10^{-7}$ H/m
+              - $\mu_r$ = relative permeability of core
+              - $N$ = number of turns
+              - $A$ = cross-sectional area
+              - $l$ = length
+
+              **Energy Stored**
+
+              $$E = \frac{1}{2}LI^2$$
+
+              **Impedance**
+
+              $$Z_L = j\omega L$$
+
+              - Low frequency: Low impedance (passes DC)
+              - High frequency: High impedance (blocks AC)
+
+              Opposite behavior to capacitors!
+
+              **Current-Voltage Behavior**
+
+              - Inductor opposes current changes
+              - DC steady state: $v = 0$ (short circuit)
+              - Current cannot change instantaneously (would require infinite voltage)
+
+              **Combining Inductors** (no mutual coupling)
+
+              *Series*:
+              $$L_{total} = L_1 + L_2 + L_3 + ...$$
+
+              *Parallel*:
+              $$\frac{1}{L_{total}} = \frac{1}{L_1} + \frac{1}{L_2} + ...$$
+
+              Same rules as resistors!
+
+          - name: Core materials
+            notes: |
+              Core material dramatically affects inductor performance — choose based on frequency and power.
+
+              **Air Core**
+
+              - $\mu_r = 1$
+              - No saturation, no core loss
+              - Low inductance per turn
+              - Use for: VHF/UHF, high-Q RF applications
+
+              **Ferrite**
+
+              - $\mu_r$ = 20–15000 (varies by type)
+              - Low loss at high frequency
+              - Saturates at moderate flux density (~0.3–0.5 T)
+              - **Types**:
+                - NiZn: High frequency (>1 MHz), lower permeability
+                - MnZn: Lower frequency (<1 MHz), higher permeability
+              - Use for: Switching power supplies, EMI filtering
+
+              **Powdered Iron**
+
+              - $\mu_r$ = 10–100
+              - Higher saturation than ferrite (~1 T)
+              - Higher core loss than ferrite
+              - Distributed air gap (soft saturation)
+              - Use for: DC bias applications, lower frequency filters
+
+              **Laminated Steel**
+
+              - $\mu_r$ = 1000–10000
+              - Very high saturation (~1.5–2 T)
+              - High core loss at high frequency
+              - Use for: 50/60 Hz transformers, audio
+
+              **Saturation**
+
+              When magnetic flux exceeds core capacity:
+              - Inductance drops dramatically
+              - Current spikes (can damage circuit)
+              - Check datasheet for saturation current rating!
+
+              **Core Loss**
+
+              Two mechanisms:
+              - **Hysteresis**: Energy lost cycling B-H curve
+              - **Eddy currents**: Circulating currents in core
+
+              Both increase with frequency — why different cores suit different frequencies.
+
+          - name: Inductor types
+            notes: |
+              Different inductor constructions suit different applications.
+
+              **Through-Hole Axial/Radial**
+
+              - Range: 1 μH to 10 mH
+              - Current: Up to several amps
+              - Inexpensive, easy to use
+              - Use for: General filtering, hobby projects
+
+              **Toroidal**
+
+              - Doughnut-shaped core
+              - Excellent magnetic shielding (field contained)
+              - High inductance in small size
+              - Use for: EMI-sensitive applications, power supplies
+
+              **SMD Chip Inductors**
+
+              - Range: 1 nH to 100 μH typical
+              - Very small (0402 to 1210 packages)
+              - Types:
+                - **Multilayer ceramic**: Lowest cost, moderate Q
+                - **Wire wound**: Higher Q, higher current
+                - **Thin film**: Tight tolerance, RF applications
+
+              **SMD Power Inductors**
+
+              - Range: 1 μH to 1 mH
+              - Current: 0.5 A to 30 A+
+              - Shielded or unshielded
+              - Use for: DC-DC converter energy storage
+
+              **RF Inductors**
+
+              - Optimized for high Q at specific frequencies
+              - Air core or low-loss ferrite
+              - Tight inductance tolerance
+              - Use for: Tuned circuits, impedance matching
+
+              **Key Specifications**
+
+              | Parameter | What It Means |
+              |-----------|---------------|
+              | L | Inductance at specified frequency |
+              | DCR | DC resistance (wire loss) |
+              | Isat | Current where L drops 20–30% |
+              | Irms | Max continuous current (thermal) |
+              | SRF | Self-resonant frequency (parasitic capacitance) |
+              | Q | Quality factor at specified frequency |
+
+              **Self-Resonant Frequency**
+
+              Every inductor has parasitic capacitance. Above SRF, it behaves like a capacitor! Always operate below SRF.
         resources:
           - label: Electronics Tutorials - Inductors
             url: https://www.electronics-tutorials.ws/inductor/inductor.html
@@ -380,10 +1770,157 @@ sections:
           - Use Zener diodes for voltage regulation
           - Calculate LED current limiting resistors
         concepts:
-          - name: Forward/reverse bias
-          - name: Rectification
-          - name: Zener regulation
-          - name: LED
+          - name: PN junction
+            notes: |
+              The PN junction is the fundamental building block of diodes — where semiconductor physics meets circuit behavior.
+
+              **What Is a PN Junction?**
+
+              - **P-type**: Silicon doped with acceptors (e.g., boron) — excess holes
+              - **N-type**: Silicon doped with donors (e.g., phosphorus) — excess electrons
+
+              When joined, electrons and holes diffuse across the junction, creating a **depletion region** with no mobile carriers.
+
+              **Built-In Potential**
+
+              The diffusion creates an electric field and potential barrier:
+              $$V_{bi} \approx 0.6–0.7\text{ V}$$ for silicon
+
+              This is why silicon diodes have ~0.7V forward voltage drop.
+
+              **Forward Bias**
+
+              - Positive voltage on P, negative on N
+              - Reduces depletion width
+              - Current flows easily above threshold (~0.7V for Si)
+
+              **Reverse Bias**
+
+              - Positive voltage on N, negative on P
+              - Widens depletion region
+              - Very small leakage current (nA to μA)
+              - Breakdown at high voltage (Zener effect)
+
+              **Diode Equation**
+
+              $$I = I_S\left(e^{V_D/nV_T} - 1\right)$$
+
+              where:
+              - $I_S$ = saturation current (~10⁻¹² A for small signal diodes)
+              - $V_T = kT/q \approx 26$ mV at room temperature
+              - $n$ = ideality factor (1 to 2)
+
+              For $V_D >> V_T$: Current roughly doubles every 60 mV increase.
+
+          - name: Diode characteristics
+            notes: |
+              Understanding the I-V curve lets you model and use diodes correctly.
+
+              **Ideal Diode Model**
+
+              - Forward: Short circuit (0V drop)
+              - Reverse: Open circuit (0A)
+              - Simplest analysis, reasonable for power circuits
+
+              **Constant Voltage Drop Model**
+
+              - Forward: $V_D = 0.7$ V (silicon), 0.3V (Schottky), 0.2V (germanium)
+              - Reverse: Open circuit
+              - Good balance of accuracy and simplicity
+
+              **Exponential Model**
+
+              Full equation: $I = I_S(e^{V_D/nV_T} - 1)$
+
+              Most accurate, needed for precision analog design.
+
+              **Key Parameters**
+
+              | Parameter | Symbol | Meaning |
+              |-----------|--------|---------|
+              | Forward voltage | $V_F$ | Voltage drop at specified current |
+              | Reverse leakage | $I_R$ | Current in reverse bias |
+              | Breakdown voltage | $V_{BR}$ | Reverse voltage causing breakdown |
+              | Max forward current | $I_F$ | Thermal limit |
+              | Reverse recovery | $t_{rr}$ | Switching speed |
+
+              **Temperature Effects**
+
+              - Forward voltage decreases ~2 mV/°C
+              - Leakage current doubles every ~10°C
+
+              This temperature dependence makes diodes useful as temperature sensors!
+
+              **Dynamic Resistance**
+
+              For small signals around operating point:
+              $$r_d = \frac{nV_T}{I_D} \approx \frac{26\text{ mV}}{I_D}$$
+
+              At 1 mA: $r_d \approx 26$ Ω
+
+          - name: Diode types
+            notes: |
+              Different diode types are optimized for different applications.
+
+              **Rectifier Diodes (1N400x series)**
+
+              - General purpose AC-to-DC conversion
+              - 1N4001: 50V, 1A
+              - 1N4007: 1000V, 1A
+              - Slow recovery — not for high-frequency switching
+
+              **Schottky Diodes**
+
+              - Metal-semiconductor junction (no PN junction)
+              - Lower forward voltage (~0.2–0.4V)
+              - Very fast switching (no minority carrier storage)
+              - Higher leakage current
+              - Use for: Power supplies, high-frequency rectification, clamping
+
+              **Zener Diodes**
+
+              - Designed to operate in reverse breakdown
+              - Stable, controlled breakdown voltage (2.4V to 200V)
+              - Use for: Voltage regulation, voltage reference, overvoltage protection
+              - Specified by Zener voltage (Vz) at test current
+
+              **Signal Diodes (1N4148, 1N914)**
+
+              - Small, fast, low capacitance
+              - Lower current ratings (~200 mA)
+              - Use for: Signal clamping, switching, logic circuits
+
+              **LEDs (Light Emitting Diodes)**
+
+              - Forward voltage depends on color:
+                - Red: ~1.8V
+                - Green: ~2.2V
+                - Blue/White: ~3.0–3.5V
+              - Current sets brightness (typically 10–20 mA)
+              - Always use current-limiting resistor!
+
+              **Photodiodes**
+
+              - Generate current when exposed to light
+              - Photovoltaic mode: No bias, generates voltage
+              - Photoconductive mode: Reverse biased, faster response
+              - Use for: Light sensors, optical communication
+
+              **TVS (Transient Voltage Suppressor)**
+
+              - Fast-acting overvoltage protection
+              - Clamps voltage spikes
+              - Use for: ESD protection, surge suppression
+
+              **Selection Summary**
+
+              | Application | Best Choice |
+              |-------------|-------------|
+              | AC rectification | Standard rectifier |
+              | High-efficiency power | Schottky |
+              | Voltage regulation | Zener |
+              | Fast switching | Schottky or signal diode |
+              | Overvoltage protection | TVS or Zener |
         optional: true
         resources:
           - label: SparkFun Diodes
@@ -409,10 +1946,196 @@ sections:
           - Test resistance and continuity
           - Identify common measurement errors
         concepts:
-          - name: DC/AC voltage
+          - name: Voltage measurement
+            notes: |
+              Measuring voltage is the most common multimeter function — always measured **in parallel**.
+
+              **DC Voltage (V⎓ or VDC)**
+
+              1. Set meter to DC voltage range (or auto-range)
+              2. Connect **in parallel** with component or across two points
+              3. Red lead to higher potential, black to lower
+              4. Read value — negative means polarity is reversed
+
+              **AC Voltage (V~ or VAC)**
+
+              1. Set meter to AC voltage range
+              2. Connect in parallel (polarity doesn't matter)
+              3. Most meters show **RMS** value
+              4. Only accurate for sinusoidal signals!
+
+              **Important Notes**
+
+              - **Never exceed rated voltage** — can damage meter or cause injury
+              - High input impedance (~10 MΩ) means minimal circuit loading
+              - For high-impedance circuits, even 10 MΩ can affect readings
+
+              **True RMS vs Average-Responding**
+
+              - **Average-responding**: Cheap meters, accurate only for sine waves
+              - **True RMS**: Accurate for any waveform (square, triangle, distorted)
+              - For switching power supplies and non-sinusoidal signals, use True RMS
+
+              **Common Voltage Checks**
+
+              | Source | Expected Value |
+              |--------|----------------|
+              | AA/AAA battery | 1.5V (fresh), <1.2V (dead) |
+              | 9V battery | 9V (fresh), <7V (dead) |
+              | USB port | 4.75–5.25V |
+              | Car battery | 12.6V (charged), <12V (low) |
+              | Wall outlet (US) | 120V RMS |
+              | Wall outlet (UK/EU) | 230V RMS |
+
           - name: Current measurement
-          - name: Resistance
-          - name: Continuity
+            notes: |
+              Measuring current requires breaking the circuit — meter goes **in series**.
+
+              **Procedure**
+
+              1. **Turn off power** to the circuit
+              2. Set meter to appropriate current range (A, mA, or μA)
+              3. Move red lead to current jack (often separate from voltage jack!)
+              4. Break the circuit at measurement point
+              5. Insert meter **in series** — current flows through the meter
+              6. Turn on power and read value
+              7. Restore circuit when done
+
+              **DC vs AC Current**
+
+              - DC (A⎓): For batteries, DC power supplies
+              - AC (A~): For mains-powered circuits (shows RMS)
+
+              **Current Ranges**
+
+              | Range | Typical Jack | Fuse |
+              |-------|--------------|------|
+              | μA | mA/μA | Small fuse |
+              | mA | mA/μA | Small fuse (200–500 mA) |
+              | A | 10A or 20A | Large fuse (10–20A) |
+
+              **Critical Safety Notes**
+
+              - **Never connect in parallel** — creates short circuit, blows fuse (or worse)
+              - Always start with highest range, then decrease
+              - 10A jack often **unfused** — be careful!
+              - Check fuse if meter shows 0 when current should flow
+
+              **The Fuse Problem**
+
+              Most common multimeter issue: blown current fuse from accidental parallel connection or over-range measurement. Keep spare fuses!
+
+              **Alternative: Clamp Meter**
+
+              - Measures current without breaking circuit
+              - Clamps around wire, senses magnetic field
+              - Works for AC; DC clamp meters available but pricier
+              - Great for high currents and installed wiring
+
+          - name: Resistance measurement
+            notes: |
+              Resistance measurement uses internal voltage source — **circuit must be unpowered**.
+
+              **Procedure**
+
+              1. **Disconnect power** from circuit (critical!)
+              2. **Isolate component** if possible (discharge capacitors first)
+              3. Set meter to resistance (Ω) range
+              4. Touch probes to component leads
+              5. Read value
+
+              **Why Power Must Be Off**
+
+              - Meter applies small test voltage (~0.5V)
+              - External voltage gives false readings
+              - Can damage meter
+
+              **Reading Interpretation**
+
+              | Display | Meaning |
+              |---------|---------|
+              | Number (e.g., 4.7k) | Measured resistance |
+              | OL or ∞ | Open circuit (infinite resistance) |
+              | 0.00 | Short circuit or very low resistance |
+
+              **In-Circuit Measurement Challenges**
+
+              - Parallel paths give lower readings than actual component value
+              - Semiconductors conduct in one direction — readings vary with polarity
+              - Best practice: Lift one lead of component being measured
+
+              **Continuity Mode**
+
+              - Beeps when resistance is low (typically <50Ω)
+              - Fast way to check:
+                - Fuses (should beep)
+                - Wire connections (should beep)
+                - Shorts between traces (should NOT beep)
+
+              **Common Reference Values**
+
+              | Item | Expected Resistance |
+              |------|---------------------|
+              | Short wire | <1 Ω |
+              | Good fuse | <1 Ω |
+              | Blown fuse | OL (open) |
+              | Human body | 1 kΩ – 100 kΩ |
+              | Open switch | OL |
+              | Closed switch | <1 Ω |
+
+          - name: Diode and continuity
+            notes: |
+              Special modes for testing semiconductors and checking connections.
+
+              **Diode Test Mode**
+
+              Meter applies small current and measures forward voltage drop.
+
+              **Testing a Diode**
+
+              1. Set meter to diode mode (⏄ symbol)
+              2. Red lead to anode, black to cathode
+              3. Read forward voltage:
+                 - Silicon: 0.5–0.7V ✓
+                 - Schottky: 0.15–0.4V ✓
+                 - LED: 1.5–3.5V (depends on color) ✓
+              4. Reverse leads — should read OL (open)
+
+              **Interpreting Results**
+
+              | Forward | Reverse | Diagnosis |
+              |---------|---------|-----------|
+              | 0.5–0.7V | OL | Good silicon diode |
+              | 0.15–0.4V | OL | Good Schottky diode |
+              | 0V or very low | 0V or very low | Shorted diode |
+              | OL | OL | Open diode |
+              | Same both ways | Same both ways | Not a diode (resistor?) |
+
+              **Testing LEDs**
+
+              - LED may light dimly during test (enough current)
+              - Higher voltage reading than standard diodes
+              - Great way to identify LED polarity
+
+              **Testing Transistors (BJT)**
+
+              - Treat as two back-to-back diodes
+              - NPN: Base-Emitter and Base-Collector both show ~0.6V with red on base
+              - PNP: Same but with black on base
+              - Check E-C both ways — should be open
+
+              **Continuity Mode**
+
+              - Beeps when low resistance detected
+              - Threshold typically 20–50Ω
+              - Response faster than resistance mode
+              - Perfect for tracing wires and checking solder joints
+
+              **Pro Tips**
+
+              - Continuity beep should be instant — delayed beep suggests high resistance or capacitance
+              - Test your probes first (touch tips together)
+              - In-circuit tests can give false results due to parallel paths
         resources:
           - label: SparkFun Multimeter
             url: https://learn.sparkfun.com/tutorials/how-to-use-a-multimeter
@@ -434,10 +2157,217 @@ sections:
           - Measure frequency, amplitude, and rise time
           - Identify signal integrity issues
         concepts:
-          - name: Timebase
+          - name: Time domain basics
+            notes: |
+              The oscilloscope displays voltage versus time — essential for seeing signal behavior.
+
+              **The Display**
+
+              - **Horizontal axis**: Time (left to right)
+              - **Vertical axis**: Voltage (bottom to top)
+              - **Graticule**: Grid divisions for measurement
+
+              **Key Controls**
+
+              *Vertical (per channel):*
+              - **Volts/div**: Scales vertical sensitivity (e.g., 1V/div, 100mV/div)
+              - **Position**: Moves trace up/down
+              - **Coupling**: DC (full signal), AC (blocks DC), GND (baseline)
+
+              *Horizontal:*
+              - **Time/div**: Scales horizontal sweep (e.g., 1ms/div, 10μs/div)
+              - **Position**: Moves trace left/right
+
+              **Reading the Display**
+
+              If volts/div = 2V and signal spans 3 divisions:
+              $$V_{pp} = 3 \times 2\text{V} = 6\text{V peak-to-peak}$$
+
+              If time/div = 1ms and one cycle spans 4 divisions:
+              $$T = 4 \times 1\text{ms} = 4\text{ms}$$
+              $$f = 1/T = 250\text{ Hz}$$
+
+              **Input Coupling Modes**
+
+              | Mode | Use Case |
+              |------|----------|
+              | **DC** | See full signal including DC offset |
+              | **AC** | See only AC component (blocks DC) |
+              | **GND** | Find 0V baseline position |
+
+              **Probe Compensation**
+
+              10× probes need adjustment for flat square wave response:
+              - **Overshoot**: Decrease compensation (trim cap)
+              - **Rounded corners**: Increase compensation
+              - Check with scope's calibration output (~1 kHz square wave)
+
           - name: Triggering
+            notes: |
+              Triggering synchronizes the display to create a stable image of repetitive signals.
+
+              **The Problem Triggering Solves**
+
+              Without triggering, each sweep starts at random point — display looks like jumbled mess.
+
+              **Basic Trigger Concept**
+
+              Scope waits for signal to cross a threshold, then starts horizontal sweep. Next sweep waits for same condition — signal appears stationary.
+
+              **Trigger Controls**
+
+              | Control | Function |
+              |---------|----------|
+              | **Source** | Which channel triggers (CH1, CH2, EXT, Line) |
+              | **Level** | Voltage threshold for trigger |
+              | **Slope** | Rising edge (↗) or falling edge (↘) |
+              | **Mode** | Auto, Normal, Single |
+
+              **Trigger Modes**
+
+              - **Auto**: Triggers if possible, free-runs if not — always shows something
+              - **Normal**: Only sweeps when trigger found — blank if no trigger
+              - **Single**: One sweep when triggered, then stops — for capturing one-time events
+
+              **Getting a Stable Display**
+
+              1. Set trigger source to channel with clearest signal
+              2. Set trigger level to middle of waveform
+              3. Choose appropriate slope
+              4. Use Normal mode if Auto is jittery
+              5. Adjust level until display stabilizes
+
+              **Common Trigger Issues**
+
+              | Symptom | Likely Cause | Fix |
+              |---------|--------------|-----|
+              | Jumping display | Level wrong | Adjust trigger level |
+              | Blank screen | No trigger (Normal mode) | Use Auto or check level |
+              | Multiple overlapping waves | Triggering on noise | Increase level, use HF reject |
+              | Drifting slowly | Near-frequency signal | Check trigger source |
+
+              **Advanced Triggering**
+
+              Digital scopes offer additional triggers:
+              - **Pulse width**: Trigger on specific pulse duration
+              - **Edge count**: Trigger after N edges
+              - **Pattern**: Trigger on logic pattern (multiple channels)
+              - **Serial decode**: Trigger on I²C, SPI, UART data
+
           - name: Probes
-          - name: Bandwidth
+            notes: |
+              Probes connect signals to the scope — their characteristics affect measurements.
+
+              **1× vs 10× Probes**
+
+              | Feature | 1× Probe | 10× Probe |
+              |---------|----------|-----------|
+              | Attenuation | None | ÷10 |
+              | Bandwidth | Lower (~20 MHz) | Higher (~200+ MHz) |
+              | Input capacitance | ~100 pF | ~10–15 pF |
+              | Input impedance | 1 MΩ | 10 MΩ |
+              | Best for | Low frequency, small signals | General purpose |
+
+              **Why 10× Is Usually Better**
+
+              - Lower capacitive loading (less circuit disturbance)
+              - Higher bandwidth (faster edges)
+              - Trade-off: 10× less sensitive
+
+              **Probe Loading Effect**
+
+              Every probe adds capacitance and resistance to circuit:
+              - Can change high-impedance circuits
+              - Can slow fast edges
+              - Can cause oscillations
+
+              Rule of thumb: If circuit impedance >10 kΩ and frequency >1 MHz, be cautious.
+
+              **Proper Grounding**
+
+              - Use **shortest possible ground lead**
+              - Long ground leads act as inductors
+              - Creates ringing on fast edges
+              - For high-speed signals, use probe tip adapter with ground ring
+
+              **Active Probes**
+
+              - Built-in amplifier at probe tip
+              - Very low capacitance (<1 pF)
+              - Much higher bandwidth (GHz)
+              - Expensive, fragile
+              - Required for high-speed digital
+
+              **Current Probes**
+
+              - Clamp around wire
+              - Measures current via magnetic field
+              - Outputs proportional voltage to scope
+              - Available for AC only or AC+DC
+
+              **Differential Probes**
+
+              - Measures voltage between two non-ground points
+              - Required for floating measurements
+              - Essential for power electronics (half-bridge, motor drives)
+
+          - name: Measurements
+            notes: |
+              Modern scopes automate measurements, but understanding the underlying principles is essential.
+
+              **Automatic Measurements**
+
+              Most digital scopes calculate:
+
+              | Measurement | Meaning |
+              |-------------|---------|
+              | **Frequency** | 1/Period |
+              | **Period** | Time for one cycle |
+              | **Vpp** | Peak-to-peak voltage |
+              | **Vmax/Vmin** | Absolute max/min |
+              | **Vamp** | Amplitude (top − bottom) |
+              | **Vmean** | DC average |
+              | **Vrms** | RMS value |
+              | **Rise time** | 10% to 90% transition |
+              | **Fall time** | 90% to 10% transition |
+              | **Duty cycle** | High time / Period |
+              | **Phase** | Timing between channels |
+
+              **Manual Measurements with Cursors**
+
+              Two types:
+              - **Time cursors**: Vertical lines, measure Δt and frequency
+              - **Voltage cursors**: Horizontal lines, measure ΔV
+
+              **Measuring Rise Time**
+
+              $$t_r = t_{90\%} - t_{10\%}$$
+
+              Related to bandwidth: $BW \approx 0.35/t_r$
+
+              **Measuring Phase**
+
+              Between two sinusoids:
+              $$\phi = \frac{\Delta t}{T} \times 360°$$
+
+              where Δt is time difference between same points on each wave.
+
+              **RMS Measurement**
+
+              For accurate RMS of non-sinusoidal signals:
+              - Use scope's RMS function (calculates from samples)
+              - Set to at least several complete cycles
+              - DC coupling to include DC component if needed
+
+              **Measurement Accuracy**
+
+              Rule of thumb for amplitude:
+              - Use at least 3–4 divisions of waveform height
+              - Keep signal on screen (avoid clipping)
+
+              Rule of thumb for timing:
+              - Scope bandwidth should be 5× signal frequency
+              - Probe bandwidth must exceed scope bandwidth
         resources:
           - label: EEVblog Oscilloscope Tutorial
             url: https://www.youtube.com/watch?v=xaELqAo4kkQ
@@ -459,8 +2389,213 @@ sections:
           - Know breadboard limitations (current, frequency)
         concepts:
           - name: Breadboard layout
-          - name: Wire management
-          - name: Common mistakes
+            notes: |
+              Understanding breadboard internal connections is essential for building circuits correctly.
+
+              **Standard Breadboard Structure**
+              ``````
+              Power rails (horizontal)
+              + + + + + + + + + + + + + + +
+              − − − − − − − − − − − − − − −
+              
+              Terminal strips (vertical groups of 5)
+              a b c d e │ gap │ f g h i j
+              · · · · · │     │ · · · · ·
+              · · · · · │     │ · · · · ·
+              (rows 1-30 or more)
+              
+              − − − − − − − − − − − − − − −
+              + + + + + + + + + + + + + + +
+              Power rails (horizontal)
+              ```
+
+              **Connection Rules**
+
+              - **Power rails**: All holes in a row connected horizontally (entire length)
+              - **Terminal strips**: 5 holes connected vertically (a-b-c-d-e or f-g-h-i-j)
+              - **Center gap**: Separates left and right sides — no connection across
+
+              **The Center Gap Purpose**
+
+              - Width matches DIP IC packages
+              - IC straddles gap — each pin on separate vertical strip
+              - Prevents pins from shorting together
+
+              **Power Rail Breaks**
+
+              Some breadboards have breaks in power rails halfway:
+              - Check continuity before assuming full-length connection
+              - Add jumper wire to connect both halves if needed
+
+              **Row Numbering**
+
+              - Rows typically numbered 1, 2, 3... (check your board)
+              - Helps communicate circuit layout
+              - "Row 15, columns a-e" = one 5-hole strip
+
+          - name: Wiring techniques
+            notes: |
+              Good wiring practices prevent errors and make debugging easier.
+
+              **Wire Selection**
+
+              - **22 AWG solid core**: Standard for breadboarding
+              - Pre-cut jumper wire kits available in various lengths
+              - Color code by function:
+                - Red: Positive supply
+                - Black: Ground
+                - Other colors: Signals
+
+              **Wiring Best Practices**
+
+              1. **Keep wires flat** against the board when possible
+              2. **Use appropriate lengths** — not too long, not too tight
+              3. **Route neatly** — parallel runs, right angles
+              4. **Don't cross wires** unnecessarily
+              5. **Leave access** to ICs for probing and removal
+
+              **Power Distribution**
+
+              - Connect power supply to power rails first
+              - Run short jumpers from rails to component rows
+              - Multiple ground connections reduce noise
+              - Consider adding bypass capacitors (0.1 μF) near ICs
+
+              **Component Placement**
+
+              - ICs straddle center gap
+              - Orient all ICs the same direction (pin 1 indicator visible)
+              - Leave space between ICs for connections
+              - Place related components near each other
+
+              **Common Wiring Mistakes**
+
+              | Mistake | Result | Prevention |
+              |---------|--------|------------|
+              | Wrong row | Unconnected or shorted | Double-check row numbers |
+              | Bent IC pin | Pin not in hole | Inspect before pressing down |
+              | Wire in gap | Not connected | Use terminal strip holes only |
+              | Power rail break | Partial power | Check continuity or add jumper |
+              | Crossed polarity | Component damage | Mark polarity, check before power |
+
+          - name: Common issues
+            notes: |
+              Knowing typical breadboard problems speeds up debugging.
+
+              **Connection Problems**
+
+              *Loose connections:*
+              - Breadboard contacts wear out over time
+              - Thin wires or oxidized leads don't grip
+              - Solution: Use fresh breadboard area, clean leads
+
+              *Intermittent contacts:*
+              - Wire moves slightly, circuit fails
+              - Common with heavy components
+              - Solution: Support heavy parts, minimize wire movement
+
+              *Oxidized contacts:*
+              - Old breadboards develop resistance
+              - Solution: Clean holes with contact cleaner, or replace board
+
+              **Component Issues**
+
+              *Wrong component:*
+              - Resistor colors misread
+              - Capacitor values hard to read
+              - Solution: Verify with multimeter before installing
+
+              *Damaged components:*
+              - LEDs inserted backward and burned
+              - ICs inserted backward
+              - Solution: Check polarity/orientation before power
+
+              *Component leads too short:*
+              - Cut leads don't reach or grip well
+              - Solution: Leave 5-10mm lead length
+
+              **Electrical Issues**
+
+              *Ground loops:*
+              - Multiple ground paths cause noise
+              - Solution: Star grounding from single point
+
+              *Crosstalk:*
+              - Signals couple between adjacent wires
+              - Solution: Separate sensitive signals, use shorter wires
+
+              *High-frequency limitations:*
+              - Breadboard has ~2 pF between adjacent strips
+              - Limits bandwidth to <10-20 MHz typically
+              - Solution: Use PCB for high-frequency circuits
+
+              *Power supply noise:*
+              - Long wires to power rails act as antennas
+              - Solution: Add 0.1 μF bypass capacitor at each IC power pin
+
+          - name: Prototyping workflow
+            notes: |
+              A systematic approach reduces frustration and catches errors early.
+
+              **Before Building**
+
+              1. **Draw schematic** — even for simple circuits
+              2. **Identify all components** and verify values
+              3. **Plan layout** — where each component goes
+              4. **Check component datasheets** — pinouts, polarity, ratings
+
+              **Building the Circuit**
+
+              1. **Start with power rails** — connect supply wires
+              2. **Add ICs first** — establishes structure
+              3. **Connect power to ICs** — Vcc and GND pins
+              4. **Add bypass capacitors** — 0.1 μF at each IC
+              5. **Build from input to output** — follow signal flow
+              6. **Double-check as you go** — easier than debugging complete circuit
+
+              **Testing Strategy**
+
+              1. **Visual inspection** before applying power
+              2. **Check power supply** voltage with no circuit connected
+              3. **Apply power** and check for:
+                 - Smoke or heat (immediate power off!)
+                 - Expected LED behavior
+                 - Correct voltage at IC power pins
+              4. **Test stage by stage** — inject test signal, verify output
+              5. **Compare to expected behavior** from simulation or theory
+
+              **Debugging Checklist**
+
+              When circuit doesn't work:
+
+              - [ ] Power supply correct voltage?
+              - [ ] All ICs receiving power?
+              - [ ] All grounds connected?
+              - [ ] Correct component values?
+              - [ ] Correct component polarity?
+              - [ ] All connections where expected?
+              - [ ] Any accidental shorts?
+              - [ ] Components damaged during handling?
+
+              **Documentation**
+
+              - Photograph working circuits
+              - Note any changes from original schematic
+              - Record test results and observations
+              - Makes future rebuilds and troubleshooting easier
+
+              **When to Move to PCB**
+
+              Breadboard is great for:
+              - Learning and experimentation
+              - One-off projects
+              - Circuits <10 MHz
+
+              Move to PCB when:
+              - High frequency operation needed
+              - Permanent installation required
+              - Reliability is critical
+              - Multiple copies needed
         resources:
           - label: SparkFun Breadboards
             url: https://learn.sparkfun.com/tutorials/how-to-use-a-breadboard
@@ -482,9 +2617,232 @@ sections:
           - Attempt basic SMD soldering
         concepts:
           - name: Iron tips
+            notes: |
+              The right tip makes soldering easier — match tip shape to the job.
+
+              **Tip Types**
+
+              | Shape | Best For |
+              |-------|----------|
+              | **Conical** | Fine work, small joints, SMD |
+              | **Chisel** | General purpose, through-hole (most versatile) |
+              | **Bevel** | Drag soldering SMD, larger joints |
+              | **Knife** | Drag soldering, tight spaces |
+              | **Hoof** | Drag soldering QFP/SOIC |
+
+              **Tip Sizes**
+
+              - Fine tips (0.5–1mm): SMD, small pitch ICs
+              - Medium tips (1.5–2.5mm): General through-hole
+              - Large tips (3–5mm): Heavy wires, large pads, ground planes
+
+              **Temperature Settings**
+
+              | Solder Type | Temperature Range |
+              |-------------|-------------------|
+              | Leaded (Sn63/Pb37) | 300–350°C (570–660°F) |
+              | Lead-free (SAC305) | 350–400°C (660–750°F) |
+
+              Start lower, increase if solder doesn't flow quickly.
+
+              **Tip Maintenance**
+
+              1. **Keep tinned**: Always have thin solder coating on tip
+              2. **Clean frequently**: Use brass wool (preferred) or wet sponge
+              3. **Don't file or sand**: Destroys plating
+              4. **Re-tin before storage**: Prevents oxidation
+              5. **Use tip tinner/activator**: Restores oxidized tips
+
+              **Tip Death Signs**
+
+              - Black, crusty appearance
+              - Solder won't wet the tip
+              - Heat transfer is poor
+
+              Prevention: Don't leave iron on at high temp when not in use. Turn down or off during breaks.
+
           - name: Flux
+            notes: |
+              Flux removes oxides and enables solder to flow — the secret to good joints.
+
+              **What Flux Does**
+
+              - Chemically cleans metal surfaces
+              - Removes oxides as they form during heating
+              - Reduces surface tension of molten solder
+              - Allows solder to wet and flow properly
+
+              **Flux Types**
+
+              | Type | Activity | Residue | Clean? | Use Case |
+              |------|----------|---------|--------|----------|
+              | **Rosin (R)** | Mild | Non-corrosive | Optional | General electronics |
+              | **Rosin Mildly Activated (RMA)** | Medium | Non-corrosive | Optional | Most PCB work |
+              | **Rosin Activated (RA)** | Strong | Slightly corrosive | Yes | Oxidized surfaces |
+              | **No-Clean** | Mild | Minimal, safe | No | Production, most hobby |
+              | **Water-Soluble** | Strong | Corrosive | **Required** | Industrial |
+
+              **Flux Forms**
+
+              - **In solder wire**: Flux core (most common for hand soldering)
+              - **Paste/gel**: Apply to joints before soldering
+              - **Liquid pen**: Touch-up, SMD rework
+              - **Tacky flux**: SMD paste stenciling
+
+              **When to Add Extra Flux**
+
+              - Rework/desoldering (old flux burned off)
+              - Lead-free solder (needs more help flowing)
+              - Oxidized or tarnished surfaces
+              - Drag soldering SMD ICs
+              - Any time solder isn't flowing well
+
+              **Cleaning Flux Residue**
+
+              - No-clean: Leave it (designed to be safe)
+              - Rosin: IPA (isopropyl alcohol) + brush
+              - Water-soluble: Warm water, then dry thoroughly
+
+              **Pro tip**: If solder balls up instead of flowing, add flux. If still not working, surface is too oxidized or contaminated.
+
           - name: Desoldering
+            notes: |
+              Mistakes happen — knowing how to remove solder cleanly is essential.
+
+              **Solder Wick (Desoldering Braid)**
+
+              Best for: Flat surfaces, SMD, cleaning pads
+
+              *Technique:*
+              1. Place wick on joint
+              2. Press hot iron on top of wick
+              3. Wick absorbs molten solder via capillary action
+              4. Remove wick and iron together
+              5. Use fresh section for next joint
+
+              *Tips:*
+              - Add flux to wick for better absorption
+              - Don't drag hot wick across board (damages traces)
+              - Different widths for different jobs
+
+              **Solder Sucker (Desoldering Pump)**
+
+              Best for: Through-hole components, lots of solder
+
+              *Technique:*
+              1. Melt solder with iron
+              2. Position sucker tip near molten solder
+              3. Press release button — sucks up solder
+              4. Repeat if necessary
+
+              *Tips:*
+              - Keep tip clean
+              - Get close but don't touch the joint
+              - Spring-loaded types need practice
+
+              **Desoldering Station (Heated Vacuum)**
+
+              - Combines heat and suction in one tool
+              - Best for production rework
+              - Expensive but efficient
+
+              **Hot Air**
+
+              Best for: SMD components, especially multi-pin ICs
+
+              *Technique:*
+              1. Apply flux
+              2. Heat area evenly with hot air
+              3. Lift component when all pins are molten
+              4. Clean pads with wick
+
+              **Component Removal Tips**
+
+              | Component | Method |
+              |-----------|--------|
+              | Through-hole resistor | Solder sucker or wick |
+              | DIP IC | Alternate heating pins, pry gently, or use extractor |
+              | SMD 2-terminal | Heat both ends, slide off |
+              | SMD IC (QFP/SOIC) | Hot air or drag with wick |
+              | BGA | Hot air with preheater (advanced) |
+
+              **Don't**:
+              - Yank components while solder is solid
+              - Overheat pads (they lift!)
+              - Use excessive force
+
           - name: SMD basics
+            notes: |
+              Surface-mount soldering opens up modern components — it's easier than it looks.
+
+              **SMD vs Through-Hole**
+
+              | Aspect | SMD | Through-Hole |
+              |--------|-----|--------------|
+              | Size | Smaller | Larger |
+              | Assembly | One side | Insert through holes |
+              | Hand soldering | Different technique | Traditional |
+              | Rework | Easier in some ways | Individual pins accessible |
+
+              **Common SMD Packages**
+
+              *Passives (resistors, capacitors):*
+              - 0201: Tiny (needs microscope)
+              - 0402: Very small (challenging)
+              - 0603: Small but hand-solderable
+              - 0805: Easy hand soldering
+              - 1206: Largest common size
+
+              *ICs:*
+              - SOT-23: Small transistors (3–6 pins)
+              - SOIC: Larger pitch, easy (1.27mm pitch)
+              - TSSOP: Tighter pitch (0.65mm)
+              - QFP: Four-sided, various pitches
+              - QFN/DFN: No leads, pads underneath
+              - BGA: Ball grid array (requires reflow)
+
+              **Hand Soldering SMD Technique**
+
+              *Two-terminal components (0805, 0603):*
+              1. Tin one pad with small amount of solder
+              2. Hold component with tweezers
+              3. Reflow tinned pad while positioning component
+              4. Release — component is tacked
+              5. Solder other end normally
+              6. Touch up first joint if needed
+
+              *SOIC/TSSOP ICs:*
+              1. Apply flux to pads
+              2. Tack one corner pin
+              3. Align all other pins
+              4. Tack opposite corner
+              5. Drag solder across pins (flux helps prevent bridges)
+              6. Remove bridges with wick
+
+              **Essential SMD Tools**
+
+              - Fine-tip tweezers (curved and straight)
+              - Flux pen or syringe
+              - Fine solder (0.5mm or thinner)
+              - Magnification (loupe, microscope, or magnifying lamp)
+              - Fine chisel or conical tip
+
+              **Common SMD Problems**
+
+              | Problem | Cause | Fix |
+              |---------|-------|-----|
+              | Bridges | Too much solder, no flux | Add flux, wick away excess |
+              | Tombstoning | Uneven heating | Heat both pads evenly |
+              | Cold joint | Insufficient heat | Reflow with more heat/time |
+              | Component moved | Touched before solidified | Reflow and hold still |
+
+              **When Hand Soldering Won't Work**
+
+              - BGA packages (balls underneath)
+              - QFN with large ground pad
+              - Very fine pitch (<0.4mm)
+
+              These need reflow oven, hot air, or hot plate.
         optional: true
         resources:
           - label: SparkFun Soldering

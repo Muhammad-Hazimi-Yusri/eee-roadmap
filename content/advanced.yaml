@@ -30,9 +30,133 @@ sections:
           - Understand continuous vs discontinuous conduction
         concepts:
           - name: Buck converter
+            notes: |
+              The buck converter steps voltage DOWN. It's the most common DC-DC topology, found in everything from phone chargers to CPU voltage regulators.
+
+              ![Buck converter topology](https://upload.wikimedia.org/wikipedia/commons/0/09/Buck_converter.svg)
+
+              ## Operating Principle
+
+              When the switch (MOSFET) is ON, current flows through the inductor to the load, storing energy in the inductor's magnetic field. When the switch is OFF, the inductor releases its energy through the freewheeling diode to maintain current flow.
+
+              ## Key Equations
+
+              Output voltage (ideal, CCM):
+
+              $$V_{out} = D \cdot V_{in}$$
+
+              Where $D$ is the duty cycle (0 to 1). Since $D < 1$, output is always less than input.
+
+              Inductor ripple current:
+
+              $$\Delta I_L = \frac{V_{out}(1-D)}{L \cdot f_{sw}}$$
+
+              Output voltage ripple:
+
+              $$\Delta V_{out} = \frac{\Delta I_L}{8 \cdot f_{sw} \cdot C}$$
+
+              ## Design Considerations
+
+              Choose $L$ large enough to stay in CCM at minimum load. Choose $C$ to meet ripple requirements. Higher switching frequency $f_{sw}$ allows smaller L and C but increases switching losses.
+
+              The buck is synchronous when the diode is replaced with a second MOSFET for higher efficiency.
+
           - name: Boost converter
+            notes: |
+              The boost converter steps voltage UP. Essential for battery-powered devices that need higher voltages than a single cell provides (e.g., 3.7V Li-ion to 5V USB).
+
+              ![Boost converter topology](https://upload.wikimedia.org/wikipedia/commons/0/09/Boost_converter.svg)
+
+              ## Operating Principle
+
+              When the switch is ON, current builds in the inductor while the output capacitor supplies the load. When the switch is OFF, the inductor voltage adds to the input voltage, forward-biasing the diode and charging the capacitor to a higher voltage.
+
+              ## Key Equations
+
+              Output voltage (ideal, CCM):
+
+              $$V_{out} = \frac{V_{in}}{1-D}$$
+
+              As $D \to 1$, $V_{out} \to \infty$ (theoretically). Practical limit is about 4-5x boost due to losses.
+
+              Inductor current (average):
+
+              $$I_L = \frac{I_{out}}{1-D}$$
+
+              Note: Inductor current is HIGHER than output current — this is key for component selection.
+
+              ## Design Considerations
+
+              The boost has right-half-plane zero, making it harder to stabilize than the buck. Input current is continuous (good for batteries), but output current is pulsed (need larger output cap).
+
+              Boost converters cannot limit inrush current at startup — consider soft-start or pre-charge circuits.
+
           - name: Duty cycle
+            notes: |
+              Duty cycle is the ratio of ON-time to total switching period. It's the primary control variable in PWM converters.
+
+              $$D = \frac{t_{on}}{T} = t_{on} \cdot f_{sw}$$
+
+              Where $T = t_{on} + t_{off}$ is the switching period and $f_{sw} = 1/T$ is the switching frequency.
+
+              ## Duty Cycle by Topology
+
+              | Topology | Voltage Relationship | D Range |
+              |----------|---------------------|---------|
+              | Buck | $V_{out} = D \cdot V_{in}$ | 0 to 1 |
+              | Boost | $V_{out} = V_{in}/(1-D)$ | 0 to 1 |
+              | Buck-Boost | $V_{out} = -D \cdot V_{in}/(1-D)$ | 0 to 1 |
+
+              ## Practical Limits
+
+              Extreme duty cycles (very low or very high) cause problems:
+              - Very low D: Minimum on-time limits of gate drivers
+              - Very high D: No time for inductor reset, transformer core saturation
+
+              Typical practical range is 10% to 90%. For wider conversion ratios, consider transformer-isolated topologies or cascaded converters.
+
+              ## Control Methods
+
+              Voltage-mode control: PWM comparator compares error amplifier output to sawtooth ramp.
+
+              Current-mode control: Inner current loop sets duty cycle based on inductor current, outer voltage loop sets current reference. Provides inherent overcurrent protection and better transient response.
+
           - name: CCM/DCM
+            notes: |
+              CCM (Continuous Conduction Mode) and DCM (Discontinuous Conduction Mode) describe whether inductor current reaches zero during the switching cycle.
+
+              ## CCM - Continuous Conduction Mode
+
+              Inductor current never reaches zero. Current ripples around a DC average.
+
+              Characteristics:
+              - Simple voltage conversion ratios ($V_{out} = D \cdot V_{in}$ for buck)
+              - Lower peak currents, lower RMS currents
+              - Second-order system dynamics
+              - Preferred for high-power applications
+
+              ## DCM - Discontinuous Conduction Mode
+
+              Inductor current reaches zero and stays zero for part of each cycle.
+
+              Characteristics:
+              - Voltage ratio depends on load: $V_{out} = f(D, V_{in}, L, R_{load}, f_{sw})$
+              - Higher peak currents for same average power
+              - First-order dynamics (easier to stabilize)
+              - Common in light-load conditions
+
+              ## Boundary Condition
+
+              The CCM/DCM boundary occurs when minimum inductor current just touches zero:
+
+              $$L_{crit} = \frac{(1-D) \cdot R_{load}}{2 \cdot f_{sw}}$$
+
+              For $L > L_{crit}$, converter operates in CCM.
+
+              ## Design Implications
+
+              Many converters operate in CCM at full load and transition to DCM at light load. Modern controllers often use different compensation for each mode or force CCM with synchronous rectification.
+
         resources:
           - label: MIT OCW 6.334
             url: https://ocw.mit.edu/courses/6-334-power-electronics-spring-2007/
@@ -55,9 +179,159 @@ sections:
           - Calculate power factor and THD
         concepts:
           - name: Bridge rectifier
+            notes: |
+              Bridge rectifiers convert AC to DC using four diodes arranged so current always flows the same direction through the load, regardless of AC polarity.
+
+              ![Full-wave bridge rectifier](https://upload.wikimedia.org/wikipedia/commons/c/c9/Full-wave-bridge-rectifier.svg)
+
+              ## Half-Wave vs Full-Wave
+
+              Half-wave (single diode): Only conducts on positive half-cycles. Output frequency equals input frequency. Poor efficiency, high ripple.
+
+              Full-wave bridge: Conducts on both half-cycles. Output frequency is 2× input frequency. Better efficiency, lower ripple.
+
+              ## Key Equations
+
+              For full-wave bridge with resistive load:
+
+              Average DC output voltage:
+
+              $$V_{dc} = \frac{2 V_m}{\pi} \approx 0.637 V_m$$
+
+              RMS output voltage:
+
+              $$V_{rms} = \frac{V_m}{\sqrt{2}} \approx 0.707 V_m$$
+
+              Ripple factor:
+
+              $$r = \sqrt{\left(\frac{V_{rms}}{V_{dc}}\right)^2 - 1} \approx 0.48$$
+
+              ## Adding a Filter Capacitor
+
+              With capacitor filter, output voltage approaches $V_m$ (peak). Ripple voltage:
+
+              $$\Delta V \approx \frac{I_{load}}{2 f C}$$
+
+              Larger C = lower ripple, but higher inrush current and worse power factor.
+
+              ## Diode Selection
+
+              PIV (Peak Inverse Voltage) rating must exceed $V_m$ for half-wave, $2V_m$ for center-tap, or $V_m$ for bridge. Current rating must handle peak and average currents including capacitor charging spikes.
+
           - name: H-bridge
+            notes: |
+              The H-bridge is a four-switch topology that can apply positive, negative, or zero voltage across a load. Named for its H-shaped schematic appearance.
+
+              ![H-bridge circuit](https://upload.wikimedia.org/wikipedia/commons/d/d4/H_bridge.svg)
+
+              ## Operating States
+
+              | State | Q1 | Q2 | Q3 | Q4 | Load Voltage |
+              |-------|----|----|----|----|--------------|
+              | Forward | ON | OFF | OFF | ON | +Vdc |
+              | Reverse | OFF | ON | ON | OFF | -Vdc |
+              | Brake (high) | ON | OFF | ON | OFF | 0 (shorted) |
+              | Brake (low) | OFF | ON | OFF | ON | 0 (shorted) |
+              | Coast | OFF | OFF | OFF | OFF | 0 (open) |
+
+              ## Shoot-Through Protection
+
+              NEVER turn on both switches in the same leg (Q1+Q2 or Q3+Q4) simultaneously — this creates a short circuit called "shoot-through."
+
+              Dead-time (both switches off briefly during transitions) prevents shoot-through but introduces distortion. Typical dead-time: 100ns - 1µs.
+
+              ## Applications
+
+              - DC motor speed and direction control
+              - Single-phase inverters (DC to AC)
+              - Class D audio amplifiers
+              - Stepper motor drivers (two H-bridges)
+
+              ## Gate Drive Considerations
+
+              High-side switches (Q1, Q3) have floating source/emitter. Requires bootstrap or isolated gate drive. Low-side switches can use ground-referenced drivers.
+
           - name: PWM
+            notes: |
+              Pulse Width Modulation creates an average voltage by rapidly switching between two levels. The duty cycle determines the average.
+
+              ![PWM principle](https://upload.wikimedia.org/wikipedia/commons/8/8e/Pwm.svg)
+
+              ## Sinusoidal PWM (SPWM)
+
+              For inverters producing AC, the duty cycle varies sinusoidally:
+
+              $$D(t) = 0.5 + 0.5 \cdot m \cdot \sin(\omega t)$$
+
+              Where $m$ is the modulation index (0 to 1).
+
+              The fundamental output voltage:
+
+              $$V_{1,rms} = \frac{m \cdot V_{dc}}{\sqrt{2}}$$
+
+              ## Switching Frequency Selection
+
+              Higher $f_{sw}$ advantages:
+              - Harmonics pushed to higher frequencies (easier to filter)
+              - Smaller filter inductors and capacitors
+
+              Higher $f_{sw}$ disadvantages:
+              - Higher switching losses
+              - More EMI
+              - Gate driver limitations
+
+              Typical ranges: 10-100 kHz for motor drives, 100+ kHz for audio.
+
+              ## Three-Phase PWM
+
+              Three H-bridge legs with 120° phase-shifted modulation signals. Space Vector Modulation (SVM) is more efficient than simple SPWM for three-phase systems.
+
+              ## Dead-Time Effects
+
+              Dead-time causes output voltage distortion, especially at low currents where the distortion is a larger percentage of the fundamental. Compensation techniques exist in most modern motor drive ICs.
+
           - name: THD
+            notes: |
+              Total Harmonic Distortion quantifies how much a waveform deviates from a pure sine wave. Critical for power quality and audio applications.
+
+              ## Definition
+
+              $$THD = \frac{\sqrt{\sum_{n=2}^{\infty} V_n^2}}{V_1} \times 100\%$$
+
+              Where $V_1$ is the fundamental (first harmonic) amplitude and $V_n$ are higher harmonic amplitudes.
+
+              Alternatively, THD can be defined relative to total RMS (THD-R):
+
+              $$THD_R = \frac{\sqrt{\sum_{n=2}^{\infty} V_n^2}}{V_{rms}}$$
+
+              ## THD Limits
+
+              | Application | Typical THD Limit |
+              |-------------|-------------------|
+              | Grid voltage | < 5% |
+              | Grid current (IEEE 519) | < 5% |
+              | Hi-Fi audio | < 0.1% |
+              | Motor drives | < 5% current |
+
+              ## Sources of Harmonics
+
+              - Rectifiers (draw current pulses, not sine)
+              - Variable frequency drives
+              - Switch-mode power supplies
+              - Fluorescent/LED lighting
+
+              ## Effects of Harmonics
+
+              - Transformer overheating (skin effect, eddy currents)
+              - Neutral conductor overload in three-phase systems
+              - Capacitor overheating and failure
+              - Motor torque pulsations and heating
+              - Metering errors
+
+              ## Mitigation
+
+              Active filters inject anti-phase harmonics. Passive LC filters tuned to specific harmonics. Multi-pulse rectifiers (12, 18, 24-pulse) cancel certain harmonics.
+
         resources:
           - label: MIT OCW 6.334
             url: https://ocw.mit.edu/courses/6-334-power-electronics-spring-2007/
@@ -78,9 +352,159 @@ sections:
           - Understand gate drive requirements
         concepts:
           - name: Power MOSFET
+            notes: |
+              Power MOSFETs are voltage-controlled switches optimized for high-current, fast-switching applications. Dominant in low-to-medium voltage (< 600V) power electronics.
+
+              ![MOSFET structure](https://upload.wikimedia.org/wikipedia/commons/a/a5/MOSFET_Structure.svg)
+
+              ## Key Parameters
+
+              $R_{DS(on)}$: On-state resistance. Lower is better. Increases with temperature (positive tempco aids parallel operation). Typical: 1mΩ to 100mΩ.
+
+              $V_{DS(max)}$: Maximum drain-source voltage. Common ratings: 30V, 60V, 100V, 200V, 600V.
+
+              $Q_g$: Total gate charge. Determines switching speed and gate driver requirements.
+
+              $C_{iss}$, $C_{oss}$, $C_{rss}$: Input, output, reverse transfer capacitances. Affect switching dynamics.
+
+              ## Figure of Merit
+
+              For a given voltage rating, the FOM captures the tradeoff between conduction and switching losses:
+
+              $$FOM = R_{DS(on)} \times Q_g$$
+
+              Lower FOM = better device. Modern devices achieve < 50 mΩ·nC.
+
+              ## Body Diode
+
+              Inherent in MOSFET structure. Conducts when $V_{DS}$ reverses. Slow reverse recovery can cause losses — use external Schottky or synchronous rectification carefully.
+
+              ## When to Use MOSFETs
+
+              - Low voltage (< 200V): MOSFETs dominate
+              - High frequency (> 100 kHz): MOSFETs preferred
+              - Low power: MOSFETs simpler to drive
+              - Above 600V or high power: Consider IGBTs
+
           - name: IGBT
+            notes: |
+              The Insulated Gate Bipolar Transistor combines MOSFET gate drive simplicity with BJT-like low conduction losses at high voltage. Dominant in high-power applications.
+
+              ![IGBT cross section](https://upload.wikimedia.org/wikipedia/commons/1/1c/IGBT_cross_section.svg)
+
+              ## Structure
+
+              IGBT is essentially a MOSFET driving a PNP BJT. The MOSFET provides voltage-controlled gate, the BJT provides conductivity modulation for low $V_{CE(sat)}$.
+
+              ## Key Parameters
+
+              $V_{CE(sat)}$: Collector-emitter saturation voltage (1.5V to 3V typical). Unlike MOSFET $R_{DS(on)}$, this is relatively constant with current.
+
+              $V_{CE(max)}$: Voltage rating. Common: 600V, 1200V, 1700V, 3300V, 6500V.
+
+              $t_{off}$: Turn-off time. IGBTs have "tail current" during turn-off due to stored charge. Longer than MOSFETs.
+
+              ## Conduction Loss Comparison
+
+              MOSFET: $P_{cond} = I^2 \cdot R_{DS(on)}$ — quadratic with current
+
+              IGBT: $P_{cond} \approx V_{CE(sat)} \cdot I$ — linear with current
+
+              At high currents, IGBT wins. Crossover point depends on specific devices.
+
+              ## When to Use IGBTs
+
+              - High voltage (> 600V)
+              - High power (> 1 kW)
+              - Lower switching frequency (< 50 kHz typical)
+              - Motor drives, inverters, UPS, welding
+
+              ## No Body Diode
+
+              Unlike MOSFETs, IGBTs have no intrinsic body diode. External anti-parallel diodes required for inductive loads.
+
           - name: Switching losses
+            notes: |
+              Switching losses occur during transitions when both voltage and current are simultaneously non-zero. Often dominates total losses at high frequencies.
+
+              ## Turn-On Loss
+
+              During turn-on, voltage across the device falls while current rises. Energy lost:
+
+              $$E_{on} = \frac{1}{2} V_{DS} \cdot I_D \cdot t_{rise}$$
+
+              ## Turn-Off Loss
+
+              During turn-off, current falls while voltage rises:
+
+              $$E_{off} = \frac{1}{2} V_{DS} \cdot I_D \cdot t_{fall}$$
+
+              ## Total Switching Power Loss
+
+              $$P_{sw} = (E_{on} + E_{off}) \cdot f_{sw} = \frac{1}{2} V_{DS} \cdot I_D \cdot (t_{rise} + t_{fall}) \cdot f_{sw}$$
+
+              ## Factors Affecting Switching Loss
+
+              - Gate drive strength: Stronger drive = faster switching = lower loss
+              - Parasitic inductance: Causes voltage overshoot, slows transitions
+              - Reverse recovery: Diode reverse recovery adds to MOSFET turn-on loss
+              - Temperature: Higher temp = slower switching (more loss)
+
+              ## Loss Reduction Techniques
+
+              - Soft switching (ZVS, ZCS): Switch at zero voltage or zero current
+              - Snubbers: Slow dV/dt or dI/dt to reduce stress (but add loss elsewhere)
+              - Better devices: SiC and GaN have faster switching, lower capacitances
+              - Lower frequency: Reduces switching events (but larger passives)
+
+              ## Datasheet Parameters
+
+              Look for $E_{on}$, $E_{off}$, $E_{rr}$ (reverse recovery) in datasheets. These are test-condition specific — scale appropriately for your application.
+
           - name: Thermal design
+            notes: |
+              Thermal management ensures junction temperature stays within safe limits. Poor thermal design leads to reduced reliability, derating, or catastrophic failure.
+
+              ## Thermal Model
+
+              Electrical analogy: Heat flow = current, temperature difference = voltage, thermal resistance = resistance.
+
+              $$T_j = T_a + P_{total} \cdot (R_{th,jc} + R_{th,cs} + R_{th,sa})$$
+
+              Where:
+              - $T_j$ = junction temperature
+              - $T_a$ = ambient temperature
+              - $R_{th,jc}$ = junction-to-case (device property)
+              - $R_{th,cs}$ = case-to-sink (interface material)
+              - $R_{th,sa}$ = sink-to-ambient (heatsink property)
+
+              ## Maximum Junction Temperature
+
+              Silicon devices: typically 150°C to 175°C max
+              SiC devices: up to 200°C
+              Derating: Design for 20-30°C margin below max
+
+              ## Thermal Interface Materials
+
+              | Material | Thermal Conductivity | Application |
+              |----------|---------------------|-------------|
+              | Thermal paste | 0.5-5 W/m·K | General use |
+              | Thermal pad | 1-6 W/m·K | Easy assembly |
+              | Phase change | 3-5 W/m·K | Better conformity |
+              | Solder/direct bond | 20-400 W/m·K | Lowest resistance |
+
+              ## Heatsink Selection
+
+              Required thermal resistance:
+
+              $$R_{th,sa} < \frac{T_{j,max} - T_a}{P_{total}} - R_{th,jc} - R_{th,cs}$$
+
+              Consider forced air cooling if natural convection insufficient. Liquid cooling for very high power density.
+
+              ## Transient Thermal Impedance
+
+              For pulsed loads, thermal capacitance matters. Datasheets provide transient thermal impedance curves ($Z_{th}$ vs pulse width) for calculating peak junction temperature during transients.
+
         optional: true
         resources:
           - label: MIT OCW 6.334
@@ -107,9 +531,175 @@ sections:
           - Determine system stability using pole locations
         concepts:
           - name: Open/closed loop
+            notes: |
+              Control systems are either open-loop (no feedback) or closed-loop (with feedback). This distinction fundamentally affects system behavior.
+
+              ![Feedback loop block diagram](https://upload.wikimedia.org/wikipedia/commons/2/24/Feedback_loop_with_descriptions.svg)
+
+              ## Open-Loop Control
+
+              Output has no influence on input. The controller blindly applies a pre-determined input.
+
+              Examples:
+              - Toaster timer (doesn't measure toast color)
+              - Washing machine cycle (doesn't measure cleanliness)
+              - Stepper motor positioning (assumes no missed steps)
+
+              Characteristics:
+              - Simple and cheap
+              - No stability issues
+              - Cannot correct for disturbances
+              - Requires accurate plant model
+
+              ## Closed-Loop Control
+
+              Output is measured and compared to reference. Error drives the controller.
+
+              $$e(t) = r(t) - y(t)$$
+
+              Where $r(t)$ is reference (setpoint), $y(t)$ is output, $e(t)$ is error.
+
+              Examples:
+              - Thermostat (measures temperature)
+              - Cruise control (measures speed)
+              - Servo motor (measures position)
+
+              Characteristics:
+              - Rejects disturbances
+              - Reduces sensitivity to plant variations
+              - Can be unstable if poorly designed
+              - Requires sensors
+
+              ## Why Negative Feedback?
+
+              Negative feedback subtracts output from reference. If output is too high, error becomes negative, reducing the control effort. This creates self-correcting behavior.
+
+              Positive feedback adds output to reference — any perturbation grows exponentially. Used in oscillators and latches, not regulation.
+
           - name: Transfer function
+            notes: |
+              The transfer function is the Laplace-domain ratio of output to input, assuming zero initial conditions. It completely characterizes LTI (Linear Time-Invariant) system behavior.
+
+              $$G(s) = \frac{Y(s)}{U(s)}$$
+
+              ## Deriving Transfer Functions
+
+              From differential equations: Take Laplace transform, assume zero ICs, solve for Y(s)/U(s).
+
+              Example — RC lowpass filter:
+
+              $$\tau \frac{dy}{dt} + y = u \quad \xrightarrow{\mathcal{L}} \quad \tau s Y(s) + Y(s) = U(s)$$
+
+              $$G(s) = \frac{Y(s)}{U(s)} = \frac{1}{\tau s + 1}$$
+
+              ## Poles and Zeros
+
+              Transfer function in factored form:
+
+              $$G(s) = K \frac{(s-z_1)(s-z_2)\cdots}{(s-p_1)(s-p_2)\cdots}$$
+
+              Zeros ($z_i$): Values where $G(s) = 0$
+              Poles ($p_i$): Values where $G(s) \to \infty$
+
+              Poles determine stability and natural response. Zeros affect transient shape and frequency response.
+
+              ## Closed-Loop Transfer Function
+
+              For unity feedback system with forward path $G(s)$:
+
+              $$T(s) = \frac{G(s)}{1 + G(s)}$$
+
+              With feedback path $H(s)$:
+
+              $$T(s) = \frac{G(s)}{1 + G(s)H(s)}$$
+
+              The denominator $1 + G(s)H(s) = 0$ is the **characteristic equation** — its roots are the closed-loop poles.
+
+              ## Block Diagram Algebra
+
+              Series: $G_1(s) \cdot G_2(s)$
+              Parallel: $G_1(s) + G_2(s)$
+              Feedback: $\frac{G(s)}{1 \pm G(s)H(s)}$
+
           - name: Steady-state error
+            notes: |
+              Steady-state error is the difference between desired and actual output as $t \to \infty$. A well-designed system minimizes this for expected input types.
+
+              ## Final Value Theorem
+
+              $$e_{ss} = \lim_{t \to \infty} e(t) = \lim_{s \to 0} s \cdot E(s)$$
+
+              For unity feedback with reference $R(s)$:
+
+              $$E(s) = \frac{R(s)}{1 + G(s)}$$
+
+              ## System Type
+
+              System type = number of integrators (poles at $s=0$) in open-loop transfer function $G(s)$.
+
+              | Type | Step Error | Ramp Error | Parabola Error |
+              |------|------------|------------|----------------|
+              | 0 | $\frac{1}{1+K_p}$ | $\infty$ | $\infty$ |
+              | 1 | 0 | $\frac{1}{K_v}$ | $\infty$ |
+              | 2 | 0 | 0 | $\frac{1}{K_a}$ |
+
+              ## Error Constants
+
+              Position constant: $K_p = \lim_{s \to 0} G(s)$
+
+              Velocity constant: $K_v = \lim_{s \to 0} s \cdot G(s)$
+
+              Acceleration constant: $K_a = \lim_{s \to 0} s^2 \cdot G(s)$
+
+              ## Design Implications
+
+              To track ramps with zero steady-state error, you need at least one integrator (Type 1 system). PID controllers add an integrator via the I term.
+
+              Higher type = better tracking but harder to stabilize. Type 2+ systems are rarely used in practice.
+
+              ## Disturbance Rejection
+
+              Steady-state error due to disturbances also depends on where the disturbance enters. Integrators before the disturbance point help reject it.
+
           - name: Stability
+            notes: |
+              A system is stable if bounded inputs produce bounded outputs (BIBO stability). For LTI systems, stability is determined entirely by pole locations.
+
+              ## Pole Location Criterion
+
+              A continuous-time LTI system is stable if and only if ALL poles have negative real parts (lie in the left half of the s-plane).
+
+              | Pole Location | System Response |
+              |---------------|-----------------|
+              | Left half-plane (LHP) | Decaying exponential — STABLE |
+              | Right half-plane (RHP) | Growing exponential — UNSTABLE |
+              | On imaginary axis | Sustained oscillation — MARGINALLY STABLE |
+
+              ## Why Poles Determine Stability
+
+              Each pole $p_i$ contributes a term $e^{p_i t}$ to the natural response.
+
+              If $p_i = \sigma + j\omega$, then $e^{p_i t} = e^{\sigma t}(\cos\omega t + j\sin\omega t)$
+
+              - $\sigma < 0$: Decays
+              - $\sigma > 0$: Grows
+              - $\sigma = 0$: Neither decays nor grows
+
+              ## Closed-Loop Stability
+
+              Open-loop poles aren't the same as closed-loop poles! Feedback moves poles.
+
+              Closed-loop poles are roots of: $1 + G(s)H(s) = 0$
+
+              A stable open-loop system can become unstable with feedback (and vice versa).
+
+              ## Stability Analysis Methods
+
+              - Direct calculation: Find roots of characteristic equation (impractical for high order)
+              - Routh-Hurwitz: Algebraic test without finding roots
+              - Root locus: Graphical method showing how poles move with gain
+              - Bode/Nyquist: Frequency domain methods using gain and phase margins
+
         resources:
           - label: Brian Douglas - Control Systems
             url: https://www.youtube.com/@BrianDouglas
@@ -131,9 +721,186 @@ sections:
           - Implement PID in software and hardware
         concepts:
           - name: P, I, D terms
+            notes: |
+              PID control combines three terms, each responding to a different aspect of the error signal.
+
+              ![PID controller block diagram](https://upload.wikimedia.org/wikipedia/commons/4/43/PID_en.svg)
+
+              ## Time Domain
+
+              $$u(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de(t)}{dt}$$
+
+              ## Laplace Domain
+
+              $$C(s) = K_p + \frac{K_i}{s} + K_d s$$
+
+              Or in standard form:
+
+              $$C(s) = K_p \left(1 + \frac{1}{T_i s} + T_d s\right)$$
+
+              Where $T_i = K_p/K_i$ (integral time) and $T_d = K_d/K_p$ (derivative time).
+
+              ## Proportional (P)
+
+              Output proportional to current error.
+
+              - Larger $K_p$ = faster response
+              - Too large = overshoot, oscillation, instability
+              - Cannot eliminate steady-state error alone (except Type 1+ plants)
+
+              ## Integral (I)
+
+              Output proportional to accumulated error over time.
+
+              - Eliminates steady-state error
+              - Slower response than P alone
+              - Too large = overshoot, slow oscillation
+              - Risk of integrator windup
+
+              ## Derivative (D)
+
+              Output proportional to rate of change of error.
+
+              - Predicts future error, provides damping
+              - Reduces overshoot and settling time
+              - Sensitive to noise (differentiation amplifies HF noise)
+              - Often filtered: $K_d s \to \frac{K_d s}{1 + \tau_f s}$
+
+              ## Common Variants
+
+              - PI: Most common industrial controller (no noise issues)
+              - PD: Used when steady-state error acceptable
+              - P-only: Simplest, for non-critical applications
+
           - name: Tuning methods
+            notes: |
+              PID tuning finds gain values that give good performance for a specific plant. Many methods exist, from manual to automatic.
+
+              ## Ziegler-Nichols (Open-Loop)
+
+              Apply step input to open-loop plant. Measure:
+              - $L$ = delay time (intersection of tangent with time axis)
+              - $T$ = time constant (tangent slope)
+              - $K$ = DC gain
+
+              | Controller | $K_p$ | $T_i$ | $T_d$ |
+              |------------|-------|-------|-------|
+              | P | $T/(KL)$ | — | — |
+              | PI | $0.9T/(KL)$ | $L/0.3$ | — |
+              | PID | $1.2T/(KL)$ | $2L$ | $0.5L$ |
+
+              ## Ziegler-Nichols (Closed-Loop)
+
+              Use P-only control. Increase $K_p$ until sustained oscillation. Record:
+              - $K_u$ = ultimate gain (gain at oscillation)
+              - $T_u$ = ultimate period (oscillation period)
+
+              | Controller | $K_p$ | $T_i$ | $T_d$ |
+              |------------|-------|-------|-------|
+              | P | $0.5K_u$ | — | — |
+              | PI | $0.45K_u$ | $T_u/1.2$ | — |
+              | PID | $0.6K_u$ | $T_u/2$ | $T_u/8$ |
+
+              ## Cohen-Coon
+
+              More aggressive tuning, better for self-regulating processes with significant dead time.
+
+              ## Software/Auto-Tuning
+
+              Modern controllers use relay feedback or model identification to auto-tune. MATLAB's `pidtune` optimizes for specified bandwidth and phase margin.
+
+              ## Manual Tuning Rules
+
+              1. Start with $K_i = 0$, $K_d = 0$
+              2. Increase $K_p$ until acceptable response with some overshoot
+              3. Add $K_i$ to eliminate steady-state error (causes more overshoot)
+              4. Add $K_d$ to reduce overshoot and improve settling
+
           - name: Anti-windup
+            notes: |
+              Integrator windup occurs when the controller output saturates but the integrator keeps accumulating error. When the error reverses, the "wound up" integrator causes massive overshoot.
+
+              ## The Problem
+
+              Consider a temperature controller with output limited to 0-100% heater power:
+
+              1. Large setpoint change requested
+              2. Controller commands 200% power (impossible)
+              3. Actual output saturates at 100%
+              4. Integrator keeps accumulating error
+              5. When temperature approaches setpoint, integrator has huge accumulated value
+              6. Takes long time to "unwind" — massive overshoot
+
+              ## Solution 1: Conditional Integration
+
+              Stop integrating when output is saturated:
+              ```
+              if (output < max AND output > min):
+                  integral += error * dt
+              ```
+
+              Simple but can cause bumpy response during saturation.
+
+              ## Solution 2: Back-Calculation
+
+              When saturated, feed back the difference between commanded and actual output to "unwind" the integrator:
+
+              $$\frac{d}{dt}(\text{integral}) = K_i \cdot e + K_b \cdot (u_{actual} - u_{commanded})$$
+
+              Where $K_b \approx 1/T_i$ is the back-calculation gain.
+
+              ## Solution 3: Clamping
+
+              Limit the integrator state directly:
+
+              $$\text{integral} = \text{clamp}(\text{integral}, I_{min}, I_{max})$$
+
+              Choose limits so that integral term alone cannot saturate output.
+
+              ## Practical Note
+
+              All industrial PID controllers include anti-windup. If implementing your own, ALWAYS include it — windup causes spectacular failures in real systems.
+
           - name: Derivative kick
+            notes: |
+              Derivative kick is a large spike in controller output when the setpoint changes suddenly. The derivative term sees an instantaneous change in error as a huge rate of change.
+
+              ## The Problem
+
+              Standard derivative term: $K_d \frac{de}{dt} = K_d \frac{d(r-y)}{dt}$
+
+              If setpoint $r$ steps instantly, $\frac{dr}{dt} \to \infty$ for an instant, causing a massive output spike.
+
+              ## Solution: Derivative on Measurement Only
+
+              Differentiate output (measurement) instead of error:
+
+              $$u_d = -K_d \frac{dy}{dt}$$
+
+              Note the negative sign! Setpoint changes don't affect derivative term. Only actual process changes do.
+
+              ## Implementation Comparison
+
+              Derivative on error: $D(s) = K_d s \cdot E(s) = K_d s \cdot (R(s) - Y(s))$
+
+              Derivative on measurement: $D(s) = -K_d s \cdot Y(s)$
+
+              ## Setpoint Weighting
+
+              More general solution — weight the setpoint in each term:
+
+              $$u = K_p(br - y) + K_i\int(r-y)dt + K_d\frac{d(cr-y)}{dt}$$
+
+              Where $b$ and $c$ are setpoint weights (0 to 1).
+
+              - $b = 1$, $c = 0$: P on error, D on measurement (common)
+              - $b = c = 0$: PI on error, D on measurement
+              - $b = c = 1$: Standard PID (with kick)
+
+              ## Practical Default
+
+              Most industrial controllers default to derivative on measurement. If you see setpoint step causing output spike, check this setting.
+
         resources:
           - label: Brian Douglas - PID
             url: https://www.youtube.com/@BrianDouglas
@@ -156,9 +923,176 @@ sections:
           - Use root locus for controller design
         concepts:
           - name: Bode plot
+            notes: |
+              Bode plots show system frequency response as two graphs: magnitude (in dB) and phase (in degrees) versus frequency (log scale).
+
+              ![Bode plot example](https://upload.wikimedia.org/wikipedia/commons/6/60/Bode_plot_template.svg)
+
+              ## Construction
+
+              Evaluate $G(j\omega)$ for $\omega$ from very low to very high:
+
+              Magnitude: $|G(j\omega)|_{dB} = 20 \log_{10}|G(j\omega)|$
+
+              Phase: $\angle G(j\omega)$ in degrees
+
+              ## Standard First-Order Terms
+
+              Pole at origin ($1/s$):
+              - Magnitude: $-20$ dB/decade line through 0 dB at $\omega = 1$
+              - Phase: constant $-90°$
+
+              Real pole ($1/(1+s/\omega_p)$):
+              - Magnitude: 0 dB until $\omega_p$, then $-20$ dB/decade
+              - Phase: 0° at low freq, $-45°$ at $\omega_p$, $-90°$ at high freq
+
+              Real zero ($1+s/\omega_z$):
+              - Magnitude: 0 dB until $\omega_z$, then $+20$ dB/decade
+              - Phase: 0° at low freq, $+45°$ at $\omega_z$, $+90°$ at high freq
+
+              ## Second-Order Terms
+
+              Complex poles add resonant peak at natural frequency. Height depends on damping ratio $\zeta$. Phase drops $180°$ across resonance.
+
+              ## Reading Bode Plots
+
+              - Bandwidth: Frequency where magnitude drops 3 dB below DC value
+              - Gain crossover ($\omega_{gc}$): Where magnitude = 0 dB
+              - Phase crossover ($\omega_{pc}$): Where phase = $-180°$
+              - Stability margins: Measured at these crossover frequencies
+
           - name: Gain/phase margin
+            notes: |
+              Gain and phase margins quantify how close a system is to instability. Larger margins = more robust to model uncertainty.
+
+              ## Definitions
+
+              **Gain Margin (GM):** How much the gain can increase before instability.
+
+              $$GM = \frac{1}{|G(j\omega_{pc})|} \quad \text{or in dB:} \quad GM_{dB} = -20\log_{10}|G(j\omega_{pc})|$$
+
+              Where $\omega_{pc}$ is the phase crossover frequency (where phase = $-180°$).
+
+              **Phase Margin (PM):** How much phase lag can be added before instability.
+
+              $$PM = 180° + \angle G(j\omega_{gc})$$
+
+              Where $\omega_{gc}$ is the gain crossover frequency (where $|G| = 1$ or 0 dB).
+
+              ## Graphical Interpretation
+
+              On Bode plot:
+              - GM = vertical distance from magnitude curve to 0 dB line, at $\omega_{pc}$
+              - PM = vertical distance from phase curve to $-180°$ line, at $\omega_{gc}$
+
+              ## Recommended Values
+
+              | Application | Gain Margin | Phase Margin |
+              |-------------|-------------|--------------|
+              | Minimum | > 6 dB | > 30° |
+              | Typical design | 10-20 dB | 45-60° |
+              | Very robust | > 20 dB | > 60° |
+
+              ## Relationship to Transient Response
+
+              For second-order-like systems, phase margin relates to damping:
+
+              $$\zeta \approx \frac{PM}{100}$$ (rough approximation)
+
+              - PM = 45° → $\zeta \approx 0.45$ → ~25% overshoot
+              - PM = 60° → $\zeta \approx 0.6$ → ~10% overshoot
+
+              ## Design Use
+
+              Adding a controller changes gain and phase. Design controller to achieve desired margins at desired bandwidth.
+
           - name: Nyquist
+            notes: |
+              The Nyquist plot maps the open-loop frequency response on the complex plane. The Nyquist stability criterion determines closed-loop stability from this plot.
+
+              ![Nyquist plot](https://upload.wikimedia.org/wikipedia/commons/d/d1/Nyquist_plot.svg)
+
+              ## Constructing the Nyquist Plot
+
+              Plot $G(j\omega)H(j\omega)$ for $\omega$ from $-\infty$ to $+\infty$ on the complex plane.
+
+              - Real axis: $\text{Re}[G(j\omega)]$
+              - Imaginary axis: $\text{Im}[G(j\omega)]$
+
+              Since $G(-j\omega) = G^*(j\omega)$, the negative frequency portion is a mirror image.
+
+              ## Nyquist Stability Criterion
+
+              $$Z = N + P$$
+
+              Where:
+              - $Z$ = number of closed-loop poles in RHP (unstable poles)
+              - $N$ = number of clockwise encirclements of $-1$ point
+              - $P$ = number of open-loop poles in RHP
+
+              For stability: $Z = 0$, so $N = -P$
+
+              If open-loop is stable ($P = 0$), the Nyquist plot must NOT encircle $-1$.
+
+              ## Reading Margins from Nyquist
+
+              - Gain margin: Distance from origin to where plot crosses negative real axis, relative to distance from origin to $-1$
+              - Phase margin: Angle from negative real axis to where plot crosses unit circle
+
+              ## When to Use Nyquist
+
+              - Systems with RHP poles (open-loop unstable)
+              - Time delay systems
+              - Systems where Bode plot ambiguous
+              - Rigorous stability proof needed
+
+              ## Practical Note
+
+              For most systems, Bode plots are easier to interpret. Nyquist is essential when the system has time delays or when open-loop is unstable.
+
           - name: Root locus
+            notes: |
+              Root locus shows how closed-loop poles move in the s-plane as a parameter (usually gain $K$) varies from 0 to $\infty$.
+
+              ![Root locus diagram](https://upload.wikimedia.org/wikipedia/commons/f/f8/Root_Locus_diagram_.svg)
+
+              ## Basic Rules
+
+              For characteristic equation $1 + KG(s)H(s) = 0$:
+
+              1. **Start points ($K=0$):** Open-loop poles
+              2. **End points ($K \to \infty$):** Open-loop zeros (or infinity)
+              3. **Number of branches:** Number of open-loop poles
+              4. **Real axis:** Locus exists where odd number of poles+zeros to the right
+              5. **Asymptotes:** $(n-m)$ branches go to infinity at angles $\frac{180° + 360°k}{n-m}$
+              6. **Centroid:** Asymptotes intersect real axis at $\sigma_a = \frac{\sum p_i - \sum z_i}{n-m}$
+
+              ## Stability from Root Locus
+
+              System stable when all branches are in LHP. Find gain $K$ where branches cross imaginary axis — this is the stability limit.
+
+              ## Design Using Root Locus
+
+              To place closed-loop poles at desired location:
+              1. Draw root locus for plant
+              2. Add compensator poles/zeros to reshape locus
+              3. Choose gain for desired pole location
+
+              ## Compensator Effects
+
+              - Adding zero in LHP: Pulls locus left (more stable, faster)
+              - Adding pole in LHP: Pushes locus right (less stable)
+              - Lead compensator (zero left of pole): Improves stability margins
+              - Lag compensator (pole left of zero): Improves steady-state error
+
+              ## Software Tools
+
+              MATLAB: `rlocus(sys)` plots root locus; `rlocfind` finds gain for desired poles
+
+              Python: `control.root_locus(sys)`
+
+              Root locus is excellent for understanding how controller parameters affect stability and transient response.
+
         optional: true
         resources:
           - label: Brian Douglas - Stability
@@ -185,9 +1119,102 @@ sections:
           - Design matching networks
         concepts:
           - name: Characteristic impedance
+            notes: |
+              The ratio of voltage to current for a traveling wave on a transmission line, determined by the line's physical properties.
+
+              $$Z_0 = \sqrt{\frac{L}{C}}$$
+
+              Where $L$ is inductance per unit length (H/m) and $C$ is capacitance per unit length (F/m).
+
+              For lossless coaxial cable:
+
+              $$Z_0 = \frac{138}{\sqrt{\varepsilon_r}} \log_{10}\left(\frac{D}{d}\right) \, \Omega$$
+
+              Where $D$ is outer diameter, $d$ is inner conductor diameter, and $\varepsilon_r$ is relative permittivity.
+
+              **Common standard impedances:**
+              - **50Ω** - RF systems, test equipment (compromise between power handling and loss)
+              - **75Ω** - Video, cable TV (minimum loss for air-dielectric coax)
+              - **300Ω** - Twin-lead antenna feedlines
+              - **100Ω** - Differential signaling (USB, Ethernet)
+
+              ![Coaxial cable cross-section](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Coaxial_cable_cutaway.svg/400px-Coaxial_cable_cutaway.svg.png)
+
           - name: Reflection coefficient
+            notes: |
+              When a transmission line meets a load impedance different from $Z_0$, part of the wave reflects back.
+
+              $$\Gamma = \frac{Z_L - Z_0}{Z_L + Z_0}$$
+
+              The reflection coefficient $\Gamma$ (gamma) is a complex number:
+              - $|\Gamma| = 0$: Perfect match, no reflection
+              - $|\Gamma| = 1$: Total reflection (open, short, or pure reactance)
+
+              **Special cases:**
+              - Open circuit ($Z_L = \infty$): $\Gamma = +1$
+              - Short circuit ($Z_L = 0$): $\Gamma = -1$
+              - Matched load ($Z_L = Z_0$): $\Gamma = 0$
+
+              **Power relationships:**
+              - Reflected power: $P_r = |\Gamma|^2 \cdot P_i$
+              - Transmitted power: $P_t = (1 - |\Gamma|^2) \cdot P_i$
+
+              Called **return loss** in dB: $RL = -20\log_{10}|\Gamma|$
+
           - name: VSWR
+            notes: |
+              **Voltage Standing Wave Ratio** - the ratio of maximum to minimum voltage amplitude along a transmission line.
+
+              $$\text{VSWR} = \frac{V_{max}}{V_{min}} = \frac{1 + |\Gamma|}{1 - |\Gamma|}$$
+
+              **VSWR ranges from 1:1 (perfect) to ∞:1 (total mismatch):**
+
+              | VSWR | Return Loss | Reflected Power | Match Quality |
+              |------|-------------|-----------------|---------------|
+              | 1.0:1 | ∞ dB | 0% | Perfect |
+              | 1.5:1 | 14 dB | 4% | Excellent |
+              | 2.0:1 | 9.5 dB | 11% | Good |
+              | 3.0:1 | 6 dB | 25% | Acceptable |
+              | 10:1 | 1.7 dB | 67% | Poor |
+
+              Standing waves form because incident and reflected waves interfere. At voltage maxima, currents are minimum (and vice versa).
+
+              **Why VSWR matters:**
+              - High VSWR wastes power to reflections
+              - Can damage transmitter amplifiers
+              - Causes voltage stress on cables/connectors
+              - Indicates antenna or matching problems
+
+              ![Standing wave pattern](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Standing_wave_2.gif/300px-Standing_wave_2.gif)
+
           - name: Matching
+            notes: |
+              **Impedance matching** eliminates reflections by transforming load impedance to equal source/line impedance.
+
+              **Quarter-wave transformer** - simplest narrowband match:
+
+              $$Z_{match} = \sqrt{Z_0 \cdot Z_L}$$
+
+              A quarter-wavelength section of this impedance transforms $Z_L$ to $Z_0$.
+
+              **L-network** - two reactive elements (L and C) for wideband match:
+              - Series element: $X_s = \pm\sqrt{R_L(R_s - R_L)}$
+              - Shunt element: $X_p = \pm\frac{R_s R_L}{X_s}$
+
+              **Pi and T networks** - three elements for better bandwidth or specific Q.
+
+              **Stub matching:**
+              - Short or open transmission line sections
+              - Single stub: distance + stub length
+              - Double stub: two stubs at fixed spacing
+
+              **Matching network design process:**
+              1. Measure load impedance (VNA)
+              2. Plot on Smith chart
+              3. Choose topology (L, Pi, T, stub)
+              4. Calculate/tune component values
+              5. Verify VSWR across bandwidth
+
         resources:
           - label: W2AEW RF Tutorials
             url: https://www.qsl.net/w2aew/
@@ -210,8 +1237,82 @@ sections:
           - Use VNA data with Smith chart
         concepts:
           - name: Impedance mapping
+            notes: |
+              The Smith chart maps all possible complex impedances onto a unit circle using the reflection coefficient.
+
+              **Normalized impedance:** $z = Z/Z_0 = r + jx$
+
+              The transformation from normalized impedance to reflection coefficient:
+
+              $$\Gamma = \frac{z - 1}{z + 1}$$
+
+              **Reading the chart:**
+              - **Center**: $z = 1$ (matched, $\Gamma = 0$)
+              - **Right edge**: $z = \infty$ (open circuit, $\Gamma = +1$)
+              - **Left edge**: $z = 0$ (short circuit, $\Gamma = -1$)
+              - **Upper half**: Inductive (positive reactance)
+              - **Lower half**: Capacitive (negative reactance)
+
+              **Constant-R circles**: Pass through the open circuit point (right edge). The $r = 1$ circle passes through the center.
+
+              **Constant-X arcs**: Partial circles tangent to the right edge. Upper half positive (inductive), lower half negative (capacitive).
+
+              ![Smith chart basics](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Smith_chart_gen.svg/400px-Smith_chart_gen.svg.png)
+
           - name: Matching network design
+            notes: |
+              The Smith chart makes matching network design graphical rather than algebraic.
+
+              **Moving on the chart:**
+              - **Series element**: Move along constant-R circle
+                - Series L: clockwise (add positive reactance)
+                - Series C: counter-clockwise (add negative reactance)
+              - **Shunt element**: Move along constant-G circle (admittance chart)
+                - Shunt C: clockwise on admittance
+                - Shunt L: counter-clockwise on admittance
+
+              **L-network design procedure:**
+              1. Plot load impedance $Z_L$ (normalized)
+              2. Identify if load is inside or outside unity conductance circle
+              3. Add series or shunt element to reach unity circle
+              4. Add complementary element to reach center
+
+              **Transmission line sections:**
+              - Moving along line = rotating around chart center
+              - Toward generator: clockwise
+              - Toward load: counter-clockwise
+              - Full rotation = $\lambda/2$ (half wavelength)
+
+              **Q circles**: Constant Q contours help design for specific bandwidth. Higher Q = narrower bandwidth but sharper selectivity.
+
           - name: VNA measurements
+            notes: |
+              **Vector Network Analyzers** measure S-parameters and display results on Smith charts.
+
+              **S-parameters (scattering parameters):**
+              - $S_{11}$: Input reflection coefficient (return loss)
+              - $S_{21}$: Forward transmission (insertion loss/gain)
+              - $S_{12}$: Reverse transmission (isolation)
+              - $S_{22}$: Output reflection coefficient
+
+              **VNA calibration is critical:**
+              - SOL: Short, Open, Load (1-port)
+              - SOLT: Short, Open, Load, Thru (2-port)
+              - TRL: Thru, Reflect, Line (more accurate)
+
+              **Smith chart on VNA:**
+              - Single frequency: one point
+              - Frequency sweep: trace showing impedance vs frequency
+              - Marker functions: read R, X, VSWR at any point
+
+              **Practical measurements:**
+              - Antenna impedance vs frequency
+              - Filter response
+              - Amplifier input/output match
+              - Cable characterization
+
+              A well-matched antenna shows $S_{11}$ trace passing near chart center at operating frequency.
+
         resources:
           - label: W2AEW - Smith Chart
             url: https://www.qsl.net/w2aew/
@@ -232,9 +1333,103 @@ sections:
           - Interpret antenna specifications (gain, beamwidth)
         concepts:
           - name: Radiation pattern
+            notes: |
+              A graphical representation of the antenna's radiation intensity as a function of direction.
+
+              **Key pattern features:**
+              - **Main lobe**: Direction of maximum radiation
+              - **Side lobes**: Secondary maxima (usually unwanted)
+              - **Back lobe**: Radiation opposite to main lobe
+              - **Null**: Direction of minimum radiation
+
+              **Half-power beamwidth (HPBW)**: Angular width where power drops to half (-3 dB) of maximum.
+
+              **Common patterns:**
+              - **Isotropic**: Equal radiation in all directions (theoretical reference)
+              - **Omnidirectional**: Equal in azimuth, varies in elevation (dipole, whip)
+              - **Directional**: Focused beam (Yagi, dish, horn)
+
+              **Front-to-back ratio (F/B)**: Main lobe to back lobe ratio in dB. Important for rejecting interference from behind.
+
+              ![Antenna radiation pattern](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Sidelobes_en.svg/350px-Sidelobes_en.svg.png)
+
           - name: Gain
+            notes: |
+              **Antenna gain** measures how well an antenna concentrates power in a particular direction compared to a reference.
+
+              $$G = \eta \cdot D$$
+
+              Where $\eta$ is efficiency and $D$ is directivity.
+
+              **Reference antennas:**
+              - **dBi**: Gain relative to isotropic radiator
+              - **dBd**: Gain relative to half-wave dipole (0 dBd = 2.15 dBi)
+
+              **Directivity**: The ratio of radiation intensity in a given direction to the average over all directions.
+
+              $$D = \frac{4\pi}{\Omega_A}$$
+
+              Where $\Omega_A$ is the beam solid angle in steradians.
+
+              **Typical gains:**
+              | Antenna | Gain (dBi) |
+              |---------|------------|
+              | Isotropic | 0 |
+              | Short dipole | 1.76 |
+              | Half-wave dipole | 2.15 |
+              | Quarter-wave ground plane | 2-3 |
+              | 3-element Yagi | 7-8 |
+              | 10-element Yagi | 12-14 |
+              | 1m dish at 10 GHz | ~30 |
+
+              **Effective aperture**: $A_e = \frac{G \lambda^2}{4\pi}$
+
           - name: Polarization
+            notes: |
+              The orientation of the electric field vector as the wave propagates.
+
+              **Linear polarization:**
+              - **Vertical**: E-field perpendicular to ground (whip antennas, most mobile)
+              - **Horizontal**: E-field parallel to ground (TV antennas, HF horizontal dipoles)
+
+              **Circular polarization:**
+              - **Right-hand (RHCP)**: E-field rotates clockwise (looking from behind)
+              - **Left-hand (LHCP)**: E-field rotates counter-clockwise
+              - Used in satellite communications to avoid Faraday rotation issues
+
+              **Polarization mismatch loss:**
+              - Same polarization: 0 dB loss
+              - Cross-polarized linear: Theoretically infinite loss (practically 20-30 dB)
+              - Linear to circular: 3 dB loss
+              - Opposite circular: Theoretically infinite loss
+
+              **Axial ratio**: Measure of circular polarization purity. Perfect circular = 0 dB (equal axes). Practical circular antennas aim for < 3 dB.
+
           - name: Impedance matching
+            notes: |
+              **Antenna input impedance** must match the feedline for maximum power transfer.
+
+              **Half-wave dipole:**
+              - Resonant impedance: ~73 + j0 Ω (free space)
+              - Near ground: Varies with height (20-100 Ω)
+
+              **Quarter-wave monopole over ground plane:**
+              - Resonant impedance: ~36 + j0 Ω
+
+              **Impedance varies with:**
+              - Frequency (reactive below/above resonance)
+              - Element length (longer = inductive, shorter = capacitive)
+              - Proximity to ground, other objects
+              - Feed point location
+
+              **Common matching techniques:**
+              - **Gamma match**: Adjustable for Yagis
+              - **Balun**: Balanced to unbalanced (dipole to coax)
+              - **Hairpin match**: Shorted stub across feed
+              - **Quarter-wave transformer**: Simple narrowband match
+
+              **Bandwidth**: Frequency range where VSWR < 2:1. Thicker elements = wider bandwidth (lower Q).
+
         optional: true
         resources:
           - label: ARRL Antenna Book (concepts)
@@ -259,9 +1454,122 @@ sections:
           - Compare BER performance of different schemes
         concepts:
           - name: AM/FM
+            notes: |
+              **Analog modulation** - varying carrier properties in proportion to message signal.
+
+              **Amplitude Modulation (AM):**
+
+              $$s(t) = A_c[1 + m \cdot x(t)]\cos(2\pi f_c t)$$
+
+              Where $m$ is modulation index (keep $m \leq 1$ to avoid overmodulation).
+
+              - **Bandwidth**: $BW = 2f_m$ (twice the message bandwidth)
+              - **Efficiency**: Only 1/3 of power carries information (carrier + two sidebands)
+              - **DSB-SC**: Suppressed carrier, more efficient but needs synchronous detection
+              - **SSB**: Single sideband, half bandwidth, used in HF radio
+
+              **Frequency Modulation (FM):**
+
+              $$s(t) = A_c \cos\left(2\pi f_c t + 2\pi k_f \int x(\tau)d\tau\right)$$
+
+              - **Deviation**: $\Delta f = k_f \cdot \max|x(t)|$
+              - **Modulation index**: $\beta = \Delta f / f_m$
+              - **Bandwidth** (Carson's rule): $BW \approx 2(\Delta f + f_m) = 2f_m(\beta + 1)$
+
+              **FM advantages**: Noise immunity (capture effect), constant envelope (efficient amplifiers). **Disadvantage**: Wider bandwidth than AM.
+
+              ![AM and FM waveforms](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Amfm3-en-de.gif/250px-Amfm3-en-de.gif)
+
           - name: ASK/FSK/PSK
+            notes: |
+              **Digital modulation** - discrete symbols representing bits.
+
+              **ASK (Amplitude Shift Keying):**
+              - Binary: Two amplitude levels (OOK is special case with 0 and 1)
+              - Simple but susceptible to noise and fading
+              - $BW \approx 2R_b$ for binary ASK
+
+              **FSK (Frequency Shift Keying):**
+
+              $$s(t) = A_c \cos(2\pi f_i t)$$
+
+              Where $f_i$ switches between frequencies for each symbol.
+
+              - More robust to amplitude noise than ASK
+              - $BW \approx 2\Delta f + 2R_b$ (wider than ASK)
+              - Used in low-rate applications (pagers, RFID, LoRa)
+
+              **PSK (Phase Shift Keying):**
+
+              $$s(t) = A_c \cos(2\pi f_c t + \phi_i)$$
+
+              - **BPSK**: 2 phases (0°, 180°), 1 bit/symbol, best noise immunity
+              - **QPSK**: 4 phases (0°, 90°, 180°, 270°), 2 bits/symbol
+              - **8-PSK**: 8 phases, 3 bits/symbol
+
+              **Bit Error Rate (BER)** for BPSK in AWGN:
+
+              $$P_b = Q\left(\sqrt{\frac{2E_b}{N_0}}\right)$$
+
+              ![PSK constellation](https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/QPSK_Gray_Coded.svg/200px-QPSK_Gray_Coded.svg.png)
+
           - name: QAM
+            notes: |
+              **Quadrature Amplitude Modulation** - combines amplitude and phase modulation for high spectral efficiency.
+
+              $$s(t) = I(t)\cos(2\pi f_c t) - Q(t)\sin(2\pi f_c t)$$
+
+              Where $I(t)$ and $Q(t)$ are in-phase and quadrature baseband signals.
+
+              **Constellation diagrams:**
+              - **16-QAM**: 4×4 grid, 4 bits/symbol
+              - **64-QAM**: 8×8 grid, 6 bits/symbol
+              - **256-QAM**: 16×16 grid, 8 bits/symbol
+
+              **Trade-offs:**
+              | Modulation | Bits/Symbol | Relative SNR Required |
+              |------------|-------------|----------------------|
+              | QPSK | 2 | 0 dB (reference) |
+              | 16-QAM | 4 | +4 dB |
+              | 64-QAM | 6 | +8 dB |
+              | 256-QAM | 8 | +12 dB |
+
+              Higher-order QAM: More bits/symbol but points closer together → more susceptible to noise.
+
+              **Adaptive modulation**: Modern systems (WiFi, LTE) switch QAM order based on channel conditions. Good SNR → 256-QAM. Poor SNR → QPSK.
+
+              ![16-QAM constellation](https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/QAM16_Demonstration.gif/220px-QAM16_Demonstration.gif)
+
           - name: Bandwidth efficiency
+            notes: |
+              **Spectral efficiency** measures how many bits per second fit in each Hz of bandwidth.
+
+              $$\eta = \frac{R_b}{BW} \quad \text{[bits/s/Hz]}$$
+
+              **Nyquist limit** for ISI-free transmission:
+
+              $$R_s \leq 2BW$$
+
+              Maximum symbol rate is twice the bandwidth. With M-ary modulation ($\log_2 M$ bits/symbol):
+
+              $$\eta_{max} = 2\log_2 M \quad \text{bits/s/Hz}$$
+
+              **Practical spectral efficiencies:**
+              | Scheme | Efficiency |
+              |--------|------------|
+              | BPSK | 1 bit/s/Hz |
+              | QPSK | 2 bits/s/Hz |
+              | 16-QAM | 4 bits/s/Hz |
+              | 64-QAM | 6 bits/s/Hz |
+
+              **Shannon capacity** - theoretical maximum:
+
+              $$C = BW \cdot \log_2\left(1 + \frac{S}{N}\right)$$
+
+              No modulation scheme can exceed this. Modern codes (LDPC, Turbo) approach within 1 dB.
+
+              **OFDM**: Divides bandwidth into many narrow subcarriers, each carrying low-rate QAM. Approaches Nyquist limit with guard intervals for multipath.
+
         resources:
           - label: All About Circuits - Modulation
             url: https://www.allaboutcircuits.com/textbook/radio-frequency-analysis-design/
@@ -284,9 +1592,131 @@ sections:
           - Appreciate Shannon's channel capacity theorem
         concepts:
           - name: Parity
+            notes: |
+              **Parity bits** - simplest error detection by adding redundancy.
+
+              **Even parity**: Add bit so total number of 1s is even.
+              **Odd parity**: Add bit so total number of 1s is odd.
+
+              Example (even parity):
+              - Data: `1010110` → Parity: `1` → Transmitted: `10101101`
+              - Receiver counts 1s: if odd, error detected
+
+              **Limitations:**
+              - Detects single-bit errors only
+              - Cannot detect even number of bit errors
+              - Cannot correct errors (only detect)
+              - Cannot identify which bit is wrong
+
+              **2D parity** (block check):
+              - Arrange data in rows and columns
+              - Add parity for each row AND each column
+              - Can detect more errors, even locate single-bit errors
+              Example (2D parity):
+              ```
+              Data:    Parity:
+              1 0 1 1  | 1
+              0 1 1 0  | 0
+              1 1 0 1  | 1
+              --------+--
+              0 0 0 0    0
+              ```
+
+              Used in: UART, simple memory systems, ASCII (7 data + 1 parity).
+
           - name: Hamming code
+            notes: |
+              **Hamming codes** - can detect AND correct single-bit errors using strategically placed parity bits.
+
+              **Hamming(7,4)**: 4 data bits + 3 parity bits = 7 total bits
+
+              Parity bit positions: Powers of 2 (positions 1, 2, 4)
+              Data bit positions: Everything else (3, 5, 6, 7)
+
+              **Parity coverage:**
+              - $p_1$ (pos 1): checks positions with bit 0 set in binary (1,3,5,7)
+              - $p_2$ (pos 2): checks positions with bit 1 set (2,3,6,7)
+              - $p_4$ (pos 4): checks positions with bit 2 set (4,5,6,7)
+
+              **Decoding:**
+              1. Recalculate each parity
+              2. Form syndrome from parity check results
+              3. Syndrome value = position of error (0 = no error)
+
+              **Code rate**: $R = k/n = 4/7 \approx 0.57$
+
+              **Hamming distance**: Minimum bits different between valid codewords.
+              - Hamming(7,4) has distance 3
+              - Can detect 2-bit errors OR correct 1-bit error
+
+              **SECDED** (Single Error Correct, Double Error Detect): Add overall parity bit → Hamming(8,4) detects 2-bit errors.
+
           - name: CRC
+            notes: |
+              **Cyclic Redundancy Check** - polynomial division for error detection.
+
+              Treat data as coefficients of a polynomial, divide by generator polynomial, append remainder.
+
+              **CRC calculation:**
+              1. Append $n$ zeros to message (where $n$ = generator degree)
+              2. Divide by generator using XOR (no carries)
+              3. Remainder = CRC checksum
+              4. Transmit: message + CRC
+
+              **Example with CRC-3 (generator $x^3 + x + 1$ = `1011`):**
+              ```
+              Message: 11010011101100
+              Generator: 1011
+              
+              After XOR division, remainder = CRC
+              ```
+
+              **Common CRC polynomials:**
+              | Name | Polynomial | Bits | Used In |
+              |------|-----------|------|---------|
+              | CRC-8 | $x^8+x^2+x+1$ | 8 | I²C, 1-Wire |
+              | CRC-16 | $x^{16}+x^{15}+x^2+1$ | 16 | Modbus, USB |
+              | CRC-32 | (complex) | 32 | Ethernet, ZIP |
+
+              **Properties:**
+              - Detects all single-bit errors
+              - Detects all burst errors ≤ n bits
+              - Detects most longer burst errors
+              - Does NOT correct errors
+
+              Hardware implementation: Simple shift register with XOR feedback.
+
           - name: Shannon limit
+            notes: |
+              **Shannon's Channel Capacity Theorem** (1948) - the fundamental limit of reliable communication.
+
+              $$C = BW \cdot \log_2\left(1 + \frac{S}{N}\right) \quad \text{[bits/second]}$$
+
+              Where:
+              - $C$ = channel capacity
+              - $BW$ = bandwidth in Hz
+              - $S/N$ = signal-to-noise ratio (linear, not dB)
+
+              **Key insights:**
+              - Below capacity: Error-free transmission is theoretically possible
+              - Above capacity: Errors are unavoidable regardless of coding
+              - Approaching capacity requires increasingly complex codes
+
+              **Shannon limit in $E_b/N_0$:**
+
+              $$\frac{E_b}{N_0} > \frac{2^{R/BW} - 1}{R/BW}$$
+
+              At capacity: $E_b/N_0 = -1.59$ dB (theoretical minimum for any rate)
+
+              **Modern codes approaching Shannon limit:**
+              - Turbo codes (1993): Within 0.5 dB
+              - LDPC codes: Within 0.1 dB
+              - Polar codes: Provably achieve capacity
+
+              Shannon's theorem tells us WHAT is possible, not HOW. Finding practical codes that approach capacity took 50+ years.
+
+              ![Shannon capacity curve](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Channel_capacity_with_noise.svg/350px-Channel_capacity_with_noise.svg.png)
+
         optional: true
         resources:
           - label: Ben Eater - Error Detection
@@ -310,9 +1740,130 @@ sections:
           - Compare different wireless standards
         concepts:
           - name: Link budget
+            notes: |
+              **Link budget** - accounting of all gains and losses from transmitter to receiver.
+
+              $$P_{rx} = P_{tx} + G_{tx} - L_{tx} - L_{path} - L_{misc} + G_{rx} - L_{rx}$$
+
+              All values in dB/dBm. Must have $P_{rx} >$ receiver sensitivity with margin.
+
+              **Typical link budget components:**
+
+              | Parameter | Typical Values |
+              |-----------|---------------|
+              | $P_{tx}$ (transmit power) | 0-30 dBm |
+              | $G_{tx}$ (antenna gain) | 2-40 dBi |
+              | $L_{tx}$ (cable/connector loss) | 1-3 dB |
+              | $L_{path}$ (path loss) | 60-150 dB |
+              | $L_{misc}$ (fade margin, body loss) | 10-30 dB |
+              | $G_{rx}$ (receive antenna) | 0-20 dBi |
+              | $L_{rx}$ (receiver losses) | 1-3 dB |
+
+              **Link margin**: How much $P_{rx}$ exceeds sensitivity.
+              - 10-20 dB margin typical for reliable links
+              - Accounts for fading, interference, aging
+
+              **Example (WiFi):**
+              - TX power: 20 dBm
+              - TX antenna: 3 dBi
+              - Path loss (30m indoor): -70 dB
+              - RX antenna: 3 dBi
+              - Received: 20 + 3 - 70 + 3 = **-44 dBm**
+              - Sensitivity (-80 dBm): **36 dB margin** ✓
+
           - name: Path loss
+            notes: |
+              **Path loss** - signal attenuation between transmitter and receiver.
+
+              **Free Space Path Loss (FSPL):**
+
+              $$L_{fs} = 20\log_{10}(d) + 20\log_{10}(f) + 20\log_{10}\left(\frac{4\pi}{c}\right)$$
+
+              Simplified (d in km, f in MHz):
+
+              $$L_{fs} = 32.4 + 20\log_{10}(f_{MHz}) + 20\log_{10}(d_{km})$$
+
+              **Key insight**: Path loss increases 6 dB per doubling of distance (inverse square law) and 6 dB per doubling of frequency.
+
+              **Real-world models add obstacles:**
+
+              | Environment | Path Loss Exponent $n$ |
+              |-------------|----------------------|
+              | Free space | 2 |
+              | Urban cellular | 3.5-4.5 |
+              | Indoor (same floor) | 2-3 |
+              | Indoor (through floors) | 4-6 |
+
+              $$L = L_0 + 10n\log_{10}\left(\frac{d}{d_0}\right)$$
+
+              **Common models:**
+              - Hata model (urban/suburban cellular)
+              - COST-231 (extends Hata to higher frequencies)
+              - ITU indoor model
+
           - name: Fading
+            notes: |
+              **Fading** - signal strength variations due to multipath propagation and mobility.
+
+              **Large-scale fading (shadowing):**
+              - Caused by obstacles blocking/absorbing signal
+              - Log-normal distribution (dB values are Gaussian)
+              - Varies over distances of 10s-100s of wavelengths
+
+              **Small-scale fading (multipath):**
+              - Multiple signal paths with different delays/phases
+              - Constructive/destructive interference
+              - Varies over fractions of a wavelength
+
+              **Rayleigh fading**: No line-of-sight, many scattered paths. Deep fades (20-30 dB) occur frequently.
+
+              $$p(r) = \frac{r}{\sigma^2}e^{-r^2/2\sigma^2}$$
+
+              **Rician fading**: Strong line-of-sight plus scattered paths. Less severe fading than Rayleigh.
+
+              **Combating fading:**
+              - **Diversity**: Multiple antennas, frequencies, or time slots
+              - **OFDM**: Spreads data across frequencies
+              - **Equalization**: Compensates for channel distortion
+              - **Interleaving**: Spreads burst errors across time
+              - **Fade margin**: Extra link budget allowance
+
+              ![Multipath propagation](https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Multipath_propagation_diagram_en.svg/400px-Multipath_propagation_diagram_en.svg.png)
+
           - name: RSSI
+            notes: |
+              **Received Signal Strength Indicator** - measure of power in a received radio signal.
+
+              **Units and ranges:**
+              - dBm (absolute power): Typical WiFi -30 to -90 dBm
+              - RSSI (arbitrary units): Vendor-specific scaling
+              - Often 0-255 or 0-100 range mapped to dBm
+
+              **Typical signal quality (WiFi):**
+              | RSSI (dBm) | Quality | Typical Use |
+              |------------|---------|-------------|
+              | > -50 | Excellent | High throughput |
+              | -50 to -60 | Good | Video streaming |
+              | -60 to -70 | Fair | Web browsing |
+              | -70 to -80 | Weak | Basic connectivity |
+              | < -80 | Poor | Unreliable |
+
+              **RSSI applications:**
+              - **Roaming decisions**: Mobile devices switch APs
+              - **Rate adaptation**: Higher RSSI → faster modulation
+              - **Location**: Fingerprinting, trilateration
+              - **Diagnostics**: Site surveys, troubleshooting
+
+              **Limitations:**
+              - Doesn't account for interference (use SNR instead)
+              - Varies between vendors/chipsets
+              - Affected by antenna orientation, body blocking
+
+              **SNR (Signal-to-Noise Ratio)** is more meaningful:
+              $$SNR = RSSI - Noise Floor$$
+
+              Noise floor typically -90 to -100 dBm in WiFi bands.
+
         optional: true
         resources:
           - label: Tutorials Point - Wireless
@@ -339,9 +1890,136 @@ sections:
           - Understand excitation and voltage regulation
         concepts:
           - name: Synchronous generator
+            notes: |
+              **Synchronous generators** (alternators) produce nearly all grid electricity. Rotor spins at synchronous speed, creating rotating magnetic field that induces AC in stator windings.
+
+              **Synchronous speed:**
+
+              $$n_s = \frac{120 \cdot f}{P}$$
+
+              Where $f$ is frequency (Hz) and $P$ is number of poles.
+
+              | Poles | Speed at 50 Hz | Speed at 60 Hz |
+              |-------|----------------|----------------|
+              | 2 | 3000 RPM | 3600 RPM |
+              | 4 | 1500 RPM | 1800 RPM |
+              | 6 | 1000 RPM | 1200 RPM |
+
+              **Equivalent circuit per phase:**
+
+              $$E_a = V_t + I_a(R_a + jX_s)$$
+
+              Where:
+              - $E_a$ = generated EMF (internal voltage)
+              - $V_t$ = terminal voltage
+              - $I_a$ = armature current
+              - $X_s$ = synchronous reactance (dominates over $R_a$)
+
+              **Power output:**
+
+              $$P = \frac{3 E_a V_t}{X_s} \sin\delta$$
+
+              Where $\delta$ is power angle (load angle) between $E_a$ and $V_t$.
+
+              ![Synchronous generator diagram](https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Synchronous_machine_rotor.svg/300px-Synchronous_machine_rotor.svg.png)
+
           - name: Prime movers
+            notes: |
+              **Prime movers** convert primary energy to mechanical rotation that drives generators.
+
+              **Steam turbines** (coal, nuclear, gas combined cycle):
+              - High power (100 MW - 1.5 GW)
+              - High speed (3000/3600 RPM) → 2-pole generators
+              - Efficiency: 33-45% (higher with combined cycle)
+
+              **Gas turbines** (peaking plants):
+              - Fast startup (minutes vs hours for steam)
+              - Lower efficiency alone (~35%)
+              - Combined cycle: exhaust heat makes steam → 60%+ efficiency
+
+              **Hydro turbines:**
+              - Francis: Medium head (30-300m), most common
+              - Kaplan: Low head (<30m), adjustable blades
+              - Pelton: High head (>300m), impulse type
+              - Slow speed → many poles (12-96)
+
+              **Wind turbines:**
+              - Variable speed → power electronics interface
+              - Doubly-fed induction generator (DFIG) common
+              - Direct-drive permanent magnet becoming popular
+              - Typical: 2-8 MW per turbine
+
+              **Efficiency comparison:**
+              | Type | Typical Efficiency |
+              |------|-------------------|
+              | Hydro | 85-95% |
+              | Combined cycle gas | 55-62% |
+              | Steam (coal) | 33-40% |
+              | Nuclear | 33-37% |
+              | Wind | 35-45% (capacity factor) |
+
           - name: Excitation
+            notes: |
+              **Excitation systems** control the DC field current in the rotor, which determines generator output voltage and reactive power.
+
+              **Functions:**
+              - Maintain terminal voltage at setpoint
+              - Control reactive power output (VAR support)
+              - Enhance transient stability
+              - Provide fault current for protection
+
+              **Excitation equation:**
+
+              $$E_a = k \cdot \phi \cdot \omega = k \cdot I_f \cdot \omega$$
+
+              Internal EMF proportional to field current $I_f$ (in linear region).
+
+              **Exciter types:**
+              - **DC exciter**: Older, DC generator on same shaft
+              - **AC exciter**: AC generator + rotating rectifier (brushless)
+              - **Static exciter**: Thyristor rectifier from station supply
+
+              **Automatic Voltage Regulator (AVR):**
+              - Senses terminal voltage
+              - Compares to reference
+              - Adjusts field current via exciter
+
+              **V-curves**: Plot of armature current vs field current at constant power.
+              - Under-excited: Absorbs VARs (leading PF)
+              - Over-excited: Supplies VARs (lagging PF)
+
+              Generators normally run slightly over-excited to support grid voltage.
+
           - name: Grid synchronization
+            notes: |
+              **Synchronization** - connecting a generator to the grid requires matching voltage, frequency, phase, and sequence.
+
+              **Four conditions for paralleling:**
+              1. **Voltage magnitude**: Generator ≈ grid (within 5%)
+              2. **Frequency**: Generator ≈ grid (within 0.1 Hz)
+              3. **Phase angle**: In phase (0° difference)
+              4. **Phase sequence**: Same rotation (ABC = ABC)
+
+              **Synchronization methods:**
+
+              **Manual (synchroscope):**
+              - Pointer rotates: fast = frequency difference
+              - Position = phase angle
+              - Close breaker when pointer at 12 o'clock, moving slowly clockwise
+
+              **Automatic synchronizer:**
+              - Measures all parameters
+              - Adjusts governor (frequency) and AVR (voltage)
+              - Closes breaker at optimal moment
+
+              **What happens if out of sync:**
+              - Voltage mismatch: Circulating current (VAR flow)
+              - Frequency mismatch: Hunting, potential instability
+              - Phase mismatch: Severe current transient, mechanical shock
+              - Wrong sequence: Catastrophic - effectively shorting phases
+
+              **Synch check relay (25)**: Prevents breaker closure unless conditions met. Critical protection for generator and grid.
+
         resources:
           - label: All About Circuits - AC Motors
             url: https://www.allaboutcircuits.com/textbook/alternating-current/chpt-13/introduction-ac-motors/
@@ -362,9 +2040,136 @@ sections:
           - Read single-line diagrams
         concepts:
           - name: Transmission losses
+            notes: |
+              **Power losses** in transmission lines are primarily $I^2R$ heating in conductors.
+
+              $$P_{loss} = I^2 R = \frac{P^2 R}{V^2 \cos^2\phi}$$
+
+              For fixed power $P$, losses are inversely proportional to voltage squared. **Double the voltage → quarter the losses.**
+
+              **Example calculation:**
+              - 100 MW, 100 km, aluminum conductor
+              - At 115 kV: ~5% losses
+              - At 230 kV: ~1.25% losses
+              - At 500 kV: ~0.25% losses
+
+              **Other loss mechanisms:**
+              - **Corona**: Ionization at high voltage (wet weather, sharp edges)
+              - **Skin effect**: AC crowds to conductor surface, increasing effective R
+              - **Dielectric**: Insulator leakage (minimal in dry conditions)
+
+              **Typical transmission efficiencies:**
+              | Voltage Level | Typical Loss |
+              |--------------|--------------|
+              | Distribution (11-33 kV) | 4-8% |
+              | Sub-transmission (66-132 kV) | 2-4% |
+              | Transmission (220-500 kV) | 1-2% |
+              | EHV/UHV (765 kV+) | <1% |
+
+              Grid losses total 5-10% from generation to consumer.
+
           - name: Voltage levels
+            notes: |
+              **Voltage standardization** - different levels serve different purposes.
+
+              **Why high voltage for transmission:**
+
+              $$P = \sqrt{3} \cdot V_L \cdot I_L \cdot \cos\phi$$
+
+              For same power: Higher V → Lower I → Smaller conductors, less loss.
+
+              **Typical voltage hierarchy (varies by country):**
+
+              | Level | Voltage | Purpose |
+              |-------|---------|---------|
+              | EHV/UHV | 345-1100 kV | Bulk transmission (100s km) |
+              | HV | 115-230 kV | Transmission network |
+              | Sub-transmission | 33-69 kV | Regional distribution |
+              | Primary distribution | 11-33 kV | Urban/rural feeders |
+              | Secondary | 120/240 V or 230/400 V | End consumers |
+
+              **Insulation drives costs:**
+              - Higher voltage → larger towers, longer insulators
+              - Clearances to ground, between phases increase
+              - Transformer costs increase with voltage
+              - Economic optimum depends on power and distance
+
+              **DC transmission (HVDC):**
+              - No reactive power, no skin effect
+              - Fewer conductors (2 vs 3)
+              - Expensive converter stations
+              - Economic for >500 km overhead or >50 km underwater
+
           - name: Delta/Wye
+            notes: |
+              **Three-phase transformer connections** affect voltage ratios, phase shifts, and grounding.
+
+              **Wye (Star) connection:**
+              - Neutral point available for grounding
+              - Line voltage = $\sqrt{3}$ × phase voltage
+              - $V_L = \sqrt{3} V_{ph}$
+
+              **Delta connection:**
+              - No neutral point
+              - Line voltage = phase voltage
+              - Line current = $\sqrt{3}$ × phase current
+              - Third harmonic currents circulate (don't distort output)
+
+              **Common transformer configurations:**
+
+              | Primary | Secondary | Phase Shift | Typical Use |
+              |---------|-----------|-------------|-------------|
+              | Δ | Y | 30° lag | Step-up at generators |
+              | Y | Δ | 30° lead | Step-down distribution |
+              | Y | Y | 0° | Autotransformers |
+              | Δ | Δ | 0° | Industrial loads |
+
+              **Vector groups** (IEC notation): Dy11 means Delta primary, wye secondary, 30° lag (11 o'clock position).
+
+              **Grounding considerations:**
+              - Wye: Can ground neutral (limits fault current, allows ground fault detection)
+              - Delta: Ungrounded or corner-grounded
+              - Zig-zag: Creates neutral for grounding ungrounded delta
+
+              ![Delta-Wye transformer](https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Transformer_wye-delta.svg/300px-Transformer_wye-delta.svg.png)
+
           - name: Single-line diagrams
+            notes: |
+              **Single-line diagrams (SLDs)** represent three-phase systems with one line per circuit, using standard symbols.
+
+              **Common symbols:**
+
+              | Symbol | Meaning |
+              |--------|---------|
+              | ─○─ | Circuit breaker |
+              | ─/─ | Disconnect switch |
+              | ─┬─ | Bus bar |
+              | ⏚ | Ground |
+              | ⟨coil⟩ | Transformer (two windings) |
+              | ∿ | Generator |
+              | ➝ | Load/feeder |
+
+              **Information shown:**
+              - Equipment ratings (MVA, kV)
+              - Impedances (for fault calculations)
+              - CT/PT ratios (for protection)
+              - Relay functions (ANSI device numbers)
+
+              **ANSI device numbers (common):**
+              - 50: Instantaneous overcurrent
+              - 51: Time overcurrent
+              - 52: AC circuit breaker
+              - 87: Differential protection
+              - 21: Distance relay
+
+              **Per-unit system**: Normalizes values for easier calculation.
+
+              $$Z_{pu} = \frac{Z_{actual}}{Z_{base}}$$
+
+              $$Z_{base} = \frac{V_{base}^2}{S_{base}}$$
+
+              Makes transformers "disappear" when using same base - impedances simply add regardless of voltage level.
+
         resources:
           - label: All About Circuits - Power Factor
             url: https://www.allaboutcircuits.com/textbook/alternating-current/chpt-11/power-factor/
@@ -384,9 +2189,141 @@ sections:
           - Select appropriate protective devices
         concepts:
           - name: Harmonics
+            notes: |
+              **Harmonics** are integer multiples of the fundamental frequency (50/60 Hz) caused by nonlinear loads.
+
+              $$v(t) = V_1\sin(\omega t) + V_3\sin(3\omega t) + V_5\sin(5\omega t) + ...$$
+
+              **Common harmonic sources:**
+              - Switch-mode power supplies (computers, LED drivers)
+              - Variable frequency drives (VFDs)
+              - Rectifiers (6-pulse: 5th, 7th, 11th, 13th dominant)
+              - Arc furnaces, welders
+              - Saturated transformers
+
+              **Effects of harmonics:**
+              - Increased losses (skin effect, eddy currents)
+              - Transformer/motor overheating
+              - Capacitor failures (resonance)
+              - Nuisance tripping of breakers
+              - Interference with sensitive equipment
+
+              **Total Harmonic Distortion:**
+
+              $$THD = \frac{\sqrt{V_2^2 + V_3^2 + V_4^2 + ...}}{V_1} \times 100\%$$
+
+              IEEE 519 limits: <5% THD at PCC for most systems.
+
+              **Mitigation:**
+              - Passive filters (tuned L-C for specific harmonics)
+              - Active filters (inject anti-harmonics)
+              - 12/18/24-pulse rectifiers
+              - K-rated transformers (handle harmonic heating)
+
           - name: Sags/swells
+            notes: |
+              **Voltage sags (dips)** and **swells** are short-duration deviations from nominal voltage.
+
+              **Sag**: Voltage drops to 10-90% of nominal for 0.5 cycles to 1 minute.
+              **Swell**: Voltage rises to 110-180% of nominal for same duration.
+
+              **Common causes:**
+              - **Sags**: Motor starting, faults on adjacent feeders, utility switching
+              - **Swells**: Single-line-to-ground fault (unfaulted phases rise), load rejection
+
+              **ITIC (CBEMA) curve**: Defines voltage tolerance envelope for IT equipment.
+              - Equipment should ride through sags above the curve
+              - Typical: 70% voltage for 0.5s, 80% for 10s
+
+              **Sag magnitude calculation:**
+
+              $$V_{sag} = V_{nom} \cdot \frac{Z_{load}}{Z_{source} + Z_{load}}$$
+
+              During upstream fault, source impedance effectively increases.
+
+              **Mitigation:**
+              - UPS (battery backup for complete outages and sags)
+              - DVR (Dynamic Voltage Restorer): Injects voltage to compensate
+              - Flywheel storage
+              - Proper motor starter selection (soft start, VFD)
+
+              **Measurement**: Power quality analyzers capture RMS vs time, classify events by magnitude and duration.
+
           - name: Protective relays
+            notes: |
+              **Protective relays** detect abnormal conditions and trip circuit breakers to isolate faults.
+
+              **Overcurrent protection (50/51):**
+              - Instantaneous (50): Trips immediately above pickup
+              - Time-delay (51): Inverse-time characteristic
+
+              $$t = \frac{k}{(I/I_{pickup})^n - 1}$$
+
+              **Coordination**: Downstream devices trip first (faster curves or lower pickup).
+
+              **Differential protection (87):**
+              - Compares current entering vs leaving protected zone
+              - Current in ≠ current out → internal fault
+
+              $$I_{operate} = |I_1 + I_2| > I_{threshold}$$
+
+              Used for: Transformers, generators, buses, large motors.
+
+              **Distance protection (21):**
+              - Measures impedance (V/I) to fault
+              - Zones: Z1 (instantaneous, 80% of line), Z2 (time-delayed, 120%), Z3 (backup)
+              - Primary protection for transmission lines
+
+              **Common relay functions (ANSI):**
+              | Device | Function |
+              |--------|----------|
+              | 25 | Sync check |
+              | 27 | Undervoltage |
+              | 32 | Reverse power |
+              | 50 | Instantaneous OC |
+              | 51 | Time OC |
+              | 59 | Overvoltage |
+              | 67 | Directional OC |
+              | 81 | Frequency |
+              | 87 | Differential |
+
           - name: Grounding
+            notes: |
+              **Grounding (earthing)** provides safety and defines system behavior during faults.
+
+              **Two distinct concepts:**
+              - **Equipment grounding**: Metal enclosures bonded to earth (safety)
+              - **System grounding**: Neutral connection to earth (fault behavior)
+
+              **System grounding types:**
+
+              **Solidly grounded:**
+              - Neutral directly connected to earth
+              - High ground fault current (easy to detect)
+              - Standard for LV systems (<600V)
+
+              **Resistance grounded:**
+              - Resistor limits ground fault current
+              - Low resistance: 100-400A (protection still works)
+              - High resistance: 1-10A (limits damage, harder to detect)
+
+              **Ungrounded:**
+              - No intentional neutral-earth connection
+              - First ground fault doesn't trip (capacitive current only)
+              - Second fault = line-to-line fault
+              - Requires ground fault detection
+
+              **Ground fault current:**
+
+              $$I_{gf} = \frac{V_{LN}}{Z_{source} + Z_{ground}}$$
+
+              **Touch and step potential:**
+              - Touch: Voltage between hand (on faulted equipment) and feet
+              - Step: Voltage between feet during ground fault
+              - Grounding grid design limits these during faults
+
+              **Ground resistance testing**: Fall-of-potential method measures electrode resistance. Target: <5Ω for most systems, <1Ω for substations.
+
         optional: true
         resources:
           - label: Power Quality Primer
