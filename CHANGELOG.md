@@ -11,6 +11,49 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.13.X] - 2025-01-08
+
+**Search & Discovery**
+
+### Added
+- `/roadmaps/` index page with browse all tracks
+- Box card design with lid opening animation on hover
+- "UNVERIFIED" label badge on track cards
+- PCB-themed modal for track preview
+  - Green solder mask background with copper traces
+  - 45° angle trace routing (corners, edges, vias)
+  - Mounting holes and decorative elements
+- Section headers styled as IC chips with pins
+- Topics as SMD components with solder pads
+- RGB LED animation on title chip hover
+- Electric flow sweep effect on chip hover
+- Section LED lights up on hover (color varies by index)
+- Clickable sections/topics linking directly to anchors
+- Mobile: double-tap to open with hint popup
+- Notebook-themed track cards on homepage
+  - Subtle paper lines effect
+  - Color-coded left border (copper/pcb-green/dark)
+  - Border thickens on hover
+- Global search modal (`Ctrl+K` or click)
+  - Fuse.js fuzzy matching
+  - Results grouped by type: tracks → topics → concepts
+  - Breadcrumb context showing track/topic hierarchy
+  - Responsive trigger (full hint desktop, short mobile)
+- Search index build script (`npm run build:search`)
+- Dynamic Hero stats (concepts, topics, tracks from data)
+
+### Changed
+- Hero section stats computed at build time from YAML
+- Header: removed "(WORK IN PROGRESS)" text
+- `npm run build:data` chains search index generation
+- Data loader excludes `search-index.json` from roadmap glob
+
+### Fixed
+- Section title color visibility in PCB modal
+- Added `id` to roadmap sections for anchor links
+- Use `is:global` for dynamically generated modal content
+
+
 ## [0.12.X] - 2025-01-06
 
 **Custom Roadmaps & Self-Hosting**

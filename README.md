@@ -10,7 +10,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.13.5)
+## Current Features (v0.13.6)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -47,6 +47,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **Developer Tooling:**
   - `npm run validate` — CLI schema validator for YAML files
   - Human-readable YAML format with auto-defaults
+- **Search:**
+  - Global search modal (Ctrl+K)
+  - Fuse.js fuzzy matching
+  - Results grouped by type (track > topic > concept)
+  - Breadcrumb context in results
 - **Tracks:** Fundamentals, Core, Advanced, Distributed Generation
 ---
 
@@ -72,15 +77,16 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **Goal:** Find content quickly across all tracks.
 
-- [ ] `/roadmaps/` index page (browse all tracks)
-- [ ] Search bar in navigation
+- [x] `/roadmaps/` index page (browse all tracks)
+- [x] Search bar in navigation (Fuse.js fuzzy search)
 - [ ] Track filtering by category
-- [ ] Build-time search index generation
-- [ ] Full-text search (track > topic > concept priority)
+- [x] Build-time search index generation
+- [x] Full-text search (track > topic > concept priority)
 - [ ] Deep links to exact location (concept of X topic of Y roadmap)
-- [ ] Search results page
+- [x] Search results page (modal with grouped results)
 - [ ] Options to show sections and topics in roadmap 
-- [ ] Automatic update for Hero section for no. of tracks and topics
+- [x] Automatic update for Hero section for no. of tracks and topics
+- [ ] Search concept notes content (Phase 2)
 
 ### v0.14 - Cross-Device Sync
 
@@ -175,8 +181,12 @@ eee-roadmap/
 │   ├── pdfs/                   # Downloaded PDFs (auto-generated)
 │   └── pdf-manifest.json       # URL → local path mapping (auto-generated)
 ├── scripts/
+│   ├── build-data.mjs          # Converts YAML roadmap files to JSON for the app to consume
+│   ├── build-search-index.mjs  # Generates search index from 
+JSON files
+│   ├── download-pdfs.mjs       # Downloads external PDFs from data files
 │   ├── setup-pdfjs.mjs         # Downloads PDF.js on npm install
-│   └── download-pdfs.mjs       # Downloads external PDFs from data files
+│   └── validae.mjs             # Validates YAML roadmap files against the JSON schema
 ├── src/
 │   ├── components/
 │   │   ├── ConceptWindows.astro
@@ -187,6 +197,7 @@ eee-roadmap/
 │   │   ├── Footer.astro
 │   │   ├── Header.astro
 │   │   ├── Hero.astro
+│   │   ├── SearchBar.astro
 │   │   ├── Placeholder.astro
 │   │   ├── Roadmap.astro
 │   │   ├── RoadmapSettings.astro
@@ -196,6 +207,7 @@ eee-roadmap/
 │   │   ├── index.ts            # Dynamic JSON loader
 │   │   ├── sample.json         # Example structure for contributors
 │   │   ├── *.json              # Generated from YAML (git-ignored)
+│   │   ├── search-index.json   # Search index (auto-generated)
 │   │   └── pdf-manifest.json   # URL → local path mapping (auto-generated)
 │   ├── layouts/
 │   │   └── Layout.astro
