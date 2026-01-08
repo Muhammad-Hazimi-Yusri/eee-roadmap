@@ -52,6 +52,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Filter buttons derived dynamically from track metadata
 - Deep links to concepts from search (auto-opens concept window)
 - URL format: `/roadmaps/track/?concept=Name#topic-id`
+- Boxed/Unboxed view toggle on `/roadmaps/` page
+- Unboxed view shows inline PCB layout with all sections and topics
+- View hint text updates based on current mode
 
 ### Changed
 - Hero section stats computed at build time from YAML
