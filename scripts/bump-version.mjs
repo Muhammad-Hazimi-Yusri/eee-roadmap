@@ -58,18 +58,22 @@ rl.question('Enter new version (or patch/minor/major): ', (answer) => {
   console.log(`✅ package.json → ${newVersion}`);
   
   // Update README.md
-  const readme = readFileSync(README_PATH, 'utf-8');
-  const updatedReadme = readme.replace(
+  let readme = readFileSync(README_PATH, 'utf-8');
+
+  // Update features heading
+  readme = readme.replace(
     /## Current Features \(v[\d.]+\)/,
     `## Current Features (v${newVersion})`
   );
-  
-  if (readme !== updatedReadme) {
-    writeFileSync(README_PATH, updatedReadme);
-    console.log(`✅ README.md → v${newVersion}`);
-  } else {
-    console.log('⚠️  README.md pattern not found, update manually');
-  }
+
+  // Update version badge
+  readme = readme.replace(
+    /version-[\d.]+-blue/,
+    `version-${newVersion}-blue`
+  );
+
+  writeFileSync(README_PATH, readme);
+  console.log(`✅ README.md → v${newVersion} (features heading + badge)`);
   
   console.log(`\n✨ Version bumped to ${newVersion}`);
   console.log('   Run: git add package.json README.md\n');

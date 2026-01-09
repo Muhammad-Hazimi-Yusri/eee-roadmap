@@ -8,79 +8,68 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
----
+[![License](https://img.shields.io/badge/license-MIT-green.svg)]()
+[![Version](https://img.shields.io/badge/version-0.14.0-blue.svg)]()
+[![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
-## Current Features (v0.13.13)
-- Interactive roadmaps for Fundamentals, Core, and Advanced tracks
-- Expand/collapse topic nodes with descriptions, concepts and resources
-- Prerequisites (linkable + static) and learning outcomes for each topic
-- Optional topics styled as side branches
-- Responsive design with Lab Notebook + PCB aesthetic
-- Dark mode with system preference detection
-- Topic deep-links with hash anchors
-- Clickable prerequisites with cross-track navigation
-- Two-dimension progress tracking (complete + important states)
-- Dual interaction modes:
-  - **Simple mode:** click (notes), dblclick (complete), shift+click (important)
-  - **Tools mode:** swipe gestures with pen/highlighter/eraser (tablet/stylus optimized)
-- Custom cursor matching active tool
-- Swipe trail effect for visual feedback
-- Touch support (single finger draws, two fingers scroll)
-- Comprehensive homepage demo with working ConceptWindows (LaTeX, images, PDFs)
-- **Concept Windows:** Draggable, resizable windows for notes and PDFs
-  - Multiple windows open simultaneously
-  - Drag by titlebar, resize via corner/edge handles
-  - Minimize to taskbar, maximize/restore
-  - Window positions saved to localStorage
-  - Mobile responsive positioning
-  - z-index management (click to bring front)
-  - PDF.js integration for cross-browser PDF viewing (including Android)
-  - Automatic external PDF downloading at build time (CORS-free)
-  - Markdown notes with inline PDF and image embedding
-  - Resizable PDF viewers with drag handle (height persisted to localStorage)
-  - LaTeX support for equations (KaTeX)
-- **Dynamic Track System:**
-  - Track metadata (title, description, icon, category, order)
-  - Automatic route generation from YAML files
-  - Lucide icons for track display
-  - Featured tracks on homepage, all tracks browsable
-  - Filter by category on `/roadmaps/` page
-  - Boxed/Unboxed view toggle (card vs PCB layout)
+<details>
+<summary><strong>Table of Contents</strong></summary>
+
+- [Current Features](#current-features-v013x)
+  - [For Learners](#for-learners)
+  - [For Explorers](#for-explorers)
+  - [For Contributors](#for-contributors)
+  - [Technical Highlights](#technical-highlights)
+- [Roadmap](#roadmap)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Run Locally](#run-locally)
+- [Contributing](#contributing)
+- [License](#license)
+
+</details>
+
+## Current Features (v0.14.0)
+
+### For Learners
+- **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
+- **Progress Tracking** — Mark concepts complete (✓) or important (★), persists across sessions
+- **Two Interaction Modes:**
+  - *Simple* — Click (notes), double-click (complete), shift+click (important)
+  - *Tools* — Swipe gestures with pen/highlighter/eraser (optimized for tablet/stylus)
+- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs
+- **Global Search** — Fuzzy search across all tracks, topics, and concept notes (`Ctrl+K`)
+- **Deep Links** — Share links directly to specific concepts
+
+### For Explorers
+- **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
+- **Browse All Tracks** — `/roadmaps/` page with category filters and boxed/unboxed view
+- **Cross-track Navigation** — Clickable prerequisites link between related topics
+- **Prerequisite Behavior** — Smart defaults (same-track = same tab, cross-track = new tab)
+
+### For Contributors
+- **YAML Content Format** — Human-readable with auto-defaults and schema validation
+- **Dynamic Track Discovery** — Drop a YAML file in `content/`, track appears automatically
 - **Developer Tooling:**
-  - `npm run validate` — CLI schema validator for YAML files
+  - `npm run validate` — Schema validation
   - `npm run version:bump` — Interactive version updater
-  - Human-readable YAML format with auto-defaults
-  - Pre-commit hooks (check version bump, build, validate)
-- **Search:**
-  - Global search modal (Ctrl+K)
-  - Fuse.js fuzzy matching
-  - Results grouped by type (track > topic > concept)
-  - Breadcrumb context in results
-  - Full-text search in concept notes
-  - Highlighted snippets showing match context
-  - Deep links to concepts (auto-opens window)
-- **Tracks:** Fundamentals, Core, Advanced, Distributed Generation
+  - Pre-commit hooks for build/validate/test
+
+### Technical Highlights
+- **Stack:** Astro, TypeScript, Tailwind CSS
+- **Search:** Fuse.js fuzzy matching with highlighted snippets
+- **PDFs:** PDF.js for cross-browser viewing, auto-downloaded at build time
+- **Math:** KaTeX for LaTeX equation rendering
+- **Mobile:** Touch + stylus support, responsive design
+- **Theming:** Dark mode with system preference detection
+
 ---
 
 ## Roadmap
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### v0.12 - Custom Roadmaps & Self-Hosting ✓
-
-**Goal:** Let developers create and host their own roadmaps.
-
-- [x] JSON schema for roadmap data
-- [x] YAML → JSON build pipeline
-- [x] Dynamic track auto-discovery
-- [x] Docs: how to fork and customize
-- [x] Example: blank template roadmap
-- [x] Schema validator (CLI)
-- [x] Example: alternative track (distributed-generation)
-- [x] Dynamic track discovery with metadata
-- [x] Lucide icons for tracks
-
-### v0.13 - Search & Discovery
+### v0.13 - Search & Discovery ✓
 
 **Goal:** Find content quickly across all tracks.
 
@@ -96,9 +85,18 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Unboxed view polish: animation, PCB traces
 - [ ] Unboxed view: overlapping card layout for overflow (deferred)
 - [x] Experiment with category filter UI (shipping label design)
-- [ ] Personal filters (incomplete concepts, highlighted items) integrated with progress tracking
 
-### v0.14 - Glossary & Acronyms
+### v0.14 - Personal Progress Filters
+
+**Goal:** Filter tracks and concepts by personal progress state.
+
+- [ ] Reusable filter component for progress states
+- [ ] `/roadmaps/` page: filter cards by has-incomplete/has-highlighted
+- [ ] Roadmap page: filter topics/concepts by completion state
+- [ ] Combined filtering (category + progress)
+- [ ] Visual indicators for filter state
+
+### v0.15 - Glossary & Acronyms
 
 **Goal:** Quick reference for technical terms with auto-linking in notes.
 
@@ -108,7 +106,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Auto-link acronyms in notes (clickable with tooltip/popup)
 - [ ] "See also" references showing where terms appear
 
-### v0.15 - Cross-Device Sync
+### v0.16 - Cross-Device Sync
 
 **Goal:** Access progress from any device.
 
@@ -117,7 +115,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Import/export progress as JSON fallback
 - [ ] Sync custom notes
 
-### v0.16 - Roadmap Editor
+### v0.17 - Roadmap Editor
 
 **Goal:** Let non-devs create roadmaps without touching code.
 
@@ -126,7 +124,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
 
-### v0.17 - Test Coverage
+### v0.18 - Test Coverage
 
 **Goal:** Comprehensive test coverage for all features.
 
@@ -137,7 +135,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Accessibility tests (a11y)
 - [ ] Pre-commit hooks for test/lint/build
 
-### v0.18 - Content Verification
+### v0.19 - Content Verification
 
 **Goal:** Manually vet all AI-generated content before 1.0 release.
 
