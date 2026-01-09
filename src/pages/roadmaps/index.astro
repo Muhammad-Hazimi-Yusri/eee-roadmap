@@ -2,11 +2,13 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import ProgressFilter from '../../components/ProgressFilter.astro';
 import { internalHref } from '../../utils/url';
 import { getAllTracks, roadmaps } from '../../data';
 import * as LucideIcons from '@lucide/astro';
 import { Check } from '@lucide/astro';
 import pkg from '../../../package.json';
+
 
 const VERSION = pkg.version;  
 
@@ -34,6 +36,23 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     topics: section.items.map(item => ({ id: item.id, title: item.title }))
   }))
 }));
+
+  
+// Helper: get all concept keys for a track
+function getConceptKeys(slug: string): string[] {
+  const roadmap = roadmaps[slug];
+  if (!roadmap?.sections) return [];
+  
+  const keys: string[] = [];
+  for (const section of roadmap.sections) {
+    for (const item of section.items || []) {
+      for (const concept of item.concepts || []) {
+        keys.push(`${item.id}:${concept.name}`);
+      }
+    }
+  }
+  return keys;
+}
 ---
 
 <Layout title="All Tracks">
@@ -87,6 +106,8 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
           ))}
         </div>
       </div>
+
+      <ProgressFilter />
       
       <div class="tracks-grid">
         {allTracks.map(({ slug, meta }) => {
@@ -99,6 +120,7 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
               class="box-card"
               data-track={slug}
               data-category={meta.category}
+              data-concept-keys={JSON.stringify(getConceptKeys(slug))}
             >
               {/* Box lid (opens on hover) */}
               <div class="box-card__lid">
@@ -290,7 +312,7 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   const modalLink = document.getElementById('modal-link') as HTMLAnchorElement;
   const modalSections = document.getElementById('modal-sections')!;
   const tracesSvg = document.getElementById('modal-traces')!;
-  
+
   // View toggle
   const viewBoxedBtn = document.getElementById('view-boxed');
   const viewUnboxedBtn = document.getElementById('view-unboxed');
@@ -564,21 +586,70 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
 
   filterBtns?.forEach(btn => {
     btn.addEventListener('click', () => {
-      const category = btn.getAttribute('data-category');
-      
       // Update active button
       filterBtns.forEach(b => b.classList.remove('filter-label--active'));
       btn.classList.add('filter-label--active');
       
-      // Filter cards
-      cards.forEach(card => {
-        const cardCategory = card.getAttribute('data-category');
-        if (category === 'all' || cardCategory === category) {
-          card.classList.remove('is-hidden');
-        } else {
-          card.classList.add('is-hidden');
-        }
-      });
+      applyFilters();
+    });
+  });
+
+  // Progress filtering
+  const STORAGE_KEY = 'eee-progress-v2';
+
+  function getProgress(): { complete: string[]; important: string[] } {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : { complete: [], important: [] };
+    } catch {
+      return { complete: [], important: [] };
+    }
+  }
+
+  let activeProgressFilter = 'all';
+  const progressFilter = document.getElementById('progress-filter');
+  const progressBtns = progressFilter?.querySelectorAll('.progress-btn');
+
+  function applyFilters() {
+    const progress = getProgress();
+    
+    cards.forEach(card => {
+      const category = card.getAttribute('data-category');
+      const keysAttr = card.getAttribute('data-concept-keys');
+      const conceptKeys: string[] = keysAttr ? JSON.parse(keysAttr) : [];
+      
+      // Category filter
+      const activeCategory = document.querySelector('.filter-label--active')?.getAttribute('data-category') || 'all';
+      const passesCategory = activeCategory === 'all' || category === activeCategory;
+      
+      // Progress filter
+      let passesProgress = true;
+      if (activeProgressFilter === 'incomplete') {
+        // Has at least one concept NOT in complete
+        passesProgress = conceptKeys.some(key => !progress.complete.includes(key));
+      } else if (activeProgressFilter === 'highlighted') {
+        // Has at least one concept in important
+        passesProgress = conceptKeys.some(key => progress.important.includes(key));
+      }
+      
+      // Both must pass
+      if (passesCategory && passesProgress) {
+        card.classList.remove('is-hidden');
+      } else {
+        card.classList.add('is-hidden');
+      }
+    });
+  }
+
+  progressBtns?.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeProgressFilter = btn.getAttribute('data-progress') || 'all';
+      
+      // Update active button
+      progressBtns.forEach(b => b.classList.remove('progress-btn--active'));
+      btn.classList.add('progress-btn--active');
+      
+      applyFilters();
     });
   });
 </script>

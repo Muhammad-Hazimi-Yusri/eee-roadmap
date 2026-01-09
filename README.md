@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.14.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.14.1-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.14.0)
+## Current Features (v0.14.1)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -90,11 +90,12 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **Goal:** Filter tracks and concepts by personal progress state.
 
-- [ ] Reusable filter component for progress states
-- [ ] `/roadmaps/` page: filter cards by has-incomplete/has-highlighted
+- [x] Reusable filter component for progress states
+- [x] `/roadmaps/` page: filter cards by has-incomplete/has-highlighted
 - [ ] Roadmap page: filter topics/concepts by completion state
 - [ ] Combined filtering (category + progress)
 - [ ] Visual indicators for filter state
+- [ ] Expand/collapse all controls
 
 ### v0.15 - Glossary & Acronyms
 
@@ -151,9 +152,6 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] WebAssembly circuit simulator (Rust)
 - [ ] PWA support for offline access
 - [ ] Community contributions workflow
-- [ ] Expand/collapse all controls
-- [ ] Filter: show only important concepts
-- [ ] Filter: show only incomplete nodes
 - [ ] Concept windows: translucent/glass effect when unfocused (reduce clutter)
 - [ ] iOS Safari: dark mode demo tools switch menu arrow visibility fix
 - [ ] iOS Safari: in two-finger swipe, trail persistence in tools mode

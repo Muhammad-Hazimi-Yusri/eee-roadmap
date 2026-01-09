@@ -11,6 +11,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.14.X] - 2025-01-09
+
+**Personal Progress Filters**
+
+### Added
+- Progress filter component (`ProgressFilter.astro`)
+- `/roadmaps/` page: filter tracks by has-incomplete/has-highlighted
+- Build-time concept key injection for instant runtime filtering
+- Combined category + progress filtering
+
+
 ## [0.13.X] - 2025-01-08
 
 **Search & Discovery**

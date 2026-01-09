@@ -1,0 +1,92 @@
+---
+/**
+ * Progress filter buttons for filtering tracks by completion state.
+ * Works alongside category filters - both must pass for card to show.
+ */
+---
+
+<div class="progress-filter" id="progress-filter">
+  <span class="progress-filter__label">Filter by Progress</span>
+  <div class="progress-filter__buttons">
+    <button class="progress-btn progress-btn--active" data-progress="all">
+      All
+    </button>
+    <button class="progress-btn" data-progress="incomplete">
+      Has Incomplete
+    </button>
+    <button class="progress-btn" data-progress="highlighted">
+      Has Highlighted
+    </button>
+  </div>
+</div>
+
+<style>
+  .progress-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .progress-filter__label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #5d4e37;
+    background: rgba(201, 184, 150, 0.3);
+    padding: 0.375rem 0.625rem;
+    border-left: 2px solid var(--color-copper, #b8860b);
+  }
+
+  .progress-filter__buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .progress-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    background: #f5f0e6;
+    border: 1px solid #d4c4a8;
+    border-radius: 2px;
+    color: #5d4e37;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .progress-btn:hover {
+    background: #ebe5d8;
+    border-color: #b8956a;
+  }
+
+  .progress-btn--active {
+    background: #fffdf7;
+    border-color: var(--color-copper, #b8860b);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Dark mode */
+  :root.dark .progress-filter__label {
+    color: #a89878;
+    background: rgba(90, 74, 53, 0.3);
+  }
+
+  :root.dark .progress-btn {
+    background: #3d3425;
+    border-color: #5a4a35;
+    color: #d4c8b8;
+  }
+
+  :root.dark .progress-btn:hover {
+    background: #4a3d2d;
+    border-color: #6a5a45;
+  }
+
+  :root.dark .progress-btn--active {
+    background: #4a3d2d;
+    border-color: var(--color-copper, #b8860b);
+  }
+</style>
