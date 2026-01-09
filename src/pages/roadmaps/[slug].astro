@@ -33,7 +33,7 @@ const { title, description } = Astro.props;
       <h1 class="text-2xl sm:text-3xl mb-2">{title}</h1>
       <p class="max-w-xl text-muted mb-8">{description}</p>
       
-      <Roadmap sections={getRoadmap(slug)} />
+      <Roadmap sections={getRoadmap(slug)} trackSlug={slug} />
     </div>
   </main>
   <Footer />

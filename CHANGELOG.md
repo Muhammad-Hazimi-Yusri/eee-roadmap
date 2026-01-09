@@ -21,11 +21,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Build-time concept key injection for instant runtime filtering
 - Combined category + progress filtering
 - Roadmap page: Expand All / Collapse All buttons
-- Roadmap page: Focus view (incomplete/highlighted) with glow effect
+- Roadmap page: Focus buttons (incomplete/highlighted) with glow effect
 - Auto-scroll to first matching topic on focus
 - Smart settings panel persistence (remembers state, auto-opens after 24h)
 - "Keep this panel closed" option to override auto-open
-- Per-topic expand/collapse state persistence
+- Per-topic expand/collapse state persistence (per-track localStorage)
 
 ## [0.13.X] - 2025-01-08
 

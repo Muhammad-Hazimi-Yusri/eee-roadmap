@@ -8,9 +8,10 @@ import { parseNotes } from '../utils/parseNotes';
 
 interface Props {
   sections: import('../types/roadmap').RoadmapSection[];
+  trackSlug: string;
 }
 
-const { sections } = Astro.props;
+const { sections, trackSlug } = Astro.props;
 
 // Build concept data for windows (parse markdown at build time)
 const conceptData: Record<string, Record<string, { notesHtml?: string }>> = {};
@@ -30,8 +31,9 @@ for (const section of sections) {
 <RoadmapSettings />
 <ConceptModal />
 
-<script define:vars={{ conceptData }}>
+<script define:vars={{ conceptData, trackSlug }}>
   window.conceptData = conceptData;
+  window.trackSlug = trackSlug;
 </script>
 
 <div class="roadmap">
@@ -171,7 +173,7 @@ for (const section of sections) {
   }
 
   function initNodeToggles() {
-    const EXPANDED_KEY = 'roadmap-expanded-topics';
+    const EXPANDED_KEY = `roadmap-expanded-${(window as any).trackSlug}`;
     
     // Load saved expanded topics
     function getExpandedTopics(): string[] {
@@ -485,7 +487,7 @@ for (const section of sections) {
   function initExpandCollapseAll() {
     const expandAllBtn = document.getElementById('expand-all');
     const collapseAllBtn = document.getElementById('collapse-all');
-    const EXPANDED_KEY = 'roadmap-expanded-topics';
+    const EXPANDED_KEY = `roadmap-expanded-${(window as any).trackSlug}`;
     
     expandAllBtn?.addEventListener('click', () => {
       const allTopicIds: string[] = [];
@@ -516,68 +518,68 @@ for (const section of sections) {
   }
 
   function initConceptFilter() {
-    const filterSelect = document.getElementById('concept-filter') as HTMLSelectElement;
-    if (!filterSelect) return;
+    const focusBtns = document.querySelectorAll('[data-focus]');
+    if (!focusBtns.length) return;
 
-    // Load saved filter
-    const savedFilter = localStorage.getItem('concept-filter') || 'all';
-    filterSelect.value = savedFilter;
+    const EXPANDED_KEY = `roadmap-expanded-${(window as any).trackSlug}`;
 
-    function applyConceptFilter(filter: string, shouldScroll = true) {
-      // Save preference
-      localStorage.setItem('concept-filter', filter);
-      
-      if (filter === 'all') {
-        // Just remove any glow, don't change expand state
-        document.querySelectorAll('.concept-pill').forEach(pill => {
-          (pill as HTMLElement).style.animation = '';
-        });
-        return;
-      }
+    function saveExpandedTopics(topics: string[]) {
+      localStorage.setItem(EXPANDED_KEY, JSON.stringify(topics));
+    }
 
-      let firstMatchingNode: Element | null = null;
-      
-      // First pass: collapse all topics
-      document.querySelectorAll('.roadmap-node').forEach(node => {
-        const button = node.querySelector('.node-button');
-        const content = node.querySelector('.node-content');
-        if (button && content) {
-          button.setAttribute('aria-expanded', 'false');
-          (content as HTMLElement).hidden = true;
-        }
-      });
+    function applyFocus(filter: string) {
+      if (filter === 'all') return; // "All" does nothing - use Expand All instead
 
-      // Second pass: expand topics with matching concepts and add glow
+      const topicsToExpand: string[] = [];
+
+      // Find matching concepts
       document.querySelectorAll('.concept-pill').forEach(pill => {
         const topicId = pill.getAttribute('data-topic-id');
         const concept = pill.getAttribute('data-concept');
         const key = `${topicId}:${concept}`;
-        
+
         let matches = false;
-        
+
         if (filter === 'incomplete') {
           matches = !isComplete(key);
         } else if (filter === 'highlighted') {
           matches = isImportant(key);
         }
-        
+
+        if (matches && topicId && !topicsToExpand.includes(topicId)) {
+          topicsToExpand.push(topicId);
+        }
+      });
+
+      // Expand matching topics (collapse others)
+      document.querySelectorAll('.roadmap-node').forEach(node => {
+        const btn = node.querySelector('.node-button');
+        const content = node.querySelector('.node-content');
+        const topicId = node.getAttribute('data-node-id');
+        if (btn && content && topicId) {
+          const shouldExpand = topicsToExpand.includes(topicId);
+          btn.setAttribute('aria-expanded', String(shouldExpand));
+          (content as HTMLElement).hidden = !shouldExpand;
+        }
+      });
+
+      // Save to persistence
+      saveExpandedTopics(topicsToExpand);
+
+      // Add glow to matching pills
+      document.querySelectorAll('.concept-pill').forEach(pill => {
+        const topicId = pill.getAttribute('data-topic-id');
+        const concept = pill.getAttribute('data-concept');
+        const key = `${topicId}:${concept}`;
+
+        let matches = false;
+        if (filter === 'incomplete') {
+          matches = !isComplete(key);
+        } else if (filter === 'highlighted') {
+          matches = isImportant(key);
+        }
+
         if (matches) {
-          // Expand parent topic
-          const node = document.querySelector(`[data-node-id="${topicId}"]`);
-          if (node) {
-            const button = node.querySelector('.node-button');
-            const content = node.querySelector('.node-content');
-            if (button && content) {
-              button.setAttribute('aria-expanded', 'true');
-              (content as HTMLElement).hidden = false;
-              
-              if (!firstMatchingNode) {
-                firstMatchingNode = node;
-              }
-            }
-          }
-          
-          // Add glow effect
           (pill as HTMLElement).style.animation = 'focus-glow 1s ease-out';
           setTimeout(() => {
             (pill as HTMLElement).style.animation = '';
@@ -586,21 +588,22 @@ for (const section of sections) {
       });
 
       // Scroll to first match
-      if (shouldScroll && firstMatchingNode) {
-        setTimeout(() => {
-          firstMatchingNode!.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
+      if (topicsToExpand.length > 0) {
+        const firstNode = document.querySelector(`[data-node-id="${topicsToExpand[0]}"]`);
+        if (firstNode) {
+          setTimeout(() => {
+            firstNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        }
       }
     }
 
-    filterSelect.addEventListener('change', () => {
-      applyConceptFilter(filterSelect.value, true);
+    focusBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.getAttribute('data-focus') || 'all';
+        applyFocus(filter);
+      });
     });
-
-    // Apply saved filter on load (no scroll on initial load)
-    if (savedFilter !== 'all') {
-      applyConceptFilter(savedFilter, false);
-    }
   }
 
   // ============================================

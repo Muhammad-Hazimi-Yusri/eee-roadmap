@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.14.3-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.15.0-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,21 +29,24 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.14.3)
+## Current Features (v0.15.0)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
 - **Progress Tracking** — Mark concepts complete (✓) or important (★), persists across sessions
+- **Focus View** — Quickly expand only incomplete or highlighted topics with visual glow feedback
+- **Expand/Collapse All** — Manage topic visibility in one click
 - **Two Interaction Modes:**
   - *Simple* — Click (notes), double-click (complete), shift+click (important)
   - *Tools* — Swipe gestures with pen/highlighter/eraser (optimized for tablet/stylus)
 - **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs
 - **Global Search** — Fuzzy search across all tracks, topics, and concept notes (`Ctrl+K`)
 - **Deep Links** — Share links directly to specific concepts
+- **State Persistence** — Topic expand/collapse state saved per track, settings panel remembers preferences
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
-- **Browse All Tracks** — `/roadmaps/` page with category filters and boxed/unboxed view
+- **Browse All Tracks** — `/roadmaps/` page with category + progress filters and boxed/unboxed view
 - **Cross-track Navigation** — Clickable prerequisites link between related topics
 - **Prerequisite Behavior** — Smart defaults (same-track = same tab, cross-track = new tab)
 
@@ -69,24 +72,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### v0.13 - Search & Discovery ✓
-
-**Goal:** Find content quickly across all tracks.
-
-- [x] `/roadmaps/` index page (browse all tracks)
-- [x] Search bar in navigation (Fuse.js fuzzy search)
-- [x] Track filtering by category
-- [x] Build-time search index generation
-- [x] Full-text search (track > topic > concept priority)
-- [x] Deep links to exact location (concept of X topic of Y roadmap)- [x] Search results page (modal with grouped results)
-- [x] Options to show sections and topics in roadmap (Unboxed view)
-- [x] Automatic update for Hero section for no. of tracks and topics
-- [x] Search concept notes content (Phase 2)
-- [x] Unboxed view polish: animation, PCB traces
-- [ ] Unboxed view: overlapping card layout for overflow (deferred)
-- [x] Experiment with category filter UI (shipping label design)
-
-### v0.14 - Personal Progress Filters
+### v0.14 - Personal Progress Filters ✓
 
 **Goal:** Filter tracks and concepts by personal progress state.
 
@@ -95,10 +81,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Roadmap page: expand/collapse all controls
 - [x] Roadmap page: focus view (incomplete/highlighted concepts)
 - [x] Smart settings panel (remembers state, auto-opens after 24h)
-- [x] Persist topic expand/collapse state
-- [ ] Make focus view independent of persistence
-- [ ] Combined filtering (category + progress)
-- [ ] Visual indicators for filter state
+- [x] Persist topic expand/collapse state per track
+- [x] Combined filtering (category + progress)
 
 ### v0.15 - Glossary & Acronyms
 
@@ -160,6 +144,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] iOS Safari: in two-finger swipe, trail persistence in tools mode
 - [ ] Mobile: fullscreen mode bottom bar overlap causing last line not visible
 - [ ] PDF.js: option to open-in-new-tab and fullscreen viewer via icons feasibility
+- [ ] Unboxed view: overlapping card layout for overflow
 
 ### v1.0.0 - Official Release
 
