@@ -383,11 +383,108 @@ for (const section of sections) {
   function initSettingsPanel() {
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsPanel = document.getElementById('settings-panel');
+    const keepClosedCheckbox = document.getElementById('keep-panel-closed') as HTMLInputElement;
     
-    settingsToggle?.addEventListener('click', () => {
-      const isExpanded = settingsToggle.getAttribute('aria-expanded') !== 'false';
-      settingsToggle.setAttribute('aria-expanded', String(!isExpanded));
-      if (settingsPanel) settingsPanel.hidden = isExpanded;
+    if (!settingsToggle || !settingsPanel) return;
+
+    const PANEL_STATE_KEY = 'roadmap-panel-state';
+    const PANEL_CLOSED_AT_KEY = 'roadmap-panel-closed-at';
+    const PANEL_KEEP_CLOSED_KEY = 'roadmap-panel-keep-closed';
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+    // Load saved state
+    const savedState = localStorage.getItem(PANEL_STATE_KEY);
+    const closedAt = localStorage.getItem(PANEL_CLOSED_AT_KEY);
+    const keepClosed = localStorage.getItem(PANEL_KEEP_CLOSED_KEY) === 'true';
+
+    // Determine if panel should be open
+    let shouldBeOpen = true; // Default: open
+    
+    if (keepClosed) {
+      shouldBeOpen = false;
+    } else if (savedState === 'closed' && closedAt) {
+      const elapsed = Date.now() - parseInt(closedAt, 10);
+      shouldBeOpen = elapsed > ONE_DAY_MS;
+    }
+
+    // Apply initial state
+    settingsToggle.setAttribute('aria-expanded', String(shouldBeOpen));
+    settingsPanel.hidden = !shouldBeOpen;
+    if (keepClosedCheckbox) {
+      keepClosedCheckbox.checked = keepClosed;
+    }
+
+    // Toggle handler
+    settingsToggle.addEventListener('click', () => {
+      const isExpanded = settingsToggle.getAttribute('aria-expanded') === 'true';
+      const newState = !isExpanded;
+      
+      settingsToggle.setAttribute('aria-expanded', String(newState));
+      settingsPanel.hidden = !newState;
+      
+      localStorage.setItem(PANEL_STATE_KEY, newState ? 'open' : 'closed');
+      if (!newState) {
+        localStorage.setItem(PANEL_CLOSED_AT_KEY, String(Date.now()));
+      }
+    });
+
+    // Keep closed checkbox handler
+    keepClosedCheckbox?.addEventListener('change', () => {
+      localStorage.setItem(PANEL_KEEP_CLOSED_KEY, String(keepClosedCheckbox.checked));
+    });
+  }
+
+  function initExpandCollapseAll() {
+    const expandAllBtn = document.getElementById('expand-all');
+    const collapseAllBtn = document.getElementById('collapse-all');
+    
+    expandAllBtn?.addEventListener('click', () => {
+      document.querySelectorAll('.roadmap-node').forEach(node => {
+        const button = node.querySelector('.node-button');
+        const content = node.querySelector('.node-content');
+        if (button && content) {
+          button.setAttribute('aria-expanded', 'true');
+          (content as HTMLElement).hidden = false;
+        }
+      });
+    });
+    
+    collapseAllBtn?.addEventListener('click', () => {
+      document.querySelectorAll('.roadmap-node').forEach(node => {
+        const button = node.querySelector('.node-button');
+        const content = node.querySelector('.node-content');
+        if (button && content) {
+          button.setAttribute('aria-expanded', 'false');
+          (content as HTMLElement).hidden = true;
+        }
+      });
+    });
+  }
+
+  function initConceptFilter() {
+    const filterSelect = document.getElementById('concept-filter') as HTMLSelectElement;
+    if (!filterSelect) return;
+
+    function applyConceptFilter(filter: string) {
+      document.querySelectorAll('.concept-pill').forEach(pill => {
+        const topicId = pill.getAttribute('data-topic-id');
+        const concept = pill.getAttribute('data-concept');
+        const key = `${topicId}:${concept}`;
+        
+        let show = true;
+        
+        if (filter === 'incomplete') {
+          show = !isComplete(key);
+        } else if (filter === 'highlighted') {
+          show = isImportant(key);
+        }
+        
+        (pill as HTMLElement).style.display = show ? '' : 'none';
+      });
+    }
+
+    filterSelect.addEventListener('change', () => {
+      applyConceptFilter(filterSelect.value);
     });
   }
 
@@ -784,6 +881,8 @@ for (const section of sections) {
   initStaticPrereqs();
   initPrereqBehavior();
   initSettingsPanel();
+  initExpandCollapseAll();
+  initConceptFilter();
   initInteractionMode();
   initToolbar();
   initSwipeGestures();

@@ -71,6 +71,29 @@
       <option value="new-tab">Always new tab</option>
     </select>
   </div>
+
+  <!-- Expand/Collapse All -->
+  <div class="setting-row">
+    <span class="setting-label">Topics:</span>
+    <button class="setting-btn" id="expand-all">Expand All</button>
+    <button class="setting-btn" id="collapse-all">Collapse All</button>
+  </div>
+
+  <!-- Concept Filter -->
+  <div class="setting-row">
+    <span class="setting-label">Show:</span>
+    <select id="concept-filter">
+      <option value="all">All concepts</option>
+      <option value="incomplete">Incomplete only</option>
+      <option value="highlighted">Highlighted only</option>
+    </select>
+  </div>
+
+  <!-- Keep closed option -->
+  <label class="setting-checkbox" title="Panel opens by default and remembers your choice for 24 hours. Tick this to keep it permanently closed until you untick it.">
+    <input type="checkbox" id="keep-panel-closed" />
+    <span>Keep this panel closed</span>
+  </label>
 </div>
 
 <style>
@@ -229,6 +252,38 @@
     font-weight: 500;
   }
 
+  .setting-btn {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .setting-btn:hover {
+    border-color: var(--color-copper);
+    background-color: var(--color-bg-grid);
+  }
+
+  .setting-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--color-border);
+    margin-top: 0.25rem;
+  }
+
+  .setting-checkbox input {
+    cursor: pointer;
+  }
 </style>
 
 <script>

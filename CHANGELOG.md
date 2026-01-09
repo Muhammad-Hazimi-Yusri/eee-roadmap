@@ -20,7 +20,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `/roadmaps/` page: filter tracks by has-incomplete/has-highlighted
 - Build-time concept key injection for instant runtime filtering
 - Combined category + progress filtering
-
+- Roadmap page: Expand All / Collapse All buttons
+- Roadmap page: concept filter (all/incomplete/highlighted)
+- Smart settings panel persistence (remembers state, auto-opens after 24h)
+- "Keep this panel closed" option to override auto-open
 
 ## [0.13.X] - 2025-01-08
 
