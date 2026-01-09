@@ -55,6 +55,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Boxed/Unboxed view toggle on `/roadmaps/` page
 - Unboxed view shows inline PCB layout with all sections and topics
 - View hint text updates based on current mode
+- Shipping label styled category filters with stamp checkmark
 
 ### Changed
 - Hero section stats computed at build time from YAML
