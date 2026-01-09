@@ -171,13 +171,61 @@ for (const section of sections) {
   }
 
   function initNodeToggles() {
+    const EXPANDED_KEY = 'roadmap-expanded-topics';
+    
+    // Load saved expanded topics
+    function getExpandedTopics(): string[] {
+      try {
+        const saved = localStorage.getItem(EXPANDED_KEY);
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    }
+    
+    function saveExpandedTopics(topics: string[]) {
+      localStorage.setItem(EXPANDED_KEY, JSON.stringify(topics));
+    }
+    
+    // Apply saved state on load
+    const expandedTopics = getExpandedTopics();
+    expandedTopics.forEach(topicId => {
+      const node = document.querySelector(`[data-node-id="${topicId}"]`);
+      if (node) {
+        const btn = node.querySelector('.node-button');
+        const content = node.querySelector('.node-content') as HTMLElement;
+        if (btn && content) {
+          btn.setAttribute('aria-expanded', 'true');
+          content.hidden = false;
+        }
+      }
+    });
+    
+    // Click handlers
     document.querySelectorAll('.node-button').forEach((btn) => {
       btn.addEventListener('click', () => {
         const expanded = btn.getAttribute('aria-expanded') === 'true';
         const content = btn.nextElementSibling as HTMLElement;
+        const node = btn.closest('[data-node-id]');
+        const topicId = node?.getAttribute('data-node-id');
         
         btn.setAttribute('aria-expanded', String(!expanded));
         content.hidden = expanded;
+        
+        // Save state
+        if (topicId) {
+          let topics = getExpandedTopics();
+          if (!expanded) {
+            // Now expanding - add to list
+            if (!topics.includes(topicId)) {
+              topics.push(topicId);
+            }
+          } else {
+            // Now collapsing - remove from list
+            topics = topics.filter(id => id !== topicId);
+          }
+          saveExpandedTopics(topics);
+        }
       });
     });
   }
@@ -437,16 +485,21 @@ for (const section of sections) {
   function initExpandCollapseAll() {
     const expandAllBtn = document.getElementById('expand-all');
     const collapseAllBtn = document.getElementById('collapse-all');
+    const EXPANDED_KEY = 'roadmap-expanded-topics';
     
     expandAllBtn?.addEventListener('click', () => {
+      const allTopicIds: string[] = [];
       document.querySelectorAll('.roadmap-node').forEach(node => {
         const button = node.querySelector('.node-button');
         const content = node.querySelector('.node-content');
+        const topicId = node.getAttribute('data-node-id');
         if (button && content) {
           button.setAttribute('aria-expanded', 'true');
           (content as HTMLElement).hidden = false;
+          if (topicId) allTopicIds.push(topicId);
         }
       });
+      localStorage.setItem(EXPANDED_KEY, JSON.stringify(allTopicIds));
     });
     
     collapseAllBtn?.addEventListener('click', () => {
@@ -458,6 +511,7 @@ for (const section of sections) {
           (content as HTMLElement).hidden = true;
         }
       });
+      localStorage.setItem(EXPANDED_KEY, JSON.stringify([]));
     });
   }
 
@@ -465,27 +519,88 @@ for (const section of sections) {
     const filterSelect = document.getElementById('concept-filter') as HTMLSelectElement;
     if (!filterSelect) return;
 
-    function applyConceptFilter(filter: string) {
+    // Load saved filter
+    const savedFilter = localStorage.getItem('concept-filter') || 'all';
+    filterSelect.value = savedFilter;
+
+    function applyConceptFilter(filter: string, shouldScroll = true) {
+      // Save preference
+      localStorage.setItem('concept-filter', filter);
+      
+      if (filter === 'all') {
+        // Just remove any glow, don't change expand state
+        document.querySelectorAll('.concept-pill').forEach(pill => {
+          (pill as HTMLElement).style.animation = '';
+        });
+        return;
+      }
+
+      let firstMatchingNode: Element | null = null;
+      
+      // First pass: collapse all topics
+      document.querySelectorAll('.roadmap-node').forEach(node => {
+        const button = node.querySelector('.node-button');
+        const content = node.querySelector('.node-content');
+        if (button && content) {
+          button.setAttribute('aria-expanded', 'false');
+          (content as HTMLElement).hidden = true;
+        }
+      });
+
+      // Second pass: expand topics with matching concepts and add glow
       document.querySelectorAll('.concept-pill').forEach(pill => {
         const topicId = pill.getAttribute('data-topic-id');
         const concept = pill.getAttribute('data-concept');
         const key = `${topicId}:${concept}`;
         
-        let show = true;
+        let matches = false;
         
         if (filter === 'incomplete') {
-          show = !isComplete(key);
+          matches = !isComplete(key);
         } else if (filter === 'highlighted') {
-          show = isImportant(key);
+          matches = isImportant(key);
         }
         
-        (pill as HTMLElement).style.display = show ? '' : 'none';
+        if (matches) {
+          // Expand parent topic
+          const node = document.querySelector(`[data-node-id="${topicId}"]`);
+          if (node) {
+            const button = node.querySelector('.node-button');
+            const content = node.querySelector('.node-content');
+            if (button && content) {
+              button.setAttribute('aria-expanded', 'true');
+              (content as HTMLElement).hidden = false;
+              
+              if (!firstMatchingNode) {
+                firstMatchingNode = node;
+              }
+            }
+          }
+          
+          // Add glow effect
+          (pill as HTMLElement).style.animation = 'focus-glow 1s ease-out';
+          setTimeout(() => {
+            (pill as HTMLElement).style.animation = '';
+          }, 1000);
+        }
       });
+
+      // Scroll to first match
+      if (shouldScroll && firstMatchingNode) {
+        setTimeout(() => {
+          firstMatchingNode!.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
     }
 
     filterSelect.addEventListener('change', () => {
-      applyConceptFilter(filterSelect.value);
+      applyConceptFilter(filterSelect.value, true);
     });
+
+    // Apply saved filter on load (no scroll on initial load)
+    if (savedFilter !== 'all') {
+      applyConceptFilter(savedFilter, false);
+    }
   }
 
   // ============================================
@@ -1122,5 +1237,11 @@ for (const section of sections) {
   .topic--completed .node-dot {
     background-color: var(--color-pcb) !important;
     border-color: var(--color-pcb);
+  }
+
+  @keyframes focus-glow {
+    0% { box-shadow: 0 0 0 0 rgba(184, 134, 11, 0.7); }
+    50% { box-shadow: 0 0 8px 4px rgba(184, 134, 11, 0.5); }
+    100% { box-shadow: 0 0 0 0 rgba(184, 134, 11, 0); }
   }
 </style>

@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.14.2-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.14.3-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.14.2)
+## Current Features (v0.14.3)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -93,9 +93,10 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Reusable filter component for progress states
 - [x] `/roadmaps/` page: filter cards by has-incomplete/has-highlighted
 - [x] Roadmap page: expand/collapse all controls
-- [x] Roadmap page: filter topics by completion state
+- [x] Roadmap page: focus view (incomplete/highlighted concepts)
 - [x] Smart settings panel (remembers state, auto-opens after 24h)
-- [ ] Persist filter and topic expand/collapse state
+- [x] Persist topic expand/collapse state
+- [ ] Make focus view independent of persistence
 - [ ] Combined filtering (category + progress)
 - [ ] Visual indicators for filter state
 
