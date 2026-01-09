@@ -134,6 +134,35 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
               {/* Unboxed PCB view */}
               <div class="box-card__pcb">
                 <div class="box-card__pcb-board">
+                  {/* Decorative traces */}
+                  <svg class="box-card__pcb-traces" viewBox="0 0 300 400" preserveAspectRatio="none">
+                    {/* Corner traces */}
+                    <path d="M0,20 H15 L25,30 V50" stroke="#b8860b" stroke-width="2" fill="none" opacity="0.4"/>
+                    <path d="M0,40 H10 L20,50" stroke="#b8860b" stroke-width="1.5" fill="none" opacity="0.3"/>
+                    <path d="M300,25 H280 L270,35 V55" stroke="#b8860b" stroke-width="2" fill="none" opacity="0.4"/>
+                    <path d="M300,50 H285 L275,60" stroke="#b8860b" stroke-width="1.5" fill="none" opacity="0.3"/>
+                    <path d="M20,400 V380 L30,370 H50" stroke="#b8860b" stroke-width="2" fill="none" opacity="0.4"/>
+                    <path d="M280,400 V385 L270,375 H250" stroke="#b8860b" stroke-width="2" fill="none" opacity="0.4"/>
+                    {/* Vias */}
+                    <circle cx="25" cy="30" r="4" fill="#b8860b" opacity="0.5"/>
+                    <circle cx="25" cy="30" r="1.5" fill="#0d4028" opacity="0.8"/>
+                    <circle cx="270" cy="35" r="4" fill="#b8860b" opacity="0.5"/>
+                    <circle cx="270" cy="35" r="1.5" fill="#0d4028" opacity="0.8"/>
+                    <circle cx="30" cy="370" r="4" fill="#b8860b" opacity="0.5"/>
+                    <circle cx="30" cy="370" r="1.5" fill="#0d4028" opacity="0.8"/>
+                    <circle cx="270" cy="375" r="4" fill="#b8860b" opacity="0.5"/>
+                    <circle cx="270" cy="375" r="1.5" fill="#0d4028" opacity="0.8"/>
+                    {/* Horizontal runs */}
+                    <path d="M0,120 H20 L35,135" stroke="#b8860b" stroke-width="1.5" fill="none" opacity="0.25"/>
+                    <path d="M300,180 H275 L260,165" stroke="#b8860b" stroke-width="1.5" fill="none" opacity="0.25"/>
+                    <path d="M0,280 H25 L40,265" stroke="#b8860b" stroke-width="1.5" fill="none" opacity="0.25"/>
+                    <path d="M300,320 H280 L265,335" stroke="#b8860b" stroke-width="1.5" fill="none" opacity="0.25"/>
+                  </svg>
+                  {/* Mounting holes */}
+                  <div class="box-card__pcb-hole box-card__pcb-hole--tl"></div>
+                  <div class="box-card__pcb-hole box-card__pcb-hole--tr"></div>
+                  <div class="box-card__pcb-hole box-card__pcb-hole--bl"></div>
+                  <div class="box-card__pcb-hole box-card__pcb-hole--br"></div>
                   <div class="box-card__pcb-header">
                     <a href={internalHref(`roadmaps/${slug}`)} class="box-card__pcb-chip">
                       <span class="box-card__pcb-chip-notch"></span>
@@ -274,6 +303,24 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     viewBoxedBtn?.classList.remove('view-toggle-btn--active');
     tracksGrid?.classList.add('tracks-grid--unboxed');
     if (viewHint) viewHint.textContent = 'Unboxed PCB cards with all sections and topics';
+  });
+
+  // Hide box elements completely after animation
+  tracksGrid?.addEventListener('transitionend', (e) => {
+    if (e.target === tracksGrid) return;
+    
+    if (currentView === 'unboxed') {
+      tracksGrid.querySelectorAll('.box-card__base, .box-card__lid, .box-card__tape').forEach(el => {
+        (el as HTMLElement).style.display = 'none';
+      });
+    }
+  });
+
+  // Restore before animation starts
+  viewBoxedBtn?.addEventListener('click', () => {
+    tracksGrid?.querySelectorAll('.box-card__base, .box-card__lid, .box-card__tape').forEach(el => {
+      (el as HTMLElement).style.display = '';
+    });
   });
 
   let activeCard: HTMLElement | null = null;
@@ -438,6 +485,9 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
     card.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       if (target.closest('a')) return;
+
+      // Don't open modal in unboxed view
+      if (currentView === 'unboxed') return;
       
       const isMobile = window.matchMedia('(hover: none)').matches;
       
@@ -1586,6 +1636,7 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   }
 
   .box-card__pcb-board {
+    position: relative;
     --pcb-green: #1a5c38;
     --pcb-copper: #b8860b;
     --pcb-silkscreen: #f5f5f0;
@@ -1718,22 +1769,92 @@ const tracksData = allTracks.map(({ slug, meta }) => ({
   }
 
   /* ==================== UNBOXED GRID STATE ==================== */
-  .tracks-grid--unboxed .box-card {
-    perspective: none;
+  /* Transition setup for all cards */
+  .box-card__lid {
+    transition: transform 0.4s ease;
   }
 
-  .tracks-grid--unboxed .box-card__lid,
-  .tracks-grid--unboxed .box-card__tape,
-  .tracks-grid--unboxed .box-card__base {
-    display: none;
+  .box-card__base,
+  .box-card__tape {
+    transition: opacity 0.3s ease 0.2s;
+  }
+
+  .box-card__pcb {
+    display: block;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  /* Unboxed state */
+  .tracks-grid--unboxed .box-card {
+    height: auto;
+  }
+
+  .tracks-grid--unboxed .box-card__lid {
+    transform: rotateX(-180deg);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.2s ease 0.3s;
+  }
+
+  .tracks-grid--unboxed .box-card__base,
+  .tracks-grid--unboxed .box-card__tape {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
   }
 
   .tracks-grid--unboxed .box-card__pcb {
-    display: block;
     position: relative;
+    height: auto;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s;
   }
 
-  .tracks-grid--unboxed .box-card {
-    min-height: 280px;
+  .tracks-grid--unboxed .box-card__pcb-board {
+    height: auto;
   }
+
+  /* PCB traces */
+  .box-card__pcb-traces {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Mounting holes */
+  .box-card__pcb-hole {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #b8860b;
+    border-radius: 50%;
+    background: #111;
+    z-index: 1;
+  }
+
+  .box-card__pcb-hole::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    background: #333;
+    border-radius: 50%;
+  }
+
+  .box-card__pcb-hole--tl { top: 6px; left: 6px; }
+  .box-card__pcb-hole--tr { top: 6px; right: 6px; }
+  .box-card__pcb-hole--bl { bottom: 6px; left: 6px; }
+  .box-card__pcb-hole--br { bottom: 6px; right: 6px; }
 </style>

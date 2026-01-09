@@ -10,7 +10,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 ---
 
-## Current Features (v0.13.11)
+## Current Features (v0.13.12)
 - Interactive roadmaps for Fundamentals, Core, and Advanced tracks
 - Expand/collapse topic nodes with descriptions, concepts and resources
 - Prerequisites (linkable + static) and learning outcomes for each topic
@@ -93,7 +93,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Options to show sections and topics in roadmap (Unboxed view)
 - [x] Automatic update for Hero section for no. of tracks and topics
 - [x] Search concept notes content (Phase 2)
-- [ ] Unboxed view polish: animation, PCB traces, overlapping card layout for overflow
+- [x] Unboxed view polish: animation, PCB traces
+- [ ] Unboxed view: overlapping card layout for overflow (deferred)
 - [ ] Experiment with category filter UI (fit box/PCB aesthetic, animate transitions)
 - [ ] Personal filters (incomplete concepts, highlighted items) integrated with progress tracking
 
