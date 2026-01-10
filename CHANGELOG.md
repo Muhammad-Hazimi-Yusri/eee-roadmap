@@ -11,6 +11,38 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.15.X] - 2025-01-10
+
+**Glossary & Acronyms**
+
+### Added
+- Glossary data source (`content/_glossary.yaml`)
+- 100+ EEE terms and acronyms with definitions
+- LaTeX equation support in definitions (KaTeX)
+- `/glossary/` page with:
+  - A-Z alphabet navigation
+  - Real-time search/filter
+  - Category tags per term
+  - "See also" cross-references (clickable links)
+  - "Appears in" reverse index (expandable, shows all on click)
+  - 2-column responsive layout
+  - Hash navigation with highlight animation
+- Build script (`scripts/build-glossary.mjs`):
+  - Parses YAML to JSON
+  - Scans all roadmap content for term occurrences
+  - Generates reverse index automatically
+- Glossary integrated into global search:
+  - New "Glossary Terms" group (appears first)
+  - Searches term names and acronyms
+  - Links to `/glossary/#term-id`
+- Glossary link added to Footer
+
+### Changed
+- `build:data` now chains: YAML → JSON → Glossary → Search Index
+- Search index includes glossary entries with acronym matching
+- Fuse.js config updated with `acronyms` and `definition` keys
+
+
 ## [0.14.X] - 2025-01-09
 
 **Personal Progress Filters**

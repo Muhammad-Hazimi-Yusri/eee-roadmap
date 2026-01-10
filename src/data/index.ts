@@ -5,7 +5,7 @@ import type { RoadmapSection, TrackMeta, Roadmap } from '../types/roadmap';
 
 // Exclude pdf-manifest.json and sample.json
 const modules = import.meta.glob<Roadmap>(
-  ['./*.json', '!./pdf-manifest.json', '!./sample.json', '!./search-index.json'],
+  ['./*.json', '!./pdf-manifest.json', '!./sample.json', '!./search-index.json', '!./_glossary.json'],
   { eager: true, import: 'default' }
 );
 

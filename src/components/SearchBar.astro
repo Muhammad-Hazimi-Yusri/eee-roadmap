@@ -45,11 +45,13 @@
   // Fuse.js config - weighted by priority
   const fuse = new Fuse(searchIndex, {
     keys: [
-      { name: 'name', weight: 0.6 },
-      { name: 'description', weight: 0.2 },
-      { name: 'content', weight: 0.15 },
-      { name: 'track', weight: 0.03 },
-      { name: 'topic', weight: 0.02 }
+      { name: 'name', weight: 0.5 },
+      { name: 'acronyms', weight: 0.3 },
+      { name: 'description', weight: 0.15 },
+      { name: 'content', weight: 0.1 },
+      { name: 'definition', weight: 0.1 },
+      { name: 'track', weight: 0.02 },
+      { name: 'topic', weight: 0.01 }
     ],
     threshold: 0.3,
     includeScore: true,
@@ -135,8 +137,8 @@
       return (a.score || 0) - (b.score || 0);
     });
 
-    // Group by type, respecting priority: track > topic > concept
-    const grouped = { track: [], topic: [], concept: [] } as Record<string, any[]>;
+    // Group by type, respecting priority: glossary > track > topic > concept
+    const grouped = { glossary: [], track: [], topic: [], concept: [] } as Record<string, any[]>;
     results.forEach(r => {
       const type = r.item.type as string;
       if (grouped[type]) grouped[type].push(r);
@@ -146,9 +148,31 @@
       .filter(([_, items]) => items.length > 0)
       .map(([type, items]) => `
         <div class="search-group">
-          <div class="search-group-label">${type}s</div>
+          <div class="search-group-label">${type === 'glossary' ? 'Glossary Terms' : type + 's'}</div>
           ${items.slice(0, 5).map(r => {
             const item = r.item;
+            
+            // Handle glossary type differently
+            if (type === 'glossary') {
+              const acronyms = item.acronyms?.length 
+                ? ` (${item.acronyms.join(', ')})` 
+                : '';
+              const defPreview = item.definition
+                ?.split('\n')[0]
+                ?.slice(0, 80)
+                ?.trim() + (item.definition?.length > 80 ? '...' : '');
+              
+              return `
+                <a href="/glossary/#${item.id}" class="search-result">
+                  <div class="search-result-header">
+                    <span class="search-result-name">${item.name}${acronyms}</span>
+                    <span class="search-result-badge search-result-badge--glossary">definition</span>
+                  </div>
+                  ${defPreview ? `<span class="search-result-snippet">${defPreview}</span>` : ''}
+                </a>
+              `;
+            }
+            
             const breadcrumb = type === 'track' 
               ? '' 
               : type === 'topic'
@@ -431,6 +455,11 @@
     border-radius: 2px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+  }
+
+  .search-result-badge--glossary {
+    background: var(--color-pcb-green, #2d5016);
+    color: #fff;
   }
 
   .search-result-snippet {

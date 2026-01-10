@@ -1,0 +1,1322 @@
+# Glossary of EEE terms and acronyms
+# 
+# Fields:
+#   term: Full term name (required)
+#   acronyms: Short forms that trigger this entry (optional, array)
+#   categories: Track slugs where term is relevant (optional, array, defaults to ["general"])
+#   definition: Explanation with markdown/LaTeX support (required)
+#   see_also: Related term names (optional, must match other term/acronym exactly)
+
+terms:
+  # ═══════════════════════════════════════════════════════════════
+  # FUNDAMENTAL LAWS & CONCEPTS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Ohm's Law
+    categories:
+      - fundamentals
+      - core
+      - advanced
+    definition: |
+      Fundamental relationship: $V = IR$ where voltage equals current times 
+      resistance. Applies to resistive elements in DC circuits.
+    see_also:
+      - Kirchhoff's Laws
+
+  - term: Kirchhoff's Voltage Law
+    acronyms:
+      - KVL
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      The sum of voltages around any closed loop equals zero: $\sum V_{loop} = 0$.
+      Based on conservation of energy.
+    see_also:
+      - KCL
+      - Ohm's Law
+
+  - term: Kirchhoff's Current Law
+    acronyms:
+      - KCL
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      The sum of currents entering any node equals zero: $\sum I_{node} = 0$.
+      Based on conservation of charge.
+    see_also:
+      - KVL
+      - Ohm's Law
+
+  # ═══════════════════════════════════════════════════════════════
+  # CIRCUIT TYPES
+  # ═══════════════════════════════════════════════════════════════
+  - term: Direct Current
+    acronyms:
+      - DC
+    categories:
+      - fundamentals
+    definition: |
+      Electric current that flows in one constant direction. Batteries and 
+      power supplies provide DC. Steady-state analysis uses simple algebra.
+    see_also:
+      - AC
+
+  - term: Alternating Current
+    acronyms:
+      - AC
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      Electric current that periodically reverses direction, typically 
+      sinusoidal. Mains power (50/60 Hz) is AC. Analysis uses phasors and 
+      complex impedance.
+    see_also:
+      - DC
+      - RMS
+      - Phasor
+
+  # ═══════════════════════════════════════════════════════════════
+  # TRANSISTORS & SEMICONDUCTORS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Bipolar Junction Transistor
+    acronyms:
+      - BJT
+    categories:
+      - fundamentals
+      - core
+      - advanced
+    definition: |
+      A three-terminal semiconductor device (emitter, base, collector) used 
+      for amplification or switching. Current-controlled: base current 
+      controls collector current via $I_C = \beta I_B$.
+    see_also:
+      - MOSFET
+      - FET
+
+  - term: Metal-Oxide-Semiconductor Field-Effect Transistor
+    acronyms:
+      - MOSFET
+    categories:
+      - core
+      - advanced
+    definition: |
+      A voltage-controlled transistor with three terminals (gate, source, 
+      drain). Gate voltage controls current flow. Dominant in digital 
+      circuits due to low power consumption and high input impedance.
+    see_also:
+      - BJT
+      - FET
+
+  - term: Field-Effect Transistor
+    acronyms:
+      - FET
+    categories:
+      - core
+    definition: |
+      Family of transistors where current is controlled by an electric field.
+      Includes MOSFETs and JFETs. High input impedance compared to BJTs.
+    see_also:
+      - MOSFET
+      - BJT
+      - JFET
+
+  - term: Junction Field-Effect Transistor
+    acronyms:
+      - JFET
+    categories:
+      - core
+    definition: |
+      A FET that uses a reverse-biased PN junction as its gate. Simpler than 
+      MOSFETs but less common in modern designs. Depletion-mode only.
+    see_also:
+      - FET
+      - MOSFET
+
+  - term: Light-Emitting Diode
+    acronyms:
+      - LED
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      A semiconductor diode that emits light when forward biased. Forward 
+      voltage depends on color (red ~1.8V, blue ~3.3V). Requires current-
+      limiting resistor.
+    see_also:
+      - PN junction
+
+  - term: PN Junction
+    categories:
+      - fundamentals
+    definition: |
+      The boundary between P-type and N-type semiconductor material. Forms 
+      the basis of diodes and transistors. Creates a depletion region with 
+      built-in potential (~0.7V for silicon).
+    see_also:
+      - LED
+      - BJT
+
+  # ═══════════════════════════════════════════════════════════════
+  # ANALOG CIRCUITS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Operational Amplifier
+    acronyms:
+      - Op-amp
+      - Op-Amp
+      - Opamp
+    categories:
+      - core
+      - advanced
+    definition: |
+      High-gain differential amplifier IC. With negative feedback, follows 
+      two "golden rules": virtual short ($V_+ = V_-$) and no input current.
+      Building block for amplifiers, filters, comparators.
+    see_also:
+      - GBW
+      - Virtual Ground
+
+  - term: Gain-Bandwidth Product
+    acronyms:
+      - GBW
+      - GBP
+    categories:
+      - core
+    definition: |
+      For op-amps, the product of closed-loop gain and bandwidth is constant:
+      $GBW = A_{closed} \times f_{-3dB}$. Higher gain means lower bandwidth.
+    see_also:
+      - Op-amp
+
+  - term: Virtual Ground
+    categories:
+      - core
+    definition: |
+      In inverting op-amp configurations, the inverting input is held at 
+      ground potential by negative feedback, though not physically connected 
+      to ground. Simplifies circuit analysis.
+    see_also:
+      - Op-amp
+
+  # ═══════════════════════════════════════════════════════════════
+  # PASSIVE COMPONENTS & MEASUREMENTS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Root Mean Square
+    acronyms:
+      - RMS
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      Effective value of an AC signal that delivers equivalent power to DC.
+      For sinusoids: $V_{RMS} = V_{peak}/\sqrt{2} \approx 0.707 V_{peak}$.
+    see_also:
+      - AC
+
+  - term: Equivalent Series Resistance
+    acronyms:
+      - ESR
+    categories:
+      - fundamentals
+      - advanced
+    definition: |
+      The resistive component of a real capacitor or inductor. Causes power 
+      loss and heat. Critical in switching power supplies and filtering.
+      Lower ESR = better high-frequency performance.
+
+  - term: Impedance
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      AC equivalent of resistance: $Z = R + jX$ where $R$ is resistance and 
+      $X$ is reactance. Measured in ohms. Extends Ohm's law to AC circuits.
+    see_also:
+      - Reactance
+      - Admittance
+
+  - term: Reactance
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      The imaginary part of impedance, caused by capacitors ($X_C = -1/\omega C$)
+      or inductors ($X_L = \omega L$). Opposes current flow but doesn't 
+      dissipate power.
+    see_also:
+      - Impedance
+
+  - term: Admittance
+    categories:
+      - fundamentals
+    definition: |
+      The reciprocal of impedance: $Y = 1/Z = G + jB$. Measured in siemens.
+      $G$ is conductance, $B$ is susceptance.
+    see_also:
+      - Impedance
+
+  - term: Quality Factor
+    acronyms:
+      - Q
+      - Q-factor
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      Measures sharpness of resonance or energy storage efficiency.
+      $Q = f_0/BW = \omega_0 L/R$. Higher Q = narrower bandwidth, sharper 
+      frequency selectivity.
+    see_also:
+      - Resonance
+
+  - term: Resonance
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      When inductive and capacitive reactances cancel: $X_L = X_C$.
+      Resonant frequency: $f_0 = 1/(2\pi\sqrt{LC})$. Impedance becomes 
+      purely resistive.
+    see_also:
+      - Q-factor
+
+  - term: Power Factor
+    acronyms:
+      - PF
+    categories:
+      - fundamentals
+      - advanced
+    definition: |
+      Ratio of real power to apparent power: $PF = P/S = \cos\phi$.
+      Ranges 0-1. Unity PF means purely resistive load, maximum efficiency.
+    see_also:
+      - AC
+
+  - term: Time Constant
+    acronyms:
+      - τ
+      - tau
+    categories:
+      - fundamentals
+    definition: |
+      Time for a first-order system to reach 63.2% of final value.
+      RC circuit: $\tau = RC$. RL circuit: $\tau = L/R$. 
+      After 5τ, transient is 99% complete.
+
+  # ═══════════════════════════════════════════════════════════════
+  # DIGITAL ELECTRONICS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Finite State Machine
+    acronyms:
+      - FSM
+    categories:
+      - core
+    definition: |
+      A sequential circuit model with defined states and transitions.
+      Moore machines: outputs depend on state only.
+      Mealy machines: outputs depend on state and inputs.
+    see_also:
+      - Flip-flop
+
+  - term: Flip-flop
+    categories:
+      - core
+    definition: |
+      A bistable circuit that stores one bit. Types include SR (set-reset),
+      D (data), JK (universal), and T (toggle). Edge-triggered for 
+      synchronous operation.
+    see_also:
+      - FSM
+      - Register
+
+  - term: Register
+    categories:
+      - core
+    definition: |
+      A group of flip-flops storing multi-bit values. Can load (parallel),
+      shift (serial), or hold data. Foundation of memory and data paths.
+    see_also:
+      - Flip-flop
+
+  - term: Least Significant Bit
+    acronyms:
+      - LSB
+    categories:
+      - core
+    definition: |
+      The bit with the smallest weight (rightmost in standard notation).
+      In ADCs, also refers to the smallest voltage step: $LSB = V_{ref}/2^n$.
+    see_also:
+      - MSB
+      - ADC
+
+  - term: Most Significant Bit
+    acronyms:
+      - MSB
+    categories:
+      - core
+    definition: |
+      The bit with the largest weight (leftmost in standard notation).
+      Often indicates sign in signed numbers.
+    see_also:
+      - LSB
+
+  - term: Binary Coded Decimal
+    acronyms:
+      - BCD
+    categories:
+      - core
+    definition: |
+      Encoding where each decimal digit is represented by 4 bits (0-9).
+      Used in displays and calculators. Less efficient than pure binary 
+      but easier for human-readable output.
+
+  # ═══════════════════════════════════════════════════════════════
+  # MICROCONTROLLERS & EMBEDDED
+  # ═══════════════════════════════════════════════════════════════
+  - term: Microcontroller
+    acronyms:
+      - MCU
+      - µC
+    categories:
+      - core
+    definition: |
+      A computer on a chip: CPU, memory (Flash + SRAM), and peripherals 
+      integrated. Examples: Arduino (AVR), STM32 (ARM), ESP32.
+    see_also:
+      - GPIO
+      - ADC
+
+  - term: General Purpose Input/Output
+    acronyms:
+      - GPIO
+    categories:
+      - core
+    definition: |
+      Digital pins configurable as input or output. Each pin controlled by 
+      registers (DDR for direction, PORT for output, PIN for input on AVR).
+      Current limited to ~20-40mA per pin.
+    see_also:
+      - MCU
+
+  - term: Pulse Width Modulation
+    acronyms:
+      - PWM
+    categories:
+      - core
+      - advanced
+    definition: |
+      Technique for analog-like control using digital signals. Duty cycle
+      determines average voltage: $V_{avg} = D \times V_{max}$. Used for 
+      motor control, LED dimming, and DAC approximation.
+    see_also:
+      - DAC
+      - Duty Cycle
+
+  - term: Duty Cycle
+    categories:
+      - core
+      - advanced
+    definition: |
+      Ratio of on-time to total period: $D = T_{on}/T_{period}$.
+      Expressed as percentage (0-100%) or fraction (0-1).
+    see_also:
+      - PWM
+
+  - term: Analog-to-Digital Converter
+    acronyms:
+      - ADC
+      - A/D
+    categories:
+      - core
+    definition: |
+      Converts continuous analog voltage to discrete digital value.
+      Resolution in bits (e.g., 10-bit = 1024 levels). Common type: SAR 
+      (successive approximation register).
+    see_also:
+      - DAC
+      - LSB
+      - SAR
+
+  - term: Digital-to-Analog Converter
+    acronyms:
+      - DAC
+      - D/A
+    categories:
+      - core
+    definition: |
+      Converts digital value to analog voltage. Not all MCUs have hardware 
+      DAC; PWM with filtering is a common alternative.
+    see_also:
+      - ADC
+      - PWM
+
+  - term: Successive Approximation Register
+    acronyms:
+      - SAR
+    categories:
+      - core
+    definition: |
+      Most common ADC type in microcontrollers. Uses binary search algorithm:
+      compares input to DAC output, narrowing down bit by bit. Conversion 
+      takes n cycles for n-bit resolution.
+    see_also:
+      - ADC
+
+  # ═══════════════════════════════════════════════════════════════
+  # COMMUNICATION PROTOCOLS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Universal Asynchronous Receiver/Transmitter
+    acronyms:
+      - UART
+    categories:
+      - core
+    definition: |
+      Simple serial protocol with no clock line. Both devices must agree on
+      baud rate. Frame: start bit, 8 data bits, optional parity, stop bit.
+      Common rates: 9600, 115200 baud.
+    see_also:
+      - SPI
+      - I2C
+
+  - term: Serial Peripheral Interface
+    acronyms:
+      - SPI
+    categories:
+      - core
+    definition: |
+      Synchronous serial protocol with clock line. Full-duplex on 4 wires:
+      MOSI (data out), MISO (data in), SCK (clock), SS (chip select).
+      Faster than I2C, no addressing overhead.
+    see_also:
+      - UART
+      - I2C
+
+  - term: Inter-Integrated Circuit
+    acronyms:
+      - I2C
+      - IIC
+      - I²C
+    categories:
+      - core
+    definition: |
+      Two-wire synchronous protocol: SDA (data) and SCL (clock). Supports
+      multiple devices with 7-bit addressing. Slower than SPI but fewer 
+      wires. Used for sensors, EEPROMs, RTCs.
+    see_also:
+      - UART
+      - SPI
+
+  - term: Interrupt Service Routine
+    acronyms:
+      - ISR
+    categories:
+      - core
+    definition: |
+      Function executed when hardware interrupt occurs. Must be fast and 
+      use volatile variables for shared data. Preempts normal code execution.
+    see_also:
+      - MCU
+
+  # ═══════════════════════════════════════════════════════════════
+  # POWER ELECTRONICS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Continuous Conduction Mode
+    acronyms:
+      - CCM
+    categories:
+      - advanced
+    definition: |
+      DC-DC converter operation where inductor current never reaches zero.
+      Simpler analysis, lower ripple, but requires larger inductor.
+    see_also:
+      - DCM
+      - Buck Converter
+      - Boost Converter
+
+  - term: Discontinuous Conduction Mode
+    acronyms:
+      - DCM
+    categories:
+      - advanced
+    definition: |
+      DC-DC converter operation where inductor current reaches zero each 
+      cycle. Output voltage depends on load. Higher ripple but smaller 
+      inductors possible.
+    see_also:
+      - CCM
+
+  - term: Buck Converter
+    categories:
+      - advanced
+    definition: |
+      Step-down DC-DC converter. Output voltage: $V_{out} = D \times V_{in}$.
+      Most common topology for voltage regulation. Also called step-down 
+      converter.
+    see_also:
+      - Boost Converter
+      - CCM
+      - DCM
+
+  - term: Boost Converter
+    categories:
+      - advanced
+    definition: |
+      Step-up DC-DC converter. Output voltage: $V_{out} = V_{in}/(1-D)$.
+      Output always higher than input. Used in battery-powered devices 
+      needing higher voltages.
+    see_also:
+      - Buck Converter
+      - CCM
+      - DCM
+
+  # ═══════════════════════════════════════════════════════════════
+  # DISTRIBUTED GENERATION / SOLAR
+  # ═══════════════════════════════════════════════════════════════
+  - term: Photovoltaic
+    acronyms:
+      - PV
+    categories:
+      - distributed-generation
+    definition: |
+      Technology that converts sunlight directly to electricity using 
+      semiconductor materials. Solar cells connected in series increase 
+      voltage; parallel increases current.
+    see_also:
+      - MPPT
+      - I-V Curve
+
+  - term: Maximum Power Point Tracking
+    acronyms:
+      - MPPT
+    categories:
+      - distributed-generation
+    definition: |
+      Algorithm that continuously adjusts load to extract maximum power 
+      from PV array as conditions change. Common methods: Perturb & Observe
+      (P&O), Incremental Conductance.
+    see_also:
+      - PV
+      - P&O
+
+  - term: Perturb and Observe
+    acronyms:
+      - P&O
+    categories:
+      - distributed-generation
+    definition: |
+      Simple MPPT algorithm. Adjusts operating voltage slightly, measures
+      power change, continues in same direction if power increased.
+      Can oscillate around MPP.
+    see_also:
+      - MPPT
+
+  - term: I-V Curve
+    categories:
+      - distributed-generation
+    definition: |
+      Current vs. voltage characteristic of a PV cell or module. Key points:
+      $I_{sc}$ (short-circuit current), $V_{oc}$ (open-circuit voltage),
+      MPP (maximum power point).
+    see_also:
+      - PV
+      - MPPT
+
+  # ═══════════════════════════════════════════════════════════════
+  # PCB & HARDWARE DESIGN
+  # ═══════════════════════════════════════════════════════════════
+  - term: Printed Circuit Board
+    acronyms:
+      - PCB
+    categories:
+      - core
+    definition: |
+      Physical board with copper traces connecting electronic components.
+      Layers: substrate, copper, solder mask, silkscreen. Design flow:
+      schematic → layout → Gerber files → fabrication.
+    see_also:
+      - ERC
+      - Gerber
+
+  - term: Electrical Rules Check
+    acronyms:
+      - ERC
+    categories:
+      - core
+    definition: |
+      Automated verification that schematic follows electrical design rules.
+      Checks for unconnected pins, conflicting outputs, missing power 
+      connections. Run before layout.
+    see_also:
+      - PCB
+      - DRC
+
+  - term: Design Rules Check
+    acronyms:
+      - DRC
+    categories:
+      - core
+    definition: |
+      Automated verification that PCB layout meets manufacturing constraints.
+      Checks trace width, clearance, drill sizes, etc.
+    see_also:
+      - PCB
+      - ERC
+
+  - term: Gerber
+    categories:
+      - core
+    definition: |
+      Standard file format for PCB fabrication data. Describes copper layers,
+      solder mask, silkscreen, drill files. Generated by PCB CAD software 
+      and sent to manufacturer.
+    see_also:
+      - PCB
+
+  # ═══════════════════════════════════════════════════════════════
+  # SIGNALS & SYSTEMS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Phasor
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      Complex number representing sinusoidal signal's magnitude and phase.
+      $V = V_m \angle\phi$. Converts differential equations to algebra for 
+      AC circuit analysis.
+    see_also:
+      - AC
+      - Impedance
+
+  - term: Transfer Function
+    categories:
+      - core
+    definition: |
+      Ratio of output to input in Laplace (s) or Z domain. $H(s) = Y(s)/X(s)$.
+      Describes system behavior: poles determine stability, zeros shape 
+      frequency response.
+    see_also:
+      - Laplace Transform
+      - Bode Plot
+
+  - term: Laplace Transform
+    categories:
+      - core
+    definition: |
+      Integral transform converting time-domain signals to complex frequency
+      domain (s-domain). Simplifies differential equations to algebra.
+      Used for continuous-time system analysis.
+    see_also:
+      - Transfer Function
+      - Z-Transform
+
+  - term: Z-Transform
+    categories:
+      - core
+    definition: |
+      Discrete-time equivalent of Laplace transform. Converts sequences to
+      z-domain. Essential for digital filter design and discrete control 
+      systems.
+    see_also:
+      - Laplace Transform
+
+  - term: Bode Plot
+    categories:
+      - core
+    definition: |
+      Frequency response graph: magnitude (dB) and phase (degrees) vs. 
+      frequency (log scale). Shows bandwidth, gain, stability margins.
+    see_also:
+      - Transfer Function
+      - Decibel
+
+  - term: Decibel
+    acronyms:
+      - dB
+    categories:
+      - fundamentals
+      - core
+    definition: |
+      Logarithmic ratio unit. Power: $dB = 10\log_{10}(P_2/P_1)$.
+      Voltage: $dB = 20\log_{10}(V_2/V_1)$. Key values: 3dB = 2× power,
+      6dB = 2× voltage, 20dB = 10× voltage.
+    see_also:
+      - Bode Plot
+
+  - term: Signal-to-Noise Ratio
+    acronyms:
+      - SNR
+      - S/N
+    categories:
+      - core
+    definition: |
+      Ratio of signal power to noise power, usually in dB.
+      For ideal ADC: $SNR_{max} = 6.02n + 1.76$ dB where n is bit resolution.
+    see_also:
+      - ADC
+      - dB
+
+  - term: Bounded-Input Bounded-Output
+    acronyms:
+      - BIBO
+    categories:
+      - core
+    definition: |
+      Stability criterion: a system is BIBO stable if every bounded input 
+      produces bounded output. Requires all poles in left half-plane (CT) 
+      or inside unit circle (DT).
+    see_also:
+      - Transfer Function
+
+  # ═══════════════════════════════════════════════════════════════
+  # LOGIC FAMILIES
+  # ═══════════════════════════════════════════════════════════════
+  - term: Transistor-Transistor Logic
+    acronyms:
+      - TTL
+    categories:
+      - core
+    definition: |
+      Logic family using BJTs. 5V supply, fast switching. Legacy but still
+      used. Voltage levels: LOW < 0.8V, HIGH > 2.0V.
+    see_also:
+      - CMOS
+
+  - term: Complementary Metal-Oxide-Semiconductor
+    acronyms:
+      - CMOS
+    categories:
+      - core
+    definition: |
+      Dominant logic family using paired NMOS/PMOS transistors. Very low 
+      static power (only during switching). Wide voltage range (1.8-5V).
+      Full rail-to-rail output swing.
+    see_also:
+      - TTL
+      - MOSFET
+
+# ═══════════════════════════════════════════════════════════════
+  # CONTROL SYSTEMS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Proportional-Integral-Derivative Controller
+    acronyms:
+      - PID
+      - PI
+      - PD
+    categories:
+      - advanced
+    definition: |
+      The workhorse of industrial control. Combines three terms:
+      P (proportional to error), I (integral of error), D (derivative of error).
+      $u(t) = K_p e + K_i \int e\,dt + K_d \frac{de}{dt}$
+    see_also:
+      - Gain Margin
+      - Phase Margin
+
+  - term: Gain Margin
+    acronyms:
+      - GM
+    categories:
+      - advanced
+    definition: |
+      How much loop gain can increase before instability. Measured at phase 
+      crossover frequency (where phase = −180°). Typical design target: >6 dB.
+    see_also:
+      - Phase Margin
+      - Bode Plot
+
+  - term: Phase Margin
+    acronyms:
+      - PM
+    categories:
+      - advanced
+    definition: |
+      How much phase lag can be added before instability. Measured at gain 
+      crossover frequency (where |G| = 0 dB). PM ≈ 45-60° is typical target.
+      Roughly relates to damping: $\zeta \approx PM/100$.
+    see_also:
+      - Gain Margin
+      - Bode Plot
+
+  - term: Nyquist Criterion
+    acronyms:
+      - Nyquist
+    categories:
+      - advanced
+    definition: |
+      Stability test using open-loop frequency response plotted on complex 
+      plane. Closed-loop is stable if plot doesn't encircle the −1 point 
+      (for stable open-loop systems). $Z = N + P$ relates encirclements to poles.
+    see_also:
+      - Bode Plot
+      - Phase Margin
+
+  - term: Root Locus
+    categories:
+      - advanced
+    definition: |
+      Graphical method showing how closed-loop poles move as loop gain varies.
+      Poles start at open-loop poles (K=0) and move toward zeros (K→∞).
+      Used for controller design and stability analysis.
+    see_also:
+      - PID
+      - Nyquist Criterion
+
+  # ═══════════════════════════════════════════════════════════════
+  # SIGNALS & TRANSFORMS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Fourier Series
+    categories:
+      - core
+    definition: |
+      Representation of periodic signals as sum of harmonically related 
+      sinusoids. $x(t) = a_0 + \sum[a_n\cos(n\omega_0 t) + b_n\sin(n\omega_0 t)]$.
+      Reveals frequency content of periodic waveforms.
+    see_also:
+      - Fourier Transform
+      - Spectrum
+
+  - term: Fourier Transform
+    acronyms:
+      - FT
+    categories:
+      - core
+    definition: |
+      Decomposes any signal into continuous frequency spectrum.
+      $X(j\omega) = \int x(t)e^{-j\omega t}dt$. Convolution in time becomes 
+      multiplication in frequency. Foundation of spectral analysis.
+    see_also:
+      - Fourier Series
+      - DFT
+      - Spectrum
+
+  - term: Discrete Fourier Transform
+    acronyms:
+      - DFT
+    categories:
+      - core
+    definition: |
+      Fourier transform for discrete, finite-length signals. Computes N 
+      frequency samples from N time samples. Basis for digital spectral 
+      analysis.
+    see_also:
+      - FFT
+      - Fourier Transform
+
+  - term: Fast Fourier Transform
+    acronyms:
+      - FFT
+    categories:
+      - core
+    definition: |
+      Efficient algorithm computing DFT in $O(N \log N)$ instead of $O(N^2)$.
+      Enables real-time spectral analysis. Cooley-Tukey is most common 
+      implementation.
+    see_also:
+      - DFT
+
+  - term: Discrete-Time Fourier Transform
+    acronyms:
+      - DTFT
+    categories:
+      - core
+    definition: |
+      Fourier transform for infinite discrete sequences. Produces continuous 
+      periodic spectrum. $X(e^{j\omega}) = \sum x[n]e^{-j\omega n}$. 
+      DFT samples the DTFT.
+    see_also:
+      - DFT
+      - Z-Transform
+
+  - term: Impulse Response
+    categories:
+      - core
+    definition: |
+      Output of an LTI system when input is a unit impulse $\delta(t)$ or 
+      $\delta[n]$. Denoted $h(t)$ or $h[n]$. Completely characterizes system 
+      behavior; any output is input convolved with impulse response.
+    see_also:
+      - Convolution
+      - Transfer Function
+
+  - term: Convolution
+    categories:
+      - core
+    definition: |
+      Fundamental operation for LTI systems: $y = x * h$.
+      Output equals input convolved with impulse response.
+      In frequency domain: $Y(\omega) = X(\omega) \cdot H(\omega)$.
+    see_also:
+      - Impulse Response
+      - LTI
+
+  - term: Linear Time-Invariant
+    acronyms:
+      - LTI
+    categories:
+      - core
+    definition: |
+      System class where superposition holds (linear) and behavior doesn't 
+      change over time (time-invariant). Fully characterized by impulse 
+      response or transfer function. Most signal processing theory assumes LTI.
+    see_also:
+      - Impulse Response
+      - Transfer Function
+
+  - term: Spectrum
+    categories:
+      - core
+    definition: |
+      Frequency-domain representation showing how signal energy/power is 
+      distributed across frequencies. Magnitude spectrum $|X(\omega)|$ shows 
+      amplitudes; phase spectrum $\angle X(\omega)$ shows timing.
+    see_also:
+      - Fourier Transform
+      - Bandwidth
+
+  - term: Bandwidth
+    acronyms:
+      - BW
+    categories:
+      - core
+      - advanced
+    definition: |
+      Frequency range occupied by a signal or passed by a system. Often 
+      defined at −3dB points. Time-bandwidth product is fundamental limit:
+      $\Delta t \cdot \Delta f \geq 1/(4\pi)$.
+    see_also:
+      - Spectrum
+      - Cutoff Frequency
+
+  - term: Cutoff Frequency
+    acronyms:
+      - fc
+    categories:
+      - core
+    definition: |
+      Frequency where filter response drops to −3dB (half power, 0.707× 
+      voltage). For RC low-pass: $f_c = 1/(2\pi RC)$. Marks transition 
+      between passband and stopband.
+    see_also:
+      - Bandwidth
+      - Roll-off
+
+  - term: Roll-off
+    categories:
+      - core
+    definition: |
+      Rate of filter attenuation beyond cutoff, in dB/decade or dB/octave.
+      First-order: −20 dB/decade. nth-order: $-20n$ dB/decade. Steeper 
+      roll-off = sharper frequency selection but more complexity.
+    see_also:
+      - Cutoff Frequency
+
+  # ═══════════════════════════════════════════════════════════════
+  # FILTER TYPES
+  # ═══════════════════════════════════════════════════════════════
+  - term: Low-Pass Filter
+    acronyms:
+      - LPF
+    categories:
+      - core
+    definition: |
+      Passes frequencies below cutoff, attenuates higher frequencies.
+      Used for noise removal, anti-aliasing, smoothing. RC circuit is 
+      simplest implementation.
+    see_also:
+      - HPF
+      - BPF
+      - Cutoff Frequency
+
+  - term: High-Pass Filter
+    acronyms:
+      - HPF
+    categories:
+      - core
+    definition: |
+      Passes frequencies above cutoff, blocks lower frequencies including DC.
+      Used for AC coupling, removing DC offset, edge detection.
+    see_also:
+      - LPF
+      - BPF
+
+  - term: Band-Pass Filter
+    acronyms:
+      - BPF
+    categories:
+      - core
+    definition: |
+      Passes frequencies within a specific range, attenuates outside.
+      Characterized by center frequency and bandwidth (or Q factor).
+      Used in radio tuning, audio equalization.
+    see_also:
+      - LPF
+      - HPF
+      - Q-factor
+
+  - term: Butterworth Filter
+    categories:
+      - core
+    definition: |
+      Filter with maximally flat passband response. No ripple but moderate 
+      roll-off. Good all-purpose choice. $|H|^2 = 1/(1+(\omega/\omega_c)^{2n})$.
+    see_also:
+      - Chebyshev Filter
+      - Roll-off
+
+  - term: Chebyshev Filter
+    categories:
+      - core
+    definition: |
+      Filter with sharper roll-off than Butterworth but has ripple.
+      Type I: ripple in passband. Type II: ripple in stopband.
+      Choose when sharp cutoff matters more than flat response.
+    see_also:
+      - Butterworth Filter
+
+  # ═══════════════════════════════════════════════════════════════
+  # COMMUNICATIONS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Amplitude Modulation
+    acronyms:
+      - AM
+    categories:
+      - advanced
+    definition: |
+      Modulation where carrier amplitude varies with message signal.
+      $s(t) = A_c[1 + m \cdot x(t)]\cos(2\pi f_c t)$. Simple but inefficient;
+      only 1/3 of power carries information. Bandwidth = 2× message bandwidth.
+    see_also:
+      - FM
+      - ASK
+
+  - term: Frequency Modulation
+    acronyms:
+      - FM
+    categories:
+      - advanced
+    definition: |
+      Modulation where carrier frequency varies with message signal.
+      Better noise immunity than AM (capture effect), constant envelope.
+      Wider bandwidth; Carson's rule: $BW \approx 2(\Delta f + f_m)$.
+    see_also:
+      - AM
+      - FSK
+
+  - term: Amplitude Shift Keying
+    acronyms:
+      - ASK
+      - OOK
+    categories:
+      - advanced
+    definition: |
+      Digital modulation using amplitude levels for symbols. OOK (on-off 
+      keying) is binary ASK. Simple but noise-susceptible. Used in RFID, 
+      IR remotes.
+    see_also:
+      - FSK
+      - PSK
+
+  - term: Frequency Shift Keying
+    acronyms:
+      - FSK
+    categories:
+      - advanced
+    definition: |
+      Digital modulation switching carrier frequency between discrete values.
+      More robust to amplitude noise than ASK. Used in caller ID, Bluetooth 
+      (GFSK), early modems.
+    see_also:
+      - ASK
+      - PSK
+
+  - term: Phase Shift Keying
+    acronyms:
+      - PSK
+      - BPSK
+      - QPSK
+    categories:
+      - advanced
+    definition: |
+      Digital modulation using carrier phase for symbols. BPSK: 2 phases 
+      (1 bit/symbol). QPSK: 4 phases (2 bits/symbol). Efficient and widely 
+      used in WiFi, satellite, cellular.
+    see_also:
+      - ASK
+      - FSK
+      - QAM
+
+  - term: Quadrature Amplitude Modulation
+    acronyms:
+      - QAM
+    categories:
+      - advanced
+    definition: |
+      Combines amplitude and phase modulation for high spectral efficiency.
+      16-QAM: 4 bits/symbol. 256-QAM: 8 bits/symbol. Used in cable modems, 
+      WiFi, LTE. Higher orders need better SNR.
+    see_also:
+      - PSK
+
+  - term: Bit Error Rate
+    acronyms:
+      - BER
+    categories:
+      - advanced
+    definition: |
+      Ratio of bit errors to total bits transmitted. Key metric for digital 
+      communication quality. Depends on modulation scheme, SNR, and channel.
+      Typical targets: $10^{-6}$ to $10^{-9}$.
+    see_also:
+      - SNR
+
+  # ═══════════════════════════════════════════════════════════════
+  # ADDITIONAL COMPONENTS & CONCEPTS
+  # ═══════════════════════════════════════════════════════════════
+  - term: Karnaugh Map
+    acronyms:
+      - K-map
+      - Kmap
+    categories:
+      - core
+    definition: |
+      Visual method for simplifying Boolean expressions. Adjacent cells 
+      differ by one variable; grouping 1s reveals simplified terms.
+      Practical for up to 4-5 variables.
+    see_also:
+      - Boolean Algebra
+
+  - term: Boolean Algebra
+    categories:
+      - core
+    definition: |
+      Mathematical system for digital logic with values 0 and 1. Operations:
+      AND (·), OR (+), NOT (‾). Key laws: De Morgan's, absorption, consensus.
+      Foundation of all digital design.
+    see_also:
+      - K-map
+
+  - term: De Morgan's Theorem
+    acronyms:
+      - De Morgan
+      - DeMorgan
+    categories:
+      - core
+    definition: |
+      Two laws relating AND, OR, and NOT:
+      $\overline{A \cdot B} = \bar{A} + \bar{B}$ and 
+      $\overline{A + B} = \bar{A} \cdot \bar{B}$.
+      Essential for logic simplification and NAND/NOR implementations.
+    see_also:
+      - Boolean Algebra
+
+  - term: Thevenin Equivalent
+    acronyms:
+      - Thevenin
+    categories:
+      - fundamentals
+    definition: |
+      Any linear circuit can be replaced by voltage source $V_{th}$ in 
+      series with resistance $R_{th}$. Simplifies analysis of complex 
+      networks. Find $V_{th}$ = open-circuit voltage, $R_{th}$ = looking-back 
+      resistance.
+    see_also:
+      - Norton Equivalent
+
+  - term: Norton Equivalent
+    acronyms:
+      - Norton
+    categories:
+      - fundamentals
+    definition: |
+      Any linear circuit can be replaced by current source $I_N$ in parallel 
+      with resistance $R_N$. Dual of Thevenin. $I_N = V_{th}/R_{th}$, 
+      $R_N = R_{th}$.
+    see_also:
+      - Thevenin Equivalent
+
+  - term: Superposition
+    categories:
+      - fundamentals
+    definition: |
+      In linear circuits, total response equals sum of individual responses 
+      to each source. Analyze one source at a time (others zeroed), then add.
+      Only valid for linear circuits.
+    see_also:
+      - LTI
+
+  - term: Zener Diode
+    acronyms:
+      - Zener
+    categories:
+      - fundamentals
+    definition: |
+      Diode designed to operate in reverse breakdown. Maintains nearly 
+      constant voltage across it (Zener voltage). Used for voltage 
+      regulation and reference. Common values: 3.3V, 5.1V, 12V.
+    see_also:
+      - PN Junction
+
+  - term: Schmitt Trigger
+    categories:
+      - core
+    definition: |
+      Comparator with hysteresis—two different thresholds for rising and 
+      falling inputs. Prevents oscillation from noisy signals. Creates 
+      clean digital edges from slow or noisy analog signals.
+    see_also:
+      - Op-amp
+
+  - term: Phase-Locked Loop
+    acronyms:
+      - PLL
+    categories:
+      - advanced
+    definition: |
+      Feedback system that locks output phase to input reference. Contains
+      phase detector, loop filter, and VCO. Used for frequency synthesis, 
+      clock recovery, demodulation.
+    see_also:
+      - VCO
+
+  - term: Voltage-Controlled Oscillator
+    acronyms:
+      - VCO
+    categories:
+      - advanced
+    definition: |
+      Oscillator whose frequency varies with input voltage. Key component 
+      in PLLs and FM modulators. Sensitivity measured in Hz/V or MHz/V.
+    see_also:
+      - PLL
+
+  - term: Damping Ratio
+    acronyms:
+      - ζ
+      - zeta
+    categories:
+      - core
+      - advanced
+    definition: |
+      Describes how oscillations decay in second-order systems.
+      $\zeta < 1$: underdamped (oscillates). $\zeta = 1$: critically damped.
+      $\zeta > 1$: overdamped. Related to phase margin: $\zeta \approx PM/100$.
+    see_also:
+      - Q-factor
+      - Phase Margin
+
+  - term: Natural Frequency
+    acronyms:
+      - ωn
+      - fn
+    categories:
+      - core
+      - advanced
+    definition: |
+      Frequency at which undamped system oscillates. For RLC: 
+      $\omega_n = 1/\sqrt{LC}$. Actual oscillation frequency depends on 
+      damping: $\omega_d = \omega_n\sqrt{1-\zeta^2}$.
+    see_also:
+      - Damping Ratio
+      - Resonance

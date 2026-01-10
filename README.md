@@ -88,11 +88,14 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **Goal:** Quick reference for technical terms with auto-linking in notes.
 
-- [ ] Glossary data source (glossary.yaml)
-- [ ] `/glossary/` page with A-Z navigation and search
-- [ ] Build-time scan of concept notes for acronym detection
-- [ ] Auto-link acronyms in notes (clickable with tooltip/popup)
-- [ ] "See also" references showing where terms appear
+- [x] Glossary data source (`_glossary.yaml`)
+- [x] `/glossary/` page with A-Z navigation and search
+- [x] Build-time scan of concept notes for term detection
+- [x] "See also" cross-references between terms
+- [x] "Appears in" reverse index with expandable list
+- [x] Glossary terms in global search (appears first)
+- [x] LaTeX/KaTeX support in definitions
+- [ ] Auto-link terms in notes (Tippy.js tooltips)
 
 ### v0.16 - Cross-Device Sync
 
@@ -175,6 +178,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ```
 eee-roadmap/
 ├── content/
+│   ├── _glossary.yaml          # Glossary terms and acronyms
 │   ├── fundamentals.yaml       # Fundamentals track (human-editable)
 │   ├── core.yaml               # Core track
 │   ├── advanced.yaml           # Advanced track
@@ -279,7 +283,8 @@ npm run dev        # Downloads PDFs + starts dev server
 |---------|-------------|
 | `npm run dev` | Download PDFs and start dev server |
 | `npm run build` | Build for production (auto-downloads PDFs) |
-| `npm run build:data` | Convert YAML to JSON |
+| `npm run build:data` | Convert YAML to JSON + glossary + search index |
+| `npm run build:glossary` | Build glossary JSON with reverse index |
 | `npm run validate` | Validate YAML against schema |
 | `npm run test` | Run unit tests (Vitest) in watch mode |
 | `npm run test:run` | Run unit tests once |

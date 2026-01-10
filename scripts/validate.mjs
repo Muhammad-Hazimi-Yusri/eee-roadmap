@@ -16,7 +16,7 @@ const CONTENT_DIR = join(ROOT, 'content');
 const SCHEMA_PATH = join(ROOT, 'roadmap.schema.json');
 
 // Files to skip (templates, examples)
-const EXCLUDE = ['sample'];
+const EXCLUDE = ['sample', '_glossary'];
 
 function validate() {
   console.log('🔍 Validating YAML files against schema...\n');

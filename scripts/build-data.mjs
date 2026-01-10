@@ -14,7 +14,7 @@ const CONTENT_DIR = join(ROOT, 'content');
 const DATA_DIR = join(ROOT, 'src/data');
 
 // Files to exclude from conversion (templates, examples)
-const EXCLUDE = ['sample'];
+const EXCLUDE = ['sample', '_glossary'];
 
 // Default meta values
 const META_DEFAULTS = {
