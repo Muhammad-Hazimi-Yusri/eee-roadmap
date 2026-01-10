@@ -842,6 +842,9 @@
 
     // Apply stored PDF heights
     applyStoredPdfHeights(win);
+
+    // Trigger tooltip init for glossary terms
+    document.dispatchEvent(new CustomEvent('concept-window-opened'));
   }
 
   // Close a window

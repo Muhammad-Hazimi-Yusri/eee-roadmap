@@ -311,4 +311,18 @@
   .tools-mode-active .prereq-tag {
     cursor: none;
   }
+
+  /* Glossary term links */
+  .glossary-link {
+    color: var(--color-copper);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+    cursor: help;
+    transition: color 0.15s;
+  }
+
+  .glossary-link:hover {
+    color: var(--color-text);
+  }
 }

@@ -36,11 +36,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Searches term names and acronyms
   - Links to `/glossary/#term-id`
 - Glossary link added to Footer
+- Auto-linking glossary terms in roadmap content:
+  - Descriptions, outcomes, and concept notes
+  - Dotted underline styling
+  - Tippy.js tooltips on hover
+  - "View in glossary" opens in new tab
 
 ### Changed
 - `build:data` now chains: YAML → JSON → Glossary → Search Index
 - Search index includes glossary entries with acronym matching
 - Fuse.js config updated with `acronyms` and `definition` keys
+
+### Technical Notes
+- Build-time term wrapping via `wrapGlossaryTerms.ts`
+- Tippy.js loaded as ES module in `GlossaryTooltips.astro`
+- ConceptWindows dispatches `concept-window-opened` event for tooltip init
 
 
 ## [0.14.X] - 2025-01-09

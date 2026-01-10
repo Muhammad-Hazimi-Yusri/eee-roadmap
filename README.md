@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.15.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.15.1-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.15.0)
+## Current Features (v0.15.1)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -84,7 +84,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Persist topic expand/collapse state per track
 - [x] Combined filtering (category + progress)
 
-### v0.15 - Glossary & Acronyms
+### v0.15 - Glossary & Acronyms (in progress)
 
 **Goal:** Quick reference for technical terms with auto-linking in notes.
 
@@ -95,9 +95,20 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] "Appears in" reverse index with expandable list
 - [x] Glossary terms in global search (appears first)
 - [x] LaTeX/KaTeX support in definitions
-- [ ] Auto-link terms in notes (Tippy.js tooltips)
+- [x] Auto-link terms in roadmap content (Tippy.js tooltips)
+- [ ] Fix LaTeX rendering in hover tooltips
 
-### v0.16 - Cross-Device Sync
+### v0.16 - ConceptWindows Persistence (planned)
+
+**Goal:** Save and restore window state across page refreshes.
+
+- [ ] Persist open windows to localStorage (position, size, minimized state)
+- [ ] Restore windows on page load
+- [ ] "Close all windows" button in Preferences
+- [ ] "Reset window positions" option
+- [ ] Per-track state storage
+
+### v0.17 - Cross-Device Sync
 
 **Goal:** Access progress from any device.
 
@@ -106,7 +117,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Import/export progress as JSON fallback
 - [ ] Sync custom notes
 
-### v0.17 - Roadmap Editor
+### v0.18 - Roadmap Editor
 
 **Goal:** Let non-devs create roadmaps without touching code.
 
@@ -115,7 +126,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
 
-### v0.18 - Test Coverage
+### v0.19 - Test Coverage
 
 **Goal:** Comprehensive test coverage for all features.
 
@@ -126,7 +137,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Accessibility tests (a11y)
 - [ ] Pre-commit hooks for test/lint/build
 
-### v0.19 - Content Verification
+### v0.20 - Content Verification
 
 **Goal:** Manually vet all AI-generated content before 1.0 release.
 
@@ -204,6 +215,7 @@ JSON files
 │   │   ├── DemoRoadmap.astro
 │   │   ├── Features.astro
 │   │   ├── Footer.astro
+│   │   ├── GlossaryTooltips.astro
 │   │   ├── Header.astro
 │   │   ├── Hero.astro
 │   │   ├── SearchBar.astro
@@ -216,6 +228,7 @@ JSON files
 │   │   ├── index.ts            # Dynamic JSON loader
 │   │   ├── sample.json         # Example structure for contributors
 │   │   ├── *.json              # Generated from YAML (git-ignored)
+│   │   ├── _glossary.json      # Glossary with reverse index (auto-generated)
 │   │   ├── search-index.json   # Search index (auto-generated)
 │   │   └── pdf-manifest.json   # URL → local path mapping (auto-generated)
 │   ├── layouts/
@@ -225,6 +238,7 @@ JSON files
 │   │   │   └── [slug].astro
 │   │   ├── about.astro
 │   │   ├── contribute.astro
+│   │   ├── glossary.astro
 │   │   ├── guides.astro
 │   │   ├── index.astro
 │   │   ├── projects.astro
@@ -234,6 +248,8 @@ JSON files
 │   ├── types/
 │   │   └── roadmap.ts
 │   └── utils/
+│       ├── parseNotes.test.ts
+│       ├── parseNotes.ts
 │       ├── progress.ts
 │       ├── progress.test.ts
 │       ├── tools.ts
@@ -241,7 +257,8 @@ JSON files
 │       ├── trail.ts
 │       ├── trail.test.ts
 │       ├── url.ts
-│       └── url.test.ts
+│       ├── url.test.ts
+│       └── wrapGlossaryTerms.ts
 ├── tests/
 │   ├── integration/            # Playwright integration tests
 │   └── e2e/                    # Playwright E2E tests

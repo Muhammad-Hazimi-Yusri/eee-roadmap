@@ -101,6 +101,28 @@ Add a new item under the appropriate section in `content/*.yaml`:
           url: https://example.com
 ```
 
+### Glossary Format
+
+The glossary lives in `content/_glossary.yaml`:
+```yaml
+- term: Ohm's Law
+  acronyms: []
+  categories:
+    - fundamentals
+  definition: |
+    Fundamental relationship: $V = IR$ where voltage equals current times resistance.
+  see_also:
+    - Kirchhoff's Laws
+    - Resistance
+```
+
+Fields:
+- `term` (required): The term name
+- `acronyms`: List of abbreviations (e.g., `['AC', 'A/C']`)
+- `categories`: Track slugs where term is relevant
+- `definition`: Markdown with LaTeX support (`$...$` inline, `$$...$$` block)
+- `see_also`: Cross-references to other glossary terms
+
 ### Adding a New Track
 
 1. Create `content/your-track.yaml`

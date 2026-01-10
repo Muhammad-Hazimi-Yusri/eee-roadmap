@@ -57,11 +57,14 @@ marked.use({
   }
 });
 
+import { wrapTermsInHtml } from './wrapGlossaryTerms';
+
 /**
  * Parses markdown notes with custom handling:
  * - ![alt](file.pdf) → full PDF.js viewer (with manifest resolution)
  * - ![alt](image.jpg) → lazy-loaded <img>
  */
 export function parseNotes(markdown: string): string {
-  return marked.parse(markdown, { async: false }) as string;
+  const html = marked.parse(markdown, { async: false }) as string;
+  return wrapTermsInHtml(html);
 }

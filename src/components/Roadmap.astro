@@ -5,6 +5,7 @@ import RoadmapSettings from './RoadmapSettings.astro';
 import ConceptModal from './ConceptWindows.astro';
 import { internalHref } from '../utils/url';
 import { parseNotes } from '../utils/parseNotes';
+import { wrapTermsInText } from '../utils/wrapGlossaryTerms';
 
 interface Props {
   sections: import('../types/roadmap').RoadmapSection[];
@@ -54,7 +55,7 @@ for (const section of sections) {
             </button>
             
             <div class="node-content" hidden>
-              <p class="node-description">{item.description}</p>
+              <p class="node-description" set:html={wrapTermsInText(item.description)} />
 
               {item.prerequisites && item.prerequisites.length > 0 && (
                 <div class="node-prereqs">
@@ -92,11 +93,11 @@ for (const section of sections) {
               {item.outcomes && item.outcomes.length > 0 && (
                 <div class="node-outcomes">
                   <span class="outcomes-label">You'll learn to:</span>
-                    <ul class="outcomes-list">
-                      {item.outcomes.map((outcome) => (
-                        <li class="outcome-item">{outcome}</li>
-                      ))}
-                    </ul>
+                  <ul class="outcomes-list">
+                    {item.outcomes.map((outcome) => (
+                      <li set:html={wrapTermsInText(outcome)} />
+                    ))}
+                  </ul>
                 </div>
               )}
 
