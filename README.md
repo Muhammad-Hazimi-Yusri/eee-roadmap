@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.16.2-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.17.0-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.16.2)
+## Current Features (v0.17.0)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -39,7 +39,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **Two Interaction Modes:**
   - *Simple* — Click (notes), double-click (complete), shift+click (important)
   - *Tools* — Swipe gestures with pen/highlighter/eraser (optimized for tablet/stylus)
-- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs; open windows persist across page refreshes
+- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs; open windows persist across page refreshes; taskbar for window management
 - **Global Search** — Fuzzy search across all tracks, topics, and concept notes (`Ctrl+K`)
 - **Deep Links** — Share links directly to specific concepts
 - **State Persistence** — Topic expand/collapse state saved per track, settings panel remembers preferences
@@ -74,28 +74,15 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### v0.15 - Glossary & Acronyms ✓
-
-**Goal:** Quick reference for technical terms with auto-linking in notes.
-
-- [x] Glossary data source (`_glossary.yaml`)
-- [x] `/glossary/` page with A-Z navigation and search
-- [x] Build-time scan of concept notes for term detection
-- [x] "See also" cross-references between terms
-- [x] "Appears in" reverse index with expandable list
-- [x] Glossary terms in global search (appears first)
-- [x] LaTeX/KaTeX support in definitions and tooltips
-- [x] Auto-link terms in roadmap content (Tippy.js tooltips)
-
-### v0.16 - ConceptWindows Persistence (In Progress)
+### v0.16 - ConceptWindows Persistence ✓
 
 **Goal:** Save and restore window state across page refreshes.
 
 - [x] Persist open windows to localStorage (position, size, minimized/maximized state)
 - [x] Restore windows on page load
 - [x] Per-track state storage
-- [ ] "Close all windows" button in Preferences
-- [ ] "Reset window positions" option
+- [x] Taskbar with "Minimize all" and "Close all" buttons
+- [x] Taskbar visible when any window is open
 
 ### v0.17 - Cross-Device Sync
 

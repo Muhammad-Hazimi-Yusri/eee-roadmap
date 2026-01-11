@@ -20,6 +20,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Saves window IDs, minimized/maximized state to localStorage
   - Restores windows automatically on page load
   - Per-track storage (each track remembers its own windows)
+- Taskbar enhancements
+  - Now visible when any window is open (not just minimized)
+  - "Minimize all" button to quickly minimize all open windows
+  - "Close all" button to close all windows at once
+  - Labels auto-hide when taskbar is compact (3+ minimized windows)
+  - Pulsing glow on first appearance to draw attention
+  - Preferences panel shifts up when taskbar is visible
 - Settings panel UX improvements
   - Mobile: panel defaults to closed with pulsing glow on button
   - Desktop: panel defaults to open with pulsing glow to indicate it can be closed
@@ -29,6 +36,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Window state saved on open, close, minimize, restore, and maximize
 - Storage key includes track slug: `eee-open-windows-{trackSlug}`
 - Position/size persistence was already implemented in v0.11; this adds session continuity
+- Body class `has-taskbar` used to shift Preferences panel position
 
 
 ## [0.15.X] - 2025-01-10

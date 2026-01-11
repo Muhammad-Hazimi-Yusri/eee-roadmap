@@ -442,7 +442,7 @@ sections:
 
               $$\boxed{V = IR}$$
 
-              ![Ohm's Law triangle](https://upload.wikimedia.org/wikipedia/commons/a/a1/Ohm%27s_law_triangle.svg)
+              ![Ohm's Law triangle](https://commons.wikimedia.org/wiki/Special:FilePath/Ohm's_law_triangle.svg)
 
               **The Variables**
 
@@ -458,8 +458,6 @@ sections:
 
               Power can be calculated three ways:
               $$P = IV = I^2R = \frac{V^2}{R}$$
-
-              ![Ohm's Law with power relations](https://upload.wikimedia.org/wikipedia/commons/c/c9/Ohm%27s_Law_Pie_chart.svg)
 
               **Practical Example**
 
@@ -490,7 +488,7 @@ sections:
 
               Think of it as conservation of energy: a charge gains and loses energy around a loop, returning to its starting potential.
 
-              ![Kirchhoff's Voltage Law](https://upload.wikimedia.org/wikipedia/commons/4/40/Kirchhoff_voltage_law.svg)
+              ![Kirchhoff's Voltage Law](https://commons.wikimedia.org/wiki/Special:FilePath/Kirchhoff_voltage_law.svg)
 
               **Sign convention**: 
               - Voltage *rise* (− to +): positive
@@ -504,7 +502,7 @@ sections:
 
               Think of it as conservation of charge: current in = current out.
 
-              ![Kirchhoff's Current Law](https://upload.wikimedia.org/wikipedia/commons/9/9a/Kirchhoff%27s_Current_Law.svg)
+              ![Kirchhoff's Current Law](https://commons.wikimedia.org/wiki/Special:FilePath/KCL_-_Kirchhoff's_circuit_laws.svg)
 
               **Sign convention**:
               - Current *entering* node: positive
@@ -532,15 +530,13 @@ sections:
               - A voltage source $V_{th}$ in series with
               - A resistance $R_{th}$
 
-              ![Thevenin equivalent circuit](https://upload.wikimedia.org/wikipedia/commons/5/5d/Th%C3%A9venin_theorem_-_illustration.svg)
+              ![Thevenin equivalent circuit](https://commons.wikimedia.org/wiki/Special:FilePath/Thevenin_equivalent_circuit.svg)
 
               **Norton's Theorem**
 
               Same circuit can also be replaced by:
               - A current source $I_N$ in parallel with
               - A resistance $R_N$
-
-              ![Norton equivalent circuit](https://upload.wikimedia.org/wikipedia/commons/1/17/Norton_Equivalent.svg)
 
               **The Equivalence**
 
@@ -598,7 +594,7 @@ sections:
 
               The phasor captures amplitude ($V_m$) and phase ($\phi$) — frequency ($\omega$) is implicit and must be the same for all phasors in the analysis.
 
-              ![Phasor as rotating vector](https://upload.wikimedia.org/wikipedia/commons/e/ec/Phasor.svg)
+              ![Phasor as rotating vector](https://commons.wikimedia.org/wiki/Special:FilePath/Phasor.svg)
 
               **Why Phasors Work**
 
@@ -641,7 +637,7 @@ sections:
               | Capacitor | $Z_C = \frac{1}{j\omega C} = -\frac{j}{\omega C}$ | −90° (I leads V) |
               | Inductor | $Z_L = j\omega L$ | +90° (V leads I) |
 
-              ![RLC circuit](https://upload.wikimedia.org/wikipedia/commons/e/e0/RLC_circuit.svg)
+              ![General AC circuit](https://commons.wikimedia.org/wiki/Special:FilePath/General_AC_circuit.svg)
 
               **Impedance in Rectangular Form**
 
@@ -657,8 +653,6 @@ sections:
               $$Z = |Z|\angle\theta$$
 
               where $|Z| = \sqrt{R^2 + X^2}$ and $\theta = \arctan(X/R)$
-
-              ![RLC phasor diagram](https://upload.wikimedia.org/wikipedia/commons/b/b0/RLC_U%28I%29-Zeiger.svg)
 
               **Series and Parallel Combinations**
 
@@ -692,7 +686,7 @@ sections:
               - Current from source is minimum
               - Current circulates between L and C
 
-              ![RLC frequency response](https://upload.wikimedia.org/wikipedia/commons/d/d8/RLC_parallel_plot.svg)
+              ![Resonant frequency amplitude](https://commons.wikimedia.org/wiki/Special:FilePath/Resonant_frequency_amplitude.svg)
 
               **Quality Factor (Q)**
 
@@ -729,7 +723,7 @@ sections:
 
               **The Power Triangle**
 
-              ![Power triangle](https://upload.wikimedia.org/wikipedia/commons/e/e9/Power_Triangle_01.svg)
+              ![Power triangle](https://commons.wikimedia.org/wiki/Special:FilePath/Power_Triangle_01.svg)
 
               $$S^2 = P^2 + Q^2$$
 
@@ -744,8 +738,6 @@ sections:
               - $PF = 1$: Purely resistive (ideal)
               - $PF < 1$ lagging: Inductive load (most motors)
               - $PF < 1$ leading: Capacitive load
-
-              ![Power factor waveforms](https://upload.wikimedia.org/wikipedia/commons/9/9a/Power_factor_0.7.svg)
 
               **Why Power Factor Matters**
 
@@ -821,6 +813,8 @@ sections:
 
               Units: Volts per meter (V/m) or Newtons per Coulomb (N/C)
 
+              ![Electric field from positive and negative charges](https://commons.wikimedia.org/wiki/Special:FilePath/VFPt_charges_plus_minus.svg)
+
               **Point Charge Field**
 
               $$E = \frac{Q}{4\pi\varepsilon_0 r^2}$$
@@ -861,6 +855,8 @@ sections:
 
               **Equipotential Surfaces**
 
+              ![Equipotential lines around charges](https://commons.wikimedia.org/wiki/Special:FilePath/Equipotential_by_Zureks.png)
+
               - Lines/surfaces of constant voltage
               - Always perpendicular to electric field lines
               - No work done moving charge along an equipotential
@@ -889,6 +885,8 @@ sections:
               For uniform field perpendicular to surface: $\Phi_E = EA$
 
               Units: V·m or N·m²/C
+
+              ![Electric flux through a surface](https://commons.wikimedia.org/wiki/Special:FilePath/Electric-flux-surface-example.svg)
 
               **Using Gauss's Law**
 
@@ -960,6 +958,8 @@ sections:
 
               **Right-Hand Rule**
 
+              ![Right-hand rule for magnetic force](https://commons.wikimedia.org/wiki/Special:FilePath/Regla_mano_derecha_Laplace.svg)
+
               Point fingers in direction of $\mathbf{v}$, curl toward $\mathbf{B}$, thumb points in direction of $\mathbf{F}$ (for positive charge).
 
               **Force on Current-Carrying Wire**
@@ -992,6 +992,8 @@ sections:
               $$\boxed{\mathcal{E} = -\frac{d\Phi_B}{dt}}$$
 
               Induced EMF equals the negative rate of change of magnetic flux.
+
+              ![Faraday's EMF experiment](https://commons.wikimedia.org/wiki/Special:FilePath/Faraday_emf_experiment.svg)
 
               **Magnetic Flux**
 
@@ -1037,6 +1039,8 @@ sections:
 
               This is why there's a negative sign in Faraday's law!
 
+              ![Lenz's law illustration](https://commons.wikimedia.org/wiki/Special:FilePath/Loi_de_Lenz.svg)
+
               **Applying Lenz's Law**
 
               1. Determine if flux through loop is increasing or decreasing
@@ -1079,6 +1083,8 @@ sections:
               where $L$ = inductance in Henrys (H)
 
               An inductor opposes changes in current by inducing a back-EMF.
+
+              ![Solenoid magnetic field](https://commons.wikimedia.org/wiki/Special:FilePath/VFPt_Solenoid_correct2.svg)
 
               **Energy Stored**
 
@@ -1232,6 +1238,8 @@ sections:
               $$\boxed{c = \frac{1}{\sqrt{\mu_0\varepsilon_0}} = 3 \times 10^8 \text{ m/s}}$$
 
               Maxwell calculated this in 1864 — it matched the measured speed of light, proving light is an EM wave!
+
+              ![Electromagnetic wave](https://commons.wikimedia.org/wiki/Special:FilePath/Electromagnetic_wave.svg)
 
               **Plane Wave Solution**
 

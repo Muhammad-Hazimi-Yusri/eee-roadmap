@@ -9,6 +9,20 @@
 <!-- Taskbar for minimized windows -->
 <div id="concept-taskbar" class="concept-taskbar" hidden>
   <div class="concept-taskbar-items" id="concept-taskbar-items"></div>
+  <div class="concept-taskbar-actions">
+    <button class="taskbar-action-btn" id="minimize-all-windows" title="Minimize all windows">
+      <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M2 6h8"/>
+      </svg>
+      <span class="taskbar-action-label">Minimize all</span>
+    </button>
+    <button class="taskbar-action-btn" id="close-all-windows" title="Close all windows">
+      <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M2 2l8 8M10 2l-8 8"/>
+      </svg>
+      <span class="taskbar-action-label">Close all</span>
+    </button>
+  </div>
 </div>
 
 <!-- Template for a window -->
@@ -114,6 +128,43 @@
     background: var(--color-copper);
     color: white;
     border-color: var(--color-copper);
+  }
+  .concept-taskbar-actions {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: auto;
+    padding-left: 0.5rem;
+    border-left: 1px solid var(--color-border);
+  }
+
+  .taskbar-action-btn {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .taskbar-action-btn:hover {
+    border-color: var(--color-copper);
+    color: var(--color-text);
+  }
+
+  .taskbar-action-btn--glow {
+    animation: pulse-glow 2s ease-in-out 3;
+    border-color: var(--color-copper);
+  }
+
+  /* Hide labels when taskbar is crowded */
+  .concept-taskbar--compact .taskbar-action-label {
+    display: none;
   }
 
   /* Window */
@@ -608,9 +659,23 @@
   // Update taskbar visibility
   function updateTaskbar() {
     const taskbar = document.getElementById('concept-taskbar');
+    if (!taskbar) return;
+
+    const hasWindows = openWindows.length > 0;
     const hasMinimized = openWindows.some(w => w.isMinimized);
-    if (taskbar) {
-      taskbar.hidden = !hasMinimized;
+    
+    taskbar.hidden = !hasWindows;
+    document.body.classList.toggle('has-taskbar', hasWindows);
+    
+    // Add compact class when many minimized windows
+    const isCompact = hasMinimized && openWindows.filter(w => w.isMinimized).length >= 3;
+    taskbar.classList.toggle('concept-taskbar--compact', isCompact);
+    
+    // Glow on first appearance
+    if (hasWindows && !taskbar.dataset.hasGlowed) {
+      const btns = taskbar.querySelectorAll('.taskbar-action-btn');
+      btns.forEach(btn => btn.classList.add('taskbar-action-btn--glow'));
+      taskbar.dataset.hasGlowed = 'true';
     }
   }
 
@@ -896,7 +961,10 @@
 
     // Trigger tooltip init for glossary terms
     document.dispatchEvent(new CustomEvent('concept-window-opened'));
-
+    
+    // Update taskbar and persist
+    updateTaskbar();
+    
     // Persist open windows list
     saveOpenWindows();
   }
@@ -1203,6 +1271,26 @@
     document.addEventListener('touchcancel', endResize);
   }
 
+  // Taskbar action buttons
+  function initTaskbarActions() {
+    const minimizeAllBtn = document.getElementById('minimize-all-windows');
+    const closeAllBtn = document.getElementById('close-all-windows');
+
+    minimizeAllBtn?.addEventListener('click', () => {
+      openWindows.forEach(w => {
+        if (!w.isMinimized) {
+          minimizeWindow(w.id);
+        }
+      });
+    });
+
+    closeAllBtn?.addEventListener('click', () => {
+      // Grab IDs first, then close
+      const idsToClose = openWindows.map(w => w.id);
+      idsToClose.forEach(id => closeWindow(id));
+    });
+  }
+
   // Expose global API
   (window as any).conceptModal = {
     open: openWindow,
@@ -1215,6 +1303,7 @@
 
   initResizeHandler();
   restoreOpenWindows();
+  initTaskbarActions();
 
   // ============================================
   // PDF RESIZER LOGIC
