@@ -103,7 +103,7 @@ Add a new item under the appropriate section in `content/*.yaml`:
 
 ### Glossary Format
 
-The glossary lives in `content/_glossary.yaml`:
+The glossary lives in `content/_glossary.yaml`. Terms are auto-linked in roadmap content.
 ```yaml
 - term: Ohm's Law
   acronyms: []
@@ -111,17 +111,37 @@ The glossary lives in `content/_glossary.yaml`:
     - fundamentals
   definition: |
     Fundamental relationship: $V = IR$ where voltage equals current times resistance.
+    Applies to resistive elements in DC circuits.
   see_also:
     - Kirchhoff's Laws
     - Resistance
+
+- term: Alternating Current
+  acronyms:
+    - AC
+  categories:
+    - fundamentals
+    - core
+  definition: |
+    Current that periodically reverses direction. Described by $i(t) = I_m \sin(\omega t + \phi)$.
+  see_also:
+    - DC
+    - Frequency
 ```
 
-Fields:
-- `term` (required): The term name
-- `acronyms`: List of abbreviations (e.g., `['AC', 'A/C']`)
-- `categories`: Track slugs where term is relevant
+**Fields:**
+- `term` (required): The term name (used for display and linking)
+- `acronyms`: List of abbreviations that also trigger auto-linking
+- `categories`: Track slugs where term is relevant (shown as tags)
 - `definition`: Markdown with LaTeX support (`$...$` inline, `$$...$$` block)
-- `see_also`: Cross-references to other glossary terms
+- `see_also`: Cross-references to other glossary terms (by exact name)
+
+**Auto-linking:** Terms and acronyms are automatically detected and linked in:
+- Topic descriptions
+- Learning outcomes
+- Concept notes
+
+The build script generates a reverse index showing where each term appears.
 
 ### Adding a New Track
 

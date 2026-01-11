@@ -3,7 +3,7 @@
  * Run via: npm run build:glossary
  */
 
-import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import YAML from 'yaml';

@@ -44,6 +44,8 @@ sections:
 
               where $r = |z| = \sqrt{a^2 + b^2}$ (magnitude) and $\theta = \arctan(b/a)$ (angle).
 
+              ![Complex number on Argand plane](https://commons.wikimedia.org/wiki/Special:FilePath/Complex_number_illustration.svg)
+
               **Euler's Formula** — the key connection:
 
               $$e^{j\theta} = \cos\theta + j\sin\theta$$
@@ -73,6 +75,8 @@ sections:
           - name: Trig identities
             notes: |
               Trigonometric identities are tools for simplifying signal analysis and power calculations.
+
+              ![Unit circle with angles](https://commons.wikimedia.org/wiki/Special:FilePath/Unit_circle_angles_color.svg)
 
               **Pythagorean Identity**
 
@@ -140,6 +144,8 @@ sections:
 
               **Key insight**: +3 dB = double power; +6 dB = double voltage
 
+              ![Logarithmic scale](https://commons.wikimedia.org/wiki/Special:FilePath/Logarithmic_scale.svg)
+
               **Reference levels:**
               - **dBm**: 0 dBm = 1 mW (used in RF)
               - **dBV**: 0 dBV = 1 V
@@ -171,6 +177,8 @@ sections:
           - name: Differentiation
             notes: |
               Differentiation describes how quantities change — essential for understanding capacitor and inductor behavior.
+
+              ![Tangent line showing derivative as slope](https://commons.wikimedia.org/wiki/Special:FilePath/Tangent_to_a_curve.svg)
 
               **Key Rules**
 
@@ -207,6 +215,8 @@ sections:
           - name: Integration
             notes: |
               Integration calculates accumulated quantities — charge, energy, and average values.
+
+              ![Integral as area under curve](https://commons.wikimedia.org/wiki/Special:FilePath/Integral_as_region_under_curve.svg)
 
               **Key Rules**
 
@@ -257,6 +267,8 @@ sections:
 
               *Solution (step input):*
               $$v_C(t) = V_s\left(1 - e^{-t/RC}\right)$$
+
+              ![RC capacitor voltage response](https://commons.wikimedia.org/wiki/Special:FilePath/Series_RC_capacitor_voltage.svg)
 
               *Time constant:* $\boxed{\tau = RC}$
 
@@ -321,6 +333,8 @@ sections:
               For $\mathbf{C} = \mathbf{A}\mathbf{B}$, element $c_{ij}$ is the dot product of row $i$ of A with column $j$ of B:
               $$c_{ij} = \sum_{k} a_{ik}b_{kj}$$
 
+              ![Matrix multiplication diagram](https://commons.wikimedia.org/wiki/Special:FilePath/Matrix_multiplication_diagram_2.svg)
+
               **Important**: Matrix multiplication is *not* commutative: $\mathbf{AB} \neq \mathbf{BA}$ in general.
 
               **2×2 Matrix Inverse**
@@ -344,6 +358,8 @@ sections:
               **2×2 Determinant**
 
               $$\det\begin{bmatrix} a & b \\ c & d \end{bmatrix} = ad - bc$$
+
+              ![Determinant as parallelogram area](https://commons.wikimedia.org/wiki/Special:FilePath/Area_parallellogram_as_determinant.svg)
 
               **3×3 Determinant** (expansion by first row)
 
@@ -371,6 +387,8 @@ sections:
 
               Eigenvalues are roots of the *characteristic equation*:
               $$\det(\mathbf{A} - \lambda\mathbf{I}) = 0$$
+
+              ![Eigenvalue equation visualization](https://commons.wikimedia.org/wiki/Special:FilePath/Eigenvalue_equation.svg)
 
               **Stability Analysis**
 
@@ -424,6 +442,8 @@ sections:
 
               $$\boxed{V = IR}$$
 
+              ![Ohm's Law triangle](https://upload.wikimedia.org/wikipedia/commons/a/a1/Ohm%27s_law_triangle.svg)
+
               **The Variables**
 
               - **V** = Voltage in Volts (V) — the "push" driving current
@@ -438,6 +458,8 @@ sections:
 
               Power can be calculated three ways:
               $$P = IV = I^2R = \frac{V^2}{R}$$
+
+              ![Ohm's Law with power relations](https://upload.wikimedia.org/wikipedia/commons/c/c9/Ohm%27s_Law_Pie_chart.svg)
 
               **Practical Example**
 
@@ -468,6 +490,8 @@ sections:
 
               Think of it as conservation of energy: a charge gains and loses energy around a loop, returning to its starting potential.
 
+              ![Kirchhoff's Voltage Law](https://upload.wikimedia.org/wikipedia/commons/4/40/Kirchhoff_voltage_law.svg)
+
               **Sign convention**: 
               - Voltage *rise* (− to +): positive
               - Voltage *drop* (+ to −): negative
@@ -479,6 +503,8 @@ sections:
               $$\sum I_{node} = 0$$
 
               Think of it as conservation of charge: current in = current out.
+
+              ![Kirchhoff's Current Law](https://upload.wikimedia.org/wikipedia/commons/9/9a/Kirchhoff%27s_Current_Law.svg)
 
               **Sign convention**:
               - Current *entering* node: positive
@@ -506,11 +532,15 @@ sections:
               - A voltage source $V_{th}$ in series with
               - A resistance $R_{th}$
 
+              ![Thevenin equivalent circuit](https://upload.wikimedia.org/wikipedia/commons/5/5d/Th%C3%A9venin_theorem_-_illustration.svg)
+
               **Norton's Theorem**
 
               Same circuit can also be replaced by:
               - A current source $I_N$ in parallel with
               - A resistance $R_N$
+
+              ![Norton equivalent circuit](https://upload.wikimedia.org/wikipedia/commons/1/17/Norton_Equivalent.svg)
 
               **The Equivalence**
 
@@ -568,6 +598,8 @@ sections:
 
               The phasor captures amplitude ($V_m$) and phase ($\phi$) — frequency ($\omega$) is implicit and must be the same for all phasors in the analysis.
 
+              ![Phasor as rotating vector](https://upload.wikimedia.org/wikipedia/commons/e/ec/Phasor.svg)
+
               **Why Phasors Work**
 
               Euler's formula: $e^{j\omega t} = \cos(\omega t) + j\sin(\omega t)$
@@ -599,135 +631,142 @@ sections:
             notes: |
               Impedance extends Ohm's Law to AC circuits, relating phasor voltage to phasor current.
 
-              $$\mathbf{V} = \mathbf{Z}\mathbf{I}$$
+              $$\boxed{\mathbf{Z} = \frac{\mathbf{V}}{\mathbf{I}}}$$
 
               **Component Impedances**
 
-              | Component | Impedance | Magnitude | Phase |
-              |-----------|-----------|-----------|-------|
-              | Resistor | $Z_R = R$ | $R$ | 0° |
-              | Capacitor | $Z_C = \frac{1}{j\omega C}$ | $\frac{1}{\omega C}$ | −90° |
-              | Inductor | $Z_L = j\omega L$ | $\omega L$ | +90° |
+              | Component | Impedance | Phase |
+              |-----------|-----------|-------|
+              | Resistor | $Z_R = R$ | 0° (V and I in phase) |
+              | Capacitor | $Z_C = \frac{1}{j\omega C} = -\frac{j}{\omega C}$ | −90° (I leads V) |
+              | Inductor | $Z_L = j\omega L$ | +90° (V leads I) |
 
-              **Impedance Form**
+              ![RLC circuit](https://upload.wikimedia.org/wikipedia/commons/e/e0/RLC_circuit.svg)
+
+              **Impedance in Rectangular Form**
 
               $$Z = R + jX$$
 
-              where $R$ = resistance (real) and $X$ = reactance (imaginary)
+              where $R$ = resistance (real part) and $X$ = reactance (imaginary part).
 
-              - $X > 0$: Inductive (current lags voltage)
-              - $X < 0$: Capacitive (current leads voltage)
+              - $X > 0$: Inductive (current lags)
+              - $X < 0$: Capacitive (current leads)
 
-              **Combining Impedances**
+              **Impedance in Polar Form**
 
-              Series: $Z_{total} = Z_1 + Z_2 + Z_3 + ...$
+              $$Z = |Z|\angle\theta$$
 
-              Parallel: $\frac{1}{Z_{total}} = \frac{1}{Z_1} + \frac{1}{Z_2} + ...$
+              where $|Z| = \sqrt{R^2 + X^2}$ and $\theta = \arctan(X/R)$
 
-              Or for two: $Z_{total} = \frac{Z_1 Z_2}{Z_1 + Z_2}$
+              ![RLC phasor diagram](https://upload.wikimedia.org/wikipedia/commons/b/b0/RLC_U%28I%29-Zeiger.svg)
 
-              **Admittance**
+              **Series and Parallel Combinations**
 
-              $$Y = \frac{1}{Z} = G + jB$$
+              *Series:* $Z_{total} = Z_1 + Z_2 + Z_3 + ...$
 
-              where $G$ = conductance, $B$ = susceptance (units: Siemens)
+              *Parallel:* $\frac{1}{Z_{total}} = \frac{1}{Z_1} + \frac{1}{Z_2} + ...$
 
-              **Memory aid**: "ELI the ICE man"
-              - **ELI**: In an inductor (L), voltage (E) leads current (I)
-              - **ICE**: In a capacitor (C), current (I) leads voltage (E)
+              Same rules as resistors, but with complex arithmetic!
 
           - name: Resonance
             notes: |
-              At resonance, inductive and capacitive reactances cancel, creating special circuit behavior.
+              Resonance occurs when inductive and capacitive reactances cancel — circuits exhibit maximum or minimum impedance.
 
-              **Resonant Frequency**
+              **Series RLC Resonance**
 
-              $$\boxed{f_0 = \frac{1}{2\pi\sqrt{LC}}}$$
+              At resonance: $X_L = X_C$
 
-              or in radians: $\omega_0 = \frac{1}{\sqrt{LC}}$
+              $$\omega_0 L = \frac{1}{\omega_0 C}$$
 
-              At resonance: $X_L = X_C$, so $\omega_0 L = \frac{1}{\omega_0 C}$
+              Solving: $\boxed{f_0 = \frac{1}{2\pi\sqrt{LC}}}$
 
-              **Series RLC at Resonance**
-
-              - Impedance is **minimum**: $Z = R$ (purely resistive)
-              - Current is **maximum**: $I = V/R$
+              At resonance:
+              - Impedance is minimum ($Z = R$)
+              - Current is maximum
               - Voltage across L and C can exceed source voltage!
 
-              **Parallel RLC at Resonance**
+              **Parallel RLC Resonance**
 
-              - Impedance is **maximum**: $Z = R$ (purely resistive)
-              - Current from source is **minimum**
-              - Large circulating currents between L and C
+              At resonance:
+              - Impedance is maximum
+              - Current from source is minimum
+              - Current circulates between L and C
+
+              ![RLC frequency response](https://upload.wikimedia.org/wikipedia/commons/d/d8/RLC_parallel_plot.svg)
 
               **Quality Factor (Q)**
 
-              Measures "sharpness" of resonance:
-
-              $$Q = \frac{f_0}{BW} = \frac{\omega_0 L}{R} = \frac{1}{\omega_0 CR}$$
+              $$Q = \frac{f_0}{\Delta f} = \frac{\omega_0 L}{R} = \frac{1}{\omega_0 CR}$$
 
               Higher Q means:
+              - Sharper resonance peak
               - Narrower bandwidth
-              - Sharper frequency selection
-              - More energy stored vs. dissipated per cycle
+              - More frequency selective
 
               **Bandwidth**
 
               $$BW = \frac{f_0}{Q}$$
 
-              The −3dB points (half-power) occur at $f_0 \pm \frac{BW}{2}$
+              The range of frequencies where response is within 3dB of peak.
 
-              **Applications**: Radio tuning, filters, oscillators
+              **Applications**
+
+              - Radio tuning circuits (select one station)
+              - Filters (bandpass, notch)
+              - Oscillators
 
           - name: Power factor
             notes: |
-              Power factor measures how effectively a load converts current into useful power.
+              Power factor measures how effectively a load converts current into useful work.
 
               **AC Power Types**
 
-              For $v(t) = V_m\cos(\omega t)$ and $i(t) = I_m\cos(\omega t - \phi)$:
+              | Power | Symbol | Unit | Formula |
+              |-------|--------|------|---------|
+              | Real (Active) | P | Watts (W) | $P = VI\cos\phi$ |
+              | Reactive | Q | VAR | $Q = VI\sin\phi$ |
+              | Apparent | S | VA | $S = VI$ |
 
-              | Power Type | Formula | Unit | Meaning |
-              |------------|---------|------|---------|
-              | Real (P) | $V_{rms}I_{rms}\cos\phi$ | W | Actual work done |
-              | Reactive (Q) | $V_{rms}I_{rms}\sin\phi$ | VAR | Energy oscillating |
-              | Apparent (S) | $V_{rms}I_{rms}$ | VA | Total "burden" |
+              **The Power Triangle**
 
-              **Power Triangle**
+              ![Power triangle](https://upload.wikimedia.org/wikipedia/commons/e/e9/Power_Triangle_01.svg)
 
               $$S^2 = P^2 + Q^2$$
 
-              $$\mathbf{S} = P + jQ = \mathbf{V}\mathbf{I}^*$$
-
-              (Note: Use conjugate of current!)
+              $$\boxed{S = P + jQ}$$
 
               **Power Factor**
 
               $$\boxed{PF = \cos\phi = \frac{P}{S}}$$
 
+              where $\phi$ is the angle between voltage and current.
+
               - $PF = 1$: Purely resistive (ideal)
-              - $PF < 1$: Reactive component present
-              - Leading PF: Capacitive load
-              - Lagging PF: Inductive load (most common — motors, transformers)
+              - $PF < 1$ lagging: Inductive load (most motors)
+              - $PF < 1$ leading: Capacitive load
 
-              **Why Utilities Care**
+              ![Power factor waveforms](https://upload.wikimedia.org/wikipedia/commons/9/9a/Power_factor_0.7.svg)
 
-              Low PF means higher current for the same real power:
-              $$I = \frac{P}{V \cdot PF}$$
+              **Why Power Factor Matters**
 
-              This causes:
-              - Larger wire sizes needed
-              - Higher $I^2R$ losses
-              - Reduced system capacity
+              Low PF means:
+              - Higher current for same real power
+              - Larger wires needed
+              - More losses ($I^2R$)
+              - Utility penalties for industrial customers
 
               **Power Factor Correction**
 
-              Add capacitors in parallel with inductive loads to cancel reactive power and bring PF closer to 1. Industrial facilities often pay penalties for low PF.
+              Add capacitors in parallel with inductive loads to cancel reactive power:
+
+              $$C = \frac{Q_{correction}}{\omega V^2}$$
+
+              Target: $PF \geq 0.95$ for most industrial applications.
         resources:
-          - label: All About Circuits - AC
+          - label: MIT OCW 6.002
+            url: https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/
+          - label: All About Circuits AC
             url: https://www.allaboutcircuits.com/textbook/alternating-current/
-          - label: Khan Academy AC Circuits
-            url: https://www.khanacademy.org/science/physics/circuits-topic
 
   - id: electromagnetism
     title: Electromagnetism

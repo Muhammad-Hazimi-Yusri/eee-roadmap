@@ -12,6 +12,8 @@ const { terms } = glossaryData;
 <script>
   import tippy from 'tippy.js';
   import 'tippy.js/dist/tippy.css';
+  import katex from 'katex';
+  import 'katex/dist/katex.min.css';
 
   interface GlossaryTerm {
     id: string;
@@ -19,9 +21,65 @@ const { terms } = glossaryData;
     acronyms?: string[];
     definition?: string;
   }
-  
+
   const terms: GlossaryTerm[] = (window as any).__glossaryTerms || [];
   const termsMap = new Map<string, GlossaryTerm>(terms.map(t => [t.id, t]));
+
+  /**
+   * Render LaTeX in a string, returning HTML
+   */
+  function renderLatex(text: string): string {
+    if (!text) return '';
+    
+    // Replace block math $$...$$ 
+    let result = text.replace(/\$\$([^$]+)\$\$/g, (_, math) => {
+      try {
+        return katex.renderToString(math.trim(), { displayMode: true, throwOnError: false });
+      } catch {
+        return `$$${math}$$`;
+      }
+    });
+    
+    // Replace inline math $...$
+    result = result.replace(/\$([^$]+)\$/g, (_, math) => {
+      try {
+        return katex.renderToString(math.trim(), { displayMode: false, throwOnError: false });
+      } catch {
+        return `$${math}$`;
+      }
+    });
+    
+    return result;
+  }
+
+  /**
+   * Truncate text while preserving HTML tags
+   */
+  function truncateHtml(html: string, maxLength: number): string {
+    // Simple approach: truncate and add ellipsis if needed
+    const textContent = html.replace(/<[^>]*>/g, '');
+    if (textContent.length <= maxLength) return html;
+    
+    // Find a good cut point
+    let count = 0;
+    let cutIndex = 0;
+    let inTag = false;
+    
+    for (let i = 0; i < html.length; i++) {
+      if (html[i] === '<') inTag = true;
+      else if (html[i] === '>') inTag = false;
+      else if (!inTag) {
+        count++;
+        if (count >= maxLength) {
+          cutIndex = i;
+          break;
+        }
+      }
+    }
+    
+    if (cutIndex === 0) cutIndex = html.length;
+    return html.slice(0, cutIndex) + '...';
+  }
 
   function initTooltips() {
     document.querySelectorAll('.glossary-link').forEach(link => {
@@ -39,11 +97,9 @@ const { terms } = glossaryData;
         ? `<span class="glossary-tip-acronyms">(${term.acronyms.join(', ')})</span>` 
         : '';
       
-      // Truncate definition
-      const defText = (term.definition || '')
-        .replace(/<[^>]*>/g, '')
-        .slice(0, 150)
-        .trim() + ((term.definition?.length ?? 0) > 150 ? '...' : '');
+      // Render LaTeX in definition
+      const defRendered = renderLatex(term.definition || '');
+      const defText = truncateHtml(defRendered, 200);
       
       const content = `
         <div class="glossary-tip">
@@ -62,7 +118,7 @@ const { terms } = glossaryData;
         appendTo: document.body,
         placement: 'top',
         theme: 'glossary',
-        maxWidth: 300,
+        maxWidth: 320,
         delay: [200, 0],
       });
     });
@@ -124,5 +180,15 @@ const { terms } = glossaryData;
 
   .glossary-tip-link:hover {
     text-decoration: underline;
+  }
+
+  /* KaTeX in tooltips */
+  .glossary-tip .katex {
+    font-size: 0.95em;
+  }
+
+  .glossary-tip .katex-display {
+    margin: 0.25em 0;
+    overflow-x: auto;
   }
 </style>

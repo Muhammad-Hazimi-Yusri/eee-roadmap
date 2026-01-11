@@ -11,46 +11,56 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.15.X] - 2025-01-10
+## [0.15.0] - 2025-01-10
 
 **Glossary & Acronyms**
 
 ### Added
 - Glossary data source (`content/_glossary.yaml`)
 - 100+ EEE terms and acronyms with definitions
-- LaTeX equation support in definitions (KaTeX)
 - `/glossary/` page with:
-  - A-Z alphabet navigation
-  - Real-time search/filter
+  - A-Z alphabet navigation (disabled letters grayed out)
+  - Real-time search/filter with count
+  - 2-column responsive layout
   - Category tags per term
   - "See also" cross-references (clickable links)
-  - "Appears in" reverse index (expandable, shows all on click)
-  - 2-column responsive layout
+  - "Appears in" reverse index (expandable, "Show all" button)
   - Hash navigation with highlight animation
 - Build script (`scripts/build-glossary.mjs`):
-  - Parses YAML to JSON
-  - Scans all roadmap content for term occurrences
-  - Generates reverse index automatically
+  - Parses YAML to JSON with slugified IDs
+  - Scans all roadmap JSON for term occurrences
+  - Generates reverse index (`appears_in`) automatically
 - Glossary integrated into global search:
-  - New "Glossary Terms" group (appears first)
-  - Searches term names and acronyms
+  - New "Glossary Terms" group (appears first in results)
+  - Searches term names, acronyms, and definitions
   - Links to `/glossary/#term-id`
-- Glossary link added to Footer
 - Auto-linking glossary terms in roadmap content:
+  - Build-time term wrapping (`wrapGlossaryTerms.ts`)
   - Descriptions, outcomes, and concept notes
-  - Dotted underline styling
-  - Tippy.js tooltips on hover
-  - "View in glossary" opens in new tab
+  - Dotted underline styling (`.glossary-link`)
+  - Tippy.js tooltips on hover with:
+    - Term name and acronyms
+    - Definition preview (truncated)
+    - Client-side KaTeX rendering for LaTeX
+    - "View in glossary" link (opens new tab)
+  - ConceptWindows dispatch `concept-window-opened` event for re-init
+- Glossary link added to Footer
+- LaTeX/KaTeX support in definitions (glossary page + tooltips)
 
 ### Changed
 - `build:data` now chains: YAML → JSON → Glossary → Search Index
-- Search index includes glossary entries with acronym matching
+- `build-data.mjs` excludes `_glossary` from roadmap processing
+- `validate.mjs` excludes `_glossary` from validation
+- `src/data/index.ts` excludes `_glossary.json` from track loader
+- Search index includes glossary entries
 - Fuse.js config updated with `acronyms` and `definition` keys
 
 ### Technical Notes
-- Build-time term wrapping via `wrapGlossaryTerms.ts`
-- Tippy.js loaded as ES module in `GlossaryTooltips.astro`
-- ConceptWindows dispatches `concept-window-opened` event for tooltip init
+- Build-time term wrapping via `src/utils/wrapGlossaryTerms.ts`
+- `parseNotes.ts` imports `wrapTermsInHtml` for concept notes
+- Tippy.js + KaTeX loaded as ES modules in `GlossaryTooltips.astro`
+- Client-side LaTeX rendering in tooltips (not build-time)
+- Astro's `define:vars` passes terms to inline script, module script imports libs
 
 
 ## [0.14.X] - 2025-01-09

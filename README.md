@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.15.1-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.16.0-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.15.1)
+## Current Features (v0.16.0)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -43,6 +43,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **Global Search** — Fuzzy search across all tracks, topics, and concept notes (`Ctrl+K`)
 - **Deep Links** — Share links directly to specific concepts
 - **State Persistence** — Topic expand/collapse state saved per track, settings panel remembers preferences
+- **Glossary** — 100+ EEE terms with definitions, LaTeX equations, and cross-references
+- **Auto-linked Terms** — Glossary terms in roadmap content show tooltips on hover
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -72,19 +74,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### v0.14 - Personal Progress Filters ✓
-
-**Goal:** Filter tracks and concepts by personal progress state.
-
-- [x] Reusable filter component for progress states
-- [x] `/roadmaps/` page: filter cards by has-incomplete/has-highlighted
-- [x] Roadmap page: expand/collapse all controls
-- [x] Roadmap page: focus view (incomplete/highlighted concepts)
-- [x] Smart settings panel (remembers state, auto-opens after 24h)
-- [x] Persist topic expand/collapse state per track
-- [x] Combined filtering (category + progress)
-
-### v0.15 - Glossary & Acronyms (in progress)
+### v0.15 - Glossary & Acronyms ✓
 
 **Goal:** Quick reference for technical terms with auto-linking in notes.
 
@@ -94,11 +84,10 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] "See also" cross-references between terms
 - [x] "Appears in" reverse index with expandable list
 - [x] Glossary terms in global search (appears first)
-- [x] LaTeX/KaTeX support in definitions
+- [x] LaTeX/KaTeX support in definitions and tooltips
 - [x] Auto-link terms in roadmap content (Tippy.js tooltips)
-- [ ] Fix LaTeX rendering in hover tooltips
 
-### v0.16 - ConceptWindows Persistence (planned)
+### v0.16 - ConceptWindows Persistence (In Progress)
 
 **Goal:** Save and restore window state across page refreshes.
 
