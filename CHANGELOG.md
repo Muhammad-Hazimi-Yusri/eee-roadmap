@@ -11,7 +11,27 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.15.0] - 2025-01-10
+## [0.16.X] - 2025-01-11
+
+**ConceptWindows Persistence**
+
+### Added
+- Open windows now persist across page refreshes
+  - Saves window IDs, minimized/maximized state to localStorage
+  - Restores windows automatically on page load
+  - Per-track storage (each track remembers its own windows)
+- Settings panel UX improvements
+  - Mobile: panel defaults to closed with pulsing glow on button
+  - Desktop: panel defaults to open with pulsing glow to indicate it can be closed
+  - Glow disabled for returning users who have interacted before
+
+### Technical Notes
+- Window state saved on open, close, minimize, restore, and maximize
+- Storage key includes track slug: `eee-open-windows-{trackSlug}`
+- Position/size persistence was already implemented in v0.11; this adds session continuity
+
+
+## [0.15.X] - 2025-01-10
 
 **Glossary & Acronyms**
 

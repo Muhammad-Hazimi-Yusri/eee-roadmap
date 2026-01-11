@@ -452,6 +452,10 @@
   }
 
   const STORAGE_KEY = 'eee-concept-window-states';
+  const OPEN_WINDOWS_KEY = () => {
+    const trackSlug = (window as any).trackSlug || 'unknown';
+    return `eee-open-windows-${trackSlug}`;
+  };
   const CASCADE_OFFSET = 30;
   const BASE_Z_INDEX = 1000;
   const DEFAULT_WIDTH = 500;
@@ -472,6 +476,50 @@
     } catch {
       return {};
     }
+  }
+
+  // Save list of open windows with their state
+  function saveOpenWindows() {
+    const windowStates = openWindows.map(w => ({
+      id: w.id,
+      isMinimized: w.isMinimized,
+      isMaximized: w.isMaximized
+    }));
+    localStorage.setItem(OPEN_WINDOWS_KEY(), JSON.stringify(windowStates));
+  }
+
+  // Load list of open windows with their state
+  interface SavedWindowState {
+    id: string;
+    isMinimized: boolean;
+    isMaximized: boolean;
+  }
+
+  function loadOpenWindows(): SavedWindowState[] {
+    try {
+      const saved = localStorage.getItem(OPEN_WINDOWS_KEY());
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  // Restore previously open windows
+  function restoreOpenWindows() {
+    const savedWindows = loadOpenWindows();
+    savedWindows.forEach(saved => {
+      const [topicId, conceptName] = saved.id.split(':');
+      if (topicId && conceptName) {
+        openWindow(topicId, conceptName);
+        
+        // Apply saved state
+        if (saved.isMinimized) {
+          minimizeWindow(saved.id);
+        } else if (saved.isMaximized) {
+          toggleMaximize(saved.id);
+        }
+      }
+    });
   }
 
   // Save states to localStorage
@@ -606,6 +654,7 @@
 
     taskbarItems.appendChild(item);
     updateTaskbar();
+    saveOpenWindows();
   }
 
   // Restore window from minimized
@@ -621,6 +670,7 @@
     const taskbarItem = document.querySelector(`.concept-taskbar-item[data-window-id="${windowId}"]`);
     taskbarItem?.remove();
     updateTaskbar();
+    saveOpenWindows();
   }
 
   // Maximize/restore window
@@ -662,6 +712,7 @@
       win.isMaximized = true;
       win.element.classList.add('concept-window--maximized');
     }
+    saveOpenWindows();
   }
 
   // Revalidate all window positions on viewport resize
@@ -845,6 +896,9 @@
 
     // Trigger tooltip init for glossary terms
     document.dispatchEvent(new CustomEvent('concept-window-opened'));
+
+    // Persist open windows list
+    saveOpenWindows();
   }
 
   // Close a window
@@ -860,6 +914,9 @@
     const taskbarItem = document.querySelector(`.concept-taskbar-item[data-window-id="${windowId}"]`);
     taskbarItem?.remove();
     updateTaskbar();
+
+    // Persist open windows list
+    saveOpenWindows();
   }
 
   // Setup all window events
@@ -1157,6 +1214,7 @@
   };
 
   initResizeHandler();
+  restoreOpenWindows();
 
   // ============================================
   // PDF RESIZER LOGIC

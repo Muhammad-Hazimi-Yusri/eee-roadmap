@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.16.1-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.16.2-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.16.1)
+## Current Features (v0.16.2)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -39,7 +39,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **Two Interaction Modes:**
   - *Simple* — Click (notes), double-click (complete), shift+click (important)
   - *Tools* — Swipe gestures with pen/highlighter/eraser (optimized for tablet/stylus)
-- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs
+- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs; open windows persist across page refreshes
 - **Global Search** — Fuzzy search across all tracks, topics, and concept notes (`Ctrl+K`)
 - **Deep Links** — Share links directly to specific concepts
 - **State Persistence** — Topic expand/collapse state saved per track, settings panel remembers preferences
@@ -91,11 +91,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **Goal:** Save and restore window state across page refreshes.
 
-- [ ] Persist open windows to localStorage (position, size, minimized state)
-- [ ] Restore windows on page load
+- [x] Persist open windows to localStorage (position, size, minimized/maximized state)
+- [x] Restore windows on page load
+- [x] Per-track state storage
 - [ ] "Close all windows" button in Preferences
 - [ ] "Reset window positions" option
-- [ ] Per-track state storage
 
 ### v0.17 - Cross-Device Sync
 
