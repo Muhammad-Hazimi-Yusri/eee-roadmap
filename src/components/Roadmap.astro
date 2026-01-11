@@ -449,20 +449,29 @@ for (const section of sections) {
     const keepClosed = localStorage.getItem(PANEL_KEEP_CLOSED_KEY) === 'true';
 
     // Determine if panel should be open
-    let shouldBeOpen = true; // Default: open
+    const isMobile = window.innerWidth < 768;
+    let shouldBeOpen = !isMobile; // Desktop: open, Mobile: closed
+    let shouldGlow = true; // Glow to draw attention
     
     if (keepClosed) {
       shouldBeOpen = false;
-    } else if (savedState === 'closed' && closedAt) {
-      const elapsed = Date.now() - parseInt(closedAt, 10);
-      shouldBeOpen = elapsed > ONE_DAY_MS;
+      shouldGlow = false; // User explicitly chose to keep closed
+    } else if (savedState) {
+      // User has interacted before - respect their choice
+      if (savedState === 'closed' && closedAt) {
+        const elapsed = Date.now() - parseInt(closedAt, 10);
+        shouldBeOpen = elapsed > ONE_DAY_MS;
+      } else if (savedState === 'open') {
+        shouldBeOpen = true;
+      }
+      shouldGlow = false; // Don't glow if they've seen it before
     }
 
     // Apply initial state
     settingsToggle.setAttribute('aria-expanded', String(shouldBeOpen));
     settingsPanel.hidden = !shouldBeOpen;
-    if (keepClosedCheckbox) {
-      keepClosedCheckbox.checked = keepClosed;
+    if (shouldGlow) {
+      settingsToggle.classList.add('settings-toggle--glow');
     }
 
     // Toggle handler

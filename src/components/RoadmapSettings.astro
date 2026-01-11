@@ -281,7 +281,22 @@
   .setting-checkbox input {
     cursor: pointer;
   }
-</style>
+
+  /* Glow animation for attention */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 4px var(--color-copper), 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 12px var(--color-copper), 0 0 20px rgba(184, 115, 51, 0.4);
+    }
+  }
+
+  .settings-toggle--glow {
+    animation: pulse-glow 2s ease-in-out 3;
+    border-color: var(--color-copper);
+  }
+  </style>
 
 <script>
   // Show touch hint on touch devices when in tools mode
