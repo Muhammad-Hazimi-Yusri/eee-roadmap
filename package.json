@@ -1,7 +1,7 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs",
@@ -27,6 +27,7 @@
   "dependencies": {
     "@astrojs/tailwind": "^5.1.0",
     "@lucide/astro": "^0.562.0",
+    "@supabase/supabase-js": "^2.90.1",
     "astro": "^4.16.0",
     "fuse.js": "^7.1.0",
     "katex": "^0.16.27",

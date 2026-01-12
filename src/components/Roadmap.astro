@@ -146,6 +146,8 @@ for (const section of sections) {
     type ModeName,
   } from '../utils/tools';
 
+  import { queueSync } from '../lib/sync';
+
   const progressStore = createProgressStore('eee-progress-v2', 'local');
   const { 
     isComplete, 
@@ -315,6 +317,7 @@ for (const section of sections) {
       tag.addEventListener('click', () => {
         const completed = toggleComplete(key);
         tag.classList.toggle('prereq-tag--completed', completed);
+        queueSync();
       });
     });
   }
@@ -347,6 +350,7 @@ for (const section of sections) {
           // Shift+Click → toggle important
           const important = toggleImportant(key);
           pill.classList.toggle('concept-pill--important', important);
+          queueSync();
           return; // Don't also open notes on shift+click
         } 
 
@@ -378,6 +382,7 @@ for (const section of sections) {
         pill.classList.toggle('concept-pill--completed', completed);
         updateTopicStatus(topicId);
         updatePrereqCompletionStatus();
+        queueSync();
       });
     });
     
@@ -935,6 +940,7 @@ for (const section of sections) {
     pill.classList.toggle('concept-pill--important', isImportant(key));
     updateTopicStatus(topicId);
     updatePrereqCompletionStatus();
+    queueSync();
   }
 
   // ============================================

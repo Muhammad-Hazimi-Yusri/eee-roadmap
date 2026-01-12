@@ -644,7 +644,7 @@ sections:
           - label: Wikipedia - Solar Inverter
             url: https://en.wikipedia.org/wiki/Solar_inverter
 
-      - id: power-quality
+      - id: dg-power-quality
         title: Power Quality
         description: >-
           Ensuring domestic generation doesn't degrade the grid. Covers

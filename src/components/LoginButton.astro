@@ -1,0 +1,88 @@
+---
+// No server-side code needed yet
+---
+
+<button id="login-btn" class="login-button">
+  Sign in with Google
+</button>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  import { syncOnLogin } from '../lib/sync';
+
+  const btn = document.getElementById('login-btn');
+
+  async function updateButtonUI() {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session && btn) {
+      const email = session.user.email;
+      const name = email?.split('@')[0] ?? 'User';
+      btn.textContent = `Hi, ${name} (Sign out)`;
+    } else if (btn) {
+      btn.textContent = 'Sign in with Google';
+    }
+  }
+
+  // Check if this is an OAuth callback (just logged in)
+  async function handleOAuthCallback() {
+    const hash = window.location.hash;
+    const params = new URLSearchParams(window.location.search);
+    
+    // Supabase OAuth adds access_token in hash or code in params
+    if (hash.includes('access_token') || params.has('code')) {
+      console.log('OAuth callback detected, syncing...');
+      await syncOnLogin();
+      
+      // Clean URL and reload to reflect synced state
+      const cleanUrl = window.location.pathname;
+      window.location.replace(cleanUrl);
+    }
+  }
+
+  // Initialize
+  updateButtonUI();
+  handleOAuthCallback();
+
+  // Click handler
+  btn?.addEventListener('click', async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+      console.log('Signing out...');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      } else {
+        window.location.reload();
+      }
+      return;
+    }
+    
+    // Sign in - redirect back to current page
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.href
+      }
+    });
+    
+    if (error) console.error('Login error:', error.message);
+  });
+</script>
+
+<style>
+  .login-button {
+    background: #4285f4;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  
+  .login-button:hover {
+    background: #3574e2;
+  }
+</style>

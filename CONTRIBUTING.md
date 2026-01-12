@@ -195,6 +195,68 @@ Affected components:
 - `src/pages/roadmaps/index.astro` - PCB modal sections/topics
 - `src/components/ConceptWindow.astro` - dynamic content window
 
+### Environment Variables
+
+For contributors working on auth/sync features:
+
+1. Copy `.env.example` to `.env`
+2. Create a Supabase project at [supabase.com](https://supabase.com)
+3. Enable Google OAuth in Supabase Dashboard → Authentication → Providers
+4. Add your credentials to `.env`:
+```env
+   PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
+```
+
+The `PUBLIC_` prefix makes these available client-side. These keys are safe to expose (security comes from Supabase Row Level Security).
+
+### Database Schema
+
+For contributors setting up their own Supabase instance, run this SQL in Supabase SQL Editor:
+```sql
+-- User progress table
+CREATE TABLE user_progress (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  progress JSONB DEFAULT '{}',
+  settings JSONB DEFAULT '{}',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Auto-update timestamp
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER user_progress_updated
+  BEFORE UPDATE ON user_progress
+  FOR EACH ROW
+  EXECUTE FUNCTION update_timestamp();
+
+-- Row Level Security (users can only access their own data)
+ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can read own data"
+  ON user_progress FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own data"
+  ON user_progress FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own data"
+  ON user_progress FOR UPDATE
+  USING (auth.uid() = user_id);
+```
+
+This creates:
+- `user_progress` table with JSONB columns for flexible data storage
+- Auto-updating `updated_at` timestamp
+- Row Level Security policies ensuring users only access their own data
+
 ### Content Notes
 
 - **Markdown in YAML**: Use `|` for multiline notes (preserves newlines). Keep lines flush-left to avoid code block interpretation.

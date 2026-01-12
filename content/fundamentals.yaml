@@ -1298,7 +1298,11 @@ sections:
             notes: |
               Resistor color bands encode resistance value and tolerance — essential for identifying components.
 
+              ![Resistor color code chart](https://commons.wikimedia.org/wiki/Special:FilePath/Resistor_Color_Code.svg)
+
               **4-Band Resistors**
+
+              ![4-band resistor example](https://commons.wikimedia.org/wiki/Special:FilePath/4-Band_Resistor.svg)
 
               | Band | Meaning |
               |------|---------|
@@ -1358,28 +1362,26 @@ sections:
 
               **Common Through-Hole Ratings**
 
-              | Size | Power Rating | Typical Use |
-              |------|--------------|-------------|
-              | 1/8 W | 0.125 W | Low-power signal circuits |
-              | 1/4 W | 0.25 W | General purpose (most common) |
-              | 1/2 W | 0.5 W | Moderate power |
-              | 1 W | 1 W | Power circuits |
-              | 2 W+ | 2+ W | High power, heat sinks |
+              | Size | Power Rating |
+              |------|--------------|
+              | 1/8 W | Small signal, low current |
+              | 1/4 W | Most common, general purpose |
+              | 1/2 W | Moderate power |
+              | 1 W+ | Power applications |
 
-              **SMD Power Ratings**
+              **Common SMD Ratings**
 
               | Package | Power Rating |
               |---------|--------------|
-              | 0201 | 0.05 W |
-              | 0402 | 0.063 W |
-              | 0603 | 0.1 W |
-              | 0805 | 0.125 W |
-              | 1206 | 0.25 W |
+              | 0402 | 1/16 W |
+              | 0603 | 1/10 W |
+              | 0805 | 1/8 W |
+              | 1206 | 1/4 W |
               | 2512 | 1 W |
 
-              **Derating**
+              **Temperature Derating**
 
-              Manufacturers specify ratings at 25°C. At higher temperatures, derate:
+              Ratings assume 25°C ambient. At higher temperatures, derate:
               - Typical: 50% at 70°C, 0% at 125°C
               - Always check datasheet curves
 
@@ -1477,6 +1479,8 @@ sections:
 
               **Parallel Plate Capacitor**
 
+              ![Parallel plate capacitor](https://commons.wikimedia.org/wiki/Special:FilePath/Parallel_plate_capacitor.svg)
+
               $$C = \varepsilon_0\varepsilon_r\frac{A}{d}$$
 
               where:
@@ -1524,60 +1528,60 @@ sections:
             notes: |
               The dielectric material between plates determines capacitor properties and limitations.
 
+              ![Capacitor with dielectric](https://commons.wikimedia.org/wiki/Special:FilePath/Capacitor_schematic_with_dielectric.svg)
+
               **Dielectric Constant (εᵣ)**
 
               | Material | εᵣ | Notes |
               |----------|-----|-------|
               | Vacuum | 1.0 | Reference |
-              | Air | 1.0006 | ~Vacuum |
-              | PTFE (Teflon) | 2.1 | Very stable |
-              | Polypropylene | 2.2 | Film caps |
-              | Polyester (PET) | 3.3 | Common film |
-              | Paper | 3.5 | Old style |
-              | Glass | 4–10 | Stable |
-              | Mica | 6–8 | Precision |
-              | Aluminum oxide | 7–10 | Electrolytic |
-              | Tantalum oxide | 25 | High density |
+              | Air | 1.0006 | ~Same as vacuum |
+              | Teflon | 2.1 | Low loss |
+              | Polyester | 3.3 | Film capacitors |
+              | Paper | 3.5 | Older capacitors |
+              | Glass | 5–10 | Stable |
+              | Mica | 6–8 | Very stable, RF |
+              | Ceramic (C0G) | 6–200 | Temperature stable |
               | Ceramic (X7R) | 2000–4000 | High capacitance |
-              | Ceramic (Y5V) | 4000–14000 | Very high, unstable |
+              | Ceramic (Y5V) | 4000–14000 | Highest capacitance, worst stability |
 
-              **Breakdown Voltage**
+              **Dielectric Strength**
 
-              Every dielectric has a maximum field strength before breakdown:
-              - Air: ~3 kV/mm
-              - Ceramic: ~10–20 kV/mm
-              - Plastic film: ~100–300 kV/mm
+              Maximum voltage before breakdown — why voltage ratings matter!
 
-              **Voltage Rating**
-
-              Always derate! Use capacitor rated for **≥1.5× operating voltage**.
+              **Breakdown = permanent damage** (often a short circuit)
 
               **Temperature Effects**
 
-              Different dielectrics behave differently with temperature:
-              - **C0G/NP0**: ±30 ppm/°C — very stable
-              - **X7R**: ±15% over −55°C to +125°C — moderate
-              - **Y5V**: +22%/−82% over −30°C to +85°C — terrible!
+              - Some dielectrics (X7R, Y5V) lose capacitance at temperature extremes
+              - C0G/NP0 ceramics are stable but lower capacitance density
+              - Electrolytic capacitors dry out at high temperatures (shorter life)
 
-              **Dielectric Absorption**
+              **Voltage Derating**
 
-              After discharging, some capacitors "recover" voltage — stored charge in dielectric. Important in sample-and-hold circuits.
+              Rule of thumb: Operate at ≤50–80% of rated voltage for reliability
 
-              Film caps (polypropylene) have lowest absorption (~0.01%).
+              **Frequency Effects**
+
+              Real capacitors have:
+              - **ESR** (Equivalent Series Resistance): Causes losses, heating
+              - **ESL** (Equivalent Series Inductance): Limits high-frequency performance
+              - **Leakage current**: Especially in electrolytics
 
           - name: Capacitor types
             notes: |
-              Choose capacitor type based on application requirements.
+              Different capacitor types are optimized for different applications.
 
-              **Ceramic Capacitors**
+              **Ceramic (MLCC)**
 
               - Range: 1 pF to 100 μF
-              - Voltage: Up to 100V+ (varies with capacitance)
+              - Voltage: 6.3V to several kV
               - Non-polarized
-              - **C0G/NP0**: Stable, linear, low loss — use for precision/RF
-              - **X7R**: Moderate stability — general decoupling
-              - **Y5V**: High capacitance density, terrible stability — bulk storage only
-              - **Beware**: Capacitance drops significantly with applied DC voltage!
+              - Small size, low ESR
+              - **Class 1 (C0G/NP0)**: Stable, low capacitance, precision
+              - **Class 2 (X7R, X5R)**: Higher capacitance, moderate stability
+              - **Class 3 (Y5V, Z5U)**: Highest capacitance, worst stability
+              - Use for: Decoupling, filtering, timing (C0G only)
 
               **Electrolytic (Aluminum)**
 
@@ -1696,42 +1700,42 @@ sections:
 
               **Air Core**
 
-              - $\mu_r = 1$
-              - No saturation, no core loss
+              - No saturation (linear to any current)
               - Low inductance per turn
-              - Use for: VHF/UHF, high-Q RF applications
+              - No core losses
+              - Use for: RF circuits, high-frequency applications
+
+              **Iron/Steel (Laminated)**
+
+              - Very high permeability (~1000–5000)
+              - Saturates at moderate flux density
+              - High core losses at high frequency
+              - Use for: 50/60 Hz transformers, chokes
 
               **Ferrite**
 
-              - $\mu_r$ = 20–15000 (varies by type)
-              - Low loss at high frequency
-              - Saturates at moderate flux density (~0.3–0.5 T)
-              - **Types**:
-                - NiZn: High frequency (>1 MHz), lower permeability
-                - MnZn: Lower frequency (<1 MHz), higher permeability
-              - Use for: Switching power supplies, EMI filtering
+              - Moderate permeability (~100–3000)
+              - High resistivity (low eddy current losses)
+              - Use for: Switching power supplies (100 kHz – 1 MHz)
+              - Types: Manganese-zinc (MnZn) for lower freq, Nickel-zinc (NiZn) for higher
 
               **Powdered Iron**
 
-              - $\mu_r$ = 10–100
-              - Higher saturation than ferrite (~1 T)
-              - Higher core loss than ferrite
               - Distributed air gap (soft saturation)
-              - Use for: DC bias applications, lower frequency filters
-
-              **Laminated Steel**
-
-              - $\mu_r$ = 1000–10000
-              - Very high saturation (~1.5–2 T)
-              - High core loss at high frequency
-              - Use for: 50/60 Hz transformers, audio
+              - Lower permeability than ferrite
+              - Good for DC bias applications
+              - Use for: Output inductors in buck converters
 
               **Saturation**
 
-              When magnetic flux exceeds core capacity:
-              - Inductance drops dramatically
-              - Current spikes (can damage circuit)
-              - Check datasheet for saturation current rating!
+              When the core saturates:
+              - Permeability drops dramatically
+              - Inductance collapses
+              - Current spikes!
+
+              $$B = \mu_0 \mu_r \frac{N \cdot I}{l_e}$$
+
+              Always check: $B_{max} < B_{sat}$ at peak current.
 
               **Core Loss**
 
@@ -1828,6 +1832,8 @@ sections:
 
               When joined, electrons and holes diffuse across the junction, creating a **depletion region** with no mobile carriers.
 
+              ![PN junction at equilibrium](https://commons.wikimedia.org/wiki/Special:FilePath/Pn-junction-equilibrium.svg)
+
               **Built-In Potential**
 
               The diffusion creates an electric field and potential barrier:
@@ -1863,40 +1869,34 @@ sections:
             notes: |
               Understanding the I-V curve lets you model and use diodes correctly.
 
-              **Ideal Diode Model**
+              ![Diode I-V characteristic curve](https://commons.wikimedia.org/wiki/Special:FilePath/Diode-IV-Curve.svg)
 
-              - Forward: Short circuit (0V drop)
-              - Reverse: Open circuit (0A)
-              - Simplest analysis, reasonable for power circuits
+              **Forward Characteristics**
 
-              **Constant Voltage Drop Model**
+              - Below ~0.5V: Negligible current
+              - Above ~0.7V (Si): Current increases exponentially
+              - **Knee voltage**: Where conduction really begins
 
-              - Forward: $V_D = 0.7$ V (silicon), 0.3V (Schottky), 0.2V (germanium)
-              - Reverse: Open circuit
-              - Good balance of accuracy and simplicity
+              **Simplified Models**
 
-              **Exponential Model**
-
-              Full equation: $I = I_S(e^{V_D/nV_T} - 1)$
-
-              Most accurate, needed for precision analog design.
-
-              **Key Parameters**
-
-              | Parameter | Symbol | Meaning |
-              |-----------|--------|---------|
-              | Forward voltage | $V_F$ | Voltage drop at specified current |
-              | Reverse leakage | $I_R$ | Current in reverse bias |
-              | Breakdown voltage | $V_{BR}$ | Reverse voltage causing breakdown |
-              | Max forward current | $I_F$ | Thermal limit |
-              | Reverse recovery | $t_{rr}$ | Switching speed |
+              | Model | Description | Use When |
+              |-------|-------------|----------|
+              | Ideal | Short when forward, open when reverse | Quick analysis |
+              | Constant drop | 0.7V drop when forward | Most hand calculations |
+              | Piecewise linear | 0.7V + slope resistance | More accurate |
+              | Full exponential | Uses diode equation | SPICE simulation |
 
               **Temperature Effects**
 
               - Forward voltage decreases ~2 mV/°C
               - Leakage current doubles every ~10°C
+              - This is why diodes are used as temperature sensors
 
-              This temperature dependence makes diodes useful as temperature sensors!
+              **Reverse Characteristics**
+
+              - Small leakage current (nA to μA)
+              - Relatively constant until breakdown
+              - **Breakdown voltage** (PIV, V_RRM): Must not be exceeded!
 
               **Dynamic Resistance**
 
@@ -1945,6 +1945,8 @@ sections:
                 - Blue/White: ~3.0–3.5V
               - Current sets brightness (typically 10–20 mA)
               - Always use current-limiting resistor!
+
+              $$R = \frac{V_{supply} - V_{LED}}{I_{LED}}$$
 
               **Photodiodes**
 
@@ -2208,102 +2210,53 @@ sections:
             notes: |
               The oscilloscope displays voltage versus time — essential for seeing signal behavior.
 
-              **The Display**
-
-              - **Horizontal axis**: Time (left to right)
-              - **Vertical axis**: Voltage (bottom to top)
-              - **Graticule**: Grid divisions for measurement
-
-              **Key Controls**
-
-              *Vertical (per channel):*
-              - **Volts/div**: Scales vertical sensitivity (e.g., 1V/div, 100mV/div)
-              - **Position**: Moves trace up/down
-              - **Coupling**: DC (full signal), AC (blocks DC), GND (baseline)
-
-              *Horizontal:*
-              - **Time/div**: Scales horizontal sweep (e.g., 1ms/div, 10μs/div)
-              - **Position**: Moves trace left/right
-
-              **Reading the Display**
-
-              If volts/div = 2V and signal spans 3 divisions:
-              $$V_{pp} = 3 \times 2\text{V} = 6\text{V peak-to-peak}$$
-
-              If time/div = 1ms and one cycle spans 4 divisions:
-              $$T = 4 \times 1\text{ms} = 4\text{ms}$$
-              $$f = 1/T = 250\text{ Hz}$$
-
-              **Input Coupling Modes**
-
-              | Mode | Use Case |
-              |------|----------|
-              | **DC** | See full signal including DC offset |
-              | **AC** | See only AC component (blocks DC) |
-              | **GND** | Find 0V baseline position |
-
-              **Probe Compensation**
-
-              10× probes need adjustment for flat square wave response:
-              - **Overshoot**: Decrease compensation (trim cap)
-              - **Rounded corners**: Increase compensation
-              - Check with scope's calibration output (~1 kHz square wave)
-
-          - name: Triggering
-            notes: |
-              Triggering synchronizes the display to create a stable image of repetitive signals.
-
-              **The Problem Triggering Solves**
-
-              Without triggering, each sweep starts at random point — display looks like jumbled mess.
-
-              **Basic Trigger Concept**
-
-              Scope waits for signal to cross a threshold, then starts horizontal sweep. Next sweep waits for same condition — signal appears stationary.
-
-              **Trigger Controls**
+              **Basic Controls**
 
               | Control | Function |
               |---------|----------|
-              | **Source** | Which channel triggers (CH1, CH2, EXT, Line) |
-              | **Level** | Voltage threshold for trigger |
-              | **Slope** | Rising edge (↗) or falling edge (↘) |
-              | **Mode** | Auto, Normal, Single |
+              | **Vertical (V/div)** | Voltage scale — volts per grid division |
+              | **Horizontal (s/div)** | Time scale — seconds per grid division |
+              | **Position** | Move trace up/down or left/right |
+              | **Coupling** | AC (blocks DC), DC (shows all), GND (baseline) |
 
-              **Trigger Modes**
+              **Reading the Display**
 
-              - **Auto**: Triggers if possible, free-runs if not — always shows something
-              - **Normal**: Only sweeps when trigger found — blank if no trigger
-              - **Single**: One sweep when triggered, then stops — for capturing one-time events
+              - Grid is typically 8×10 divisions
+              - Amplitude = (peak-to-peak divisions) × (V/div)
+              - Period = (one cycle divisions) × (s/div)
+              - Frequency = 1/Period
 
-              **Getting a Stable Display**
+              **Example**
 
-              1. Set trigger source to channel with clearest signal
-              2. Set trigger level to middle of waveform
-              3. Choose appropriate slope
-              4. Use Normal mode if Auto is jittery
-              5. Adjust level until display stabilizes
+              If V/div = 2V and signal spans 3 divisions peak-to-peak:
+              $$V_{pp} = 3 \times 2V = 6V$$
 
-              **Common Trigger Issues**
+              If s/div = 1ms and one cycle spans 4 divisions:
+              $$T = 4 \times 1ms = 4ms$$
+              $$f = 1/4ms = 250Hz$$
 
-              | Symptom | Likely Cause | Fix |
-              |---------|--------------|-----|
-              | Jumping display | Level wrong | Adjust trigger level |
-              | Blank screen | No trigger (Normal mode) | Use Auto or check level |
-              | Multiple overlapping waves | Triggering on noise | Increase level, use HF reject |
-              | Drifting slowly | Near-frequency signal | Check trigger source |
+              **Triggering**
 
-              **Advanced Triggering**
+              Triggering synchronizes the display to a repeating signal.
 
-              Digital scopes offer additional triggers:
-              - **Pulse width**: Trigger on specific pulse duration
-              - **Edge count**: Trigger after N edges
-              - **Pattern**: Trigger on logic pattern (multiple channels)
-              - **Serial decode**: Trigger on I²C, SPI, UART data
+              - **Level**: Voltage threshold to start sweep
+              - **Slope**: Rising edge (↗) or falling edge (↘)
+              - **Source**: Which channel to trigger from
+              - **Mode**: Auto (always sweeps), Normal (waits for trigger), Single (one shot)
+
+              **Why Triggering Matters**
+
+              Without stable triggering, waveform appears to drift or jump. Adjust level until display is stable.
+
+              **AC vs DC Coupling**
+
+              - **DC coupling**: Shows signal including DC offset
+              - **AC coupling**: Blocks DC, shows only AC component (centers around 0V)
+              - Use AC coupling when DC offset would push signal off screen
 
           - name: Probes
             notes: |
-              Probes connect signals to the scope — their characteristics affect measurements.
+              Probes are the interface between circuit and scope — their characteristics affect measurement accuracy.
 
               **1× vs 10× Probes**
 
@@ -2439,8 +2392,10 @@ sections:
             notes: |
               Understanding breadboard internal connections is essential for building circuits correctly.
 
+              ![Breadboard internal connections](https://commons.wikimedia.org/wiki/Special:FilePath/Breadboard_scheme.svg)
+
               **Standard Breadboard Structure**
-              ``````
+              ```
               Power rails (horizontal)
               + + + + + + + + + + + + + + +
               − − − − − − − − − − − − − − −
@@ -2499,35 +2454,25 @@ sections:
               2. **Use appropriate lengths** — not too long, not too tight
               3. **Route neatly** — parallel runs, right angles
               4. **Don't cross wires** unnecessarily
-              5. **Leave access** to ICs for probing and removal
-
-              **Power Distribution**
-
-              - Connect power supply to power rails first
-              - Run short jumpers from rails to component rows
-              - Multiple ground connections reduce noise
-              - Consider adding bypass capacitors (0.1 μF) near ICs
+              5. **Leave space** for probing with multimeter/scope
 
               **Component Placement**
 
-              - ICs straddle center gap
-              - Orient all ICs the same direction (pin 1 indicator visible)
-              - Leave space between ICs for connections
-              - Place related components near each other
+              - Orient ICs consistently (pin 1 always same corner)
+              - Leave room around ICs for connections
+              - Group related components together
+              - Keep analog and digital sections separate if possible
 
-              **Common Wiring Mistakes**
+              **Power Distribution**
 
-              | Mistake | Result | Prevention |
-              |---------|--------|------------|
-              | Wrong row | Unconnected or shorted | Double-check row numbers |
-              | Bent IC pin | Pin not in hole | Inspect before pressing down |
-              | Wire in gap | Not connected | Use terminal strip holes only |
-              | Power rail break | Partial power | Check continuity or add jumper |
-              | Crossed polarity | Component damage | Mark polarity, check before power |
+              - Connect power rails to supply first
+              - Add 0.1 μF decoupling capacitor near each IC
+              - Use short, direct ground connections
+              - Consider separate analog and digital grounds
 
-          - name: Common issues
+          - name: Common problems
             notes: |
-              Knowing typical breadboard problems speeds up debugging.
+              Most breadboard failures come from a few common issues.
 
               **Connection Problems**
 
@@ -2781,41 +2726,39 @@ sections:
               2. Position sucker tip near molten solder
               3. Press release button — sucks up solder
               4. Repeat if necessary
+              5. May need wick to clean remaining solder
 
-              *Tips:*
-              - Keep tip clean
-              - Get close but don't touch the joint
-              - Spring-loaded types need practice
+              **Hot Air (for SMD)**
 
-              **Desoldering Station (Heated Vacuum)**
-
-              - Combines heat and suction in one tool
-              - Best for production rework
-              - Expensive but efficient
-
-              **Hot Air**
-
-              Best for: SMD components, especially multi-pin ICs
+              Best for: Multi-pin SMD, removing ICs
 
               *Technique:*
-              1. Apply flux
-              2. Heat area evenly with hot air
-              3. Lift component when all pins are molten
+              1. Apply flux to all joints
+              2. Heat evenly with hot air gun
+              3. Lift component when all joints are molten
               4. Clean pads with wick
 
               **Component Removal Tips**
 
-              | Component | Method |
-              |-----------|--------|
-              | Through-hole resistor | Solder sucker or wick |
-              | DIP IC | Alternate heating pins, pry gently, or use extractor |
-              | SMD 2-terminal | Heat both ends, slide off |
-              | SMD IC (QFP/SOIC) | Hot air or drag with wick |
-              | BGA | Hot air with preheater (advanced) |
+              *Through-hole:*
+              - Heat joint, pull component gently
+              - Don't force — damages board
+              - Cut leads if component is sacrificial
 
-              **Don't**:
-              - Yank components while solder is solid
-              - Overheat pads (they lift!)
+              *SMD passives:*
+              - Heat both ends simultaneously (two irons or hot air)
+              - Tweezers to lift while molten
+
+              *SMD ICs:*
+              - Flood pins with solder (creates thermal bridge)
+              - Drag iron across pins while lifting
+              - Or use hot air
+
+              **Don't**
+
+              - Overheat the board (damages traces, lifts pads)
+              - Pry on components (damages pads)
+              - Reuse solder (contaminated)
               - Use excessive force
 
           - name: SMD basics
@@ -2832,6 +2775,8 @@ sections:
               | Rework | Easier in some ways | Individual pins accessible |
 
               **Common SMD Packages**
+
+              ![SMD package sizes](https://commons.wikimedia.org/wiki/Special:FilePath/SMT_sizes,_based_on_original_by_Zureks.svg)
 
               *Passives (resistors, capacitors):*
               - 0201: Tiny (needs microscope)

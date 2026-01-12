@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.17.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.17.1-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,11 +29,12 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.17.0)
+## Current Features (v0.17.1)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
 - **Progress Tracking** — Mark concepts complete (✓) or important (★), persists across sessions
+- **Cross-Device Sync** — Sign in with Google to sync progress across devices; works offline with automatic merge on reconnect
 - **Focus View** — Quickly expand only incomplete or highlighted topics with visual glow feedback
 - **Expand/Collapse All** — Manage topic visibility in one click
 - **Two Interaction Modes:**
@@ -84,14 +85,20 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Taskbar with "Minimize all" and "Close all" buttons
 - [x] Taskbar visible when any window is open
 
-### v0.17 - Cross-Device Sync
+### v0.17 - Cross-Device Sync ✓
 
 **Goal:** Access progress from any device.
 
-- [ ] Research sync options (GitHub Gist, Firebase, custom backend)
-- [ ] User authentication strategy
+- [x] Research sync options (GitHub Gist, Firebase, custom backend) → Chose Supabase
+- [x] User authentication (Google OAuth via Supabase)
+- [x] Real-time sync on every progress change
+- [x] Union merge on login (local + cloud combined)
+- [x] Duplicate topic ID validation
+- [ ] UI/UX improvement for auth
+- [ ] Progress visualisation with progress bar or X/XX concept completed etc, gamified in future/streaks learning?
 - [ ] Import/export progress as JSON fallback
-- [ ] Sync custom notes
+- [ ] Sync custom notes (create new personal roadmap? how to store notes tho, storage issue, require github/gist connection?)
+- [ ] Cloudflare Pages deployment (currently GitHub Pages)
 
 ### v0.18 - Roadmap Editor
 
@@ -102,7 +109,15 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
 
-### v0.19 - Test Coverage
+### v0.19 - Roadmap Graph View
+
+**Goal:** Visualize relationships between tracks and topics.
+
+- [ ] Node-based visualization showing prereq connections
+- [ ] Interactive graph (click to navigate)
+- [ ] Filter by track/section
+
+### v0.20 - Test Coverage
 
 **Goal:** Comprehensive test coverage for all features.
 
@@ -113,7 +128,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Accessibility tests (a11y)
 - [ ] Pre-commit hooks for test/lint/build
 
-### v0.20 - Content Verification
+### v0.21 - Content Verification
 
 **Goal:** Manually vet all AI-generated content before 1.0 release.
 
@@ -158,6 +173,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [Astro](https://astro.build) — Static site generator
 - [Tailwind CSS](https://tailwindcss.com) — Utility-first CSS
 - [TypeScript](https://typescriptlang.org) — Type safety
+- [Supabase](https://supabase.com) — Auth & PostgreSQL database
 
 ---
 
@@ -209,6 +225,9 @@ JSON files
 │   │   └── pdf-manifest.json   # URL → local path mapping (auto-generated)
 │   ├── layouts/
 │   │   └── Layout.astro
+│   ├── lib/
+│   │   ├── supabase.ts         # Supabase client
+│   │   └── sync.ts             # Progress sync utilities
 │   ├── pages/
 │   │   ├── roadmaps/
 │   │   │   └── [slug].astro
@@ -269,6 +288,21 @@ cd eee-roadmap
 npm install        # Installs dependencies + downloads PDF.js viewer
 npm run dev        # Downloads PDFs + starts dev server
 ```
+
+### Environment Variables (for sync features)
+
+Copy `.env.example` to `.env` and fill in your Supabase credentials:
+```bash
+cp .env.example .env
+```
+```env
+PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
+```
+
+Get these from [Supabase Dashboard](https://supabase.com) → Project Settings → API.
+
+> **Note:** Sync features require a Supabase project with Google OAuth configured. See [Supabase Auth Docs](https://supabase.com/docs/guides/auth/social-login/auth-google) for setup.
 
 ### Scripts
 
