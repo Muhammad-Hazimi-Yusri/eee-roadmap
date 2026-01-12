@@ -1,16 +1,23 @@
-import { supabase } from './supabase';
-import type { ProgressState } from '../utils/progress';
+import { supabase, isSupabaseConfigured } from './supabase';
 
 const STORAGE_KEY = 'eee-progress-v2';
 
-/** Get current user ID, or null if not logged in */
+interface ProgressState {
+  complete: string[];
+  important: string[];
+}
+
+// Get current user ID
 export async function getCurrentUserId(): Promise<string | null> {
+  if (!isSupabaseConfigured || !supabase) return null;
   const { data: { session } } = await supabase.auth.getSession();
   return session?.user?.id ?? null;
 }
 
-/** Load progress from Supabase */
+// Load progress from Supabase
 export async function loadCloudProgress(): Promise<ProgressState | null> {
+  if (!isSupabaseConfigured || !supabase) return null;
+  
   const userId = await getCurrentUserId();
   if (!userId) return null;
 
@@ -24,22 +31,23 @@ export async function loadCloudProgress(): Promise<ProgressState | null> {
   return data.progress as ProgressState;
 }
 
-/** Save progress to Supabase */
-export async function saveCloudProgress(progress: ProgressState): Promise<boolean> {
+// Save progress to Supabase
+export async function saveCloudProgress(progress: ProgressState): Promise<void> {
+  if (!isSupabaseConfigured || !supabase) return;
+  
   const userId = await getCurrentUserId();
-  if (!userId) return false;
+  if (!userId) return;
 
-  const { error } = await supabase
+  await supabase
     .from('user_progress')
     .upsert({
       user_id: userId,
-      progress: progress,
+      progress,
+      updated_at: new Date().toISOString(),
     });
-
-  return !error;
 }
 
-/** Get local progress from localStorage */
+// Local storage helpers
 export function getLocalProgress(): ProgressState {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -49,52 +57,49 @@ export function getLocalProgress(): ProgressState {
   }
 }
 
-/** Save to localStorage */
 export function saveLocalProgress(progress: ProgressState): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
-/** Merge two progress states (union of both) */
-export function mergeProgress(local: ProgressState, cloud: ProgressState): ProgressState {
+// Merge two progress states (union)
+export function mergeProgress(a: ProgressState, b: ProgressState): ProgressState {
   return {
-    complete: [...new Set([...local.complete, ...cloud.complete])],
-    important: [...new Set([...local.important, ...cloud.important])],
+    complete: [...new Set([...a.complete, ...b.complete])],
+    important: [...new Set([...a.important, ...b.important])],
   };
 }
 
-/** 
- * Sync on login: merge local + cloud, save to both 
- * Returns the merged progress
- */
-export async function syncOnLogin(): Promise<ProgressState> {
+// Sync on login - merge local and cloud, save to both
+export async function syncOnLogin(): Promise<void> {
+  if (!isSupabaseConfigured) return;
+  
+  console.log('Signed in, syncing progress...');
+  
   const local = getLocalProgress();
   const cloud = await loadCloudProgress();
   
-  // If no cloud data, upload local
-  if (!cloud) {
-    await saveCloudProgress(local);
-    return local;
-  }
+  const merged = cloud ? mergeProgress(local, cloud) : local;
   
-  // Merge and save to both
-  const merged = mergeProgress(local, cloud);
   saveLocalProgress(merged);
   await saveCloudProgress(merged);
   
-  return merged;
+  console.log('Progress synced:', merged);
 }
 
-/** Debounced sync - call this after any progress change */
+// Debounced sync for continuous updates
 let syncTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function queueSync(): void {
+  if (!isSupabaseConfigured) return;
+  
   if (syncTimeout) clearTimeout(syncTimeout);
   
   syncTimeout = setTimeout(async () => {
     const userId = await getCurrentUserId();
     if (!userId) return;
     
-    const local = getLocalProgress();
-    await saveCloudProgress(local);
+    const progress = getLocalProgress();
+    await saveCloudProgress(progress);
+    console.log('Progress synced to cloud');
   }, 1000);
 }

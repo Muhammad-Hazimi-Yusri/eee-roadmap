@@ -36,10 +36,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Renamed `power-quality` to `dg-power-quality` in distributed-generation track
 
 ### Fixed
-- Playwright tests timing issues in CI
-  - Added `waitForLoadState('networkidle')` after navigation
-  - Added visibility checks before interactions
-  - Fixed node expansion state persistence detection
+- Supabase client gracefully handles missing env vars (no blocking requests)
+- Auth button hidden when Supabase not configured
+- Playwright tests no longer timeout due to Supabase background requests
 
 ### Technical Notes
 - Auth uses Supabase's built-in Google OAuth provider

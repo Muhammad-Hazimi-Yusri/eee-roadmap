@@ -2,7 +2,7 @@
 // Auth button with Google OAuth
 ---
 
-<div class="auth-wrapper" id="auth-wrapper" data-state="loading">
+<div class="auth-wrapper" id="auth-wrapper" data-state="hidden">
   <!-- Loading state -->
   <button class="auth-btn auth-loading" disabled>
     <svg class="auth-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -43,7 +43,7 @@
 </div>
 
 <script>
-  import { supabase } from '../lib/supabase';
+  import { supabase, isSupabaseConfigured } from '../lib/supabase';
   import { syncOnLogin } from '../lib/sync';
 
   const wrapper = document.getElementById('auth-wrapper');
@@ -55,11 +55,17 @@
   const emailEl = document.getElementById('auth-email');
   const signoutBtn = document.getElementById('auth-signout');
 
-  function showState(state: 'loading' | 'login' | 'user') {
+  function showState(state: 'loading' | 'login' | 'user' | 'hidden') {
     wrapper?.setAttribute('data-state', state);
   }
 
   async function updateUI() {
+    // If Supabase isn't configured, hide auth entirely
+    if (!isSupabaseConfigured || !supabase) {
+      showState('hidden');
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session) {
@@ -78,6 +84,8 @@
   }
 
   async function handleOAuthCallback() {
+    if (!isSupabaseConfigured) return;
+    
     const hash = window.location.hash;
     const params = new URLSearchParams(window.location.search);
     
@@ -95,6 +103,7 @@
 
   // Login click
   loginBtn?.addEventListener('click', async () => {
+    if (!supabase) return;
     showState('loading');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -122,6 +131,7 @@
 
   // Sign out
   signoutBtn?.addEventListener('click', async () => {
+    if (!supabase) return;
     showState('loading');
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -136,10 +146,17 @@
     position: relative;
   }
 
-  /* Hide all by default using !important to override .auth-btn */
+  /* Hide all by default */
   .auth-loading,
   .auth-login,
   .auth-user {
+    display: none !important;
+  }
+
+  /* Hidden state - show nothing */
+  .auth-wrapper[data-state="hidden"] .auth-loading,
+  .auth-wrapper[data-state="hidden"] .auth-login,
+  .auth-wrapper[data-state="hidden"] .auth-user {
     display: none !important;
   }
 

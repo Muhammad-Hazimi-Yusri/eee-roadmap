@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.17.2-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.17.3-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.17.2)
+## Current Features (v0.17.3)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -94,10 +94,10 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Real-time sync on every progress change
 - [x] Union merge on login (local + cloud combined)
 - [x] Duplicate topic ID validation
-- [ ] UI/UX improvement for auth
+- [x] Auth UI with dropdown menu
 - [ ] Progress visualisation with progress bar or X/XX concept completed etc, gamified in future/streaks learning?
 - [ ] Import/export progress as JSON fallback
-- [ ] Sync custom notes (create new personal roadmap? how to store notes tho, storage issue, require github/gist connection?)
+- [ ] Sync custom notes (create new personal roadmap? how to store notes tho, storage issue, require github/gist connection?, or supabase storage or cloudflare? free only)
 - [ ] Cloudflare Pages deployment (currently GitHub Pages)
 
 ### v0.18 - Roadmap Editor
