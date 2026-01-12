@@ -3,11 +3,16 @@ import { test, expect } from '@playwright/test';
 test.describe('Simple mode interactions', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/');
+    // Wait for JS to initialize
+    await page.waitForLoadState('networkidle');
+    // Expand the topic and wait for content to be visible
     await page.click('#dc-circuits .node-button');
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
   });
 
   test('double-click marks concept as complete', async ({ page }) => {
     const pill = page.locator('#dc-circuits .concept-pill').first();
+    await expect(pill).toBeVisible();
     
     await pill.dblclick();
     
@@ -16,6 +21,7 @@ test.describe('Simple mode interactions', () => {
 
   test('double-click again removes complete state', async ({ page }) => {
     const pill = page.locator('#dc-circuits .concept-pill').first();
+    await expect(pill).toBeVisible();
     
     await pill.dblclick();
     await expect(pill).toHaveClass(/concept-pill--completed/);
@@ -26,6 +32,7 @@ test.describe('Simple mode interactions', () => {
 
   test('shift+click marks concept as important', async ({ page }) => {
     const pill = page.locator('#dc-circuits .concept-pill').first();
+    await expect(pill).toBeVisible();
     
     await pill.click({ modifiers: ['Shift'] });
     
@@ -36,14 +43,25 @@ test.describe('Simple mode interactions', () => {
 test.describe('Progress persistence', () => {
   test('completed state persists after reload', async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/');
+    await page.waitForLoadState('networkidle');
     await page.click('#dc-circuits .node-button');
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
     
     const pill = page.locator('#dc-circuits .concept-pill').first();
+    await expect(pill).toBeVisible();
     await pill.dblclick();
     await expect(pill).toHaveClass(/concept-pill--completed/);
     
     await page.reload();
-    await page.click('#dc-circuits .node-button');
+    await page.waitForLoadState('networkidle');
+    
+    // Node state is persisted - check if already expanded, if not expand it
+    const nodeButton = page.locator('#dc-circuits .node-button');
+    const isExpanded = await nodeButton.getAttribute('aria-expanded');
+    if (isExpanded !== 'true') {
+      await page.click('#dc-circuits .node-button');
+    }
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
     
     const samePill = page.locator('#dc-circuits .concept-pill').first();
     await expect(samePill).toHaveClass(/concept-pill--completed/);
@@ -51,14 +69,25 @@ test.describe('Progress persistence', () => {
 
   test('important state persists after reload', async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/');
+    await page.waitForLoadState('networkidle');
     await page.click('#dc-circuits .node-button');
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
     
     const pill = page.locator('#dc-circuits .concept-pill').first();
+    await expect(pill).toBeVisible();
     await pill.click({ modifiers: ['Shift'] });
     await expect(pill).toHaveClass(/concept-pill--important/);
     
     await page.reload();
-    await page.click('#dc-circuits .node-button');
+    await page.waitForLoadState('networkidle');
+    
+    // Node state is persisted - check if already expanded, if not expand it
+    const nodeButton = page.locator('#dc-circuits .node-button');
+    const isExpanded = await nodeButton.getAttribute('aria-expanded');
+    if (isExpanded !== 'true') {
+      await page.click('#dc-circuits .node-button');
+    }
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
     
     const samePill = page.locator('#dc-circuits .concept-pill').first();
     await expect(samePill).toHaveClass(/concept-pill--important/);
@@ -68,6 +97,7 @@ test.describe('Progress persistence', () => {
 test.describe('Demo component', () => {
   test('demo mode toggle switches between simple and tools', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
     const modeSelect = page.locator('#demo-interaction-mode');
     const toolbar = page.locator('#demo-toolbar');
@@ -86,9 +116,11 @@ test.describe('Demo component', () => {
 
   test('demo reset button clears all progress', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
     // Mark a concept as complete
     const pill = page.locator('#demo-roadmap .concept-pill').first();
+    await expect(pill).toBeVisible();
     await pill.dblclick();
     await expect(pill).toHaveClass(/concept-pill--completed/);
     
@@ -103,16 +135,18 @@ test.describe('Demo component', () => {
 test.describe('Cross-track prerequisite navigation', () => {
   test('clicking cross-track prereq opens in new tab (smart mode)', async ({ page, context }) => {
     await page.goto('/roadmaps/core/');
+    await page.waitForLoadState('networkidle');
     
     // Expand transistors node (has fundamentals prereqs)
     await page.click('#transistors .node-button');
+    await page.waitForSelector('#transistors .node-content:not([hidden])');
     
     // Find a prereq linking to fundamentals
     const prereqLink = page.locator('#transistors .prereq-tag--link[href*="fundamentals"]').first();
     
     if (await prereqLink.count() > 0) {
-      // Should have target="_blank" in smart mode
-      await expect(prereqLink).toHaveAttribute('target', '_blank');
+      // Wait for JS to apply target attribute
+      await expect(prereqLink).toHaveAttribute('target', '_blank', { timeout: 10000 });
       
       // Click and verify new tab opens
       const [newPage] = await Promise.all([

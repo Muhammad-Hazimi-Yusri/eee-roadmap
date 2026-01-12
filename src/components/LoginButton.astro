@@ -1,88 +1,290 @@
 ---
-// No server-side code needed yet
+// Auth button with Google OAuth
 ---
 
-<button id="login-btn" class="login-button">
-  Sign in with Google
-</button>
+<div class="auth-wrapper" id="auth-wrapper" data-state="loading">
+  <!-- Loading state -->
+  <button class="auth-btn auth-loading" disabled>
+    <svg class="auth-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+    </svg>
+  </button>
+
+  <!-- Logged out state -->
+  <button id="auth-login" class="auth-btn auth-login">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    <span class="auth-label">Sign in</span>
+  </button>
+
+  <!-- Logged in state -->
+  <div class="auth-user">
+    <button id="auth-user-btn" class="auth-btn">
+      <span class="auth-avatar" id="auth-avatar">?</span>
+      <span class="auth-name" id="auth-name">User</span>
+      <svg class="auth-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
+    <div id="auth-dropdown" class="auth-dropdown">
+      <div class="auth-dropdown-email" id="auth-email">user@example.com</div>
+      <button id="auth-signout" class="auth-dropdown-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sign out
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
   import { supabase } from '../lib/supabase';
   import { syncOnLogin } from '../lib/sync';
 
-  const btn = document.getElementById('login-btn');
+  const wrapper = document.getElementById('auth-wrapper');
+  const loginBtn = document.getElementById('auth-login');
+  const userBtn = document.getElementById('auth-user-btn');
+  const dropdown = document.getElementById('auth-dropdown');
+  const avatarEl = document.getElementById('auth-avatar');
+  const nameEl = document.getElementById('auth-name');
+  const emailEl = document.getElementById('auth-email');
+  const signoutBtn = document.getElementById('auth-signout');
 
-  async function updateButtonUI() {
+  function showState(state: 'loading' | 'login' | 'user') {
+    wrapper?.setAttribute('data-state', state);
+  }
+
+  async function updateUI() {
     const { data: { session } } = await supabase.auth.getSession();
     
-    if (session && btn) {
-      const email = session.user.email;
-      const name = email?.split('@')[0] ?? 'User';
-      btn.textContent = `Hi, ${name} (Sign out)`;
-    } else if (btn) {
-      btn.textContent = 'Sign in with Google';
+    if (session) {
+      const email = session.user.email || '';
+      const name = email.split('@')[0] || 'User';
+      const initial = name.charAt(0).toUpperCase();
+      
+      if (avatarEl) avatarEl.textContent = initial;
+      if (nameEl) nameEl.textContent = name;
+      if (emailEl) emailEl.textContent = email;
+      
+      showState('user');
+    } else {
+      showState('login');
     }
   }
 
-  // Check if this is an OAuth callback (just logged in)
   async function handleOAuthCallback() {
     const hash = window.location.hash;
     const params = new URLSearchParams(window.location.search);
     
-    // Supabase OAuth adds access_token in hash or code in params
     if (hash.includes('access_token') || params.has('code')) {
-      console.log('OAuth callback detected, syncing...');
+      showState('loading');
       await syncOnLogin();
-      
-      // Clean URL and reload to reflect synced state
       const cleanUrl = window.location.pathname;
       window.location.replace(cleanUrl);
     }
   }
 
   // Initialize
-  updateButtonUI();
   handleOAuthCallback();
+  updateUI();
 
-  // Click handler
-  btn?.addEventListener('click', async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session) {
-      console.log('Signing out...');
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Sign out error:', error);
-      } else {
-        window.location.reload();
-      }
-      return;
-    }
-    
-    // Sign in - redirect back to current page
+  // Login click
+  loginBtn?.addEventListener('click', async () => {
+    showState('loading');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: window.location.href
-      }
+      options: { redirectTo: window.location.href }
     });
-    
-    if (error) console.error('Login error:', error.message);
+    if (error) {
+      console.error('Login error:', error.message);
+      showState('login');
+    }
+  });
+
+  // Toggle dropdown
+  let dropdownOpen = false;
+  userBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdownOpen = !dropdownOpen;
+    dropdown?.classList.toggle('auth-dropdown--open', dropdownOpen);
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener('click', () => {
+    dropdownOpen = false;
+    dropdown?.classList.remove('auth-dropdown--open');
+  });
+
+  // Sign out
+  signoutBtn?.addEventListener('click', async () => {
+    showState('loading');
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Sign out error:', error);
+    }
+    window.location.reload();
   });
 </script>
 
 <style>
-  .login-button {
-    background: #4285f4;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: inherit;
+  .auth-wrapper {
+    position: relative;
   }
-  
-  .login-button:hover {
-    background: #3574e2;
+
+  /* Hide all by default using !important to override .auth-btn */
+  .auth-loading,
+  .auth-login,
+  .auth-user {
+    display: none !important;
+  }
+
+  /* Show based on data-state */
+  .auth-wrapper[data-state="loading"] .auth-loading {
+    display: flex !important;
+  }
+
+  .auth-wrapper[data-state="login"] .auth-login {
+    display: flex !important;
+  }
+
+  .auth-wrapper[data-state="user"] .auth-user {
+    display: block !important;
+  }
+
+  .auth-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    cursor: pointer;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+  }
+
+  .auth-btn:hover {
+    background-color: var(--color-bg-grid);
+    border-color: var(--color-copper);
+  }
+
+  .auth-btn:disabled {
+    cursor: wait;
+    opacity: 0.7;
+  }
+
+  .auth-loading {
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  .auth-spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .auth-label {
+    white-space: nowrap;
+  }
+
+  /* User button */
+  .auth-avatar {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--color-copper);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .auth-name {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .auth-chevron {
+    opacity: 0.6;
+    transition: transform 0.15s;
+  }
+
+  .auth-btn:hover .auth-chevron {
+    opacity: 1;
+  }
+
+  /* Dropdown */
+  .auth-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 180px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+  }
+
+  .auth-dropdown--open {
+    display: block;
+  }
+
+  .auth-dropdown-email {
+    padding: 0.75rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .auth-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    transition: background 0.15s;
+  }
+
+  .auth-dropdown-btn:hover {
+    background: var(--color-bg-grid);
+  }
+
+  /* Dark mode */
+  :global(.dark) .auth-dropdown {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Mobile: hide text */
+  @media (max-width: 640px) {
+    .auth-label,
+    .auth-name,
+    .auth-chevron {
+      display: none;
+    }
   }
 </style>

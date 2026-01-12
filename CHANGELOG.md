@@ -10,6 +10,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 > - Detailed patch history lives in git commits, not this changelog
 
 ---
+
 ## [0.17.X] - 2025-01-12
 
 **Cross-Device Sync**
@@ -20,7 +21,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Progress stored in PostgreSQL database
   - Real-time sync on every change (debounced)
   - Union merge on login (combines local + cloud, nothing lost)
-- Login/logout button in header
+- Login/logout button in header with dropdown menu
+  - Loading spinner during auth
+  - Avatar with user initial when logged in
+  - Email display in dropdown
+  - Responsive design (icon-only on mobile)
 - Supabase client library (`src/lib/supabase.ts`)
 - Sync utilities (`src/lib/sync.ts`)
 - Environment variables for Supabase configuration
@@ -30,12 +35,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `npm run validate` now checks for duplicate topic IDs across tracks
 - Renamed `power-quality` to `dg-power-quality` in distributed-generation track
 
+### Fixed
+- Playwright tests timing issues in CI
+  - Added `waitForLoadState('networkidle')` after navigation
+  - Added visibility checks before interactions
+  - Fixed node expansion state persistence detection
+
 ### Technical Notes
 - Auth uses Supabase's built-in Google OAuth provider
 - Progress stored as JSONB in `user_progress` table
 - Row Level Security ensures users only access own data
 - Sync debounced to 1 second to reduce API calls
 - Requires `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY` env vars
+- Auth button uses `data-state` attribute for CSS-based state management
 
 
 ## [0.16.X] - 2025-01-11
