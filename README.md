@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.17.3-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.18.0-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.17.3)
+## Current Features (v0.18.0)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -75,41 +75,48 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 > See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 
-### v0.16 - ConceptWindows Persistence ✓
+### Completed
 
-**Goal:** Save and restore window state across page refreshes.
+<details>
+<summary><strong>v0.16 - ConceptWindows Persistence ✓</strong></summary>
 
-- [x] Persist open windows to localStorage (position, size, minimized/maximized state)
+- [x] Persist open windows to localStorage
 - [x] Restore windows on page load
 - [x] Per-track state storage
 - [x] Taskbar with "Minimize all" and "Close all" buttons
-- [x] Taskbar visible when any window is open
+</details>
 
-### v0.17 - Cross-Device Sync ✓
+<details>
+<summary><strong>v0.17 - Cross-Device Sync ✓</strong></summary>
 
-**Goal:** Access progress from any device.
-
-- [x] Research sync options (GitHub Gist, Firebase, custom backend) → Chose Supabase
-- [x] User authentication (Google OAuth via Supabase)
+- [x] Supabase integration (auth + PostgreSQL)
+- [x] Google OAuth authentication
 - [x] Real-time sync on every progress change
 - [x] Union merge on login (local + cloud combined)
 - [x] Duplicate topic ID validation
 - [x] Auth UI with dropdown menu
-- [ ] Progress visualisation with progress bar or X/XX concept completed etc, gamified in future/streaks learning?
-- [ ] Import/export progress as JSON fallback
-- [ ] Sync custom notes (create new personal roadmap? how to store notes tho, storage issue, require github/gist connection?, or supabase storage or cloudflare? free only)
-- [ ] Cloudflare Pages deployment (currently GitHub Pages)
+- [x] Graceful degradation when Supabase not configured
+</details>
 
-### v0.18 - Roadmap Editor
+---
 
-**Goal:** Let non-devs create roadmaps without touching code.
+### In Progress
 
-- [ ] Form-based web editor with validation etc
-- [ ] Live preview
-- [ ] Export as JSON/ZIP (ready to deploy)
-- [ ] Import existing roadmap to edit
+#### v0.18 - User Data & Export
 
-### v0.19 - Roadmap Graph View
+**Goal:** Complete the sync story with notes and data portability.
+
+- [x] GitHub Actions: add Supabase env vars for deployment
+- [ ] Sync custom notes (text/markdown via Supabase database)
+- [ ] Per-user storage limit (~500KB stopgap)
+- [ ] Import/export progress + notes as JSON
+- [ ] Progress visualization (X/XX completed per track)
+
+---
+
+### Planned
+
+#### v0.19 - Roadmap Graph View
 
 **Goal:** Visualize relationships between tracks and topics.
 
@@ -117,55 +124,73 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Interactive graph (click to navigate)
 - [ ] Filter by track/section
 
-### v0.20 - Test Coverage
+#### v0.20 - Roadmap Editor
 
-**Goal:** Comprehensive test coverage for all features.
+**Goal:** Let non-devs create roadmaps without touching code.
 
-- [ ] Unit tests for all utilities
-- [ ] Integration tests for all components
-- [ ] E2E tests for all user flows
-- [ ] Visual regression tests
+- [ ] Form-based web editor with validation
+- [ ] Live preview
+- [ ] Export as JSON/ZIP (ready to deploy)
+- [ ] Import existing roadmap to edit
+
+#### v0.21 - Test Coverage & Quality
+
+**Goal:** Improve existing test suite for better reliability and coverage.
+
+- [ ] Fix/unskip flaky Playwright tests (Supabase timing issues)
+- [ ] Add tests for new sync/auth functionality
+- [ ] Visual regression tests (when UI stabilizes)
 - [ ] Accessibility tests (a11y)
-- [ ] Pre-commit hooks for test/lint/build
+- [ ] Increase unit test coverage for utilities
 
-### v0.21 - Content Verification
+#### v0.22 - Content Verification
 
-**Goal:** Manually vet all AI-generated content before 1.0 release.
+**Goal:** Manually vet all AI-generated content before 1.0.
 
 - [ ] Review all topic descriptions for accuracy
 - [ ] Verify all external resource links
-- [ ] Fact-check concept explanations
 - [ ] Add "Verified by" badges with contributor attribution
 - [ ] Verification status indicators (section/track level)
 
-### Before Release
-- [ ] Hand-drawn aesthetic overhaul
-- [ ] Explore alternative color palette (current copper/green fits notebook aesthetic but resembles Claude.ai)
-- [ ] WebAssembly circuit simulator (Rust)
-- [ ] PWA support for offline access
-- [ ] Community contributions workflow
-- [ ] Concept windows: translucent/glass effect when unfocused (reduce clutter)
-- [ ] iOS Safari: dark mode demo tools switch menu arrow visibility fix
-- [ ] iOS Safari: in two-finger swipe, trail persistence in tools mode
-- [ ] Mobile: fullscreen mode bottom bar overlap causing last line not visible
-- [ ] PDF.js: option to open-in-new-tab and fullscreen viewer via icons feasibility
+---
+
+### Known Issues & Polish
+
+- [ ] iOS Safari: dark mode demo tools switch menu arrow visibility
+- [ ] iOS Safari: trail persistence in two-finger swipe (tools mode)
+- [ ] Mobile: fullscreen mode bottom bar overlap
+- [ ] PDF.js: open-in-new-tab and fullscreen viewer icons
+- [ ] Concept windows: translucent effect when unfocused
 - [ ] Unboxed view: overlapping card layout for overflow
+
+---
 
 ### v1.0.0 - Official Release
 
 **Goal:** Production-ready, verified educational resource.
 
 - [ ] All content manually verified
-- [ ] Full test coverage
+- [ ] Comprehensive test coverage
 - [ ] Performance optimized
 - [ ] Accessibility audit passed
-- [ ] User feedback system (comments per section)
-- [ ] Contributor recognition page
+- [ ] PWA support for offline access
 
-### Future
-- [ ] Notes parser, any format to a certain degree (example: upload .md notes, parse to roadmap compatible notes for concepts etc)
-- [ ] Ofc, AI generated roadmaps contents remix etc
-- [ ] Note taking capabilities so maybe even useful for students in class taking notes.
+---
+
+### Future Ideas
+
+> Post-launch features, no timeline commitment.
+
+- Gamification (streaks, achievements, learning stats)
+- Image/file attachments for notes (Supabase Storage)
+- AI-generated roadmap remixing
+- Notes parser (upload .md → convert to roadmap format)
+- In-class note-taking mode
+- WebAssembly circuit simulator
+- Freemium tiers (if user growth warrants)
+- Community contributions workflow
+- User feedback system (comments per section)
+
 ---
 
 ## Tech Stack
