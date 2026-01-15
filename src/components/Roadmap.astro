@@ -686,7 +686,7 @@ for (const section of sections) {
 
       roadmap.addEventListener('touchmove', (e) => {
         const touch = e as TouchEvent;
-        if (currentMode === 'tools' && currentTool !== 'cursor' && isMouseDown && touch.touches.length === 1) {
+        if (currentMode === 'tools' && currentTool !== 'cursor' && isMouseDown && touch.touches.length === 1 && touchStartedOnInteractive) {
           e.preventDefault();
         }
       }, { passive: false });
@@ -734,6 +734,7 @@ for (const section of sections) {
   // ============================================
   let isMouseDown = false;
   let swipedPills: Set<string> = new Set();
+  let touchStartedOnInteractive = false;
 
   function initSwipeGestures() {
     // Track mouse down state globally
@@ -755,16 +756,24 @@ for (const section of sections) {
     });
 
     // Touch events for mobile/tablet
-    document.addEventListener('touchstart', () => {
+    document.addEventListener('touchstart', (e) => {
       if (currentMode === 'tools' && currentTool !== 'cursor') {
         isMouseDown = true;
         swipedPills.clear();
+        
+        // Check if touch started on interactive element or its container
+        const target = e.target as HTMLElement;
+        touchStartedOnInteractive = target.classList.contains('concept-pill') ||
+                                    target.classList.contains('prereq-tag--static') ||
+                                    target.classList.contains('prereq-tag--link') ||
+                                    target.closest('.node-content') !== null;
       }
     }, { passive: true });
 
     document.addEventListener('touchend', () => {
       isMouseDown = false;
       swipedPills.clear();
+      touchStartedOnInteractive = false;
       
       document.querySelectorAll('.concept-pill--swiping').forEach((pill) => {
         pill.classList.remove('pill--swiping', 'concept-pill--swiping');
@@ -774,6 +783,7 @@ for (const section of sections) {
     document.addEventListener('touchcancel', () => {
       isMouseDown = false;
       swipedPills.clear();
+      touchStartedOnInteractive = false;
     });
     
     // Handle swipe on concept pills
@@ -880,6 +890,7 @@ for (const section of sections) {
     // Touch move to detect swipe across pills
     document.addEventListener('touchmove', (e) => {
       if (currentMode !== 'tools' || !isMouseDown || currentTool === 'cursor') return;
+      if (!touchStartedOnInteractive) return;
       
       const touch = e.touches[0];
       const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -983,14 +994,23 @@ for (const section of sections) {
         return;
       }
 
+      if (!touchStartedOnInteractive) {
+        trailState.lastPos = null;
+        return;
+      }
+
       const touch = e.touches[0];
       const currentPos = { x: touch.clientX, y: touch.clientY };
 
-      if (trailState.lastPos) {
+      // Only draw trail inside .node-content
+      const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+      const isInsideContent = elementUnderTouch?.closest('.node-content') !== null;
+
+      if (trailState.lastPos && isInsideContent) {
         drawTrailLine(trailState, trailState.lastPos, currentPos, currentTool);
       }
 
-      trailState.lastPos = currentPos;
+      trailState.lastPos = isInsideContent ? currentPos : null;
     }, { passive: false });
 
     document.addEventListener('touchend', () => {
@@ -1144,10 +1164,23 @@ for (const section of sections) {
     padding: 1rem;
     border: 1px solid var(--color-border);
     background: rgba(255, 255, 255, 0.5);
+    transition: background 0.2s, box-shadow 0.2s;
   }
 
   :global(.dark) .node-content {
     background: rgba(0, 0, 0, 0.3);
+  }
+
+  /* Paper styling in tools mode */
+  .tools-mode-active .node-content {
+    background: rgba(255, 253, 240, 0.9);
+    box-shadow: inset 0 0 0 1px var(--color-copper), 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-copper);
+    user-select: none;
+  }
+
+  :global(.dark) .tools-mode-active .node-content {
+    background: rgba(50, 45, 35, 0.9);
   }
 
   .node-description {
