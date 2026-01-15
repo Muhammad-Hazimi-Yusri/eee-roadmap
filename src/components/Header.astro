@@ -16,7 +16,7 @@ const navLinks = [
 <header class="header">
   <div class="container flex flex-wrap items-center justify-between gap-4">
     <!-- Logo -->
-    <a href={baseUrl} class="flex items-center gap-3 no-underline" style="color: var(--color-text);">
+    <a href={baseUrl} class="header-logo flex items-center gap-3 no-underline" style="color: var(--color-text);">
       <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M2 16h5l2-6 4 12 4-12 4 12 2-6h7"/>
         <circle cx="2" cy="16" r="1.5" fill="currentColor"/>
@@ -40,8 +40,10 @@ const navLinks = [
     </nav>
     
     <SearchBar />
-    <LoginButton />
-    <ThemeToggle />
+    <div class="header-actions">
+      <LoginButton />
+      <ThemeToggle />
+    </div>
   </div>
 </header>
 
@@ -50,4 +52,49 @@ const navLinks = [
     padding: 1.5rem 0;
     border-bottom: 2px solid var(--color-text);
   }
+
+  /* Mobile portrait: move auth button to top right */
+  @media (max-width: 640px) {
+    .header .container {
+      position: relative;
+    }
+
+    .header :global(#auth-wrapper) {
+      position: absolute;
+      top: 0;
+      right: 1rem;
+    }
+
+    .header-logo {
+      margin-right: auto;
+    }
+  }
+
+
+  /* Mobile portrait: expand search bar */
+  @media (max-width: 640px) {
+    .header :global(.search-wrapper) {
+      flex: 1;
+    }
+
+    .header :global(.search-trigger) {
+      width: 100%;
+    }
+
+    /* Show full hint on mobile */
+    .header :global(.search-hint) {
+      display: inline;
+    }
+
+    .header :global(.search-trigger)::after {
+      display: none;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
 </style>
