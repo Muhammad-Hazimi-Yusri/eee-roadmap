@@ -1,5 +1,6 @@
 ---
 // Auth button with Google OAuth
+import { RefreshCw } from '@lucide/astro';
 ---
 
 <div class="auth-wrapper" id="auth-wrapper" data-state="hidden">
@@ -30,6 +31,10 @@
     </button>
     <div id="auth-dropdown" class="auth-dropdown">
       <div class="auth-dropdown-email" id="auth-email">user@example.com</div>
+      <button id="auth-sync" class="auth-dropdown-btn">
+        <RefreshCw size={14} />
+        Sync now
+      </button>
       <button id="auth-signout" class="auth-dropdown-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -44,7 +49,7 @@
 
 <script>
   import { supabase, isSupabaseConfigured } from '../lib/supabase';
-  import { syncOnLogin } from '../lib/sync';
+  import { syncOnLogin, syncOnPageLoad, pullAndMerge } from '../lib/sync';
 
   const wrapper = document.getElementById('auth-wrapper');
   const loginBtn = document.getElementById('auth-login');
@@ -54,6 +59,7 @@
   const nameEl = document.getElementById('auth-name');
   const emailEl = document.getElementById('auth-email');
   const signoutBtn = document.getElementById('auth-signout');
+  const syncBtn = document.getElementById('auth-sync');
 
   function showState(state: 'loading' | 'login' | 'user' | 'hidden') {
     wrapper?.setAttribute('data-state', state);
@@ -78,6 +84,9 @@
       if (emailEl) emailEl.textContent = email;
       
       showState('user');
+      
+      // Sync progress on page load
+      syncOnPageLoad();
     } else {
       showState('login');
     }
@@ -127,6 +136,22 @@
   document.addEventListener('click', () => {
     dropdownOpen = false;
     dropdown?.classList.remove('auth-dropdown--open');
+  });
+
+  // Manual sync
+  syncBtn?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    
+    const icon = syncBtn.querySelector('svg');
+    icon?.classList.add('auth-spin');
+    
+    const hasChanges = await pullAndMerge();
+    
+    icon?.classList.remove('auth-spin');
+    
+    if (hasChanges) {
+      window.location.reload();
+    }
   });
 
   // Sign out
@@ -209,6 +234,10 @@
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+  }
+
+  .auth-spin {
+    animation: spin 1s linear infinite;
   }
 
   .auth-label {

@@ -86,6 +86,39 @@ export async function syncOnLogin(): Promise<void> {
   console.log('Progress synced:', merged);
 }
 
+// Pull from cloud and apply - returns true if there were changes
+export async function pullAndMerge(): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  
+  const userId = await getCurrentUserId();
+  if (!userId) return false;
+  
+  const local = getLocalProgress();
+  const cloud = await loadCloudProgress();
+  
+  if (!cloud) return false;
+  
+  const localStr = JSON.stringify(local);
+  const cloudStr = JSON.stringify(cloud);
+  
+  if (localStr !== cloudStr) {
+    // Trust cloud since we push immediately on every change
+    saveLocalProgress(cloud);
+    console.log('Progress synced from cloud');
+    return true;
+  }
+  
+  return false;
+}
+
+// Sync on page load - pull from cloud and reload if changes
+export async function syncOnPageLoad(): Promise<void> {
+  const hasChanges = await pullAndMerge();
+  if (hasChanges) {
+    window.location.reload();
+  }
+}
+
 // Debounced sync for continuous updates
 let syncTimeout: ReturnType<typeof setTimeout> | null = null;
 
