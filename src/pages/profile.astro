@@ -1,0 +1,400 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+import { getAllTracks, roadmaps } from '../data';
+
+const baseUrl = import.meta.env.BASE_URL;
+
+// Build track data for progress calculation
+const tracksData = getAllTracks().map(({ slug, meta }) => {
+  const sections = roadmaps[slug]?.sections ?? [];
+  const conceptKeys: string[] = [];
+  
+  sections.forEach(section => {
+    section.items.forEach(item => {
+      item.concepts?.forEach(concept => {
+        conceptKeys.push(`${item.id}:${concept.name}`);
+      });
+    });
+  });
+  
+  return {
+    slug,
+    title: meta.title,
+    icon: meta.icon,
+    total: conceptKeys.length,
+    keys: conceptKeys,
+  };
+});
+---
+
+<Layout title="Profile">
+  <header class="profile-header">
+    <div class="container flex items-center justify-between py-4">
+      <a href={baseUrl} class="font-mono text-lg font-bold no-underline" style="color: var(--color-text);">
+        ← EEE Roadmap
+      </a>
+      <a href={`${baseUrl}roadmaps/`} class="font-mono text-sm">
+        roadmaps
+      </a>
+    </div>
+  </header>
+
+  <main class="profile-page">
+    <div class="container py-12">
+      <!-- User info section -->
+      <section class="user-section" id="user-section">
+        <div class="user-card">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div class="user-info">
+            <h1 class="user-name" id="user-name">Guest</h1>
+            <p class="user-email" id="user-email">Progress saved locally</p>
+          </div>
+        </div>
+        
+        <!-- Sign-in prompt for guests -->
+        <div class="signin-prompt" id="signin-prompt">
+          <p>Sign in to sync your progress across devices</p>
+          <button class="btn" id="profile-signin-btn">Sign in with Google</button>
+        </div>
+      </section>
+      
+      <!-- Progress section -->
+      <section class="progress-section">
+        <h2 class="section-title">Your Progress</h2>
+        <div class="progress-overview" id="progress-overview">
+          <!-- Total progress rendered by JS -->
+        </div>
+        <div class="progress-grid" id="progress-grid">
+          <!-- Track cards rendered by JS -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script define:vars={{ tracksData, baseUrl }}>
+  window.__tracksData = tracksData;
+  window.__baseUrl = baseUrl;
+</script>
+
+<script>
+  import { supabase, isSupabaseConfigured } from '../lib/supabase';
+
+  const tracksData = (window as any).__tracksData;
+  const baseUrl = (window as any).__baseUrl;
+  const STORAGE_KEY = 'eee-progress-v2';
+
+  // DOM elements
+  const avatarEl = document.getElementById('user-avatar');
+  const nameEl = document.getElementById('user-name');
+  const emailEl = document.getElementById('user-email');
+  const signinPrompt = document.getElementById('signin-prompt');
+  const signinBtn = document.getElementById('profile-signin-btn');
+  const overviewEl = document.getElementById('progress-overview');
+  const gridEl = document.getElementById('progress-grid');
+
+  // Get progress from localStorage
+  function getProgress(): { complete: string[]; important: string[] } {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : { complete: [], important: [] };
+    } catch {
+      return { complete: [], important: [] };
+    }
+  }
+
+  // Update user section based on auth state
+  async function updateUserSection() {
+    if (!isSupabaseConfigured || !supabase) {
+      // No Supabase - show guest state
+      return;
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session) {
+      const email = session.user.email || '';
+      const name = email.split('@')[0] || 'User';
+      const initial = name.charAt(0).toUpperCase();
+
+      if (avatarEl) avatarEl.textContent = initial;
+      if (nameEl) nameEl.textContent = name;
+      if (emailEl) emailEl.textContent = email;
+      if (signinPrompt) signinPrompt.classList.add('is-hidden');
+    }
+  }
+
+  // Render progress cards
+  function renderProgress() {
+    const progress = getProgress();
+    let totalComplete = 0;
+    let totalConcepts = 0;
+
+    // Calculate per-track progress
+    const trackProgress = tracksData.map((track: any) => {
+      const completed = track.keys.filter((k: string) => progress.complete.includes(k)).length;
+      totalComplete += completed;
+      totalConcepts += track.total;
+      return {
+        ...track,
+        completed,
+        percent: track.total > 0 ? Math.round((completed / track.total) * 100) : 0,
+      };
+    });
+
+    // Render overview
+    const overallPercent = totalConcepts > 0 ? Math.round((totalComplete / totalConcepts) * 100) : 0;
+    if (overviewEl) {
+      overviewEl.innerHTML = `
+        <div class="overview-card">
+          <div class="overview-stat">
+            <span class="overview-number">${totalComplete}</span>
+            <span class="overview-label">/ ${totalConcepts} concepts completed</span>
+          </div>
+          <div class="overview-bar">
+            <div class="overview-bar-fill" style="width: ${overallPercent}%"></div>
+          </div>
+          <div class="overview-percent">${overallPercent}%</div>
+        </div>
+      `;
+    }
+
+    // Render track cards
+    if (gridEl) {
+      gridEl.innerHTML = trackProgress.map((track: any) => `
+        <a href="${baseUrl}roadmaps/${track.slug}/" class="track-card">
+          <div class="track-header">
+            <span class="track-title">${track.title}</span>
+            <span class="track-stat">${track.completed}/${track.total}</span>
+          </div>
+          <div class="track-bar">
+            <div class="track-bar-fill" style="width: ${track.percent}%"></div>
+          </div>
+          <div class="track-percent">${track.percent}% complete</div>
+        </a>
+      `).join('');
+    }
+  }
+
+  // Sign in handler
+  signinBtn?.addEventListener('click', async () => {
+    if (!supabase) return;
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href }
+    });
+    
+    if (error) console.error('Login error:', error.message);
+  });
+
+  // Initialize
+  updateUserSection();
+  renderProgress();
+</script>
+
+<style>
+  .profile-header {
+    border-bottom: 2px solid var(--color-text);
+  }
+
+  .user-section {
+    margin-bottom: 3rem;
+  }
+
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .user-avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: var(--color-copper);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  .user-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .user-email {
+    color: var(--color-text-muted);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .signin-prompt {
+    background: var(--color-bg-grid);
+    border: 1px dashed var(--color-border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+  }
+
+  .signin-prompt.is-hidden {
+    display: none;
+  }
+
+  .section-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .progress-overview {
+    margin-bottom: 1.5rem;
+  }
+
+  .progress-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  /* Overview card */
+  .overview-card {
+    background: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .overview-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .overview-number {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-copper);
+  }
+
+  .overview-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .overview-bar {
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .overview-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-copper), #d4956a);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .overview-percent {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-align: right;
+  }
+
+  /* Track cards */
+  .track-card {
+    display: block;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .track-card:hover {
+    border-color: var(--color-copper);
+    box-shadow: 0 2px 8px rgba(184, 115, 51, 0.15);
+  }
+
+  .track-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .track-title {
+    font-weight: 600;
+  }
+
+  .track-stat {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    color: var(--color-copper);
+  }
+
+  .track-bar {
+    height: 6px;
+    background: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+
+  /* Copper trace styling */
+  .track-bar::before,
+  .track-bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    background: var(--color-bg);
+    z-index: 1;
+  }
+
+  .track-bar::before {
+    left: -5px;
+  }
+
+  .track-bar::after {
+    right: -5px;
+  }
+
+  .track-bar-fill {
+    height: 100%;
+    background: var(--color-copper);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  .track-percent {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+</style>

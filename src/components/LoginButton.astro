@@ -12,13 +12,31 @@ import { RefreshCw } from '@lucide/astro';
   </button>
 
   <!-- Logged out state -->
-  <button id="auth-login" class="auth-btn auth-login">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-    <span class="auth-label">Sign in</span>
-  </button>
+  <div class="auth-guest">
+    <div class="auth-split-btn">
+      <button id="auth-login" class="auth-btn auth-split-main">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span class="auth-label">Sign in</span>
+      </button>
+      <button id="auth-guest-toggle" class="auth-btn auth-split-toggle">
+        <svg class="auth-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </button>
+    </div>
+    <div id="auth-guest-dropdown" class="auth-dropdown">
+      <a href={`${Astro.url.origin}${import.meta.env.BASE_URL}profile/`} class="auth-dropdown-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        View Profile
+      </a>
+    </div>
+  </div>
 
   <!-- Logged in state -->
   <div class="auth-user">
@@ -31,6 +49,13 @@ import { RefreshCw } from '@lucide/astro';
     </button>
     <div id="auth-dropdown" class="auth-dropdown">
       <div class="auth-dropdown-email" id="auth-email">user@example.com</div>
+      <a href={`${Astro.url.origin}${import.meta.env.BASE_URL}profile/`} class="auth-dropdown-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        View Profile
+      </a>
       <button id="auth-sync" class="auth-dropdown-btn">
         <RefreshCw size={14} />
         Sync now
@@ -124,6 +149,17 @@ import { RefreshCw } from '@lucide/astro';
     }
   });
 
+  // Guest dropdown toggle
+  const guestToggle = document.getElementById('auth-guest-toggle');
+  const guestDropdown = document.getElementById('auth-guest-dropdown');
+  let guestDropdownOpen = false;
+
+  guestToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    guestDropdownOpen = !guestDropdownOpen;
+    guestDropdown?.classList.toggle('auth-guest-dropdown--open', guestDropdownOpen);
+  });
+
   // Toggle dropdown
   let dropdownOpen = false;
   userBtn?.addEventListener('click', (e) => {
@@ -132,10 +168,12 @@ import { RefreshCw } from '@lucide/astro';
     dropdown?.classList.toggle('auth-dropdown--open', dropdownOpen);
   });
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   document.addEventListener('click', () => {
     dropdownOpen = false;
     dropdown?.classList.remove('auth-dropdown--open');
+    guestDropdownOpen = false;
+    guestDropdown?.classList.remove('auth-guest-dropdown--open');
   });
 
   // Manual sync
@@ -173,7 +211,7 @@ import { RefreshCw } from '@lucide/astro';
 
   /* Hide all by default */
   .auth-loading,
-  .auth-login,
+  .auth-guest,
   .auth-user {
     display: none !important;
   }
@@ -190,8 +228,8 @@ import { RefreshCw } from '@lucide/astro';
     display: flex !important;
   }
 
-  .auth-wrapper[data-state="login"] .auth-login {
-    display: flex !important;
+  .auth-wrapper[data-state="login"] .auth-guest {
+    display: block !important;
   }
 
   .auth-wrapper[data-state="user"] .auth-user {
@@ -331,5 +369,32 @@ import { RefreshCw } from '@lucide/astro';
     .auth-chevron {
       display: none;
     }
+  }
+
+  /* Split button for guest */
+  .auth-guest {
+    position: relative;
+  }
+
+  .auth-split-btn {
+    display: flex;
+  }
+
+  .auth-split-main {
+    border-right: none;
+  }
+
+  .auth-split-toggle {
+    padding: 0.5rem;
+    border-left: 1px solid var(--color-border);
+  }
+
+  .auth-split-toggle:hover {
+    background-color: var(--color-bg-grid);
+  }
+
+  /* Show guest dropdown */
+  .auth-guest-dropdown--open {
+    display: block;
   }
 </style>

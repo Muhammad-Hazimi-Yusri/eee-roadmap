@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.18.4-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.18.5-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.18.4)
+## Current Features (v0.18.5)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -46,6 +46,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **State Persistence** — Topic expand/collapse state saved per track, settings panel remembers preferences
 - **Glossary** — 100+ EEE terms with definitions, LaTeX equations, and cross-references
 - **Auto-linked Terms** — Glossary terms in roadmap content show tooltips on hover
+- **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -107,10 +108,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 **Goal:** Complete the sync story with notes and data portability.
 
 - [x] GitHub Actions: add Supabase env vars for deployment
+- [x] Progress visualization (profile page with per-track breakdown)
+- [x] Privacy policy page
+- [ ] Import/export progress + notes as JSON
 - [ ] Sync custom notes (text/markdown via Supabase database)
 - [ ] Per-user storage limit (~500KB stopgap)
-- [ ] Import/export progress + notes as JSON
-- [ ] Progress visualization (X/XX completed per track)
 
 ---
 
@@ -261,6 +263,8 @@ JSON files
 │   │   ├── glossary.astro
 │   │   ├── guides.astro
 │   │   ├── index.astro
+│   │   ├── privacy.astro
+│   │   ├── profile.astro
 │   │   ├── projects.astro
 │   │   └── resources.astro
 │   ├── styles/

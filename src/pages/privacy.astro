@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Privacy Policy">
+  <Header />
+  <main class="container py-12">
+    <h1 class="text-2xl font-bold mb-6">Privacy Policy</h1>
+    <p class="text-muted mb-8">Last updated: January 2025</p>
+
+    <div class="prose">
+      <section class="policy-section">
+        <h2>What We Collect</h2>
+        <p>When you sign in with Google, we receive:</p>
+        <ul>
+          <li>Your email address</li>
+          <li>Your display name</li>
+        </ul>
+        <p>We also store your learning progress (completed/highlighted concepts) linked to your account.</p>
+      </section>
+
+      <section class="policy-section">
+        <h2>Why We Collect It</h2>
+        <p>To sync your progress across devices. That's it.</p>
+      </section>
+
+      <section class="policy-section">
+        <h2>Local Storage</h2>
+        <p>If you don't sign in, your progress is stored locally in your browser. This data never leaves your device.</p>
+      </section>
+
+      <section class="policy-section">
+        <h2>Where Data Is Stored</h2>
+        <p>Account data and progress are stored in Supabase (cloud database). We do not sell or share your data with third parties.</p>
+      </section>
+
+      <section class="policy-section">
+        <h2>Your Rights</h2>
+        <p>You can:</p>
+        <ul>
+          <li>Sign out and use the app anonymously (local storage only)</li>
+          <li>Request deletion of your account and all associated data</li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <h2>Contact</h2>
+        <p>Questions? Email <a href="mailto:muhammadhazimiyusri@gmail.com">muhammadhazimiyusri@gmail.com</a></p>
+      </section>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .prose {
+    max-width: 65ch;
+  }
+
+  .policy-section {
+    margin-bottom: 2rem;
+  }
+
+  .policy-section h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .policy-section p {
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .policy-section ul {
+    color: var(--color-text-muted);
+    margin-left: 1.5rem;
+    list-style: disc;
+  }
+
+  .policy-section a {
+    color: var(--color-copper);
+  }
+</style>

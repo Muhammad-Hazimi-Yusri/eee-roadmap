@@ -11,6 +11,33 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.18.X] - 2025-01-16
+
+**Profile & Progress Visualization**
+
+### Added
+- Profile page (`/profile/`) with progress visualization
+  - Works for guests (localStorage) and signed-in users (cloud sync)
+  - Overall progress with copper-styled progress bar
+  - Per-track progress cards linking to each track
+  - User info section (avatar, name, email when signed in)
+  - Sign-in prompt for guests
+- Privacy Policy page (`/privacy/`)
+- Auth dropdown for guests (split button: Sign in + View Profile)
+- "View Profile" link in signed-in user dropdown
+
+### Changed
+- Auth button now shows "Sign in" with dropdown toggle for guests
+- Footer includes Privacy link
+
+### Fixed
+- Mobile: sign-in button text now visible (was hidden)
+- Mobile: auth button positioned at top-right of header
+- Mobile: search bar expands to fill width
+- Sync on page refresh (pulls cloud changes without logout/login)
+- Tools mode: drawing constrained to interactive areas only (normal scroll works outside)
+
+
 ## [0.17.X] - 2025-01-12
 
 **Cross-Device Sync**
