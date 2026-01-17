@@ -124,6 +124,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
 </script>
 
 <script>
+  import { createIcons, icons } from 'lucide';
   import { supabase, isSupabaseConfigured } from '../lib/supabase';
   import { queueSync } from '../lib/sync';
 
@@ -192,6 +193,10 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     // Render overview
     const overallPercent = totalConcepts > 0 ? Math.round((totalComplete / totalConcepts) * 100) : 0;
     if (overviewEl) {
+      const emptyMessage = totalComplete === 0 
+        ? `<p class="overview-hint">Start any track to begin your learning journey!</p>`
+        : '';
+        
       overviewEl.innerHTML = `
         <div class="overview-card">
           <div class="overview-stat">
@@ -202,6 +207,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
             <div class="overview-bar-fill" style="width: ${overallPercent}%"></div>
           </div>
           <div class="overview-percent">${overallPercent}%</div>
+          ${emptyMessage}
         </div>
       `;
     }
@@ -211,7 +217,10 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
       gridEl.innerHTML = trackProgress.map((track: any) => `
         <a href="${baseUrl}roadmaps/${track.slug}/" class="track-card">
           <div class="track-header">
-            <span class="track-title">${track.title}</span>
+            <span class="track-title">
+              <i data-lucide="${track.icon}" class="track-icon"></i>
+              ${track.title}
+            </span>
             <span class="track-stat">${track.completed}/${track.total}</span>
           </div>
           <div class="track-bar">
@@ -220,6 +229,9 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
           <div class="track-percent">${track.percent}% complete</div>
         </a>
       `).join('');
+
+      // Render lucide icons in the newly created elements
+      createIcons({ icons });
     }
   }
 
@@ -369,13 +381,17 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
   renderProgress();
 </script>
 
-<style>
+<style is:global>
   .profile-header {
     border-bottom: 2px solid var(--color-text);
   }
 
   .user-section {
     margin-bottom: 3rem;
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-left: 4px solid var(--color-copper);
+    padding: 1.5rem;
   }
 
   .user-card {
@@ -385,9 +401,17 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     margin-bottom: 1.5rem;
   }
 
+  @media (max-width: 360px) {
+    .user-card {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+
   .user-avatar {
     width: 4rem;
     height: 4rem;
+    min-width: 4rem;
     border-radius: 50%;
     background: var(--color-copper);
     color: white;
@@ -397,12 +421,16 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     font-size: 1.5rem;
     font-weight: 600;
     font-family: "IBM Plex Mono", monospace;
+    flex-shrink: 0;
   }
 
   .user-name {
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
   }
 
   .user-email {
@@ -410,6 +438,13 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.875rem;
     margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .user-info {
+    overflow: hidden;
+    min-width: 0;
   }
 
   .signin-prompt {
@@ -422,6 +457,14 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     gap: 1rem;
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.875rem;
+  }
+
+  @media (max-width: 480px) {
+    .signin-prompt {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+    }
   }
 
   .signin-prompt.is-hidden {
@@ -441,12 +484,20 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
   .progress-grid {
     display: grid;
     gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .progress-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   /* Overview card */
   .overview-card {
-    background: var(--color-bg-grid);
-    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-left: 4px solid var(--color-copper);
     padding: 1.5rem;
     margin-bottom: 1rem;
   }
@@ -518,6 +569,16 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
 
   .track-title {
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .track-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    color: var(--color-copper);
+    flex-shrink: 0;
   }
 
   .track-stat {
@@ -580,8 +641,19 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
 
   .data-actions {
     display: flex;
-    gap: 1rem;
     flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    .data-actions {
+      flex-direction: column;
+    }
+    
+    .data-actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
   .import-label {
@@ -656,5 +728,14 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     color: var(--color-text-muted);
     margin: 0;
     line-height: 1.6;
+  }
+
+  .overview-hint {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--color-border);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
   }
 </style>
