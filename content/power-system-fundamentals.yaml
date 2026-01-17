@@ -66,7 +66,7 @@ sections:
           Understanding when to use radial (simple/cheap), ring (reliable), 
           or mesh (redundant) topologies for different applications.
         prerequisites:
-          - power-systems/busbars-nodes-branches/Busbars, Nodes, and Branches
+          - power-system-fundamentals/busbars-nodes-branches/Busbars, Nodes, and Branches
         outcomes:
           - Classify network topologies from single-line diagrams
           - Evaluate trade-offs between reliability, cost, and complexity
@@ -108,7 +108,7 @@ sections:
           representation for three-phase power systems. Covers symbols, 
           conventions, and information typically shown.
         prerequisites:
-          - power-systems/network-topologies/Network Topologies
+          - power-system-fundamentals/network-topologies/Network Topologies
         outcomes:
           - Interpret single-line diagrams and identify all components
           - Understand standard electrical symbols (IEEE/IEC)
@@ -151,7 +151,7 @@ sections:
           useful work, and reactive power that maintains magnetic fields. 
           Essential for power system analysis and equipment sizing.
         prerequisites:
-          - power-systems/single-line-diagrams/Single Line Diagrams
+          - power-system-fundamentals/single-line-diagrams/Single Line Diagrams
           - fundamentals/ac-circuits/AC Circuit Analysis
         outcomes:
           - Calculate P, Q, and S for single and three-phase systems
@@ -216,7 +216,7 @@ sections:
           electrical power is being used. Critical for efficiency, billing, 
           and equipment sizing.
         prerequisites:
-          - power-systems/active-reactive-power/Active and Reactive Power
+          - power-system-fundamentals/active-reactive-power/Active and Reactive Power
         outcomes:
           - Calculate power factor from circuit measurements
           - Determine if power factor is leading or lagging
@@ -256,7 +256,7 @@ sections:
           - label: "Power Factor Explained - Engineering Mindset"
             url: https://theengineeringmindset.com/electrical/
           - label: "Power Factor Diagram (Wikimedia)"
-            url: https://upload.wikimedia.org/wikipedia/commons/4/4b/Power_factor_0.7.svg
+            url: https://commons.wikimedia.org/wiki/Special:FilePath/Power_Factor_General_Case.svg
 
       - id: voltage-levels
         title: Voltage Levels and Transformation
@@ -265,7 +265,7 @@ sections:
           enable efficient power transfer. Understanding the hierarchy from 
           generation through transmission to distribution.
         prerequisites:
-          - power-systems/power-factor/Power Factor
+          - power-system-fundamentals/power-factor/Power Factor
         outcomes:
           - Identify voltage level classifications and their applications
           - Explain rationale for voltage transformation
@@ -311,7 +311,7 @@ sections:
           simplify calculations across different voltage levels. Essential 
           skill for all power system analysis.
         prerequisites:
-          - power-systems/voltage-levels/Voltage Levels
+          - power-system-fundamentals/voltage-levels/Voltage Levels
         outcomes:
           - Select appropriate base values for power system analysis
           - Convert between actual and per-unit quantities
