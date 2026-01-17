@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.18.5-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.18.6-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.18.5)
+## Current Features (v0.18.6)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -47,6 +47,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **Glossary** — 100+ EEE terms with definitions, LaTeX equations, and cross-references
 - **Auto-linked Terms** — Glossary terms in roadmap content show tooltips on hover
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
+- **Import/Export** — Back up your progress as JSON; import with merge or replace options
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation

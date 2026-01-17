@@ -68,7 +68,50 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
         <div class="progress-grid" id="progress-grid">
           <!-- Track cards rendered by JS -->
         </div>
+
+        <!-- Data section -->
+      <section class="data-section">
+        <h2 class="section-title">Your Data</h2>
+        <p class="text-muted mb-4" style="font-size: 0.875rem;">
+          Export your progress to back it up or transfer to another device.
+        </p>
+        <div class="data-actions">
+          <button class="btn" id="export-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export JSON
+          </button>
+          <label class="btn import-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Import JSON
+            <input type="file" id="import-input" accept=".json" hidden />
+          </label>
+        </div>
+        <p class="import-status" id="import-status"></p>
       </section>
+      <!-- Import dialog -->
+      <div class="import-dialog-backdrop" id="import-dialog" hidden>
+        <div class="import-dialog">
+          <h3 class="import-dialog-title">Import Progress</h3>
+          <p class="import-dialog-info" id="import-dialog-info">Loading...</p>
+          <div class="import-dialog-actions">
+            <button class="btn" id="import-merge">Merge</button>
+            <button class="btn" id="import-replace">Replace</button>
+            <button class="btn import-cancel" id="import-cancel">Cancel</button>
+          </div>
+          <p class="import-dialog-hint">
+            <strong>Merge:</strong> Add to existing progress<br>
+            <strong>Replace:</strong> Overwrite completely
+          </p>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -82,6 +125,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
 
 <script>
   import { supabase, isSupabaseConfigured } from '../lib/supabase';
+  import { queueSync } from '../lib/sync';
 
   const tracksData = (window as any).__tracksData;
   const baseUrl = (window as any).__baseUrl;
@@ -190,6 +234,135 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     
     if (error) console.error('Login error:', error.message);
   });
+
+  // Export/Import elements
+  const exportBtn = document.getElementById('export-btn');
+  const importInput = document.getElementById('import-input') as HTMLInputElement;
+  const importStatus = document.getElementById('import-status');
+
+  // Export progress as JSON
+  exportBtn?.addEventListener('click', () => {
+    const progress = getProgress();
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      progress,
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'eee-progress.json';
+    a.click();
+    
+    URL.revokeObjectURL(url);
+  });
+
+  // Import dialog elements
+  const importDialog = document.getElementById('import-dialog');
+  const importDialogInfo = document.getElementById('import-dialog-info');
+  const importMergeBtn = document.getElementById('import-merge');
+  const importReplaceBtn = document.getElementById('import-replace');
+  const importCancelBtn = document.getElementById('import-cancel');
+
+  let pendingImportData: { complete: string[]; important: string[] } | null = null;
+
+  // Import progress from JSON - show dialog
+  importInput?.addEventListener('change', async () => {
+    const file = importInput.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+
+      // Validate structure
+      if (!data.progress || !Array.isArray(data.progress.complete) || !Array.isArray(data.progress.important)) {
+        throw new Error('Invalid file format');
+      }
+
+      // Store for dialog actions
+      pendingImportData = data.progress;
+
+      // Show info in dialog
+      const completeCount = data.progress.complete.length;
+      const importantCount = data.progress.important.length;
+      
+      if (importDialogInfo) {
+        importDialogInfo.textContent = `Found: ${completeCount} completed, ${importantCount} highlighted`;
+      }
+
+      // Show dialog
+      importDialog?.removeAttribute('hidden');
+
+    } catch (err) {
+      console.error('Import error:', err);
+      if (importStatus) {
+        importStatus.textContent = '✗ Invalid file. Please use an exported JSON file.';
+        importStatus.className = 'import-status import-status--error';
+      }
+    }
+
+    // Clear input for re-import
+    importInput.value = '';
+  });
+
+  // Merge: add to existing
+  importMergeBtn?.addEventListener('click', () => {
+    if (!pendingImportData) return;
+
+    const current = getProgress();
+    const merged = {
+      complete: [...new Set([...current.complete, ...pendingImportData.complete])],
+      important: [...new Set([...current.important, ...pendingImportData.important])],
+    };
+
+    applyImport(merged, 'merged');
+  });
+
+  // Replace: overwrite completely
+  importReplaceBtn?.addEventListener('click', () => {
+    if (!pendingImportData) return;
+    applyImport(pendingImportData, 'replaced');
+  });
+
+  // Cancel
+  importCancelBtn?.addEventListener('click', () => {
+    pendingImportData = null;
+    importDialog?.setAttribute('hidden', '');
+  });
+
+  // Close on backdrop click
+  importDialog?.addEventListener('click', (e) => {
+    if (e.target === importDialog) {
+      pendingImportData = null;
+      importDialog.setAttribute('hidden', '');
+    }
+  });
+
+  // Apply import (shared logic)
+  function applyImport(progress: { complete: string[]; important: string[] }, action: string) {
+    // Save to localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+
+    // Sync to cloud if logged in
+    if (isSupabaseConfigured) {
+      queueSync();
+    }
+
+    // Update status
+    if (importStatus) {
+      importStatus.textContent = `✓ Progress ${action}: ${progress.complete.length} completed, ${progress.important.length} highlighted`;
+      importStatus.className = 'import-status import-status--success';
+    }
+
+    // Hide dialog and re-render
+    importDialog?.setAttribute('hidden', '');
+    pendingImportData = null;
+    renderProgress();
+  }
 
   // Initialize
   updateUserSection();
@@ -396,5 +569,92 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.75rem;
     color: var(--color-text-muted);
+  }
+
+  /* Data section */
+  .data-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--color-border);
+  }
+
+  .data-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .import-label {
+    cursor: pointer;
+  }
+
+  .import-status {
+    margin-top: 1rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+  }
+
+  .import-status--success {
+    color: var(--color-pcb);
+  }
+
+  .import-status--error {
+    color: #c53030;
+  }
+
+  /* Import dialog */
+  .import-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .import-dialog-backdrop[hidden] {
+    display: none;
+  }
+
+  .import-dialog {
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    padding: 1.5rem;
+    max-width: 400px;
+    width: 90%;
+  }
+
+  .import-dialog-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+  }
+
+  .import-dialog-info {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    background: var(--color-bg-grid);
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .import-dialog-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .import-cancel {
+    background: none;
+    border-color: var(--color-text-muted);
+    color: var(--color-text-muted);
+  }
+
+  .import-dialog-hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.6;
   }
 </style>

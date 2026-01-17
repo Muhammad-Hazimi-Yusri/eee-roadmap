@@ -11,7 +11,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.18.X] - 2025-01-16
+## [0.18.X] - 2025-01-17
 
 **Profile & Progress Visualization**
 
@@ -22,6 +22,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Per-track progress cards linking to each track
   - User info section (avatar, name, email when signed in)
   - Sign-in prompt for guests
+- Import/export progress as JSON
+  - Export downloads `eee-progress.json` with version and timestamp
+  - Import shows dialog with Merge (add to existing) or Replace (overwrite) options
+  - Syncs to cloud automatically after import if signed in
 - Privacy Policy page (`/privacy/`)
 - Auth dropdown for guests (split button: Sign in + View Profile)
 - "View Profile" link in signed-in user dropdown

@@ -1,0 +1,364 @@
+# EEE Roadmap - Power Systems Fundamentals Track
+# Human-editable source. Auto-converts to JSON on build.
+
+meta:
+  title: Power Systems Fundamentals
+  description: >-
+    Foundation knowledge for power system analysis, from network basics 
+    through UK grid specifics. Prepares learners for IPSA software training.
+  icon: zap
+  featured: true
+  category: specialization
+  order: 20
+
+sections:
+  - id: network-basics
+    title: Power Network Basics
+    items:
+      - id: busbars-nodes-branches
+        title: Busbars, Nodes, and Branches
+        description: >-
+          Foundation concepts for understanding power system structure. Covers 
+          the building blocks of power networks: nodes as connection points, 
+          branches as circuit elements, and busbars as central distribution points.
+        prerequisites:
+          - fundamentals/ac-circuits/AC Circuit Analysis
+          - Complex numbers (phasors)
+        outcomes:
+          - Identify nodes, branches, and loops in power network diagrams
+          - Apply Kirchhoff's laws to power circuits
+          - Convert circuit diagrams to graph representations
+        concepts:
+          - name: Node (Bus)
+            notes: |
+              Common connection point where circuit elements meet, characterized by voltage phasor.
+              
+              In power systems, each node has:
+              - Voltage magnitude $|V|$
+              - Voltage angle $\theta$
+          - name: Branch
+            notes: |
+              Circuit element connecting two nodes with impedance:
+              
+              $$Z = R + jX$$
+              
+              Examples: transmission lines, transformers, cables.
+          - name: Busbar
+            notes: |
+              Non-impedant conductive bar serving as central power distribution point in substations.
+              
+              ![Busbar arrangement](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Non_sectional_system_of_busbar.svg/400px-Non_sectional_system_of_busbar.svg.png)
+          - name: Kirchhoff's Laws
+            notes: |
+              **KCL (Current Law):** Sum of currents entering a node equals sum leaving.
+              
+              **KVL (Voltage Law):** Sum of voltages around any closed loop equals zero.
+        resources:
+          - label: "MIT OCW 6.061 - Electric Power Systems"
+            url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+          - label: "NPTEL Power System Engineering"
+            url: https://nptel.ac.in/courses/108105104
+
+      - id: network-topologies
+        title: Radial vs Ring vs Mesh Networks
+        description: >-
+          Power distribution network configurations and their trade-offs. 
+          Understanding when to use radial (simple/cheap), ring (reliable), 
+          or mesh (redundant) topologies for different applications.
+        prerequisites:
+          - power-systems/busbars-nodes-branches/Busbars, Nodes, and Branches
+        outcomes:
+          - Classify network topologies from single-line diagrams
+          - Evaluate trade-offs between reliability, cost, and complexity
+          - Select appropriate topology for different applications
+        concepts:
+          - name: Radial Topology
+            notes: |
+              Tree-shaped network with single path from source to consumer.
+              
+              **Pros:** Simple, lowest cost, easy protection
+              **Cons:** No redundancy - single fault causes outage
+              **Use:** Rural areas, residential distribution
+          - name: Ring Topology
+            notes: |
+              Closed loop providing two alternative paths.
+              
+              Can be operated as:
+              - **Open ring:** One point normally open (like two radials)
+              - **Closed ring:** Full loop energized (better reliability)
+              
+              **Use:** Urban distribution, commercial areas
+          - name: Mesh Topology
+            notes: |
+              Multiple interconnections creating redundant paths.
+              
+              **Pros:** Highest reliability, load sharing
+              **Cons:** Complex protection, highest cost
+              **Use:** Transmission networks, critical industrial loads
+        resources:
+          - label: "Practical Engineering - How the Power Grid Works"
+            url: https://practical.engineering/
+          - label: "Electricity Grid Schematic (Wikimedia)"
+            url: https://commons.wikimedia.org/wiki/File:Electricity_Grid_Schematic_English.svg
+
+      - id: single-line-diagrams
+        title: Single Line Diagrams
+        description: >-
+          Reading and interpreting single-line diagrams (SLDs), the standard 
+          representation for three-phase power systems. Covers symbols, 
+          conventions, and information typically shown.
+        prerequisites:
+          - power-systems/network-topologies/Network Topologies
+        outcomes:
+          - Interpret single-line diagrams and identify all components
+          - Understand standard electrical symbols (IEEE/IEC)
+          - Trace power flow paths through systems
+        concepts:
+          - name: SLD Purpose
+            notes: |
+              Simplified representation showing three-phase system as single line.
+              
+              **Why simplify?** Three phases are balanced in normal operation, so one line represents all three.
+              
+              ![Example SLD](https://upload.wikimedia.org/wikipedia/commons/6/62/One-line_diagram.svg)
+          - name: Reading Convention
+            notes: |
+              Standard approach:
+              1. Start at top (highest voltage)
+              2. Work down to lowest voltage
+              3. Left-to-right for same voltage level
+          - name: Common Symbols
+            notes: |
+              | Symbol | Component |
+              |--------|-----------|
+              | Circle with ~ | Generator |
+              | Two coils | Transformer |
+              | Square with X | Circuit breaker |
+              | Heavy horizontal line | Busbar |
+        resources:
+          - label: "Learn to Interpret SLDs - EEP"
+            url: https://electrical-engineering-portal.com/learn-to-interpret-single-line-diagram
+          - label: "IEEE/IEC Electrical Symbols (Wikimedia)"
+            url: https://commons.wikimedia.org/wiki/Category:DIN_circuit_symbols
+
+  - id: power-flow-basics
+    title: Power Flow Fundamentals
+    items:
+      - id: active-reactive-power
+        title: Active Power (P) and Reactive Power (Q)
+        description: >-
+          Understanding the two components of AC power: real power that does 
+          useful work, and reactive power that maintains magnetic fields. 
+          Essential for power system analysis and equipment sizing.
+        prerequisites:
+          - power-systems/single-line-diagrams/Single Line Diagrams
+          - fundamentals/ac-circuits/AC Circuit Analysis
+        outcomes:
+          - Calculate P, Q, and S for single and three-phase systems
+          - Explain physical significance of reactive power
+          - Construct and interpret power triangles
+        concepts:
+          - name: Active Power (P)
+            notes: |
+              Real power doing useful work (motors, heating, lighting).
+              
+              **Units:** Watts (W, kW, MW)
+              
+              $$P = V \cdot I \cdot \cos(\phi)$$
+              
+              For three-phase:
+              
+              $$P_{3\phi} = \sqrt{3} \cdot V_{LL} \cdot I \cdot \cos(\phi)$$
+          - name: Reactive Power (Q)
+            notes: |
+              Power that oscillates between source and load, maintaining magnetic/electric fields.
+              
+              **Units:** Volt-Amperes Reactive (VAR, kVAR, MVAR)
+              
+              $$Q = V \cdot I \cdot \sin(\phi)$$
+              
+              - **Inductors** (motors, transformers): Consume Q (lagging)
+              - **Capacitors**: Supply Q (leading)
+          - name: Apparent Power (S)
+            notes: |
+              Vector sum of P and Q - total power the system must deliver.
+              
+              **Units:** Volt-Amperes (VA, kVA, MVA)
+              
+              $$S = P + jQ$$
+              
+              $$|S| = \sqrt{P^2 + Q^2}$$
+          - name: Power Triangle
+            notes: |
+              Graphical representation relating P, Q, and S:
+              ```
+                    /|
+                 S / |
+                  /  | Q
+                 /φ__|
+                   P
+              ```
+              
+              - Horizontal: Active power P
+              - Vertical: Reactive power Q  
+              - Hypotenuse: Apparent power S
+              - Angle φ: Power factor angle
+        resources:
+          - label: "The Engineering Mindset - AC Power"
+            url: https://theengineeringmindset.com/electrical/
+          - label: "Khan Academy - AC Circuit Analysis"
+            url: https://www.khanacademy.org/science/physics/circuits-topic
+
+      - id: power-factor
+        title: Power Factor
+        description: >-
+          The ratio of real to apparent power, indicating how effectively 
+          electrical power is being used. Critical for efficiency, billing, 
+          and equipment sizing.
+        prerequisites:
+          - power-systems/active-reactive-power/Active and Reactive Power
+        outcomes:
+          - Calculate power factor from circuit measurements
+          - Determine if power factor is leading or lagging
+          - Design power factor correction using capacitors
+        concepts:
+          - name: Power Factor Definition
+            notes: |
+              Ratio of real power to apparent power:
+              
+              $$PF = \frac{P}{S} = \cos(\phi)$$
+              
+              - **PF = 1.0** (unity): Pure resistive, V and I in phase
+              - **PF = 0**: Pure reactive, no real power transferred
+              - **Typical industrial:** 0.7 - 0.9 lagging
+          - name: Leading vs Lagging
+            notes: |
+              Describes current relative to voltage:
+              
+              - **Lagging PF:** Current lags voltage (inductive loads - motors)
+              - **Leading PF:** Current leads voltage (capacitive loads)
+              
+              **Memory aid:** ELI the ICE man
+              - **ELI:** Voltage (E) leads Current (I) in Inductors (L)
+              - **ICE:** Current (I) leads Voltage (E) in Capacitors (C)
+          - name: Power Factor Correction
+            notes: |
+              Adding capacitors to cancel inductive reactive power:
+              
+              $$Q_C = P \cdot (\tan\phi_1 - \tan\phi_2)$$
+              
+              Where:
+              - $\phi_1$ = original PF angle
+              - $\phi_2$ = target PF angle
+              
+              **Target:** PF > 0.95 to avoid utility penalties
+        resources:
+          - label: "Power Factor Explained - Engineering Mindset"
+            url: https://theengineeringmindset.com/electrical/
+          - label: "Power Factor Diagram (Wikimedia)"
+            url: https://upload.wikimedia.org/wikipedia/commons/4/4b/Power_factor_0.7.svg
+
+      - id: voltage-levels
+        title: Voltage Levels and Transformation
+        description: >-
+          Why power systems use different voltage levels and how transformers 
+          enable efficient power transfer. Understanding the hierarchy from 
+          generation through transmission to distribution.
+        prerequisites:
+          - power-systems/power-factor/Power Factor
+        outcomes:
+          - Identify voltage level classifications and their applications
+          - Explain rationale for voltage transformation
+          - Calculate power losses at different voltage levels
+        concepts:
+          - name: Voltage Classifications
+            notes: |
+              | Classification | Voltage Range | Application |
+              |----------------|---------------|-------------|
+              | Low Voltage (LV) | Up to 1 kV | Residential, commercial |
+              | Medium Voltage (MV) | 1 - 35 kV | Distribution, industrial |
+              | High Voltage (HV) | 35 - 230 kV | Sub-transmission |
+              | Extra High (EHV) | 230 - 765 kV | Bulk transmission |
+          - name: Why Transform Voltage
+            notes: |
+              Power loss in transmission:
+              
+              $$P_{loss} = I^2 R$$
+              
+              For fixed power $P = V \cdot I$, doubling voltage halves current, reducing losses to **one quarter**.
+              
+              **Example:** 100 MW at 400 kV vs 11 kV
+              - At 400 kV: I = 144 A
+              - At 11 kV: I = 5,249 A (36× higher losses!)
+          - name: System Hierarchy
+            notes: |
+              Typical power flow path:
+              
+              1. **Generation** (11-25 kV)
+              2. **Step-up** to transmission (275-400 kV)
+              3. **Transmission** (bulk power transfer)
+              4. **Step-down** to sub-transmission (132 kV)
+              5. **Distribution** (33 kV → 11 kV → 400 V)
+              6. **Consumer** (400 V three-phase / 230 V single-phase)
+        resources:
+          - label: "MIT OCW - Power System Structure"
+            url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+
+      - id: per-unit-system
+        title: Per-Unit System
+        description: >-
+          Expressing electrical quantities as fractions of base values to 
+          simplify calculations across different voltage levels. Essential 
+          skill for all power system analysis.
+        prerequisites:
+          - power-systems/voltage-levels/Voltage Levels
+        outcomes:
+          - Select appropriate base values for power system analysis
+          - Convert between actual and per-unit quantities
+          - Perform change-of-base calculations
+        concepts:
+          - name: Per-Unit Basics
+            notes: |
+              Quantities expressed as dimensionless fractions of base values:
+              
+              $$X_{pu} = \frac{X_{actual}}{X_{base}}$$
+              
+              **Advantages:**
+              - Transformer impedances same on both sides
+              - Equipment values fall in narrow range (0.05-0.15 pu)
+              - Simplifies hand calculations
+          - name: Base Selection
+            notes: |
+              Choose two independent bases (typically):
+              
+              - $S_{base}$ = 100 MVA (industry standard)
+              - $V_{base}$ = Nominal system voltage at each level
+              
+              **Derived bases:**
+              
+              $$I_{base} = \frac{S_{base}}{\sqrt{3} \cdot V_{base}}$$
+              
+              $$Z_{base} = \frac{V_{base}^2}{S_{base}}$$
+          - name: Per-Unit Conversion
+            notes: |
+              Converting actual impedance to per-unit:
+              
+              $$Z_{pu} = Z_{actual} \cdot \frac{S_{base}}{V_{base}^2}$$
+              
+              **Example:** 10 Ω line at 11 kV on 100 MVA base
+              
+              $$Z_{base} = \frac{11^2}{100} = 1.21 \text{ Ω}$$
+              
+              $$Z_{pu} = \frac{10}{1.21} = 8.26 \text{ pu}$$
+          - name: Change of Base
+            notes: |
+              Converting between different bases:
+              
+              $$Z_{pu,new} = Z_{pu,old} \cdot \frac{S_{base,new}}{S_{base,old}} \cdot \left(\frac{V_{base,old}}{V_{base,new}}\right)^2$$
+              
+              Used when combining equipment with different nameplate bases.
+        resources:
+          - label: "Per-Unit System - Open Electrical"
+            url: https://openelectrical.org/index.php?title=Per-unit_System
+          - label: "NPTEL - Per Unit Calculations"
+            url: https://nptel.ac.in/courses/108105104
