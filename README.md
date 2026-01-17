@@ -100,24 +100,19 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Graceful degradation when Supabase not configured
 </details>
 
+<details>
+<summary><strong>v0.18 - Profile & Data Export ✓</strong></summary>
+
+- [x] GitHub Actions: add Supabase env vars for deployment
+- [x] Profile page with progress visualization
+- [x] Privacy policy page
+- [x] Import/export progress as JSON (merge or replace)
+- [x] Auth dropdown for guests with View Profile link
+</details>
+
 ---
 
 ### In Progress
-
-#### v0.18 - User Data & Export
-
-**Goal:** Complete the sync story with notes and data portability.
-
-- [x] GitHub Actions: add Supabase env vars for deployment
-- [x] Progress visualization (profile page with per-track breakdown)
-- [x] Privacy policy page
-- [ ] Import/export progress + notes as JSON
-- [ ] Sync custom notes (text/markdown via Supabase database)
-- [ ] Per-user storage limit (~500KB stopgap)
-
----
-
-### Planned
 
 #### v0.19 - Roadmap Graph View
 
@@ -127,14 +122,21 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Interactive graph (click to navigate)
 - [ ] Filter by track/section
 
-#### v0.20 - Roadmap Editor
+---
 
-**Goal:** Let non-devs create roadmaps without touching code.
+### Planned
 
+#### v0.20 - Custom Tracks & Editor
+
+**Goal:** Let users create and manage their own learning tracks.
+
+- [ ] Custom tracks and custom notes on existing tracks stored in Supabase (per-user, private)
+- [ ] Display on /roadmaps/ with "Custom" badge
 - [ ] Form-based web editor with validation
 - [ ] Live preview
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
+- [ ] Per-user storage limit for now (~500KB)
 
 #### v0.21 - Test Coverage & Quality
 
