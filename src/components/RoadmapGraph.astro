@@ -2,6 +2,7 @@
 /**
  * Interactive graph visualization of roadmap topics and prerequisites.
  * Uses Cytoscape.js with dagre layout.
+ * Mobile: tap to open fullscreen modal.
  */
 import { getTrackColorMap } from '../utils/trackColors';
 import graphData from '../data/graph-data.json';
@@ -18,8 +19,26 @@ const clientData = {
 };
 ---
 
-<div class="graph-container" id="roadmap-graph">
-  <div class="graph-loading">Loading graph...</div>
+<!-- Desktop: inline graph -->
+<div class="graph-wrapper">
+  <div class="graph-container" id="roadmap-graph">
+    <div class="graph-loading">Loading graph...</div>
+  </div>
+  
+  <!-- Mobile tap hint -->
+  <button class="graph-mobile-hint" id="graph-expand-btn" aria-label="Expand graph fullscreen">
+    <span>Tap to explore</span>
+  </button>
+</div>
+
+<!-- Fullscreen modal -->
+<div class="graph-modal" id="graph-modal" hidden>
+  <div class="graph-modal-header">
+    <span class="graph-modal-title">Topic Connections</span>
+    <button class="graph-modal-close" id="graph-modal-close" aria-label="Close">✕</button>
+  </div>
+  <div class="graph-modal-container" id="roadmap-graph-modal"></div>
+  <div class="graph-modal-hint">Pinch to zoom • Drag to pan • Tap topic to navigate</div>
 </div>
 
 <script define:vars={{ clientData }}>
@@ -32,18 +51,54 @@ const clientData = {
 
   cytoscape.use(dagre);
 
-  function initGraph() {
-    const container = document.getElementById('roadmap-graph');
-    const data = (window as any).__graphData;
-    if (!container || !data) return;
+  const graphStyle = [
+    {
+      selector: 'node[type="track"]',
+      style: {
+        'background-color': 'data(color)',
+        'background-opacity': 0.15,
+        'border-width': 2,
+        'border-color': 'data(color)',
+        'label': 'data(label)',
+        'font-size': '14px',
+        'font-weight': 'bold',
+        'text-valign': 'top',
+        'text-halign': 'center',
+        'text-margin-y': 8,
+        'padding': '20px',
+      },
+    },
+    {
+      selector: 'node[type="topic"]',
+      style: {
+        'background-color': 'data(color)',
+        'label': 'data(label)',
+        'font-size': '10px',
+        'text-valign': 'bottom',
+        'text-halign': 'center',
+        'text-margin-y': 4,
+        'width': 20,
+        'height': 20,
+        'text-wrap': 'ellipsis',
+        'text-max-width': '80px',
+      },
+    },
+    {
+      selector: 'edge',
+      style: {
+        'width': 1.5,
+        'line-color': '#94a3b8',
+        'target-arrow-color': '#94a3b8',
+        'target-arrow-shape': 'triangle',
+        'curve-style': 'bezier',
+        'arrow-scale': 0.8,
+      },
+    },
+  ];
 
-    // Clear loading state
-    container.innerHTML = '';
-
-    // Build Cytoscape elements
+  function buildElements(data: any) {
     const elements: any[] = [];
 
-    // Add track parent nodes (collapsed view)
     for (const track of data.tracks) {
       elements.push({
         data: {
@@ -55,7 +110,6 @@ const clientData = {
       });
     }
 
-    // Add topic nodes
     for (const node of data.nodes) {
       elements.push({
         data: {
@@ -69,7 +123,6 @@ const clientData = {
       });
     }
 
-    // Add edges
     for (const edge of data.edges) {
       elements.push({
         data: {
@@ -79,56 +132,14 @@ const clientData = {
       });
     }
 
+    return elements;
+  }
+
+  function createGraph(container: HTMLElement, data: any) {
     const cy = cytoscape({
       container,
-      elements,
-      style: [
-        // Track nodes (compound parents)
-        {
-          selector: 'node[type="track"]',
-          style: {
-            'background-color': 'data(color)',
-            'background-opacity': 0.15,
-            'border-width': 2,
-            'border-color': 'data(color)',
-            'label': 'data(label)',
-            'font-size': '14px',
-            'font-weight': 'bold',
-            'text-valign': 'top',
-            'text-halign': 'center',
-            'text-margin-y': 8,
-            'padding': '20px',
-          },
-        },
-        // Topic nodes
-        {
-          selector: 'node[type="topic"]',
-          style: {
-            'background-color': 'data(color)',
-            'label': 'data(label)',
-            'font-size': '10px',
-            'text-valign': 'bottom',
-            'text-halign': 'center',
-            'text-margin-y': 4,
-            'width': 20,
-            'height': 20,
-            'text-wrap': 'ellipsis',
-            'text-max-width': '80px',
-          },
-        },
-        // Edges
-        {
-          selector: 'edge',
-          style: {
-            'width': 1.5,
-            'line-color': '#94a3b8',
-            'target-arrow-color': '#94a3b8',
-            'target-arrow-shape': 'triangle',
-            'curve-style': 'bezier',
-            'arrow-scale': 0.8,
-          },
-        },
-      ],
+      elements: buildElements(data),
+      style: graphStyle as any,
       layout: {
         name: 'dagre',
         rankDir: 'TB',
@@ -148,17 +159,73 @@ const clientData = {
       const [track, topicId] = id.split('/');
       window.location.href = `/roadmaps/${track}/#${topicId}`;
     });
+
+    return cy;
   }
 
-  // Init on load
+  function initGraph() {
+    const container = document.getElementById('roadmap-graph');
+    const data = (window as any).__graphData;
+    if (!container || !data) return;
+
+    container.innerHTML = '';
+    createGraph(container, data);
+  }
+
+  function initModal() {
+    const expandBtn = document.getElementById('graph-expand-btn');
+    const modal = document.getElementById('graph-modal');
+    const modalContainer = document.getElementById('roadmap-graph-modal');
+    const closeBtn = document.getElementById('graph-modal-close');
+    const data = (window as any).__graphData;
+
+    if (!expandBtn || !modal || !modalContainer || !closeBtn || !data) return;
+
+    let modalCy: any = null;
+
+    expandBtn.addEventListener('click', () => {
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+      // Init graph in modal if not already
+      if (!modalCy) {
+        modalCy = createGraph(modalContainer, data);
+      } else {
+        modalCy.resize();
+        modalCy.fit();
+      }
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    });
+
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGraph);
+    document.addEventListener('DOMContentLoaded', () => {
+      initGraph();
+      initModal();
+    });
   } else {
     initGraph();
+    initModal();
   }
 </script>
 
 <style>
+  .graph-wrapper {
+    position: relative;
+  }
+
   .graph-container {
     width: 100%;
     height: 400px;
@@ -176,5 +243,92 @@ const clientData = {
     font-family: "IBM Plex Mono", monospace;
     font-size: 0.875rem;
     color: var(--color-text-muted);
+  }
+
+  /* Mobile hint overlay */
+  .graph-mobile-hint {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    border: none;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .graph-mobile-hint span {
+    background: var(--color-bg);
+    padding: 0.75rem 1.5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    border: 2px solid var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .graph-container {
+      height: 250px;
+    }
+
+    .graph-mobile-hint {
+      display: flex;
+    }
+  }
+
+  /* Fullscreen modal */
+  .graph-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .graph-modal[hidden] {
+    display: none;
+  }
+
+  .graph-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .graph-modal-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .graph-modal-close {
+    background: none;
+    border: 2px solid var(--color-text);
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--color-text);
+  }
+
+  .graph-modal-close:hover {
+    background: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .graph-modal-container {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .graph-modal-hint {
+    padding: 0.75rem;
+    text-align: center;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    border-top: 1px solid var(--color-border);
   }
 </style>
