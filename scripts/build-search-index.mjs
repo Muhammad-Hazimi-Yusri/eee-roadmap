@@ -13,7 +13,7 @@ const OUTPUT_FILE = join(DATA_DIR, 'search-index.json');
 const GLOSSARY_FILE = join(DATA_DIR, '_glossary.json');
 
 // Files to exclude from roadmap indexing
-const EXCLUDE = ['sample.json', 'pdf-manifest.json', 'search-index.json', '_glossary.json'];
+const EXCLUDE = ['sample.json', 'pdf-manifest.json', 'search-index.json', '_glossary.json', 'graph-data.json'];
 
 function buildSearchIndex() {
   console.log('🔍 Building search index...\n');

@@ -93,7 +93,7 @@ function buildReverseIndex(terms, lookup) {
   // Find all roadmap JSON files
   const jsonFiles = readdirSync(DATA_DIR)
     .filter(f => f.endsWith('.json'))
-    .filter(f => !['sample.json', '_glossary.json', 'pdf-manifest.json', 'search-index.json'].includes(f));
+    .filter(f => !['sample.json', '_glossary.json', 'pdf-manifest.json', 'search-index.json', 'graph-data.json'].includes(f));
   
   for (const file of jsonFiles) {
     const trackSlug = file.replace('.json', '');

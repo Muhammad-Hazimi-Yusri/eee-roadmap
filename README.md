@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.18.8-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.19.0-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.18.8)
+## Current Features (v0.19.0)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -48,6 +48,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **Auto-linked Terms** — Glossary terms in roadmap content show tooltips on hover
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 - **Import/Export** — Back up your progress as JSON; import with merge or replace options
+- **Graph View** — Interactive visualization of topic connections and prerequisites on homepage
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -118,9 +119,13 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **Goal:** Visualize relationships between tracks and topics.
 
-- [ ] Node-based visualization showing prereq connections
-- [ ] Interactive graph (click to navigate)
+- [x] Node-based visualization showing prereq connections
+- [x] Interactive graph (click to navigate)
+- [x] Dynamic track colors (curated palette + HSL overflow)
 - [ ] Filter by track/section
+- [ ] Progress status on nodes (complete/important)
+- [ ] Mini graph in footer
+- [ ] UI polish (node sizing, labels, dark mode)
 
 ---
 

@@ -154,15 +154,7 @@
     left: 0;
     width: 4px;
     height: 100%;
-    background-color: var(--color-copper);
-  }
-
-  .track[data-level="core"]::before {
-    background-color: var(--color-pcb);
-  }
-
-  .track[data-level="advanced"]::before {
-    background-color: var(--color-text);
+    background-color: var(--track-color, var(--color-copper));
   }
 
   /* Wire bullet points */

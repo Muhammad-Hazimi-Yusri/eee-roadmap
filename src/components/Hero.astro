@@ -1,5 +1,6 @@
 ---
 import { getAllTracks, roadmaps } from '../data';
+import RoadmapGraph from './RoadmapGraph.astro';
 
 // Compute stats dynamically
 const allTracks = getAllTracks();
@@ -63,6 +64,14 @@ const stats = [
           <span class="stat-label">{stat.label}</span>
         </div>
       ))}
+    </div>
+
+    <!-- Roadmap Graph -->
+    <div class="mt-8">
+      <p class="font-mono text-xs uppercase tracking-widest text-muted mb-3">
+        // topic connections
+      </p>
+      <RoadmapGraph />
     </div>
   </div>
 </section>

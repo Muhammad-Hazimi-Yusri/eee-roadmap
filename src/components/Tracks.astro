@@ -2,8 +2,11 @@
 import { internalHref } from '../utils/url';
 import { getFeaturedTracks } from '../data';
 import * as LucideIcons from '@lucide/astro';
+import { getTrackColorMap } from '../utils/trackColors';
 
 const featuredTracks = getFeaturedTracks();
+const trackSlugs = featuredTracks.map(t => t.slug);
+const colorMap = getTrackColorMap(trackSlugs);
 
 // Helper to get icon component by name
 function getIcon(iconName: string) {
@@ -28,7 +31,7 @@ function getIcon(iconName: string) {
       {featuredTracks.map(({ slug, meta }) => {
         const IconComponent = getIcon(meta.icon);
         return (
-          <article class="track" data-level={slug}>
+          <article class="track" style={`--track-color: ${colorMap[slug]}`}>
             <div class="flex items-center gap-3 mb-3">
               <IconComponent class="w-6 h-6 flex-shrink-0" />
               <h3 class="text-base font-semibold">{meta.title}</h3>
@@ -95,20 +98,12 @@ function getIcon(iconName: string) {
     left: 0;
     width: 4px;
     height: 100%;
-    background-color: var(--color-copper);
+    background-color: var(--track-color, var(--color-copper));
     transition: width 0.2s;
   }
 
   .track:hover::before {
     width: 6px;
-  }
-
-  .track[data-level="core"]::before {
-    background-color: var(--color-pcb);
-  }
-
-  .track[data-level="advanced"]::before {
-    background-color: var(--color-text);
   }
 
   /* Dark mode */

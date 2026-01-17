@@ -1,0 +1,180 @@
+---
+/**
+ * Interactive graph visualization of roadmap topics and prerequisites.
+ * Uses Cytoscape.js with dagre layout.
+ */
+import { getTrackColorMap } from '../utils/trackColors';
+import graphData from '../data/graph-data.json';
+
+const trackSlugs = graphData.tracks.map((t: { slug: string }) => t.slug);
+const colorMap = getTrackColorMap(trackSlugs);
+
+// Pass data to client
+const clientData = {
+  nodes: graphData.nodes,
+  edges: graphData.edges,
+  tracks: graphData.tracks,
+  colors: colorMap,
+};
+---
+
+<div class="graph-container" id="roadmap-graph">
+  <div class="graph-loading">Loading graph...</div>
+</div>
+
+<script define:vars={{ clientData }}>
+  window.__graphData = clientData;
+</script>
+
+<script>
+  import cytoscape from 'cytoscape';
+  import dagre from 'cytoscape-dagre';
+
+  cytoscape.use(dagre);
+
+  function initGraph() {
+    const container = document.getElementById('roadmap-graph');
+    const data = (window as any).__graphData;
+    if (!container || !data) return;
+
+    // Clear loading state
+    container.innerHTML = '';
+
+    // Build Cytoscape elements
+    const elements: any[] = [];
+
+    // Add track parent nodes (collapsed view)
+    for (const track of data.tracks) {
+      elements.push({
+        data: {
+          id: `track:${track.slug}`,
+          label: track.title,
+          type: 'track',
+          color: data.colors[track.slug],
+        },
+      });
+    }
+
+    // Add topic nodes
+    for (const node of data.nodes) {
+      elements.push({
+        data: {
+          id: node.id,
+          label: node.label,
+          parent: `track:${node.track}`,
+          type: 'topic',
+          track: node.track,
+          color: data.colors[node.track],
+        },
+      });
+    }
+
+    // Add edges
+    for (const edge of data.edges) {
+      elements.push({
+        data: {
+          source: edge.source,
+          target: edge.target,
+        },
+      });
+    }
+
+    const cy = cytoscape({
+      container,
+      elements,
+      style: [
+        // Track nodes (compound parents)
+        {
+          selector: 'node[type="track"]',
+          style: {
+            'background-color': 'data(color)',
+            'background-opacity': 0.15,
+            'border-width': 2,
+            'border-color': 'data(color)',
+            'label': 'data(label)',
+            'font-size': '14px',
+            'font-weight': 'bold',
+            'text-valign': 'top',
+            'text-halign': 'center',
+            'text-margin-y': 8,
+            'padding': '20px',
+          },
+        },
+        // Topic nodes
+        {
+          selector: 'node[type="topic"]',
+          style: {
+            'background-color': 'data(color)',
+            'label': 'data(label)',
+            'font-size': '10px',
+            'text-valign': 'bottom',
+            'text-halign': 'center',
+            'text-margin-y': 4,
+            'width': 20,
+            'height': 20,
+            'text-wrap': 'ellipsis',
+            'text-max-width': '80px',
+          },
+        },
+        // Edges
+        {
+          selector: 'edge',
+          style: {
+            'width': 1.5,
+            'line-color': '#94a3b8',
+            'target-arrow-color': '#94a3b8',
+            'target-arrow-shape': 'triangle',
+            'curve-style': 'bezier',
+            'arrow-scale': 0.8,
+          },
+        },
+      ],
+      layout: {
+        name: 'dagre',
+        rankDir: 'TB',
+        nodeSep: 30,
+        rankSep: 50,
+        padding: 20,
+      } as any,
+      userZoomingEnabled: true,
+      userPanningEnabled: true,
+      boxSelectionEnabled: false,
+    });
+
+    // Click to navigate
+    cy.on('tap', 'node[type="topic"]', (evt) => {
+      const node = evt.target;
+      const id = node.id();
+      const [track, topicId] = id.split('/');
+      window.location.href = `/roadmaps/${track}/#${topicId}`;
+    });
+  }
+
+  // Init on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGraph);
+  } else {
+    initGraph();
+  }
+</script>
+
+<style>
+  .graph-container {
+    width: 100%;
+    height: 400px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    position: relative;
+  }
+
+  .graph-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+</style>

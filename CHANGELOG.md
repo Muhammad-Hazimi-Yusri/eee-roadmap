@@ -11,6 +11,37 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.19.X] - 2025-01-17
+
+**Roadmap Graph View**
+
+### Added
+- Interactive graph visualization on homepage showing topic connections
+  - Cytoscape.js with dagre hierarchical layout
+  - Topics as nodes, prerequisites as edges
+  - Tracks as colored compound parent nodes
+  - Click topic to navigate to roadmap
+  - Pan and zoom enabled
+- Graph data build script (`scripts/build-graph-data.mjs`)
+  - Extracts nodes from all tracks
+  - Parses prerequisite links as edges
+  - Generates `src/data/graph-data.json`
+- Dynamic track colors utility (`src/utils/trackColors.ts`)
+  - Curated 8-color palette for first 8 tracks
+  - HSL rotation for overflow tracks
+  - Consistent colors across graph and track cards
+
+### Changed
+- Track cards now use dynamic colors via CSS custom property `--track-color`
+- Removed hardcoded `data-level` color system from Tracks.astro and global.css
+- Build chain: `build:data` now includes graph data generation
+
+### Technical Notes
+- Cytoscape.js + cytoscape-dagre for graph layout
+- Custom type declaration for cytoscape-dagre (`src/types/cytoscape-dagre.d.ts`)
+- Graph data excluded from roadmap loader, search index, and glossary scripts
+
+
 ## [0.18.X] - 2025-01-17
 
 **Profile & Progress Visualization**
