@@ -34,6 +34,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Curated 8-color palette for first 8 tracks
   - HSL rotation for overflow tracks
   - Consistent colors across graph and track cards
+- Progress status visualization on graph nodes
+  - Completed topics: hollow ring style (white/dark center with colored border)
+  - Important topics: yellow glow effect (underlay)
+  - Combined state supported
+  - Legend below graph explaining node states
 
 ### Changed
 - Track cards now use dynamic colors via CSS custom property `--track-color`

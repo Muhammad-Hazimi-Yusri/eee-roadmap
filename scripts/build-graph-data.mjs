@@ -35,12 +35,18 @@ function buildGraphData() {
 
     for (const section of data.sections || []) {
       for (const topic of section.items || []) {
+        // Collect concept keys for progress tracking
+        const conceptKeys = (topic.concepts || []).map(
+          (c) => `${topic.id}:${c.name}`
+        );
+        
         nodes.push({
           id: `${slug}/${topic.id}`,
           label: topic.title,
           track: slug,
           section: section.id,
           sectionTitle: section.title,
+          conceptKeys,
         });
       }
     }

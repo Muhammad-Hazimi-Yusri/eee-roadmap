@@ -25,6 +25,22 @@ const clientData = {
     <div class="graph-loading">Loading graph...</div>
   </div>
   
+  <!-- Legend -->
+  <div class="graph-legend">
+    <div class="graph-legend-item">
+      <span class="graph-legend-node graph-legend-node--default"></span>
+      <span>Topic</span>
+    </div>
+    <div class="graph-legend-item">
+      <span class="graph-legend-node graph-legend-node--complete"></span>
+      <span>Completed</span>
+    </div>
+    <div class="graph-legend-item">
+      <span class="graph-legend-node graph-legend-node--important"></span>
+      <span>Important</span>
+    </div>
+  </div>
+  
   <!-- Mobile tap hint -->
   <button class="graph-mobile-hint" id="graph-expand-btn" aria-label="Expand graph fullscreen">
     <span>Tap to explore</span>
@@ -97,6 +113,93 @@ const clientData = {
           'text-background-padding': '2px',
         },
       },
+      // Completed: inner ring style
+      {
+        selector: 'node[type="topic"][allComplete]',
+        style: {
+          'background-color': isDark ? '#0f172a' : '#ffffff',
+          'border-width': 4,
+          'border-color': 'data(color)',
+        },
+      },
+      // Important: glow effect using underlay
+      {
+        selector: 'node[type="topic"][hasImportant]',
+        style: {
+          'border-width': 3,
+          'border-color': isDark ? '#facc15' : '#eab308',
+          'underlay-color': isDark ? '#facc15' : '#eab308',
+          'underlay-padding': 6,
+          'underlay-opacity': 0.4,
+        },
+      },
+      // Both completed and important
+      {
+        selector: 'node[type="topic"][allComplete][hasImportant]',
+        style: {
+          'background-color': isDark ? '#1e293b' : '#ffffff',
+          'border-width': 4,
+          'border-color': isDark ? '#facc15' : '#eab308',
+          'underlay-color': isDark ? '#facc15' : '#eab308',
+          'underlay-padding': 6,
+          'underlay-opacity': 0.4,
+        },
+      },{
+        selector: 'node[type="topic"]',
+        style: {
+          'background-color': 'data(color)',
+          'label': 'data(label)',
+          'font-size': '9px',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 5,
+          'width': 22,
+          'height': 22,
+          'text-wrap': 'ellipsis',
+          'text-max-width': '70px',
+          'color': isDark ? '#e2e8f0' : '#1f2937',
+          'text-background-color': isDark ? '#1e293b' : '#ffffff',
+          'text-background-opacity': 0.85,
+          'text-background-padding': '2px',
+        },
+      },
+      // Completed: inner ring style
+      {
+        selector: 'node[type="topic"][allComplete]',
+        style: {
+          'background-color': isDark ? '#0f172a' : '#ffffff',
+          'border-width': 4,
+          'border-color': 'data(color)',
+        },
+      },
+      // Important: glow effect
+      {
+        selector: 'node[type="topic"][hasImportant]',
+        style: {
+          'border-width': 3,
+          'border-color': isDark ? '#fbbf24' : '#f59e0b',
+          'border-style': 'solid',
+          'shadow-blur': 8,
+          'shadow-color': isDark ? '#fbbf24' : '#f59e0b',
+          'shadow-opacity': 0.6,
+          'shadow-offset-x': 0,
+          'shadow-offset-y': 0,
+        },
+      },
+      // Both completed and important
+      {
+        selector: 'node[type="topic"][allComplete][hasImportant]',
+        style: {
+          'background-color': isDark ? '#0f172a' : '#ffffff',
+          'border-width': 4,
+          'border-color': isDark ? '#fbbf24' : '#f59e0b',
+          'shadow-blur': 8,
+          'shadow-color': isDark ? '#fbbf24' : '#f59e0b',
+          'shadow-opacity': 0.6,
+          'shadow-offset-x': 0,
+          'shadow-offset-y': 0,
+        },
+      },
       {
         selector: 'edge',
         style: {
@@ -111,8 +214,25 @@ const clientData = {
     ];
   }
 
+  function getProgress(): { complete: string[]; important: string[] } {
+    try {
+      const saved = localStorage.getItem('eee-progress-v2');
+      return saved ? JSON.parse(saved) : { complete: [], important: [] };
+    } catch {
+      return { complete: [], important: [] };
+    }
+  }
+
+  function getNodeStatus(conceptKeys: string[], progress: { complete: string[]; important: string[] }) {
+    const hasComplete = conceptKeys.some(k => progress.complete.includes(k));
+    const allComplete = conceptKeys.length > 0 && conceptKeys.every(k => progress.complete.includes(k));
+    const hasImportant = conceptKeys.some(k => progress.important.includes(k));
+    return { hasComplete, allComplete, hasImportant };
+  }
+
   function buildElements(data: any) {
     const elements: any[] = [];
+    const progress = getProgress();
 
     for (const track of data.tracks) {
       elements.push({
@@ -126,16 +246,23 @@ const clientData = {
     }
 
     for (const node of data.nodes) {
-      elements.push({
-        data: {
-          id: node.id,
-          label: node.label,
-          parent: `track:${node.track}`,
-          type: 'topic',
-          track: node.track,
-          color: data.colors[node.track],
-        },
-      });
+      const conceptKeys = node.conceptKeys || [];
+      const status = getNodeStatus(conceptKeys, progress);
+      
+      const nodeData: any = {
+        id: node.id,
+        label: node.label,
+        parent: `track:${node.track}`,
+        type: 'topic',
+        track: node.track,
+        color: data.colors[node.track],
+      };
+
+      // Only add status properties if true (so selectors work correctly)
+      if (status.allComplete) nodeData.allComplete = true;
+      if (status.hasImportant) nodeData.hasImportant = true;
+
+      elements.push({ data: nodeData });
     }
 
     for (const edge of data.edges) {
@@ -381,4 +508,57 @@ const clientData = {
       display: none;
     }
   }
+
+  /* Legend */
+  .graph-legend {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 0.75rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-top: none;
+    background: var(--color-bg);
+  }
+
+  .graph-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .graph-legend-node {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+  }
+
+  .graph-legend-node--default {
+    background: var(--color-copper);
+  }
+
+  .graph-legend-node--complete {
+    background: var(--color-bg);
+    border: 3px solid var(--color-copper);
+  }
+
+  .graph-legend-node--important {
+    background: var(--color-copper);
+    border: 2px solid #f59e0b;
+    box-shadow: 0 0 6px #f59e0b;
+  }
+
+  @media (max-width: 768px) {
+    .graph-legend {
+      gap: 0.75rem;
+      font-size: 0.625rem;
+    }
+    
+    .graph-legend-node {
+      width: 12px;
+      height: 12px;
+    }
+}
 </style>
