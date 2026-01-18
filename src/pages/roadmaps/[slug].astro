@@ -7,6 +7,7 @@ import Footer from '../../components/Footer.astro';
 import Roadmap from '../../components/Roadmap.astro';
 import { getRoadmap, getAllTracks } from '../../data';
 import GlossaryTooltips from '../../components/GlossaryTooltips.astro';
+import TrackGraph from '../../components/TrackGraph.astro';
 
 export function getStaticPaths() {
   const tracks = getAllTracks();
@@ -36,6 +37,8 @@ const { title, description } = Astro.props;
       
       <Roadmap sections={getRoadmap(slug)} trackSlug={slug} />
     </div>
+    
+    <TrackGraph trackSlug={slug} />
   </main>
   <Footer />
   <GlossaryTooltips />

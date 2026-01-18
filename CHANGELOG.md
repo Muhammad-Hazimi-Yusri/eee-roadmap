@@ -39,6 +39,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Important topics: yellow glow effect (underlay)
   - Combined state supported
   - Legend below graph explaining node states
+- Per-track mini graph on each roadmap page
+  - Shows current track topics with cross-track prerequisites
+  - Current track nodes prominent, other tracks dimmed
+  - Click topic to scroll (same track) or navigate (cross-track)
+  - Fullscreen modal support
+  - Dynamic legend with track-specific colors
+  - Conic gradient for "Other tracks" legend icon
 
 ### Changed
 - Track cards now use dynamic colors via CSS custom property `--track-color`

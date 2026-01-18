@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.19.3-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.19.4-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.19.3)
+## Current Features (v0.19.4)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -48,7 +48,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - **Auto-linked Terms** — Glossary terms in roadmap content show tooltips on hover
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 - **Import/Export** — Back up your progress as JSON; import with merge or replace options
-- **Graph View** — Interactive visualization of topic connections and prerequisites; fullscreen mode on all devices; dark mode support; progress status indicators
+- **Graph View** — Interactive visualization of topic connections and prerequisites; fullscreen mode on all devices; dark mode support; progress status indicators; per-track focused view on roadmap pages
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -127,7 +127,9 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] UI polish (node sizing, labels, dark mode)
 - [x] Progress status on nodes (complete/important)
 - [x] Legend for node states
-- [ ] Per-track mini graph in footer (focused on current track with cross-track prereqs)
+- [x] Progress status on nodes (complete/important)
+- [x] Legend for node states
+- [x] Per-track mini graph on roadmap pages (focused on current track with cross-track prereqs)
 - [ ] Filter by track/section
 
 ---

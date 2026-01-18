@@ -1,0 +1,525 @@
+---
+/**
+ * Mini graph visualization for a specific track.
+ * Shows the track's topics and cross-track prerequisite connections.
+ */
+import { getTrackColorMap } from '../utils/trackColors';
+import graphData from '../data/graph-data.json';
+
+interface Props {
+  trackSlug: string;
+}
+
+const { trackSlug } = Astro.props;
+
+const trackSlugs = graphData.tracks.map((t: { slug: string }) => t.slug);
+const colorMap = getTrackColorMap(trackSlugs);
+
+// Filter nodes: current track + connected nodes from other tracks
+const trackNodes = graphData.nodes.filter((n: any) => n.track === trackSlug);
+const trackNodeIds = new Set(trackNodes.map((n: any) => n.id));
+
+// Find edges where source or target is in this track
+const relevantEdges = graphData.edges.filter(
+  (e: any) => trackNodeIds.has(e.source) || trackNodeIds.has(e.target)
+);
+
+// Find connected nodes from other tracks
+const connectedNodeIds = new Set<string>();
+relevantEdges.forEach((e: any) => {
+  if (!trackNodeIds.has(e.source)) connectedNodeIds.add(e.source);
+  if (!trackNodeIds.has(e.target)) connectedNodeIds.add(e.target);
+});
+
+const connectedNodes = graphData.nodes.filter((n: any) => connectedNodeIds.has(n.id));
+
+// Get track info
+const currentTrack = graphData.tracks.find((t: any) => t.slug === trackSlug);
+
+const clientData = {
+  trackSlug,
+  trackTitle: currentTrack?.title || trackSlug,
+  nodes: [...trackNodes, ...connectedNodes],
+  edges: relevantEdges,
+  trackNodeIds: Array.from(trackNodeIds),
+  colors: colorMap,
+};
+
+const trackColor = colorMap[trackSlug] || '#b87333';
+---
+
+<section class="track-graph-section">
+  <div class="container">
+    <p class="font-mono text-xs uppercase tracking-widest text-muted mb-3">
+      // topic connections
+    </p>
+    
+    <div class="track-graph-wrapper">
+      <div class="track-graph-container" id="track-graph">
+        <div class="track-graph-loading">Loading graph...</div>
+      </div>
+      
+      <!-- Fullscreen button -->
+      <button class="track-graph-fullscreen-btn" id="track-graph-fullscreen-btn" aria-label="View fullscreen">
+        ⛶
+      </button>
+    </div>
+    
+    <!-- Legend -->
+    <div class="track-graph-legend">
+      <div class="track-graph-legend-item">
+        <span class="track-graph-legend-node track-graph-legend-node--current" style={`background: ${trackColor}`}></span>
+        <span>This track</span>
+      </div>
+      <div class="track-graph-legend-item">
+        <span class="track-graph-legend-node track-graph-legend-node--other"></span>
+        <span>Other tracks</span>
+      </div>
+      <div class="track-graph-legend-item">
+        <span class="track-graph-legend-node track-graph-legend-node--complete" style={`border-color: ${trackColor}`}></span>
+        <span>Completed</span>
+      </div>
+      <div class="track-graph-legend-item">
+        <span class="track-graph-legend-node track-graph-legend-node--important" style={`background: ${trackColor}`}></span>
+        <span>Important</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Fullscreen modal -->
+<div class="track-graph-modal" id="track-graph-modal" hidden>
+  <div class="track-graph-modal-header">
+    <span class="track-graph-modal-title">{currentTrack?.title} — Topic Connections</span>
+    <button class="track-graph-modal-close" id="track-graph-modal-close" aria-label="Close">✕</button>
+  </div>
+  <div class="track-graph-modal-container" id="track-graph-modal-container"></div>
+  <div class="track-graph-modal-hint">Pinch to zoom • Drag to pan • Tap topic to scroll</div>
+</div>
+
+<script define:vars={{ clientData }}>
+  window.__trackGraphData = clientData;
+</script>
+
+<script>
+  import cytoscape from 'cytoscape';
+  import dagre from 'cytoscape-dagre';
+
+  cytoscape.use(dagre);
+
+  // Must match PROGRESS_STORAGE_KEY in src/lib/constants.ts
+  const PROGRESS_KEY = 'eee-progress-v2';
+
+  function getProgress(): { complete: string[]; important: string[] } {
+    try {
+      const saved = localStorage.getItem(PROGRESS_KEY);
+      return saved ? JSON.parse(saved) : { complete: [], important: [] };
+    } catch {
+      return { complete: [], important: [] };
+    }
+  }
+
+  function getNodeStatus(conceptKeys: string[], progress: { complete: string[]; important: string[] }) {
+    const allComplete = conceptKeys.length > 0 && conceptKeys.every(k => progress.complete.includes(k));
+    const hasImportant = conceptKeys.some(k => progress.important.includes(k));
+    return { allComplete, hasImportant };
+  }
+
+  function getGraphStyle(isDark: boolean, currentTrackSlug: string, colors: Record<string, string>) {
+    const currentColor = colors[currentTrackSlug] || '#b87333';
+    
+    return [
+      // Current track nodes
+      {
+        selector: 'node[type="topic"][?isCurrent]',
+        style: {
+          'background-color': currentColor,
+          'label': 'data(label)',
+          'font-size': '10px',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 5,
+          'width': 24,
+          'height': 24,
+          'text-wrap': 'ellipsis',
+          'text-max-width': '80px',
+          'color': isDark ? '#e2e8f0' : '#1f2937',
+          'text-background-color': isDark ? '#1e293b' : '#ffffff',
+          'text-background-opacity': 0.85,
+          'text-background-padding': '2px',
+        },
+      },
+      // Other track nodes (dimmed)
+      {
+        selector: 'node[type="topic"][!isCurrent]',
+        style: {
+          'background-color': 'data(color)',
+          'background-opacity': 0.5,
+          'label': 'data(label)',
+          'font-size': '9px',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 5,
+          'width': 18,
+          'height': 18,
+          'text-wrap': 'ellipsis',
+          'text-max-width': '70px',
+          'color': isDark ? '#94a3b8' : '#64748b',
+          'text-background-color': isDark ? '#1e293b' : '#ffffff',
+          'text-background-opacity': 0.7,
+          'text-background-padding': '2px',
+        },
+      },
+      // Completed
+      {
+        selector: 'node[type="topic"][allComplete]',
+        style: {
+          'background-color': isDark ? '#1e293b' : '#ffffff',
+          'border-width': 5,
+          'border-color': 'data(color)',
+        },
+      },
+      // Important
+      {
+        selector: 'node[type="topic"][hasImportant]',
+        style: {
+          'border-width': 3,
+          'border-color': isDark ? '#facc15' : '#eab308',
+          'underlay-color': isDark ? '#facc15' : '#eab308',
+          'underlay-padding': 6,
+          'underlay-opacity': 0.4,
+        },
+      },
+      // Both
+      {
+        selector: 'node[type="topic"][allComplete][hasImportant]',
+        style: {
+          'background-color': isDark ? '#1e293b' : '#ffffff',
+          'border-width': 4,
+          'border-color': isDark ? '#facc15' : '#eab308',
+          'underlay-color': isDark ? '#facc15' : '#eab308',
+          'underlay-padding': 6,
+          'underlay-opacity': 0.4,
+        },
+      },
+      // Edges
+      {
+        selector: 'edge',
+        style: {
+          'width': 1.2,
+          'line-color': isDark ? '#64748b' : '#94a3b8',
+          'target-arrow-color': isDark ? '#94a3b8' : '#64748b',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'arrow-scale': 0.7,
+        },
+      },
+    ];
+  }
+
+  function buildElements(data: any) {
+    const elements: any[] = [];
+    const progress = getProgress();
+    const trackNodeIds = new Set(data.trackNodeIds);
+
+    for (const node of data.nodes) {
+      const conceptKeys = node.conceptKeys || [];
+      const status = getNodeStatus(conceptKeys, progress);
+      const isCurrent = trackNodeIds.has(node.id);
+      
+      const nodeData: any = {
+        id: node.id,
+        label: node.label,
+        type: 'topic',
+        track: node.track,
+        color: data.colors[node.track],
+        isCurrent,
+      };
+
+      if (status.allComplete) nodeData.allComplete = true;
+      if (status.hasImportant) nodeData.hasImportant = true;
+
+      elements.push({ data: nodeData });
+    }
+
+    for (const edge of data.edges) {
+      elements.push({
+        data: {
+          source: edge.source,
+          target: edge.target,
+        },
+      });
+    }
+
+    return elements;
+  }
+
+  function createGraph(container: HTMLElement, data: any) {
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    const cy = cytoscape({
+      container,
+      elements: buildElements(data),
+      style: getGraphStyle(isDark, data.trackSlug, data.colors) as any,
+      layout: {
+        name: 'dagre',
+        rankDir: 'TB',
+        nodeSep: 40,
+        rankSep: 50,
+        padding: 20,
+      } as any,
+      userZoomingEnabled: true,
+      userPanningEnabled: true,
+      boxSelectionEnabled: false,
+    });
+
+    // Click to scroll to topic (same page) or navigate (cross-track)
+    cy.on('tap', 'node[type="topic"]', (evt) => {
+      const node = evt.target;
+      const id = node.id();
+      const [track, topicId] = id.split('/');
+      
+      if (track === data.trackSlug) {
+        // Same track - scroll to topic
+        const topicEl = document.getElementById(topicId);
+        if (topicEl) {
+          topicEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Expand if collapsed
+          const btn = topicEl.querySelector('.node-button');
+          const content = topicEl.querySelector('.node-content') as HTMLElement;
+          if (btn && content && btn.getAttribute('aria-expanded') === 'false') {
+            btn.setAttribute('aria-expanded', 'true');
+            content.hidden = false;
+          }
+        }
+      } else {
+        // Different track - navigate
+        window.location.href = `/roadmaps/${track}/#${topicId}`;
+      }
+    });
+
+    return cy;
+  }
+
+  function initTrackGraph() {
+    const container = document.getElementById('track-graph');
+    const data = (window as any).__trackGraphData;
+    if (!container || !data) return;
+
+    container.innerHTML = '';
+    createGraph(container, data);
+  }
+
+  function initModal() {
+    const fullscreenBtn = document.getElementById('track-graph-fullscreen-btn');
+    const modal = document.getElementById('track-graph-modal') as HTMLElement | null;
+    const modalContainer = document.getElementById('track-graph-modal-container') as HTMLElement | null;
+    const closeBtn = document.getElementById('track-graph-modal-close');
+    const data = (window as any).__trackGraphData;
+
+    if (!modal || !modalContainer || !closeBtn || !data) return;
+
+    let modalCy: any = null;
+
+    function openModal() {
+      modal!.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+      if (!modalCy) {
+        modalCy = createGraph(modalContainer!, data);
+      } else {
+        modalCy.resize();
+        modalCy.fit();
+      }
+    }
+
+    fullscreenBtn?.addEventListener('click', openModal);
+
+    closeBtn.addEventListener('click', () => {
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initTrackGraph();
+      initModal();
+    });
+  } else {
+    initTrackGraph();
+    initModal();
+  }
+</script>
+
+<style>
+  .track-graph-section {
+    padding: 2rem 0 3rem;
+    border-top: 1px dashed var(--color-border);
+    margin-top: 3rem;
+  }
+
+  .track-graph-wrapper {
+    position: relative;
+  }
+
+  .track-graph-container {
+    width: 100%;
+    height: 300px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    position: relative;
+  }
+
+  .track-graph-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .track-graph-fullscreen-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+  }
+
+  .track-graph-fullscreen-btn:hover {
+    opacity: 1;
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+
+  /* Legend */
+  .track-graph-legend {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.75rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-top: none;
+    background: var(--color-bg);
+  }
+
+  .track-graph-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .track-graph-legend-node {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+  }
+
+  .track-graph-legend-node--current {
+    /* Color set via inline style */
+  }
+
+  .track-graph-legend-node--other {
+    background: conic-gradient(
+      #2d5a27 0deg 72deg,
+      #3b82f6 72deg 144deg,
+      #8b5cf6 144deg 216deg,
+      #14b8a6 216deg 288deg,
+      #f59e0b 288deg 360deg
+    );
+    opacity: 0.7;
+  }
+
+  .track-graph-legend-node--complete {
+    background: var(--color-bg);
+    border: 3px solid; /* Color set via inline style */
+  }
+
+  .track-graph-legend-node--important {
+    /* Background set via inline style */
+    border: 2px solid #f59e0b;
+    box-shadow: 0 0 6px #f59e0b;
+  }
+
+  /* Fullscreen modal */
+  .track-graph-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .track-graph-modal[hidden] {
+    display: none;
+  }
+
+  .track-graph-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .track-graph-modal-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .track-graph-modal-close {
+    background: none;
+    border: 2px solid var(--color-text);
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--color-text);
+  }
+
+  .track-graph-modal-close:hover {
+    background: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .track-graph-modal-container {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .track-graph-modal-hint {
+    padding: 0.75rem;
+    text-align: center;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    border-top: 1px solid var(--color-border);
+  }
+</style>
