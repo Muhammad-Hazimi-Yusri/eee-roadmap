@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.19.4-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.20.0-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -29,7 +29,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.19.4)
+## Current Features (v0.20.0)
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -130,7 +130,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [x] Progress status on nodes (complete/important)
 - [x] Legend for node states
 - [x] Per-track mini graph on roadmap pages (focused on current track with cross-track prereqs)
-- [ ] Filter by track/section
+- [x] Per-track mini graph on roadmap pages (focused on current track with cross-track prereqs)
+- [x] Filter by track on homepage graph
 
 ---
 
@@ -190,6 +191,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [ ] Performance optimized
 - [ ] Accessibility audit passed
 - [ ] PWA support for offline access
+- [ ] Filter by section on track page graph (post-v1.0)
 
 ---
 

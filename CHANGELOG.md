@@ -46,6 +46,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Fullscreen modal support
   - Dynamic legend with track-specific colors
   - Conic gradient for "Other tracks" legend icon
+- Track filter pills on homepage graph
+  - Toggle visibility per track
+  - "All" button to show all tracks
+  - Horizontal scroll for many tracks
+  - Filter state persisted to localStorage
+  - Animated layout transition when filtering
 
 ### Changed
 - Track cards now use dynamic colors via CSS custom property `--track-color`
