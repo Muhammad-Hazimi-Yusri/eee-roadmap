@@ -22,6 +22,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Tracks as colored compound parent nodes
   - Click topic to navigate to roadmap
   - Pan and zoom enabled
+  - Fullscreen modal for mobile (tap to explore)
+  - Fullscreen button for desktop
+  - Dark mode support with adaptive colors
+  - Text labels with background for readability
 - Graph data build script (`scripts/build-graph-data.mjs`)
   - Extracts nodes from all tracks
   - Parses prerequisite links as edges
@@ -35,6 +39,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Track cards now use dynamic colors via CSS custom property `--track-color`
 - Removed hardcoded `data-level` color system from Tracks.astro and global.css
 - Build chain: `build:data` now includes graph data generation
+- Graph node styling: larger nodes (22px), text backgrounds, track titles positioned above boxes
 
 ### Technical Notes
 - Cytoscape.js + cytoscape-dagre for graph layout

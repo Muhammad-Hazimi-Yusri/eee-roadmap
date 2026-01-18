@@ -29,6 +29,11 @@ const clientData = {
   <button class="graph-mobile-hint" id="graph-expand-btn" aria-label="Expand graph fullscreen">
     <span>Tap to explore</span>
   </button>
+  
+  <!-- Desktop fullscreen button -->
+  <button class="graph-fullscreen-btn" id="graph-fullscreen-btn" aria-label="View fullscreen">
+    ⛶
+  </button>
 </div>
 
 <!-- Fullscreen modal -->
@@ -51,50 +56,60 @@ const clientData = {
 
   cytoscape.use(dagre);
 
-  const graphStyle = [
-    {
-      selector: 'node[type="track"]',
-      style: {
-        'background-color': 'data(color)',
-        'background-opacity': 0.15,
-        'border-width': 2,
-        'border-color': 'data(color)',
-        'label': 'data(label)',
-        'font-size': '14px',
-        'font-weight': 'bold',
-        'text-valign': 'top',
-        'text-halign': 'center',
-        'text-margin-y': 8,
-        'padding': '20px',
+  function getGraphStyle(isDark: boolean) {
+    return [
+      {
+        selector: 'node[type="track"]',
+        style: {
+          'background-color': 'data(color)',
+          'background-opacity': isDark ? 0.25 : 0.15,
+          'border-width': 2,
+          'border-color': 'data(color)',
+          'label': 'data(label)',
+          'font-size': '14px',
+          'font-weight': 'bold',
+          'text-valign': 'top',
+          'text-halign': 'center',
+          'text-margin-y': -8,
+          'padding': '25px',
+          'color': isDark ? '#f8fafc' : '#1e293b',
+          'text-background-color': isDark ? '#0f172a' : 'transparent',
+          'text-background-opacity': isDark ? 0.8 : 0,
+          'text-background-padding': '4px',
+        },
       },
-    },
-    {
-      selector: 'node[type="topic"]',
-      style: {
-        'background-color': 'data(color)',
-        'label': 'data(label)',
-        'font-size': '10px',
-        'text-valign': 'bottom',
-        'text-halign': 'center',
-        'text-margin-y': 4,
-        'width': 20,
-        'height': 20,
-        'text-wrap': 'ellipsis',
-        'text-max-width': '80px',
+      {
+        selector: 'node[type="topic"]',
+        style: {
+          'background-color': 'data(color)',
+          'label': 'data(label)',
+          'font-size': '9px',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 5,
+          'width': 22,
+          'height': 22,
+          'text-wrap': 'ellipsis',
+          'text-max-width': '70px',
+          'color': isDark ? '#e2e8f0' : '#1f2937',
+          'text-background-color': isDark ? '#1e293b' : '#ffffff',
+          'text-background-opacity': 0.85,
+          'text-background-padding': '2px',
+        },
       },
-    },
-    {
-      selector: 'edge',
-      style: {
-        'width': 1.5,
-        'line-color': '#94a3b8',
-        'target-arrow-color': '#94a3b8',
-        'target-arrow-shape': 'triangle',
-        'curve-style': 'bezier',
-        'arrow-scale': 0.8,
+      {
+        selector: 'edge',
+        style: {
+          'width': 1.2,
+          'line-color': isDark ? '#64748b' : '#94a3b8',
+          'target-arrow-color': isDark ? '#94a3b8' : '#64748b',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'arrow-scale': 0.7,
+        },
       },
-    },
-  ];
+    ];
+  }
 
   function buildElements(data: any) {
     const elements: any[] = [];
@@ -136,16 +151,17 @@ const clientData = {
   }
 
   function createGraph(container: HTMLElement, data: any) {
+    const isDark = document.documentElement.classList.contains('dark');
     const cy = cytoscape({
       container,
       elements: buildElements(data),
-      style: graphStyle as any,
+      style: getGraphStyle(isDark) as any,
       layout: {
         name: 'dagre',
         rankDir: 'TB',
-        nodeSep: 30,
-        rankSep: 50,
-        padding: 20,
+        nodeSep: 40,
+        rankSep: 55,
+        padding: 25,
       } as any,
       userZoomingEnabled: true,
       userPanningEnabled: true,
@@ -174,27 +190,30 @@ const clientData = {
 
   function initModal() {
     const expandBtn = document.getElementById('graph-expand-btn');
-    const modal = document.getElementById('graph-modal');
-    const modalContainer = document.getElementById('roadmap-graph-modal');
+    const fullscreenBtn = document.getElementById('graph-fullscreen-btn');
+    const modal = document.getElementById('graph-modal') as HTMLElement | null;
+    const modalContainer = document.getElementById('roadmap-graph-modal') as HTMLElement | null;
     const closeBtn = document.getElementById('graph-modal-close');
     const data = (window as any).__graphData;
 
-    if (!expandBtn || !modal || !modalContainer || !closeBtn || !data) return;
+    if (!modal || !modalContainer || !closeBtn || !data) return;
 
     let modalCy: any = null;
 
-    expandBtn.addEventListener('click', () => {
-      modal.hidden = false;
+    function openModal() {
+      modal!.hidden = false;
       document.body.style.overflow = 'hidden';
 
-      // Init graph in modal if not already
       if (!modalCy) {
-        modalCy = createGraph(modalContainer, data);
+        modalCy = createGraph(modalContainer!, data);
       } else {
         modalCy.resize();
         modalCy.fit();
       }
-    });
+    }
+
+    expandBtn?.addEventListener('click', openModal);
+    fullscreenBtn?.addEventListener('click', openModal);
 
     closeBtn.addEventListener('click', () => {
       modal.hidden = true;
@@ -330,5 +349,36 @@ const clientData = {
     font-size: 0.75rem;
     color: var(--color-text-muted);
     border-top: 1px solid var(--color-border);
+  }
+
+  /* Desktop fullscreen button */
+  .graph-fullscreen-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+  }
+
+  .graph-fullscreen-btn:hover {
+    opacity: 1;
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .graph-fullscreen-btn {
+      display: none;
+    }
   }
 </style>
