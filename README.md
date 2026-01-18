@@ -9,13 +9,13 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.20.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.20.1-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
 <summary><strong>Table of Contents</strong></summary>
 
-- [Current Features](#current-features-v013x)
+- [Current Features](#current-features)
   - [For Learners](#for-learners)
   - [For Explorers](#for-explorers)
   - [For Contributors](#for-contributors)
@@ -29,7 +29,8 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 </details>
 
-## Current Features (v0.20.0)
+## Current Features
+Current version is v0.20.1
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -217,6 +218,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 - [Tailwind CSS](https://tailwindcss.com) — Utility-first CSS
 - [TypeScript](https://typescriptlang.org) — Type safety
 - [Supabase](https://supabase.com) — Auth & PostgreSQL database
+- [Cytoscape.js](https://js.cytoscape.org) — Graph visualization
 
 ---
 
@@ -229,6 +231,7 @@ eee-roadmap/
 │   ├── core.yaml               # Core track
 │   ├── advanced.yaml           # Advanced track
 │   ├── distributed-generation.yaml  # Specialization track
+│   ├── power-system-fundamentals.yaml  # Specialization track
 │   └── sample.yaml             # Template for new tracks (excluded from build)
 ├── public/
 │   ├── favicon.svg
@@ -236,12 +239,13 @@ eee-roadmap/
 │   ├── pdfs/                   # Downloaded PDFs (auto-generated)
 │   └── pdf-manifest.json       # URL → local path mapping (auto-generated)
 ├── scripts/
-│   ├── build-data.mjs          # Converts YAML roadmap files to JSON for the app to consume
-│   ├── build-search-index.mjs  # Generates search index from 
-JSON files
+│   ├── build-data.mjs          # Converts YAML roadmap files to JSON
+│   ├── build-glossary.mjs      # Generates glossary with reverse index
+│   ├── build-graph-data.mjs    # Generates graph nodes/edges from roadmaps
+│   ├── build-search-index.mjs  # Generates search index from JSON files
 │   ├── download-pdfs.mjs       # Downloads external PDFs from data files
 │   ├── setup-pdfjs.mjs         # Downloads PDF.js on npm install
-│   └── validae.mjs             # Validates YAML roadmap files against the JSON schema
+│   └── validate.mjs            # Validates YAML roadmap files against schema
 ├── src/
 │   ├── components/
 │   │   ├── ConceptWindows.astro
@@ -253,17 +257,21 @@ JSON files
 │   │   ├── GlossaryTooltips.astro
 │   │   ├── Header.astro
 │   │   ├── Hero.astro
-│   │   ├── SearchBar.astro
 │   │   ├── Placeholder.astro
+│   │   ├── ProgressFilter.astro
 │   │   ├── Roadmap.astro
+│   │   ├── RoadmapGraph.astro  # Homepage graph visualization
 │   │   ├── RoadmapSettings.astro
+│   │   ├── SearchBar.astro
 │   │   ├── ThemeToggle.astro
+│   │   ├── TrackGraph.astro    # Per-track graph visualization
 │   │   └── Tracks.astro
 │   ├── data/
 │   │   ├── index.ts            # Dynamic JSON loader
 │   │   ├── sample.json         # Example structure for contributors
 │   │   ├── *.json              # Generated from YAML (git-ignored)
 │   │   ├── _glossary.json      # Glossary with reverse index (auto-generated)
+│   │   ├── graph-data.json     # Graph nodes/edges (auto-generated)
 │   │   ├── search-index.json   # Search index (auto-generated)
 │   │   └── pdf-manifest.json   # URL → local path mapping (auto-generated)
 │   ├── layouts/
@@ -273,7 +281,8 @@ JSON files
 │   │   └── sync.ts             # Progress sync utilities
 │   ├── pages/
 │   │   ├── roadmaps/
-│   │   │   └── [slug].astro
+│   │   │   ├── index.astro     # All tracks page
+│   │   │   └── [slug].astro    # Dynamic track pages
 │   │   ├── about.astro
 │   │   ├── contribute.astro
 │   │   ├── glossary.astro
@@ -286,14 +295,16 @@ JSON files
 │   ├── styles/
 │   │   └── global.css
 │   ├── types/
+│   │   ├── cytoscape-dagre.d.ts  # Type declaration for cytoscape-dagre
 │   │   └── roadmap.ts
 │   └── utils/
-│       ├── parseNotes.test.ts
 │       ├── parseNotes.ts
+│       ├── parseNotes.test.ts
 │       ├── progress.ts
 │       ├── progress.test.ts
 │       ├── tools.ts
 │       ├── tools.test.ts
+│       ├── trackColors.ts      # Dynamic track color utilities
 │       ├── trail.ts
 │       ├── trail.test.ts
 │       ├── url.ts

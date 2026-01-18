@@ -20,7 +20,9 @@ npm run dev
 content/                # Roadmap YAML source files (edit these!)
 ├── fundamentals.yaml
 ├── core.yaml
-└── advanced.yaml
+├── advanced.yaml
+├── distributed-generation.yaml
+└── power-system-fundamentals.yaml
 src/
 ├── components/     # Astro components
 ├── data/           # Generated JSON + loader (don't edit JSONs directly)

@@ -60,10 +60,10 @@ rl.question('Enter new version (or patch/minor/major): ', (answer) => {
   // Update README.md
   let readme = readFileSync(README_PATH, 'utf-8');
 
-  // Update features heading
+  // Update version line under Current Features
   readme = readme.replace(
-    /## Current Features \(v[\d.]+\)/,
-    `## Current Features (v${newVersion})`
+    /Current version is v[\d.]+/,
+    `Current version is v${newVersion}`
   );
 
   // Update version badge
@@ -73,7 +73,7 @@ rl.question('Enter new version (or patch/minor/major): ', (answer) => {
   );
 
   writeFileSync(README_PATH, readme);
-  console.log(`✅ README.md → v${newVersion} (features heading + badge)`);
+  console.log(`✅ README.md → v${newVersion} (version line + badge)`);
   
   console.log(`\n✨ Version bumped to ${newVersion}`);
   console.log('   Run: git add package.json README.md\n');
