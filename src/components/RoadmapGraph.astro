@@ -395,8 +395,9 @@ const clientData = {
           return new Set(JSON.parse(saved));
         }
       } catch {}
-      // Default: all tracks visible
-      return new Set(data.tracks.map((t: any) => t.slug));
+      // Default: all tracks visible except long-chain tracks
+      const defaultHidden = ['power-system-fundamentals'];
+      return new Set(data.tracks.map((t: any) => t.slug).filter((s: string) => !defaultHidden.includes(s)));
     }
 
     // Save state
