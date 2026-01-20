@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.20.2-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.20.3-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.20.2
+Current version is v0.20.3
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -112,13 +112,8 @@ Current version is v0.20.2
 - [x] Auth dropdown for guests with View Profile link
 </details>
 
----
-
-### In Progress
-
-#### v0.19 - Roadmap Graph View
-
-**Goal:** Visualize relationships between tracks and topics.
+<details>
+<summary><strong>v0.19 - Roadmap Graph View ✓</strong></summary>
 
 - [x] Node-based visualization showing prereq connections
 - [x] Interactive graph (click to navigate)
@@ -128,27 +123,30 @@ Current version is v0.20.2
 - [x] UI polish (node sizing, labels, dark mode)
 - [x] Progress status on nodes (complete/important)
 - [x] Legend for node states
-- [x] Progress status on nodes (complete/important)
-- [x] Legend for node states
-- [x] Per-track mini graph on roadmap pages (focused on current track with cross-track prereqs)
 - [x] Per-track mini graph on roadmap pages (focused on current track with cross-track prereqs)
 - [x] Filter by track on homepage graph
+</details>
 
 ---
 
-### Planned
+### In Progress
 
 #### v0.20 - Custom Tracks & Editor
 
 **Goal:** Let users create and manage their own learning tracks.
 
-- [ ] Custom tracks and custom notes on existing tracks stored in Supabase (per-user, private)
-- [ ] Display on /roadmaps/ with "Custom" badge
+- [x] Custom content storage in Supabase (per-user, private, 500KB limit)
+- [x] Custom concept notes on existing tracks (distinct styling)
+- [x] Display custom tracks on /roadmaps/ with "Custom" badge
+- [ ] Custom track detail page
 - [ ] Form-based web editor with validation
 - [ ] Live preview
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
-- [ ] Per-user storage limit for now (~500KB)
+
+---
+
+### Planned
 
 #### v0.21 - Test Coverage & Quality
 
@@ -295,9 +293,11 @@ eee-roadmap/
 │   ├── styles/
 │   │   └── global.css
 │   ├── types/
+│   │   ├── custom-content.ts     # Custom tracks/concepts types
 │   │   ├── cytoscape-dagre.d.ts  # Type declaration for cytoscape-dagre
 │   │   └── roadmap.ts
 │   └── utils/
+│       ├── customContent.ts      # Custom content injection utilities
 │       ├── parseNotes.ts
 │       ├── parseNotes.test.ts
 │       ├── progress.ts

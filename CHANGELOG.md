@@ -11,6 +11,32 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.20.X] - 2025-01-20
+
+**Custom Tracks & Editor (WIP)**
+
+### Added
+- Custom content storage in Supabase
+  - `custom_content` JSONB column in `user_progress` table
+  - 500KB per-user storage limit enforced via database constraint
+- Custom concept notes on existing tracks
+  - Users can add personal notes to any topic (requires sign-in)
+  - Distinct styling: dashed border with pencil icon prefix
+  - Full ConceptWindow support (markdown, LaTeX, images)
+- Custom tracks display on `/roadmaps/` page
+  - "My Custom Tracks" section at bottom (only visible when tracks exist)
+  - Dashed border card style with "CUSTOM" badge
+- TypeScript types for custom content (`src/types/custom-content.ts`)
+- Custom content utilities (`src/utils/customContent.ts`)
+  - `injectCustomConcepts()` - adds custom notes to existing tracks
+  - `injectCustomTracks()` - renders custom tracks on browse page
+
+### Technical Notes
+- Custom concepts parsed to HTML at save time (not runtime) for performance
+- Reuses existing ConceptWindows and progress tracking infrastructure
+- Client-side injection after auth state resolves
+
+
 ## [0.19.X] - 2025-01-17
 
 **Roadmap Graph View**

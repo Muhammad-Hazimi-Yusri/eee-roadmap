@@ -318,3 +318,23 @@
     color: var(--color-text);
   }
 }
+
+/* Custom concept pill - user-created notes */
+.concept-pill--custom {
+  border: 1px dashed var(--color-copper);
+  background: transparent;
+  position: relative;
+}
+
+.concept-pill--custom::before {
+  content: '✎';
+  margin-right: 0.375rem;
+  font-size: 0.85em;
+  opacity: 1;
+  color: var(--color-copper);
+}
+
+.concept-pill--custom:hover {
+  background: var(--color-copper);
+  border-style: solid;
+}

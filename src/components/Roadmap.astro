@@ -1027,6 +1027,61 @@ for (const section of sections) {
   }
 
   // ============================================
+  // CUSTOM CONCEPTS (from Supabase)
+  // ============================================
+  async function initCustomConcepts() {
+    const { injectCustomConcepts } = await import('../utils/customContent');
+    const track = (window as any).trackSlug;
+    if (!track) return;
+
+    await injectCustomConcepts(track);
+
+    // Re-init progress tracking for newly injected pills
+    document.querySelectorAll('.concept-pill--custom').forEach((pill) => {
+      const topicId = pill.getAttribute('data-topic-id');
+      const concept = pill.getAttribute('data-concept');
+      if (!topicId || !concept) return;
+
+      const key = `${topicId}:${concept}`;
+
+      // Set initial state
+      if (isComplete(key)) {
+        pill.classList.add('concept-pill--completed');
+      }
+      if (isImportant(key)) {
+        pill.classList.add('concept-pill--important');
+      }
+
+      // Bind click handlers (same as regular pills)
+      let clickTimer: number | null = null;
+
+      pill.addEventListener('click', (e) => {
+        if (currentMode !== 'simple') return;
+        if ((e as MouseEvent).shiftKey) {
+          const important = toggleImportant(key);
+          pill.classList.toggle('concept-pill--important', important);
+          queueSync();
+          return;
+        }
+
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+          const completed = toggleComplete(key);
+          pill.classList.toggle('concept-pill--completed', completed);
+          updateTopicStatus(topicId);
+          queueSync();
+        } else {
+          clickTimer = window.setTimeout(() => {
+            clickTimer = null;
+            (window as any).conceptModal?.open(topicId, concept);
+          }, 250);
+        }
+      });
+    });
+  }
+
+  // ============================================
   // INIT
   // ============================================
   initNodeToggles();
@@ -1041,6 +1096,8 @@ for (const section of sections) {
   initToolbar();
   initSwipeGestures();
   initSwipeTrail();
+  // Load custom concepts after page init
+  initCustomConcepts();
 </script>
 
 

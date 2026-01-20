@@ -230,6 +230,12 @@ function getConceptKeys(slug: string): string[] {
         })}
       </div>
 
+      <!-- Custom Tracks Section (injected client-side) -->
+      <div id="custom-tracks-section" class="custom-tracks-section" hidden>
+        <h2 class="custom-tracks-heading">My Custom Tracks</h2>
+        <div id="custom-tracks-grid" class="tracks-grid"></div>
+      </div>
+
       {/* Mobile hint popup */}
       <div class="tap-hint" id="tap-hint">
         Tap again to open
@@ -652,6 +658,16 @@ function getConceptKeys(slug: string): string[] {
       applyFilters();
     });
   });
+
+  // ============================================
+  // CUSTOM TRACKS (from Supabase)
+  // ============================================
+  async function initCustomTracks() {
+    const { injectCustomTracks } = await import('../../utils/customContent');
+    await injectCustomTracks();
+  }
+
+  initCustomTracks();
 </script>
 
 <style is:global>
@@ -2086,4 +2102,86 @@ function getConceptKeys(slug: string): string[] {
   .box-card__pcb-hole--tr { top: 6px; right: 6px; }
   .box-card__pcb-hole--bl { bottom: 6px; left: 6px; }
   .box-card__pcb-hole--br { bottom: 6px; right: 6px; }
+
+  /* ==================== CUSTOM TRACKS ==================== */
+  .custom-tracks-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px dashed var(--color-border);
+  }
+
+  .custom-tracks-section[hidden] {
+    display: none;
+  }
+
+  .custom-tracks-heading {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .custom-tracks-heading::before {
+    content: '✎';
+    color: var(--color-copper);
+  }
+
+  .custom-badge {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    background: var(--color-copper);
+    color: white;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 5;
+  }
+
+  .custom-track-card {
+    position: relative;
+    display: block;
+    padding: 1.5rem;
+    background: var(--color-bg);
+    border: 2px dashed var(--color-copper);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: all 0.2s ease;
+  }
+
+  .custom-track-card:hover {
+    border-style: solid;
+    background: var(--color-bg-grid);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .custom-track-card__icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .custom-track-card__title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .custom-track-card__desc {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .custom-track-card__stats {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
 </style>

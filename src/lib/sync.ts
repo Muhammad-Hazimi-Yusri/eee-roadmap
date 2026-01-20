@@ -1,4 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase';
+import type { CustomContent } from '../types/custom-content';
+import { emptyCustomContent } from '../types/custom-content';
 
 const STORAGE_KEY = 'eee-progress-v2';
 
@@ -135,4 +137,39 @@ export function queueSync(): void {
     await saveCloudProgress(progress);
     console.log('Progress synced to cloud');
   }, 1000);
+}
+
+// Load custom content from Supabase
+export async function loadCustomContent(): Promise<CustomContent> {
+  if (!isSupabaseConfigured || !supabase) return emptyCustomContent;
+  
+  const userId = await getCurrentUserId();
+  if (!userId) return emptyCustomContent;
+
+  const { data, error } = await supabase
+    .from('user_progress')
+    .select('custom_content')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data?.custom_content) return emptyCustomContent;
+  return data.custom_content as CustomContent;
+}
+
+// Save custom content to Supabase
+export async function saveCustomContent(content: CustomContent): Promise<boolean> {
+  if (!isSupabaseConfigured || !supabase) return false;
+  
+  const userId = await getCurrentUserId();
+  if (!userId) return false;
+
+  const { error } = await supabase
+    .from('user_progress')
+    .upsert({
+      user_id: userId,
+      custom_content: content,
+      updated_at: new Date().toISOString(),
+    });
+
+  return !error;
 }
