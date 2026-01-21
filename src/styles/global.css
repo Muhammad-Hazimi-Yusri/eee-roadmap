@@ -338,3 +338,255 @@
   background: var(--color-copper);
   border-style: solid;
 }
+
+  .swipe-trail-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.7;
+  }
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text);
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-bg-grid);
+    border-left: 4px solid var(--color-copper);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .roadmap-track {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .roadmap-track::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--color-copper);
+  }
+
+  .roadmap-node {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .roadmap-node--optional {
+    margin-left: 3rem;
+  }
+
+  .roadmap-node--optional::before {
+    content: '';
+    position: absolute;
+    left: -2.5rem;
+    top: 0.75rem;
+    width: 2.5rem;
+    height: 2px;
+    border-top: 2px dashed var(--color-border);
+  }
+
+  .node-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.5rem 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+  }
+
+  .node-dot {
+    position: absolute;
+    left: 0;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-copper);
+    border-radius: 50%;
+    background-color: var(--color-bg);
+    flex-shrink: 0;
+  }
+
+  .roadmap-node--optional .node-dot {
+    border-style: dashed;
+    border-color: var(--color-border);
+  }
+
+  .node-button:hover .node-dot {
+    background-color: var(--color-copper);
+  }
+
+  .node-button[aria-expanded="true"] .node-dot {
+    background-color: var(--color-copper);
+  }
+
+  .node-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .roadmap-node--optional .node-title {
+    color: var(--color-text-muted);
+  }
+
+  .node-content {
+    margin-top: 0.5rem;
+    margin-left: 0;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.5);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  :global(.dark) .node-content {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  /* Paper styling in tools mode */
+  .tools-mode-active .node-content {
+    background: rgba(255, 253, 240, 0.9);
+    box-shadow: inset 0 0 0 1px var(--color-copper), 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-copper);
+    user-select: none;
+  }
+
+  :global(.dark) .tools-mode-active .node-content {
+    background: rgba(50, 45, 35, 0.9);
+  }
+
+  .node-description {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Concepts */
+  .node-concepts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .concept-pill {
+    /* Extends .pill from global.css */
+  }
+
+  /* Resources */
+  .node-resources {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .resources-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .resource-link {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--color-pcb);
+    color: white;
+    text-decoration: none;
+  }
+
+  .resource-link:hover {
+    background-color: var(--color-pcb-light);
+  }
+
+  /* Prerequisites */
+  .node-prereqs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prereqs-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Outcomes */
+  .node-outcomes {
+    margin-bottom: 0.75rem;
+  }
+
+  .outcomes-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .outcomes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .outcome-item {
+    font-size: 0.8125rem;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+
+  .outcome-item::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--color-pcb);
+  }
+
+  /* Topic completion */
+  .topic--completed .node-title {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .topic--completed .node-dot {
+    background-color: var(--color-pcb) !important;
+    border-color: var(--color-pcb);
+  }
+
+  @keyframes focus-glow {
+    0% { box-shadow: 0 0 0 0 rgba(184, 134, 11, 0.7); }
+    50% { box-shadow: 0 0 8px 4px rgba(184, 134, 11, 0.5); }
+    100% { box-shadow: 0 0 0 0 rgba(184, 134, 11, 0); }
+  }

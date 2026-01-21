@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.20.3-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.20.4-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.20.3
+Current version is v0.20.4
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -138,7 +138,7 @@ Current version is v0.20.3
 - [x] Custom content storage in Supabase (per-user, private, 500KB limit)
 - [x] Custom concept notes on existing tracks (distinct styling)
 - [x] Display custom tracks on /roadmaps/ with "Custom" badge
-- [ ] Custom track detail page
+- [x] Custom track detail page
 - [ ] Form-based web editor with validation
 - [ ] Live preview
 - [ ] Export as JSON/ZIP (ready to deploy)
@@ -279,6 +279,8 @@ eee-roadmap/
 │   │   └── sync.ts             # Progress sync utilities
 │   ├── pages/
 │   │   ├── roadmaps/
+│   │   │   ├── custom/
+│   │   │   │   └── index.astro   # Custom track detail page
 │   │   │   ├── index.astro     # All tracks page
 │   │   │   └── [slug].astro    # Dynamic track pages
 │   │   ├── about.astro
@@ -302,6 +304,8 @@ eee-roadmap/
 │       ├── parseNotes.test.ts
 │       ├── progress.ts
 │       ├── progress.test.ts
+│       ├── renderRoadmap.ts      # Roadmap HTML generation utility
+│       ├── roadmapInteractions.ts # Roadmap interaction logic
 │       ├── tools.ts
 │       ├── tools.test.ts
 │       ├── trackColors.ts      # Dynamic track color utilities

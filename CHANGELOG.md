@@ -11,7 +11,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.20.X] - 2025-01-20
+## [0.20.X] - 2025-01-21
 
 **Custom Tracks & Editor (WIP)**
 
@@ -26,15 +26,25 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Custom tracks display on `/roadmaps/` page
   - "My Custom Tracks" section at bottom (only visible when tracks exist)
   - Dashed border card style with "CUSTOM" badge
+- Custom track detail page (`/roadmaps/custom/?track=slug`)
+  - Client-side rendering from Supabase data
+  - Full roadmap interactivity (expand/collapse, progress tracking, tools mode)
 - TypeScript types for custom content (`src/types/custom-content.ts`)
 - Custom content utilities (`src/utils/customContent.ts`)
   - `injectCustomConcepts()` - adds custom notes to existing tracks
   - `injectCustomTracks()` - renders custom tracks on browse page
 
+### Changed
+- Refactored roadmap rendering for reuse
+  - `src/utils/renderRoadmap.ts` - generates roadmap HTML from sections data
+  - `src/utils/roadmapInteractions.ts` - extracted all interaction logic
+- Moved roadmap component CSS to `global.css` for dynamic content support
+
 ### Technical Notes
 - Custom concepts parsed to HTML at save time (not runtime) for performance
 - Reuses existing ConceptWindows and progress tracking infrastructure
 - Client-side injection after auth state resolves
+- Custom tracks skip glossary term wrapping (simpler, user knows their own terms)
 
 
 ## [0.19.X] - 2025-01-17

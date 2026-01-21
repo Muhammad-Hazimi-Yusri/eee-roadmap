@@ -1,0 +1,137 @@
+---
+// src/pages/roadmaps/custom/index.astro
+
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import RoadmapSettings from '../../../components/RoadmapSettings.astro';
+import ConceptModal from '../../../components/ConceptWindows.astro';
+---
+
+<Layout title="Custom Track">
+  <Header />
+  <main class="roadmap-page">
+    <div class="container py-8">
+      <!-- Header section - populated client-side -->
+      <div id="track-header">
+        <p class="loading-placeholder">Loading custom track...</p>
+      </div>
+
+      <!-- Settings panel & concept windows -->
+      <RoadmapSettings />
+      <ConceptModal />
+
+      <!-- Roadmap content - populated client-side -->
+      <div id="custom-roadmap-container" class="roadmap"></div>
+
+      <!-- Error state (hidden by default) -->
+      <div id="track-error" class="error-message" hidden>
+        <p>Custom track not found.</p>
+        <a href="/roadmaps/" class="btn">← Back to tracks</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  import { loadCustomContent } from '../../../lib/sync';
+  import { renderRoadmapHtml } from '../../../utils/renderRoadmap';
+  import { initRoadmapInteractions } from '../../../utils/roadmapInteractions';
+
+  async function initCustomTrack() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('track');
+
+    const header = document.getElementById('track-header');
+    const container = document.getElementById('custom-roadmap-container');
+    const errorEl = document.getElementById('track-error');
+
+    if (!slug) {
+      showError();
+      return;
+    }
+
+    try {
+      const content = await loadCustomContent();
+      const track = content.tracks?.[slug];
+
+      if (!track) {
+        showError();
+        return;
+      }
+
+      // Set trackSlug for progress tracking
+      (window as any).trackSlug = slug;
+
+      // Render header
+      if (header) {
+        header.innerHTML = `
+          <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// custom track</p>
+          <h1 class="text-3xl font-bold mb-2">${track.meta.title}</h1>
+          <p class="text-muted">${track.meta.description}</p>
+        `;
+      }
+
+      // Render roadmap
+      if (container) {
+        container.innerHTML = renderRoadmapHtml(track.sections);
+      }
+
+      // Build conceptData for ConceptWindows
+      buildConceptData(track.sections);
+
+    } catch (err) {
+      console.error('Failed to load custom track:', err);
+      showError();
+    }
+
+    function showError() {
+      if (header) header.style.display = 'none';
+      if (container) container.style.display = 'none';
+      if (errorEl) errorEl.hidden = false;
+    }
+
+    initRoadmapInteractions();
+  }
+
+  function buildConceptData(sections: any[]) {
+    const conceptData: Record<string, Record<string, { notesHtml?: string }>> = {};
+
+    for (const section of sections) {
+      for (const item of section.items || []) {
+        if (item.concepts?.length) {
+          conceptData[item.id] = {};
+          for (const concept of item.concepts) {
+            conceptData[item.id][concept.name] = {
+              notesHtml: concept.notesHtml || concept.notes || '',
+            };
+          }
+        }
+      }
+    }
+
+    (window as any).conceptData = conceptData;
+  }
+
+  initCustomTrack();
+</script>
+
+<style is:global>
+  .loading-placeholder {
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--color-text-muted);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .error-message {
+    text-align: center;
+    padding: 3rem;
+  }
+
+  .error-message p {
+    margin-bottom: 1rem;
+    color: var(--color-text-muted);
+  }
+</style>

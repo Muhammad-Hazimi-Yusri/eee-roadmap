@@ -77,7 +77,7 @@ export async function injectCustomTracks(): Promise<void> {
   // Render each custom track
   Object.entries(content.tracks).forEach(([slug, track]) => {
     const card = document.createElement('a');
-    card.href = `/roadmaps/custom/${slug}/`;
+    card.href = `/roadmaps/custom/?track=${slug}`;
     card.className = 'custom-track-card';
     card.innerHTML = `
       <span class="custom-badge">Custom</span>
