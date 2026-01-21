@@ -21,6 +21,28 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
       <RoadmapSettings />
       <ConceptModal />
 
+      <!-- Editor container (hidden by default) -->
+      <div id="editor-container" class="editor-container" hidden>
+        <div class="editor-toolbar">
+          <button class="btn btn--outline" id="preview-toggle-btn">👁 Preview</button>
+          <button class="btn btn--primary" id="save-track-btn">💾 Save</button>
+          <button class="btn btn--outline" id="cancel-edit-btn">✕ Cancel</button>
+        </div>
+        <div id="editor-form" class="editor-form">
+          <!-- Form fields will be injected here -->
+        </div>
+      </div>
+
+      <!-- Preview container (hidden by default) -->
+      <div id="preview-container" class="preview-container" hidden>
+        <div class="editor-toolbar">
+          <button class="btn btn--outline" id="edit-toggle-btn">✎ Edit</button>
+          <button class="btn btn--primary" id="save-track-btn-preview">💾 Save</button>
+          <button class="btn btn--outline" id="cancel-edit-btn-preview">✕ Cancel</button>
+        </div>
+        <div id="preview-roadmap" class="roadmap"></div>
+      </div>
+
       <!-- Roadmap content - populated client-side -->
       <div id="custom-roadmap-container" class="roadmap"></div>
 
@@ -42,11 +64,20 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
   async function initCustomTrack() {
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('track');
+    const isEditMode = params.get('edit') === 'true';
+    const isNewMode = params.get('new') === 'true';
 
     const header = document.getElementById('track-header');
     const container = document.getElementById('custom-roadmap-container');
     const errorEl = document.getElementById('track-error');
 
+    // Create new track
+    if (isNewMode) {
+      initEditor(null); // null = new track
+      return;
+    }
+
+    // Need a slug for view/edit
     if (!slug) {
       showError();
       return;
@@ -61,6 +92,12 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
         return;
       }
 
+      if (isEditMode) {
+        initEditor(track, slug);
+        return;
+      }
+
+
       // Set trackSlug for progress tracking
       (window as any).trackSlug = slug;
 
@@ -68,9 +105,16 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
       if (header) {
         header.innerHTML = `
           <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// custom track</p>
-          <h1 class="text-3xl font-bold mb-2">${track.meta.title}</h1>
+          <div class="custom-track-header-row">
+            <h1 class="text-3xl font-bold">${track.meta.title}</h1>
+            <button class="btn btn--outline edit-track-btn" id="edit-track-btn">✎ Edit</button>
+          </div>
           <p class="text-muted">${track.meta.description}</p>
         `;
+
+        document.getElementById('edit-track-btn')?.addEventListener('click', () => {
+          window.location.search = `?track=${slug}&edit=true`;
+        });
       }
 
       // Render roadmap
@@ -115,6 +159,389 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
   }
 
   initCustomTrack();
+
+  function initEditor(track: any, slug?: string) {
+    const header = document.getElementById('track-header');
+    const viewContainer = document.getElementById('custom-roadmap-container');
+    const editorContainer = document.getElementById('editor-container');
+    const previewContainer = document.getElementById('preview-container');
+
+    // Hide view mode elements
+    if (viewContainer) viewContainer.hidden = true;
+    
+    // Update header
+    if (header) {
+      const mode = track ? 'Edit' : 'Create';
+      const title = track?.meta?.title || 'New Track';
+      header.innerHTML = `
+        <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// ${mode.toLowerCase()} custom track</p>
+        <h1 class="text-3xl font-bold mb-2">${title}</h1>
+      `;
+    }
+
+    // Show editor
+    if (editorContainer) editorContainer.hidden = false;
+
+    // Initialize form with track data or empty template
+    const editorState = track ? structuredClone(track) : getEmptyTrack();
+    renderEditorForm(editorState);
+
+    // Toggle preview
+    document.getElementById('preview-toggle-btn')?.addEventListener('click', () => {
+      if (editorContainer) editorContainer.hidden = true;
+      if (previewContainer) previewContainer.hidden = false;
+      renderPreview(editorState);
+    });
+
+    // Toggle back to edit
+    document.getElementById('edit-toggle-btn')?.addEventListener('click', () => {
+      if (previewContainer) previewContainer.hidden = true;
+      if (editorContainer) editorContainer.hidden = false;
+    });
+
+    // Cancel buttons
+    const handleCancel = () => {
+      if (slug) {
+        window.location.search = `?track=${slug}`;
+      } else {
+        window.location.href = '/roadmaps/';
+      }
+    };
+    document.getElementById('cancel-edit-btn')?.addEventListener('click', handleCancel);
+    document.getElementById('cancel-edit-btn-preview')?.addEventListener('click', handleCancel);
+
+    // Save buttons (placeholder for now)
+    const handleSave = () => {
+      console.log('Save track:', editorState);
+      // TODO: implement save
+    };
+    document.getElementById('save-track-btn')?.addEventListener('click', handleSave);
+    document.getElementById('save-track-btn-preview')?.addEventListener('click', handleSave);
+  }
+
+  function getEmptyTrack() {
+    return {
+      meta: {
+        title: '',
+        description: '',
+        icon: 'book',
+        featured: false,
+        category: 'custom',
+        order: 999
+      },
+      sections: []
+    };
+  }
+
+  function renderEditorForm(state: any) {
+    const form = document.getElementById('editor-form');
+    if (!form) return;
+
+    form.innerHTML = `
+      <fieldset class="editor-fieldset">
+        <legend class="editor-legend">Track Info</legend>
+        
+        <div class="editor-field">
+          <label class="editor-label" for="track-title">Title *</label>
+          <input 
+            type="text" 
+            id="track-title" 
+            class="editor-input" 
+            value="${state.meta.title}" 
+            placeholder="e.g. Power Electronics"
+            required
+          />
+        </div>
+
+        <div class="editor-field">
+          <label class="editor-label" for="track-description">Description *</label>
+          <textarea 
+            id="track-description" 
+            class="editor-input editor-textarea" 
+            placeholder="Brief description of what this track covers..."
+            required
+          >${state.meta.description}</textarea>
+        </div>
+
+        <div class="editor-field-row editor-field-row--3">
+        <div class="editor-field">
+          <label class="editor-label" for="track-icon">Icon</label>
+          <input 
+            type="text" 
+            id="track-icon" 
+            class="editor-input" 
+            value="${state.meta.icon || 'book'}" 
+            placeholder="lucide icon name"
+          />
+          <span class="editor-hint">See <a href="https://lucide.dev/icons/" target="_blank">lucide.dev/icons</a></span>
+        </div>
+
+        <div class="editor-field">
+          <label class="editor-label" for="track-category">Category</label>
+          <select id="track-category" class="editor-input">
+            <option value="custom" ${state.meta.category === 'custom' ? 'selected' : ''}>Custom</option>
+            <option value="core" ${state.meta.category === 'core' ? 'selected' : ''}>Core</option>
+            <option value="specialization" ${state.meta.category === 'specialization' ? 'selected' : ''}>Specialization</option>
+            <option value="misc" ${state.meta.category === 'misc' ? 'selected' : ''}>Misc</option>
+          </select>
+        </div>
+
+        <div class="editor-field">
+          <label class="editor-label" for="track-order">Order</label>
+          <input 
+            type="number" 
+            id="track-order" 
+            class="editor-input" 
+            value="${state.meta.order || 999}" 
+            min="0"
+          />
+          <span class="editor-hint">Lower = earlier in list</span>
+        </div>
+      </div>
+      </fieldset>
+
+      <fieldset class="editor-fieldset">
+        <legend class="editor-legend">Sections</legend>
+        <div id="sections-container"></div>
+        <button type="button" class="btn btn--outline add-section-btn" id="add-section-btn">+ Add Section</button>
+      </fieldset>
+    `;
+
+    // Bind meta field changes to state
+    bindMetaFields(state);
+    
+    // Render existing sections
+    renderSections(state);
+  }
+
+  function bindMetaFields(state: any) {
+    document.getElementById('track-title')?.addEventListener('input', (e) => {
+      state.meta.title = (e.target as HTMLInputElement).value;
+    });
+    document.getElementById('track-description')?.addEventListener('input', (e) => {
+      state.meta.description = (e.target as HTMLTextAreaElement).value;
+    });
+    document.getElementById('track-icon')?.addEventListener('input', (e) => {
+      state.meta.icon = (e.target as HTMLInputElement).value;
+    });
+    document.getElementById('track-category')?.addEventListener('change', (e) => {
+      state.meta.category = (e.target as HTMLSelectElement).value;
+    });
+  }
+
+  function renderSections(state: any) {
+    const container = document.getElementById('sections-container');
+    if (!container) return;
+
+    if (state.sections.length === 0) {
+      container.innerHTML = '<p class="text-muted">No sections yet. Add one below.</p>';
+      return;
+    }
+
+    container.innerHTML = state.sections.map((section: any, sectionIndex: number) => `
+      <div class="editor-section" data-section-index="${sectionIndex}">
+        <div class="editor-section-header">
+          <input 
+            type="text" 
+            class="editor-input editor-section-title" 
+            value="${section.title}" 
+            placeholder="Section title"
+            data-field="section-title"
+            data-section="${sectionIndex}"
+          />
+          <button type="button" class="btn btn--danger btn--sm remove-section-btn" data-section="${sectionIndex}">✕</button>
+        </div>
+        
+        <div class="editor-topics" id="topics-${sectionIndex}">
+          ${section.items.map((item: any, topicIndex: number) => renderTopicEditor(item, sectionIndex, topicIndex)).join('')}
+        </div>
+        
+        <button type="button" class="btn btn--outline btn--sm add-topic-btn" data-section="${sectionIndex}">+ Add Topic</button>
+      </div>
+    `).join('');
+
+    // Bind section events
+    bindSectionEvents(state);
+  }
+
+  function renderTopicEditor(item: any, sectionIndex: number, topicIndex: number): string {
+    return `
+      <div class="editor-topic" data-section="${sectionIndex}" data-topic="${topicIndex}">
+        <div class="editor-topic-header">
+          <span class="editor-topic-dot"></span>
+          <input 
+            type="text" 
+            class="editor-input editor-topic-title" 
+            value="${item.title}" 
+            placeholder="Topic title"
+            data-field="topic-title"
+            data-section="${sectionIndex}"
+            data-topic="${topicIndex}"
+          />
+          <button type="button" class="btn btn--danger btn--sm remove-topic-btn" data-section="${sectionIndex}" data-topic="${topicIndex}">✕</button>
+        </div>
+        
+        <div class="editor-topic-body">
+          <textarea 
+            class="editor-input editor-topic-desc" 
+            placeholder="Topic description..."
+            data-field="topic-description"
+            data-section="${sectionIndex}"
+            data-topic="${topicIndex}"
+          >${item.description || ''}</textarea>
+          
+          <div class="editor-concepts">
+            <span class="editor-label">Concepts:</span>
+            <div class="editor-concepts-list" id="concepts-${sectionIndex}-${topicIndex}">
+              ${(item.concepts || []).map((c: any, conceptIndex: number) => `
+                <span class="editor-concept-pill" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}">
+                  ${c.name}
+                  <button type="button" class="remove-concept-btn" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}">×</button>
+                </span>
+              `).join('')}
+              <input 
+                type="text" 
+                class="editor-concept-input" 
+                placeholder="+ Add concept"
+                data-section="${sectionIndex}"
+                data-topic="${topicIndex}"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindSectionEvents(state: any) {
+    // Section title changes
+    document.querySelectorAll('[data-field="section-title"]').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        state.sections[sectionIndex].title = target.value;
+      });
+    });
+
+    // Topic title changes
+    document.querySelectorAll('[data-field="topic-title"]').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        state.sections[sectionIndex].items[topicIndex].title = target.value;
+      });
+    });
+
+    // Topic description changes
+    document.querySelectorAll('[data-field="topic-description"]').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const target = e.target as HTMLTextAreaElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        state.sections[sectionIndex].items[topicIndex].description = target.value;
+      });
+    });
+
+    // Add section
+    document.getElementById('add-section-btn')?.addEventListener('click', () => {
+      state.sections.push({
+        id: `section-${Date.now()}`,
+        title: 'New Section',
+        items: []
+      });
+      renderSections(state);
+    });
+
+    // Remove section
+    document.querySelectorAll('.remove-section-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        state.sections.splice(sectionIndex, 1);
+        renderSections(state);
+      });
+    });
+
+    // Add topic
+    document.querySelectorAll('.add-topic-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        state.sections[sectionIndex].items.push({
+          id: `topic-${Date.now()}`,
+          title: 'New Topic',
+          description: '',
+          concepts: []
+        });
+        renderSections(state);
+      });
+    });
+
+    // Remove topic
+    document.querySelectorAll('.remove-topic-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        state.sections[sectionIndex].items.splice(topicIndex, 1);
+        renderSections(state);
+      });
+    });
+
+    // Add concept (on Enter)
+    document.querySelectorAll('.editor-concept-input').forEach(input => {
+      input.addEventListener('keydown', (e: Event) => {
+        const keyEvent = e as KeyboardEvent;
+        if (keyEvent.key === 'Enter') {
+          keyEvent.preventDefault();
+          const target = e.target as HTMLInputElement;
+          const value = target.value.trim();
+          if (!value) return;
+          
+          const sectionIndex = parseInt(target.dataset.section!);
+          const topicIndex = parseInt(target.dataset.topic!);
+          
+          if (!state.sections[sectionIndex].items[topicIndex].concepts) {
+            state.sections[sectionIndex].items[topicIndex].concepts = [];
+          }
+          state.sections[sectionIndex].items[topicIndex].concepts.push({ name: value });
+          renderSections(state);
+        }
+      });
+    });
+
+    // Remove concept
+    document.querySelectorAll('.remove-concept-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        const conceptIndex = parseInt(target.dataset.concept!);
+        state.sections[sectionIndex].items[topicIndex].concepts.splice(conceptIndex, 1);
+        renderSections(state);
+      });
+    });
+  }
+
+  function renderPreview(state: any) {
+    const preview = document.getElementById('preview-roadmap');
+    if (!preview) return;
+
+    // Set trackSlug for progress tracking (use temp slug for new tracks)
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('track') || 'new-track-preview';
+    (window as any).trackSlug = slug;
+
+    import('../../../utils/renderRoadmap').then(({ renderRoadmapHtml }) => {
+      preview.innerHTML = renderRoadmapHtml(state.sections);
+      
+      // Initialize interactions for preview
+      import('../../../utils/roadmapInteractions').then(({ initRoadmapInteractions }) => {
+        initRoadmapInteractions();
+      });
+    });
+  }
 </script>
 
 <style is:global>
@@ -133,5 +560,239 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
   .error-message p {
     margin-bottom: 1rem;
     color: var(--color-text-muted);
+  }
+
+  .custom-track-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .edit-track-btn {
+    flex-shrink: 0;
+  }
+
+  .editor-container,
+  .preview-container {
+    margin-bottom: 2rem;
+  }
+
+  .editor-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--color-border);
+  }
+
+  .editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .editor-fieldset {
+    border: 1px solid var(--color-border);
+    padding: 1.5rem;
+    margin: 0;
+  }
+
+  .editor-legend {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 0.5rem;
+    color: var(--color-text-muted);
+  }
+
+  .editor-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .editor-field:last-child {
+    margin-bottom: 0;
+  }
+
+  .editor-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .editor-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .editor-input {
+    font-family: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .editor-input:focus {
+    outline: none;
+    border-color: var(--color-copper);
+  }
+
+  .editor-textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  .editor-hint {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+
+  .editor-hint a {
+    color: var(--color-copper);
+  }
+
+  .add-section-btn {
+    margin-top: 1rem;
+  }
+
+  .editor-field-row--3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  @media (max-width: 640px) {
+    .editor-field-row,
+    .editor-field-row--3 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .editor-section {
+    border: 1px solid var(--color-border);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--color-bg);
+  }
+
+  .editor-section-header {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .editor-section-title {
+    flex: 1;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .editor-topics {
+    margin-left: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--color-copper);
+  }
+
+  .editor-topic {
+    margin-bottom: 1rem;
+  }
+
+  .editor-topic-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .editor-topic-dot {
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--color-copper);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .editor-topic-title {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .editor-topic-body {
+    margin-left: 1.25rem;
+  }
+
+  .editor-topic-desc {
+    width: 100%;
+    min-height: 60px;
+    margin-bottom: 0.5rem;
+  }
+
+  .editor-concepts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .editor-concepts-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .editor-concept-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+    font-size: 0.75rem;
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  .editor-concept-pill .remove-concept-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    padding: 0;
+    line-height: 1;
+  }
+
+  .editor-concept-pill .remove-concept-btn:hover {
+    color: var(--color-danger, #c00);
+  }
+
+  .editor-concept-input {
+    border: 1px dashed var(--color-border);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    width: 120px;
+  }
+
+  .btn--sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .btn--danger {
+    color: var(--color-danger, #c00);
+    border-color: var(--color-danger, #c00);
+  }
+
+  .btn--danger:hover {
+    background: var(--color-danger, #c00);
+    color: white;
   }
 </style>

@@ -29,6 +29,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Custom track detail page (`/roadmaps/custom/?track=slug`)
   - Client-side rendering from Supabase data
   - Full roadmap interactivity (expand/collapse, progress tracking, tools mode)
+- Custom track editor (`/roadmaps/custom/?track=slug&edit=true` or `?new=true`)
+  - Edit/Preview toggle with live preview
+  - Meta fields: title, description, icon, category, order
+  - Sections: add, remove, edit title
+  - Topics: add, remove, edit title and description
+  - Concepts: add (Enter key), remove (names only, notes edited separately)
+  - Cancel returns to view mode or /roadmaps/
 - TypeScript types for custom content (`src/types/custom-content.ts`)
 - Custom content utilities (`src/utils/customContent.ts`)
   - `injectCustomConcepts()` - adds custom notes to existing tracks
@@ -45,6 +52,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Reuses existing ConceptWindows and progress tracking infrastructure
 - Client-side injection after auth state resolves
 - Custom tracks skip glossary term wrapping (simpler, user knows their own terms)
+- Editor state is mutable object passed through functions, re-renders on structural changes
 
 
 ## [0.19.X] - 2025-01-17
