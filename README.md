@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.20.6-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.20.7-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.20.6
+Current version is v0.20.7
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -41,7 +41,9 @@ Current version is v0.20.6
 - **Two Interaction Modes:**
   - *Simple* — Click (notes), double-click (complete), shift+click (important)
   - *Tools* — Swipe gestures with pen/highlighter/eraser (optimized for tablet/stylus)
-- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs; open windows persist across page refreshes; taskbar for window management
+- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs; open windows persist across page refreshes; taskbar for window management; built-in markdown editor for adding personal notes
+- **Custom Concept Notes** — Add personal notes to any concept (official or custom tracks); notes appear above original content with visual distinction; supports full markdown with LaTeX
+- **Add Custom Concepts** — Create your own concept pills on official track topics (signed-in users); concepts sync across devices
 - **Global Search** — Fuzzy search across all tracks, topics, and concept notes (`Ctrl+K`)
 - **Deep Links** — Share links directly to specific concepts
 - **State Persistence** — Topic expand/collapse state saved per track, settings panel remembers preferences
@@ -150,13 +152,16 @@ Current version is v0.20.6
   - [x] Validation before save (required fields, duplicate detection)
   - [x] Save to Supabase
   - [x] "Create New Track" button on /roadmaps/ page
-- [ ] Concept Notes Editor (separate from roadmap editor)
+- [x] Concept Notes Editor (separate from roadmap editor)
   - Markdown editor inside ConceptWindow (edit button)
   - Works for custom track concepts AND custom notes on official tracks
   - Keeps roadmap editor focused on structure (sections/topics/concept names)
   - Concept content editing is contextual (edit while viewing the concept)
-- [ ] UI to add custom concept notes on existing tracks
-- [ ] Live preview (partially done - preview toggle exists)
+- [x] UI to add custom concept notes on existing tracks
+  - "+" button on concept lists (signed-in users)
+  - Modal for entering concept name
+  - Custom concepts styled distinctly (dashed border)
+- [x] Live preview (partially done - preview toggle exists)
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
 - [ ] Drag-and-drop reordering for sections and topics
@@ -322,6 +327,7 @@ eee-roadmap/
 │       ├── customContent.ts      # Custom content injection utilities
 │       ├── parseNotes.ts
 │       ├── parseNotes.test.ts
+│       ├── parseNotesClient.ts   # Client-side markdown parser
 │       ├── progress.ts
 │       ├── progress.test.ts
 │       ├── renderRoadmap.ts      # Roadmap HTML generation utility

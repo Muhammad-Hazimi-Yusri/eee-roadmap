@@ -45,6 +45,156 @@ export async function injectCustomConcepts(trackSlug: string): Promise<void> {
   });
 }
 
+/**
+ * Adds "+" buttons to concept lists for adding custom concepts.
+ * Only shows for signed-in users.
+ */
+export async function addCustomConceptButtons(trackSlug: string): Promise<void> {
+  const { getCurrentUserId } = await import('../lib/sync');
+  const userId = await getCurrentUserId();
+  
+  // Only for signed-in users
+  if (!userId) return;
+
+  // Find all concept lists
+  document.querySelectorAll('.node-concepts').forEach((conceptList) => {
+    // Skip if already has add button
+    if (conceptList.querySelector('.add-custom-concept-btn')) return;
+    
+    const topicNode = conceptList.closest('[data-node-id]');
+    const topicId = topicNode?.getAttribute('data-node-id');
+    if (!topicId) return;
+
+    // Create add button
+    const addBtn = document.createElement('button');
+    addBtn.className = 'add-custom-concept-btn';
+    addBtn.setAttribute('type', 'button');
+    addBtn.setAttribute('title', 'Add custom concept');
+    addBtn.setAttribute('aria-label', 'Add custom concept');
+    addBtn.innerHTML = '+';
+    
+    addBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openAddConceptModal(trackSlug, topicId);
+    });
+
+    conceptList.appendChild(addBtn);
+  });
+}
+
+/**
+ * Opens modal to add a new custom concept
+ */
+function openAddConceptModal(trackSlug: string, topicId: string): void {
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'add-concept-modal';
+  modal.innerHTML = `
+    <div class="add-concept-modal-backdrop"></div>
+    <div class="add-concept-modal-content">
+      <h3 class="add-concept-modal-title">Add Custom Concept</h3>
+      <input 
+        type="text" 
+        class="add-concept-modal-input" 
+        placeholder="Concept name..."
+        autofocus
+      />
+      <div class="add-concept-modal-actions">
+        <button class="btn btn--sm add-concept-cancel">Cancel</button>
+        <button class="btn btn--sm btn--primary add-concept-save">Add</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const input = modal.querySelector('.add-concept-modal-input') as HTMLInputElement;
+  const backdrop = modal.querySelector('.add-concept-modal-backdrop');
+  const cancelBtn = modal.querySelector('.add-concept-cancel');
+  const saveBtn = modal.querySelector('.add-concept-save');
+
+  // Focus input
+  setTimeout(() => input?.focus(), 50);
+
+  // Close modal
+  const closeModal = () => modal.remove();
+
+  backdrop?.addEventListener('click', closeModal);
+  cancelBtn?.addEventListener('click', closeModal);
+
+  // Save concept
+  const handleSave = async () => {
+    const name = input?.value.trim();
+    if (!name) {
+      input?.focus();
+      return;
+    }
+
+    saveBtn!.textContent = 'Adding...';
+    (saveBtn as HTMLButtonElement).disabled = true;
+
+    try {
+      const { loadCustomContent, saveCustomContent } = await import('../lib/sync');
+      const content = await loadCustomContent();
+
+      // Initialize concepts map if needed
+      if (!content.concepts) {
+        content.concepts = {};
+      }
+
+      // Key format: "track-slug/topic-id"
+      const key = `${trackSlug}/${topicId}`;
+      if (!content.concepts[key]) {
+        content.concepts[key] = [];
+      }
+
+      // Check for duplicate
+      const exists = content.concepts[key].some(c => c.name === name);
+      if (exists) {
+        alert('A concept with this name already exists in this topic.');
+        saveBtn!.textContent = 'Add';
+        (saveBtn as HTMLButtonElement).disabled = false;
+        return;
+      }
+
+      // Add new concept
+      content.concepts[key].push({
+        name,
+        isCustom: true,
+      });
+
+      // Save to Supabase
+      const success = await saveCustomContent(content);
+
+      if (success) {
+        closeModal();
+        // Reload to show new concept
+        window.location.reload();
+      } else {
+        alert('Failed to save. Are you signed in?');
+        saveBtn!.textContent = 'Add';
+        (saveBtn as HTMLButtonElement).disabled = false;
+      }
+    } catch (err) {
+      console.error('Failed to add concept:', err);
+      alert('Failed to add concept.');
+      saveBtn!.textContent = 'Add';
+      (saveBtn as HTMLButtonElement).disabled = false;
+    }
+  };
+
+  saveBtn?.addEventListener('click', handleSave);
+  
+  // Enter key to save
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+}
+
 /** Adds custom concept to window.conceptData for ConceptWindows */
 function addToConceptData(topicId: string, concept: CustomConcept): void {
   const conceptData = (window as any).conceptData || {};
@@ -54,6 +204,7 @@ function addToConceptData(topicId: string, concept: CustomConcept): void {
   
   conceptData[topicId][concept.name] = {
     notesHtml: concept.notesHtml || '',
+    isCustom: true,
   };
   
   (window as any).conceptData = conceptData;
@@ -109,4 +260,13 @@ export async function injectCustomTracks(): Promise<void> {
     `;
     grid.appendChild(card);
   });
+}
+
+/**
+ * Loads user concept notes into window.conceptNotes.
+ * Call this after page load and auth state is resolved.
+ */
+export async function loadConceptNotes(): Promise<void> {
+  const content = await loadCustomContent();
+  (window as any).conceptNotes = content.conceptNotes || {};
 }

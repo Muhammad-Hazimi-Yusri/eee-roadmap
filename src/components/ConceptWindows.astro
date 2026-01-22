@@ -30,6 +30,11 @@
   <div class="concept-window" data-window-id="">
     <div class="concept-window-titlebar">
       <span class="concept-window-title">Concept Name</span>
+      <button class="concept-window-btn concept-window-edit" aria-label="Edit notes" title="Edit notes">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8.5 1.5l2 2M1 11l.5-2L9 1.5l2 2L3.5 11 1 11z"/>
+        </svg>
+      </button>
       <div class="concept-window-controls">
         <button class="concept-window-btn concept-window-minimize" aria-label="Minimize" title="Minimize">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
@@ -271,6 +276,92 @@
   .concept-window-close:hover {
     background: #e81123;
     color: white;
+  }
+
+  /* Edit button - positioned before controls */
+  .concept-window-edit {
+    margin-right: auto; /* Push controls to the right */
+    margin-left: 8px;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+  }
+
+  .concept-window-edit:hover {
+    opacity: 1;
+    background: rgba(59, 130, 246, 0.2); /* Blue tint on hover */
+  }
+
+  /* Adjust titlebar to accommodate edit button */
+  .concept-window-title {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Concept Notes Editor */
+  .concept-notes-editor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .concept-notes-textarea {
+    flex: 1;
+    width: 100%;
+    min-height: 150px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    resize: none;
+  }
+
+  .concept-notes-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  .concept-notes-textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+
+  .concept-notes-editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  /* Divider between original and user notes */
+  .concept-notes-divider {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 16px 0;
+  }
+
+  /* User notes styling (distinguish from original) */
+  .concept-notes-user {
+    position: relative;
+    padding-left: 12px;
+    border-left: 2px solid var(--accent);
+  }
+
+  .concept-notes-user::before {
+    content: '✏️ Your notes';
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   /* Content */
@@ -894,21 +985,22 @@
     // Set content
     const bodyEl = win.querySelector('.concept-window-body');
     if (bodyEl) {
-      let html = '';
-
-      if (concept.notesHtml) {
-        html = `<div class="concept-window-notes">${concept.notesHtml}</div>`;
-      } else {
-        html = `
-          <div class="concept-window-placeholder">
-            📝 Notes not yet uploaded for this concept.
-          </div>
-        `;
-      }
-
-      bodyEl.innerHTML = html;
+      // Load and render content (async to fetch user notes if needed)
+      renderWindowContent(bodyEl, topicId, conceptName, concept.notesHtml || '');
     }
 
+    // Update edit button title based on context
+    const editBtn = win.querySelector('.concept-window-edit');
+    if (editBtn) {
+      const trackSlug = (window as any).trackSlug || 'unknown';
+      const noteKey = `${trackSlug}/${topicId}/${conceptName}`;
+      const conceptNotes = (window as any).conceptNotes || {};
+      const hasUserNotes = !!conceptNotes[noteKey];
+      
+      editBtn.setAttribute('title', hasUserNotes ? 'Edit your notes' : 'Add your notes');
+      editBtn.setAttribute('aria-label', hasUserNotes ? 'Edit your notes' : 'Add your notes');
+    }
+    
     // Set initial position and width
     const state = getInitialState(windowId);
     win.style.left = `${state.x}px`;
@@ -993,12 +1085,19 @@
     const closeBtn = win.querySelector('.concept-window-close');
     const minimizeBtn = win.querySelector('.concept-window-minimize');
     const maximizeBtn = win.querySelector('.concept-window-maximize');
+    const editBtn = win.querySelector('.concept-window-edit');
     const controls = win.querySelector('.concept-window-controls');
 
     // Close
     closeBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       closeWindow(windowId);
+    });
+
+    // Edit notes
+    editBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openNotesEditor(win, windowId);
     });
 
     // Minimize
@@ -1289,6 +1388,275 @@
       const idsToClose = openWindows.map(w => w.id);
       idsToClose.forEach(id => closeWindow(id));
     });
+  }
+
+  // Open notes editor in the concept window
+  function openNotesEditor(win: HTMLElement, windowId: string) {
+    const [topicId, conceptName] = windowId.split(':');
+    const trackSlug = (window as any).trackSlug || 'unknown';
+    
+    // Check if this is a custom concept
+    const isCustomTrack = (window as any).isCustomTrack || false;
+    const conceptData = (window as any).conceptData || {};
+    const concept = conceptData[topicId]?.[conceptName] || {};
+    const isCustomConcept = isCustomTrack || concept.isCustom || false;
+    
+    const bodyEl = win.querySelector('.concept-window-body');
+    if (!bodyEl) return;
+    
+    // Store original content for cancel
+    const originalHtml = bodyEl.innerHTML;
+    
+    // Determine what to load in the editor
+    let existingContent = '';
+    
+    if (isCustomConcept) {
+      // Custom concept: load the raw markdown from conceptNotes or empty
+      // For custom concepts, we store markdown in conceptNotes with same key pattern
+      const noteKey = `${trackSlug}/${topicId}/${conceptName}`;
+      const conceptNotes = (window as any).conceptNotes || {};
+      existingContent = conceptNotes[noteKey] || '';
+    } else {
+      // Official concept: load user's additional notes
+      const noteKey = `${trackSlug}/${topicId}/${conceptName}`;
+      const conceptNotes = (window as any).conceptNotes || {};
+      existingContent = conceptNotes[noteKey] || '';
+    }
+    
+    // Different placeholder text based on concept type
+    const placeholder = isCustomConcept 
+      ? `Write your concept notes in Markdown...
+
+Supports:
+- **bold**, *italic*
+- LaTeX: $E = mc^2$
+- Images: ![alt](url)
+- PDFs: ![label](file.pdf)`
+      : `Add your personal notes for this concept...
+
+Your notes will appear above the official content.
+
+Supports: **bold**, *italic*, LaTeX: $E = mc^2$`;
+    
+    // Create editor UI
+    bodyEl.innerHTML = `
+      <div class="concept-notes-editor">
+        <textarea class="concept-notes-textarea" placeholder="${placeholder}">${existingContent}</textarea>
+        <div class="concept-notes-editor-actions">
+          <button class="btn btn--sm concept-notes-cancel">Cancel</button>
+          <button class="btn btn--sm btn--primary concept-notes-save">Save</button>
+        </div>
+      </div>
+    `;
+    
+    // Focus textarea
+    const textarea = bodyEl.querySelector('.concept-notes-textarea') as HTMLTextAreaElement;
+    textarea?.focus();
+    
+    // Cancel button - restore original content
+    bodyEl.querySelector('.concept-notes-cancel')?.addEventListener('click', () => {
+      bodyEl.innerHTML = originalHtml;
+    });
+    
+    // Save button
+    bodyEl.querySelector('.concept-notes-save')?.addEventListener('click', async () => {
+      const markdown = textarea?.value || '';
+      await saveConceptNotes(windowId, markdown, win, isCustomConcept);
+    });
+  }
+
+  // Save concept notes to Supabase and update display
+  async function saveConceptNotes(
+    windowId: string,
+    markdown: string, 
+    win: HTMLElement,
+    isCustomConcept: boolean
+  ) {
+    const [topicId, conceptName] = windowId.split(':');
+    const trackSlug = (window as any).trackSlug || 'unknown';
+    const noteKey = `${trackSlug}/${topicId}/${conceptName}`;
+    
+    const bodyEl = win.querySelector('.concept-window-body');
+    if (!bodyEl) return;
+    
+    // Show saving state
+    const saveBtn = bodyEl.querySelector('.concept-notes-save') as HTMLButtonElement;
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+    }
+    
+    try {
+      const { loadCustomContent, saveCustomContent } = await import('../lib/sync');
+      const { parseNotesClient } = await import('../utils/parseNotesClient');
+      
+      // Load existing content
+      const content = await loadCustomContent();
+      
+      // Initialize conceptNotes if needed
+      if (!content.conceptNotes) {
+        content.conceptNotes = {};
+      }
+      
+      // Update or remove the note
+      if (markdown.trim()) {
+        content.conceptNotes[noteKey] = markdown;
+      } else {
+        delete content.conceptNotes[noteKey];
+      }
+      
+      // Save to Supabase
+      const success = await saveCustomContent(content);
+      
+      if (!success) {
+        alert('Failed to save. Are you signed in?');
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save';
+        }
+        return;
+      }
+      
+      // Update local cache
+      const conceptNotes = (window as any).conceptNotes || {};
+      if (markdown.trim()) {
+        conceptNotes[noteKey] = markdown;
+      } else {
+        delete conceptNotes[noteKey];
+      }
+      (window as any).conceptNotes = conceptNotes;
+      
+      // Parse the markdown
+      const notesHtml = markdown.trim() ? parseNotesClient(markdown) : '';
+      
+      // Update conceptData
+      const conceptData = (window as any).conceptData || {};
+      if (!conceptData[topicId]) conceptData[topicId] = {};
+      if (!conceptData[topicId][conceptName]) conceptData[topicId][conceptName] = {};
+      
+      const existing = conceptData[topicId][conceptName];
+      
+      if (isCustomConcept) {
+        // Custom concept: replace entire content
+        existing.notesHtml = notesHtml ? `<div class="concept-notes-user">${notesHtml}</div>` : '';
+      } else {
+        // Official concept: store original, show user notes on top
+        if (!existing.originalHtml && existing.notesHtml) {
+          existing.originalHtml = existing.notesHtml;
+        }
+        const originalHtml = existing.originalHtml || '';
+        
+        if (notesHtml && originalHtml) {
+          existing.notesHtml = `<div class="concept-notes-user">${notesHtml}</div><hr class="concept-notes-divider">${originalHtml}`;
+        } else if (notesHtml) {
+          existing.notesHtml = `<div class="concept-notes-user">${notesHtml}</div>`;
+        } else {
+          existing.notesHtml = originalHtml;
+        }
+      }
+      
+      (window as any).conceptData = conceptData;
+      
+      // Re-render window body
+      renderWindowBody(bodyEl, existing.notesHtml, isCustomConcept);
+      
+    } catch (err) {
+      console.error('Failed to save concept notes:', err);
+      alert('Failed to save notes.');
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+      }
+    }
+  }
+  
+  // Render window body content
+  function renderWindowBody(bodyEl: Element, notesHtml: string, isCustomConcept: boolean = false) {
+    if (notesHtml) {
+      bodyEl.innerHTML = `<div class="concept-window-notes">${notesHtml}</div>`;
+    } else if (isCustomConcept) {
+      bodyEl.innerHTML = `
+        <div class="concept-window-placeholder">
+          📝 No notes yet.<br>
+          <span class="placeholder-hint">Click the <strong>✏️ edit button</strong> in the titlebar to add content.</span>
+        </div>
+      `;
+    } else {
+      bodyEl.innerHTML = `
+        <div class="concept-window-placeholder">
+          📝 Notes not yet uploaded for this concept.
+        </div>
+      `;
+    }
+  }
+
+  // Load user notes and render window content
+  async function renderWindowContent(bodyEl: Element, topicId: string, conceptName: string, originalHtml: string) {
+    const trackSlug = (window as any).trackSlug || 'unknown';
+    const noteKey = `${trackSlug}/${topicId}/${conceptName}`;
+    
+    // Load conceptNotes if not already loaded
+    if (!(window as any).conceptNotes) {
+      try {
+        const { loadCustomContent } = await import('../lib/sync');
+        const content = await loadCustomContent();
+        (window as any).conceptNotes = content.conceptNotes || {};
+      } catch {
+        (window as any).conceptNotes = {};
+      }
+    }
+    
+    const conceptNotes = (window as any).conceptNotes || {};
+    const userMarkdown = conceptNotes[noteKey] || '';
+    
+    if (userMarkdown) {
+      await renderWindowBodyWithUserNotes(bodyEl, originalHtml, userMarkdown);
+    } else if (originalHtml) {
+      bodyEl.innerHTML = `<div class="concept-window-notes">${originalHtml}</div>`;
+    } else {
+      const isCustomTrack = (window as any).isCustomTrack || false;
+      const conceptData = (window as any).conceptData || {};
+      const concept = conceptData[topicId]?.[conceptName] || {};
+      const isCustomConcept = isCustomTrack || concept.isCustom || false;
+      
+      if (isCustomConcept) {
+        bodyEl.innerHTML = `
+          <div class="concept-window-placeholder">
+            📝 No notes yet.<br>
+            <span class="placeholder-hint">Click the <strong>✏️ edit button</strong> in the titlebar to add content.</span>
+          </div>
+        `;
+      } else {
+        bodyEl.innerHTML = `
+          <div class="concept-window-placeholder">
+            📝 Notes not yet uploaded for this concept.
+          </div>
+        `;
+      }
+    }
+  }
+
+  // Render window body with parsed user notes
+  async function renderWindowBodyWithUserNotes(bodyEl: Element, originalHtml: string, userMarkdown: string) {
+    // Show loading state briefly
+    bodyEl.innerHTML = `<div class="concept-window-notes">Loading...</div>`;
+    
+    try {
+      const { parseNotesClient } = await import('../utils/parseNotesClient');
+      const userHtml = parseNotesClient(userMarkdown);
+      
+      if (originalHtml) {
+        // User notes on TOP, original below
+        bodyEl.innerHTML = `<div class="concept-window-notes"><div class="concept-notes-user">${userHtml}</div><hr class="concept-notes-divider">${originalHtml}</div>`;
+      } else {
+        bodyEl.innerHTML = `<div class="concept-window-notes"><div class="concept-notes-user">${userHtml}</div></div>`;
+      }
+    } catch (err) {
+      console.error('Failed to parse user notes:', err);
+      if (originalHtml) {
+        bodyEl.innerHTML = `<div class="concept-window-notes">${originalHtml}</div>`;
+      }
+    }
   }
 
   // Expose global API

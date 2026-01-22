@@ -49,6 +49,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Custom content utilities (`src/utils/customContent.ts`)
   - `injectCustomConcepts()` - adds custom notes to existing tracks
   - `injectCustomTracks()` - renders custom tracks on browse page
+- Concept Notes Editor inside ConceptWindow
+  - Edit button (pencil icon) in window titlebar
+  - Markdown editor with Cancel/Save buttons
+  - Full markdown support: bold, italic, LaTeX equations, images, PDFs
+  - Two editing modes:
+    - Official concepts: User notes appear above original content with "YOUR NOTES" label
+    - Custom concepts: Full content editing (replaces entire content)
+  - Notes stored as markdown in `conceptNotes`, parsed on display
+  - Dynamic tooltips: "Add notes" vs "Edit notes" based on state
+- Add custom concepts to official tracks
+  - "+" button at end of concept lists (visible when signed in)
+  - Modal dialog for entering concept name
+  - Duplicate name validation
+  - Custom concepts styled with dashed border and pencil icon
+- Client-side markdown parser (`src/utils/parseNotesClient.ts`)
+  - Separate from build-time parser (no Node.js dependencies)
+  - Supports KaTeX for LaTeX equations
+  - Supports images and PDF embeds
+- UX improvements for concept editing
+  - Helpful placeholder for empty custom concepts with edit hint
+  - Hint in track editor: "add notes via concept window after saving"
+
+### Fixed
+- Add Section button not working when sections list is empty
+  - Caused by early return before binding event handlers
 
 ### Changed
 - Refactored roadmap rendering for reuse

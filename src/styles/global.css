@@ -590,3 +590,103 @@
     50% { box-shadow: 0 0 8px 4px rgba(184, 134, 11, 0.5); }
     100% { box-shadow: 0 0 0 0 rgba(184, 134, 11, 0); }
   }
+
+  /* Add Custom Concept Button */
+  .add-custom-concept-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin-left: 4px;
+    border: 1px dashed var(--color-border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.15s ease;
+    vertical-align: middle;
+  }
+
+  .add-custom-concept-btn:hover {
+    opacity: 1;
+    border-color: var(--color-copper);
+    color: var(--color-copper);
+    background: rgba(184, 115, 51, 0.1);
+  }
+
+  /* Add Concept Modal */
+  .add-concept-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .add-concept-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .add-concept-modal-content {
+    position: relative;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    min-width: 300px;
+    max-width: 90vw;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .add-concept-modal-title {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .add-concept-modal-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+
+  .add-concept-modal-input:focus {
+    outline: none;
+    border-color: var(--color-copper);
+  }
+
+  .add-concept-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  /* Placeholder hint in concept window */
+  .placeholder-hint {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Inline hint in editor */
+  .editor-hint--inline {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    margin-left: 0.5rem;
+    font-style: italic;
+  }

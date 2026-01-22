@@ -912,11 +912,13 @@ export function initRoadmapInteractions(): void {
   // CUSTOM CONCEPTS (from Supabase)
   // ============================================
   async function initCustomConcepts() {
-    const { injectCustomConcepts } = await import('../utils/customContent');
+    const { injectCustomConcepts, loadConceptNotes, addCustomConceptButtons } = await import('../utils/customContent');
     const track = (window as any).trackSlug;
     if (!track) return;
 
     await injectCustomConcepts(track);
+    await loadConceptNotes();
+    await addCustomConceptButtons(track);
 
     // Re-init progress tracking for newly injected pills
     document.querySelectorAll('.concept-pill--custom').forEach((pill) => {

@@ -27,16 +27,24 @@ export interface CustomTracksMap {
   [slug: string]: Roadmap;
 }
 
+/** User notes for any concept, keyed by "track-slug/topic-id/concept-name" */
+export interface ConceptNotesMap {
+  [conceptKey: string]: string; // value is markdown (parsed on display)
+}
+
 /** Root structure for custom_content column in Supabase */
 export interface CustomContent {
   /** User-created tracks (full roadmap format) */
   tracks: CustomTracksMap;
   /** Custom concepts added to existing tracks */
   concepts: CustomConceptsMap;
+  /** User notes added to any concept (official or custom) */
+  conceptNotes?: ConceptNotesMap;
 }
 
 /** Empty default for new users */
 export const emptyCustomContent: CustomContent = {
   tracks: {},
   concepts: {},
+  conceptNotes: {},
 };

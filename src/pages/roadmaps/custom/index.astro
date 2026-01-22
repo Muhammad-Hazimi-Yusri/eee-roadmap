@@ -340,6 +340,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
 
       // Set trackSlug for progress tracking
       (window as any).trackSlug = slug;
+      (window as any).isCustomTrack = true;
 
       // Render header
       if (header) {
@@ -384,7 +385,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
   }
 
   function buildConceptData(sections: any[]) {
-    const conceptData: Record<string, Record<string, { notesHtml?: string }>> = {};
+    const conceptData: Record<string, Record<string, { notesHtml?: string; isCustom?: boolean }>> = {};
 
     for (const section of sections) {
       for (const item of section.items || []) {
@@ -393,6 +394,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
           for (const concept of item.concepts) {
             conceptData[item.id][concept.name] = {
               notesHtml: concept.notesHtml || concept.notes || '',
+              isCustom: true,
             };
           }
         }
@@ -628,6 +630,8 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
 
     if (state.sections.length === 0) {
       container.innerHTML = '<p class="text-muted">No sections yet. Add one below.</p>';
+      // Don't return early - still need to bind Add Section button
+      bindSectionEvents(state);
       return;
     }
 
@@ -685,6 +689,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
           
           <div class="editor-concepts">
             <span class="editor-label">Concepts:</span>
+            <span class="editor-hint editor-hint--inline">(add notes via concept window after saving)</span>
             <div class="editor-concepts-list" id="concepts-${sectionIndex}-${topicIndex}">
               ${(item.concepts || []).map((c: any, conceptIndex: number) => `
                 <span class="editor-concept-pill" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}">
@@ -948,6 +953,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('track') || 'new-track-preview';
     (window as any).trackSlug = slug;
+    (window as any).isCustomTrack = true;
 
     import('../../../utils/renderRoadmap').then(({ renderRoadmapHtml }) => {
       preview.innerHTML = renderRoadmapHtml(state.sections);
