@@ -11,7 +11,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.20.X] - 2025-01-21
+## [0.20.X] - 2025-01-22
 
 **Custom Tracks & Editor (WIP)**
 
@@ -24,18 +24,27 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Distinct styling: dashed border with pencil icon prefix
   - Full ConceptWindow support (markdown, LaTeX, images)
 - Custom tracks display on `/roadmaps/` page
-  - "My Custom Tracks" section at bottom (only visible when tracks exist)
+  - "My Custom Tracks" section at bottom (only visible when signed in)
   - Dashed border card style with "CUSTOM" badge
+  - "Create New Track" card for quick access to editor
 - Custom track detail page (`/roadmaps/custom/?track=slug`)
   - Client-side rendering from Supabase data
   - Full roadmap interactivity (expand/collapse, progress tracking, tools mode)
 - Custom track editor (`/roadmaps/custom/?track=slug&edit=true` or `?new=true`)
   - Edit/Preview toggle with live preview
   - Meta fields: title, description, icon, category, order
-  - Sections: add, remove, edit title
-  - Topics: add, remove, edit title and description
+  - Sections: add, remove, edit title (ID auto-generated from title)
+  - Topics: add, remove, edit title and description (ID auto-generated from title)
   - Concepts: add (Enter key), remove (names only, notes edited separately)
-  - Cancel returns to view mode or /roadmaps/
+  - Resources: add (label + URL), remove, clickable links
+  - Prerequisites: cascading dropdown picker (track → section → topic)
+  - Validation: required fields, duplicate track detection
+  - Save to Supabase with redirect to view mode
+- Prerequisite picker modal
+  - Select from official tracks and custom tracks
+  - Cascading dropdowns: track → section → topic
+  - Optional custom display label
+  - Live preview of prerequisite string
 - TypeScript types for custom content (`src/types/custom-content.ts`)
 - Custom content utilities (`src/utils/customContent.ts`)
   - `injectCustomConcepts()` - adds custom notes to existing tracks
@@ -46,6 +55,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `src/utils/renderRoadmap.ts` - generates roadmap HTML from sections data
   - `src/utils/roadmapInteractions.ts` - extracted all interaction logic
 - Moved roadmap component CSS to `global.css` for dynamic content support
+- Prerequisite URLs now properly formatted
+  - Official tracks: `/roadmaps/{track}/#{topic-id}`
+  - Custom tracks: `/roadmaps/custom/?track={slug}#{topic-id}`
 
 ### Technical Notes
 - Custom concepts parsed to HTML at save time (not runtime) for performance
@@ -53,6 +65,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Client-side injection after auth state resolves
 - Custom tracks skip glossary term wrapping (simpler, user knows their own terms)
 - Editor state is mutable object passed through functions, re-renders on structural changes
+- Official tracks data passed to client via Astro `define:vars` for prerequisite picker
 
 
 ## [0.19.X] - 2025-01-17

@@ -6,6 +6,22 @@ import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
 import RoadmapSettings from '../../../components/RoadmapSettings.astro';
 import ConceptModal from '../../../components/ConceptWindows.astro';
+import { getAllTracks, roadmaps } from '../../../data';
+
+// Build tracks structure for prerequisite picker
+const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
+  slug,
+  title: meta.title,
+  isCustom: false,
+  sections: (roadmaps[slug]?.sections ?? []).map(section => ({
+    id: section.id,
+    title: section.title,
+    topics: section.items.map(item => ({
+      id: item.id,
+      title: item.title,
+    }))
+  }))
+}));
 ---
 
 <Layout title="Custom Track">
@@ -56,10 +72,234 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
   <Footer />
 </Layout>
 
+<script define:vars={{ officialTracksData }}>
+  window.officialTracksData = officialTracksData;
+</script>
+
 <script>
-  import { loadCustomContent } from '../../../lib/sync';
+  import { loadCustomContent, saveCustomContent } from '../../../lib/sync';
   import { renderRoadmapHtml } from '../../../utils/renderRoadmap';
   import { initRoadmapInteractions } from '../../../utils/roadmapInteractions';
+
+  function generateSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric with dashes
+      .replace(/^-+|-+$/g, '');      // Remove leading/trailing dashes
+  }
+
+  async function openPrereqPicker(onSelect: (prereq: string) => void) {    // Get official tracks from window
+    const officialTracks = (window as any).officialTracksData || [];
+    
+    // Get custom tracks from Supabase
+    const customContent = await loadCustomContent();
+    const customTracks = Object.entries(customContent.tracks || {}).map(([slug, track]: [string, any]) => ({
+      slug,
+      title: track.meta.title,
+      isCustom: true,
+      sections: track.sections.map((section: any) => ({
+        id: section.id,
+        title: section.title,
+        topics: section.items.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+        }))
+      }))
+    }));
+
+    // Combine all tracks
+    const allTracks = [...officialTracks, ...customTracks];
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'prereq-picker-modal';
+    modal.innerHTML = `
+      <div class="prereq-picker-backdrop"></div>
+      <div class="prereq-picker-content">
+        <h3 class="prereq-picker-title">Select Prerequisite</h3>
+        
+        <div class="prereq-picker-selects">
+          <div class="prereq-picker-field">
+            <label class="editor-label">Track</label>
+            <select id="prereq-track" class="editor-input">
+              <option value="">-- Select track --</option>
+              ${officialTracks.length > 0 ? `<optgroup label="Official Tracks">
+                ${officialTracks.map((t: any) => `<option value="${t.slug}" data-custom="false">${t.title}</option>`).join('')}
+              </optgroup>` : ''}
+              ${customTracks.length > 0 ? `<optgroup label="My Custom Tracks">
+                ${customTracks.map((t: any) => `<option value="${t.slug}" data-custom="true">${t.title}</option>`).join('')}
+              </optgroup>` : ''}
+            </select>
+          </div>
+
+          <div class="prereq-picker-field">
+            <label class="editor-label">Section</label>
+            <select id="prereq-section" class="editor-input" disabled>
+              <option value="">-- Select section --</option>
+            </select>
+          </div>
+
+          <div class="prereq-picker-field">
+            <label class="editor-label">Topic</label>
+            <select id="prereq-topic" class="editor-input" disabled>
+              <option value="">-- Select topic --</option>
+            </select>
+          </div>
+
+          <div class="prereq-picker-field">
+            <label class="editor-label">Display Label (optional)</label>
+            <input type="text" id="prereq-label" class="editor-input" placeholder="Custom label..." />
+          </div>
+        </div>
+
+        <div class="prereq-picker-preview">
+          <span class="editor-label">Preview:</span>
+          <code id="prereq-preview">-</code>
+        </div>
+
+        <div class="prereq-picker-actions">
+          <button type="button" class="btn btn--outline" id="prereq-cancel">Cancel</button>
+          <button type="button" class="btn btn--primary" id="prereq-confirm" disabled>Add Prerequisite</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // State
+    let selectedTrack: any = null;
+    let selectedSection: any = null;
+    let selectedTopic: any = null;
+
+    const trackSelect = modal.querySelector('#prereq-track') as HTMLSelectElement;
+    const sectionSelect = modal.querySelector('#prereq-section') as HTMLSelectElement;
+    const topicSelect = modal.querySelector('#prereq-topic') as HTMLSelectElement;
+    const labelInput = modal.querySelector('#prereq-label') as HTMLInputElement;
+    const previewEl = modal.querySelector('#prereq-preview') as HTMLElement;
+    const confirmBtn = modal.querySelector('#prereq-confirm') as HTMLButtonElement;
+
+    function updatePreview() {
+      if (!selectedTrack || !selectedTopic) {
+        previewEl.textContent = '-';
+        confirmBtn.disabled = true;
+        return;
+      }
+
+      const prefix = selectedTrack.isCustom ? `custom:${selectedTrack.slug}` : selectedTrack.slug;
+      const label = labelInput.value.trim() || selectedTopic.title;
+      const prereqStr = `${prefix}/${selectedTopic.id}/${label}`;
+      previewEl.textContent = prereqStr;
+      confirmBtn.disabled = false;
+    }
+
+    // Track change
+    trackSelect.addEventListener('change', () => {
+      const slug = trackSelect.value;
+      const isCustom = trackSelect.selectedOptions[0]?.dataset.custom === 'true';
+      selectedTrack = allTracks.find(t => t.slug === slug && t.isCustom === isCustom) || null;
+      selectedSection = null;
+      selectedTopic = null;
+
+      // Update section dropdown
+      sectionSelect.innerHTML = '<option value="">-- Select section --</option>';
+      if (selectedTrack) {
+        selectedTrack.sections.forEach((s: any) => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = s.title;
+          sectionSelect.appendChild(opt);
+        });
+        sectionSelect.disabled = false;
+      } else {
+        sectionSelect.disabled = true;
+      }
+
+      topicSelect.innerHTML = '<option value="">-- Select topic --</option>';
+      topicSelect.disabled = true;
+      updatePreview();
+    });
+
+    // Section change
+    sectionSelect.addEventListener('change', () => {
+      const sectionId = sectionSelect.value;
+      selectedSection = selectedTrack?.sections.find((s: any) => s.id === sectionId) || null;
+      selectedTopic = null;
+
+      // Update topic dropdown
+      topicSelect.innerHTML = '<option value="">-- Select topic --</option>';
+      if (selectedSection) {
+        selectedSection.topics.forEach((t: any) => {
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.textContent = t.title;
+          topicSelect.appendChild(opt);
+        });
+        topicSelect.disabled = false;
+      } else {
+        topicSelect.disabled = true;
+      }
+      updatePreview();
+    });
+
+    // Topic change
+    topicSelect.addEventListener('change', () => {
+      const topicId = topicSelect.value;
+      selectedTopic = selectedSection?.topics.find((t: any) => t.id === topicId) || null;
+      updatePreview();
+    });
+
+    // Label change
+    labelInput.addEventListener('input', updatePreview);
+
+    // Cancel
+    modal.querySelector('#prereq-cancel')?.addEventListener('click', () => {
+      modal.remove();
+    });
+
+    // Backdrop click to close
+    modal.querySelector('.prereq-picker-backdrop')?.addEventListener('click', () => {
+      modal.remove();
+    });
+
+    // Confirm
+    confirmBtn.addEventListener('click', () => {
+      if (!selectedTrack || !selectedTopic) return;
+      
+      const prefix = selectedTrack.isCustom ? `custom:${selectedTrack.slug}` : selectedTrack.slug;
+      const label = labelInput.value.trim() || selectedTopic.title;
+      const prereqStr = `${prefix}/${selectedTopic.id}/${label}`;
+      
+      onSelect(prereqStr);
+      modal.remove();
+    });
+  }
+
+  function handleHashAnchor() {
+    const hash = window.location.hash;
+    console.log('handleHashAnchor - hash:', hash);
+    if (!hash) return;
+    
+    const id = hash.slice(1); // Remove #
+    console.log('handleHashAnchor - looking for id:', id);
+    const node = document.getElementById(id);
+    console.log('handleHashAnchor - found node:', node);
+    if (!node) return;
+    
+    // Expand the topic
+    const button = node.querySelector('.node-button');
+    const content = node.querySelector('.node-content');
+    console.log('handleHashAnchor - button:', button, 'content:', content);
+    if (button && content) {
+      button.setAttribute('aria-expanded', 'true');
+      (content as HTMLElement).hidden = false;
+    }
+    
+    // Scroll to it
+    setTimeout(() => {
+      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
 
   async function initCustomTrack() {
     const params = new URLSearchParams(window.location.search);
@@ -125,6 +365,12 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
       // Build conceptData for ConceptWindows
       buildConceptData(track.sections);
 
+      // Initialize interactions for the rendered roadmap
+      initRoadmapInteractions();
+
+      // Handle hash anchor (auto-expand and scroll)
+      handleHashAnchor();
+
     } catch (err) {
       console.error('Failed to load custom track:', err);
       showError();
@@ -135,8 +381,6 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
       if (container) container.style.display = 'none';
       if (errorEl) errorEl.hidden = false;
     }
-
-    initRoadmapInteractions();
   }
 
   function buildConceptData(sections: any[]) {
@@ -210,10 +454,59 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
     document.getElementById('cancel-edit-btn')?.addEventListener('click', handleCancel);
     document.getElementById('cancel-edit-btn-preview')?.addEventListener('click', handleCancel);
 
-    // Save buttons (placeholder for now)
-    const handleSave = () => {
-      console.log('Save track:', editorState);
-      // TODO: implement save
+    // Save buttons
+    const handleSave = async () => {
+      // Validate required fields
+      if (!editorState.meta.title.trim()) {
+        alert('Title is required');
+        return;
+      }
+      if (!editorState.meta.description.trim()) {
+        alert('Description is required');
+        return;
+      }
+
+      // Generate slug from title
+      const newSlug = generateSlug(editorState.meta.title);
+      
+      // Validate slug
+      if (!newSlug) {
+        alert('Could not generate a valid slug from title');
+        return;
+      }
+
+      try {
+        // Load existing custom content
+        const content = await loadCustomContent();
+        
+        // Check for duplicate (different track with same slug)
+        const existingTrack = content.tracks[newSlug];
+        if (existingTrack && newSlug !== slug) {
+          alert(`A track with this title already exists: "${existingTrack.meta.title}"`);
+          return;
+        }
+        
+        // If renaming (slug changed), remove old entry
+        if (slug && slug !== newSlug) {
+          delete content.tracks[slug];
+        }
+        
+        // Add/update track
+        content.tracks[newSlug] = editorState;
+        
+        // Save to Supabase
+        const success = await saveCustomContent(content);
+        
+        if (success) {
+          // Redirect to view mode
+          window.location.href = `/roadmaps/custom/?track=${newSlug}`;
+        } else {
+          alert('Failed to save. Are you signed in?');
+        }
+      } catch (err) {
+        console.error('Save error:', err);
+        alert('Error saving track. Please try again.');
+      }
     };
     document.getElementById('save-track-btn')?.addEventListener('click', handleSave);
     document.getElementById('save-track-btn-preview')?.addEventListener('click', handleSave);
@@ -408,6 +701,53 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
               />
             </div>
           </div>
+
+          <div class="editor-prereqs">
+          <span class="editor-label">Prerequisites:</span>
+          <div class="editor-prereqs-list" id="prereqs-${sectionIndex}-${topicIndex}">
+            ${(item.prerequisites || []).map((prereq: string, prereqIndex: number) => `
+              <span class="editor-prereq-pill" data-section="${sectionIndex}" data-topic="${topicIndex}" data-prereq="${prereqIndex}">
+                ${prereq}
+                <button type="button" class="remove-prereq-btn" data-section="${sectionIndex}" data-topic="${topicIndex}" data-prereq="${prereqIndex}">×</button>
+              </span>
+            `).join('')}
+            <button 
+              type="button"
+              class="btn btn--outline btn--sm open-prereq-picker"
+              data-section="${sectionIndex}"
+              data-topic="${topicIndex}"
+            >+ Add</button>
+          </div>
+        </div>
+
+          <div class="editor-resources">
+            <span class="editor-label">Resources:</span>
+            <div class="editor-resources-list" id="resources-${sectionIndex}-${topicIndex}">
+              ${(item.resources || []).map((r: any, resourceIndex: number) => `
+                <div class="editor-resource-item" data-section="${sectionIndex}" data-topic="${topicIndex}" data-resource="${resourceIndex}">
+                  <a href="${r.url}" target="_blank" class="editor-resource-link">${r.label}</a>
+                  <button type="button" class="remove-resource-btn" data-section="${sectionIndex}" data-topic="${topicIndex}" data-resource="${resourceIndex}">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <div class="editor-resource-add">
+              <input 
+                type="text" 
+                class="editor-input editor-resource-label" 
+                placeholder="Label"
+                data-section="${sectionIndex}"
+                data-topic="${topicIndex}"
+              />
+              <input 
+                type="url" 
+                class="editor-input editor-resource-url" 
+                placeholder="https://..."
+                data-section="${sectionIndex}"
+                data-topic="${topicIndex}"
+              />
+              <button type="button" class="btn btn--outline btn--sm add-resource-btn" data-section="${sectionIndex}" data-topic="${topicIndex}">+</button>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -420,6 +760,8 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
         const target = e.target as HTMLInputElement;
         const sectionIndex = parseInt(target.dataset.section!);
         state.sections[sectionIndex].title = target.value;
+        // Update ID based on title
+        state.sections[sectionIndex].id = generateSlug(target.value) || `section-${Date.now()}`;
       });
     });
 
@@ -430,6 +772,8 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
         const sectionIndex = parseInt(target.dataset.section!);
         const topicIndex = parseInt(target.dataset.topic!);
         state.sections[sectionIndex].items[topicIndex].title = target.value;
+        // Update ID based on title
+        state.sections[sectionIndex].items[topicIndex].id = generateSlug(target.value) || `topic-${Date.now()}`;
       });
     });
 
@@ -468,8 +812,9 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
       btn.addEventListener('click', (e) => {
         const target = e.target as HTMLButtonElement;
         const sectionIndex = parseInt(target.dataset.section!);
+        const topicId = `topic-${Date.now()}`; // Temporary, will update on title change
         state.sections[sectionIndex].items.push({
-          id: `topic-${Date.now()}`,
+          id: topicId,
           title: 'New Topic',
           description: '',
           concepts: []
@@ -519,6 +864,77 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
         const topicIndex = parseInt(target.dataset.topic!);
         const conceptIndex = parseInt(target.dataset.concept!);
         state.sections[sectionIndex].items[topicIndex].concepts.splice(conceptIndex, 1);
+        renderSections(state);
+      });
+    });
+
+    // Add resource
+    document.querySelectorAll('.add-resource-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        
+        const labelInput = document.querySelector(
+          `.editor-resource-label[data-section="${sectionIndex}"][data-topic="${topicIndex}"]`
+        ) as HTMLInputElement;
+        const urlInput = document.querySelector(
+          `.editor-resource-url[data-section="${sectionIndex}"][data-topic="${topicIndex}"]`
+        ) as HTMLInputElement;
+        
+        const label = labelInput?.value.trim();
+        const url = urlInput?.value.trim();
+        
+        if (!label || !url) {
+          alert('Both label and URL are required');
+          return;
+        }
+        
+        if (!state.sections[sectionIndex].items[topicIndex].resources) {
+          state.sections[sectionIndex].items[topicIndex].resources = [];
+        }
+        state.sections[sectionIndex].items[topicIndex].resources.push({ label, url });
+        renderSections(state);
+      });
+    });
+
+    // Remove resource
+    document.querySelectorAll('.remove-resource-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        const resourceIndex = parseInt(target.dataset.resource!);
+        state.sections[sectionIndex].items[topicIndex].resources.splice(resourceIndex, 1);
+        renderSections(state);
+      });
+    });
+
+    // Open prerequisite picker
+    document.querySelectorAll('.open-prereq-picker').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        
+              await openPrereqPicker((prereq: string) => {
+          if (!state.sections[sectionIndex].items[topicIndex].prerequisites) {
+            state.sections[sectionIndex].items[topicIndex].prerequisites = [];
+          }
+          state.sections[sectionIndex].items[topicIndex].prerequisites.push(prereq);
+          renderSections(state);
+        });
+      });
+    });
+
+    // Remove prerequisite
+    document.querySelectorAll('.remove-prereq-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        const prereqIndex = parseInt(target.dataset.prereq!);
+        state.sections[sectionIndex].items[topicIndex].prerequisites.splice(prereqIndex, 1);
         renderSections(state);
       });
     });
@@ -794,5 +1210,207 @@ import ConceptModal from '../../../components/ConceptWindows.astro';
   .btn--danger:hover {
     background: var(--color-danger, #c00);
     color: white;
+  }
+
+  .custom-track-card--create {
+    border-style: dashed;
+    border-color: var(--color-copper);
+    background: transparent;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .custom-track-card--create:hover {
+    background: rgba(184, 115, 51, 0.1);
+    border-color: var(--color-copper-light);
+  }
+
+  .custom-track-card--create .custom-track-card__icon {
+    font-size: 2rem;
+    color: var(--color-copper);
+  }
+
+  .custom-track-card--create .custom-track-card__title {
+    color: var(--color-copper);
+  }
+
+  .editor-resources {
+    margin-top: 0.75rem;
+  }
+
+  .editor-resources-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
+  }
+
+  .editor-resource-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+    font-size: 0.75rem;
+  }
+
+  .editor-resource-link {
+    flex: 1;
+    color: var(--color-pcb);
+    text-decoration: none;
+    font-family: "IBM Plex Mono", monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .editor-resource-link:hover {
+    text-decoration: underline;
+  }
+
+  .editor-resource-item .remove-resource-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    padding: 0;
+    line-height: 1;
+  }
+
+  .editor-resource-item .remove-resource-btn:hover {
+    color: var(--color-danger, #c00);
+  }
+
+  .editor-resource-add {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .editor-resource-label {
+    flex: 1;
+    max-width: 150px;
+  }
+
+  .editor-resource-url {
+    flex: 2;
+  }
+
+  .editor-prereqs {
+    margin-top: 0.75rem;
+  }
+
+  .editor-prereqs-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0.25rem 0;
+  }
+
+  .editor-prereq-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-copper-light);
+    border: 1px solid var(--color-copper);
+    font-size: 0.75rem;
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--color-text);
+  }
+
+  .editor-prereq-pill .remove-prereq-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    padding: 0;
+    line-height: 1;
+  }
+
+  .editor-prereq-pill .remove-prereq-btn:hover {
+    color: var(--color-danger, #c00);
+  }
+
+  .editor-prereq-input {
+    border: 1px dashed var(--color-border);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    width: 150px;
+  }
+
+  .prereq-picker-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .prereq-picker-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .prereq-picker-content {
+    position: relative;
+    background: var(--color-bg);
+    border: 2px solid var(--color-copper);
+    padding: 1.5rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .prereq-picker-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .prereq-picker-selects {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .prereq-picker-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .prereq-picker-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--color-bg-grid);
+    margin-bottom: 1rem;
+  }
+
+  .prereq-picker-preview code {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-copper);
+    word-break: break-all;
+  }
+
+  .prereq-picker-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
   }
 </style>

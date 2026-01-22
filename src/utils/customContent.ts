@@ -64,23 +64,42 @@ function addToConceptData(topicId: string, concept: CustomConcept): void {
  * Call this on /roadmaps/ page after auth state resolves.
  */
 export async function injectCustomTracks(): Promise<void> {
-  const content = await loadCustomContent();
-  if (!content.tracks || Object.keys(content.tracks).length === 0) return;
+  const { getCurrentUserId } = await import('../lib/sync');
+  const userId = await getCurrentUserId();
+  
+  // Only show section for signed-in users
+  if (!userId) return;
 
   const section = document.getElementById('custom-tracks-section');
   const grid = document.getElementById('custom-tracks-grid');
   if (!section || !grid) return;
 
-  // Show the section
+  // Show the section (for signed-in users)
   section.removeAttribute('hidden');
 
+  // Load custom content
+  const content = await loadCustomContent();
+  const tracks = content.tracks || {};
+  const trackEntries = Object.entries(tracks);
+
+  // Always add "Create New Track" card first
+  const createCard = document.createElement('a');
+  createCard.href = '/roadmaps/custom/?new=true';
+  createCard.className = 'custom-track-card custom-track-card--create';
+  createCard.innerHTML = `
+    <div class="custom-track-card__icon">+</div>
+    <h3 class="custom-track-card__title">Create New Track</h3>
+    <p class="custom-track-card__desc">Build your own learning roadmap</p>
+  `;
+  grid.appendChild(createCard);
+
   // Render each custom track
-  Object.entries(content.tracks).forEach(([slug, track]) => {
+  trackEntries.forEach(([slug, track]) => {
     const card = document.createElement('a');
     card.href = `/roadmaps/custom/?track=${slug}`;
     card.className = 'custom-track-card';
     card.innerHTML = `
-      <span class="custom-badge">Custom</span>
+      <span class="custom-badge">${track.meta.category?.toUpperCase() || 'CUSTOM'}</span>
       <div class="custom-track-card__icon">✎</div>
       <h3 class="custom-track-card__title">${track.meta.title}</h3>
       <p class="custom-track-card__desc">${track.meta.description}</p>

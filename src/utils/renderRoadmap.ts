@@ -46,11 +46,23 @@ function renderPrerequisites(prerequisites?: string[]): string {
   const tags = prerequisites.map(prereq => {
     const parts = prereq.split('/');
     if (parts.length >= 2) {
-      const [track, id, ...displayParts] = parts;
+      let track = parts[0];
+      let id = parts[1];
+      const displayParts = parts.slice(2);
       const displayName = displayParts.length > 0 
         ? displayParts.join('/') 
         : id.replace(/-/g, ' ');
-      return `<a href="/roadmaps/${track}#${id}" class="prereq prereq--link prereq-tag prereq-tag--link" data-prereq-topic="${id}">${displayName}</a>`;
+      
+      // Check if custom track (prefix: "custom:")
+      let href: string;
+      if (track.startsWith('custom:')) {
+        const customSlug = track.replace('custom:', '');
+        href = `/roadmaps/custom/?track=${customSlug}#${id}`;
+      } else {
+        href = `/roadmaps/${track}/#${id}`;
+      }
+      
+      return `<a href="${href}" class="prereq prereq--link prereq-tag prereq-tag--link" data-prereq-topic="${id}">${displayName}</a>`;
     }
     return `<span class="prereq prereq--static prereq-tag prereq-tag--static" data-static-prereq="${prereq}">${prereq}</span>`;
   }).join('');

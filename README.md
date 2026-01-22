@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.20.5-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.20.6-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.20.5
+Current version is v0.20.6
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -139,27 +139,27 @@ Current version is v0.20.5
 - [x] Custom concept notes on existing tracks (distinct styling)
 - [x] Display custom tracks on /roadmaps/ with "Custom" badge
 - [x] Custom track detail page
-- [ ] Form-based web editor with validation (WIP)
+- [x] Form-based web editor with validation
   - [x] Editor shell with edit/preview toggle
   - [x] Meta fields (title, description, icon, category, order)
   - [x] Sections management (add/remove/edit title)
   - [x] Topics management (title, description, add/remove)
   - [x] Concepts list (names only - add/remove)
-  - [ ] Resources within topics (label + url)
-  - [ ] Prerequisites within topics
-  - [ ] Validation before save
-  - [ ] Save to Supabase
-  - [ ] "Create New Track" button on /roadmaps/ page
-  - [ ] Drag-and-drop reordering for sections and topics
+  - [x] Resources within topics (label + url)
+  - [x] Prerequisites with cascading dropdown picker (track → section → topic)
+  - [x] Validation before save (required fields, duplicate detection)
+  - [x] Save to Supabase
+  - [x] "Create New Track" button on /roadmaps/ page
 - [ ] Concept Notes Editor (separate from roadmap editor)
   - Markdown editor inside ConceptWindow (edit button)
   - Works for custom track concepts AND custom notes on official tracks
   - Keeps roadmap editor focused on structure (sections/topics/concept names)
   - Concept content editing is contextual (edit while viewing the concept)
 - [ ] UI to add custom concept notes on existing tracks
-- [ ] Live preview
+- [ ] Live preview (partially done - preview toggle exists)
 - [ ] Export as JSON/ZIP (ready to deploy)
 - [ ] Import existing roadmap to edit
+- [ ] Drag-and-drop reordering for sections and topics
 
 ---
 
@@ -195,6 +195,9 @@ Current version is v0.20.5
 - [ ] Concept windows: translucent effect when unfocused
 - [ ] Unboxed view: overlapping card layout for overflow
 - [ ] Refactor: localStorage keys duplicated across files (should use shared constants)
+- [ ] Custom track cards: display Lucide icon from meta (currently hardcoded)
+- [ ] Custom tracks: integrate with category filters on /roadmaps/ page
+- [ ] Replace browser alerts with custom toast notifications (editor validation)
 
 ---
 
