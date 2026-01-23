@@ -690,3 +690,9 @@
     margin-left: 0.5rem;
     font-style: italic;
   }
+
+  /* Custom track header actions */
+  .custom-track-actions {
+    display: flex;
+    gap: 0.5rem;
+  }

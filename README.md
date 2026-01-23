@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.20.7-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.20.8-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.20.7
+Current version is v0.20.8
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -56,6 +56,12 @@ Current version is v0.20.7
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
 - **Browse All Tracks** — `/roadmaps/` page with category + progress filters and boxed/unboxed view
+- **Custom Tracks** — Create your own learning roadmaps with the built-in editor (requires sign-in)
+  - Full track editor: sections, topics, concepts, resources, prerequisites
+  - Prerequisite picker with cascading dropdowns (official + custom tracks)
+  - Preview mode before saving
+  - Stored in Supabase (syncs across devices)
+- **Custom Track Display** — View custom tracks at `/roadmaps/custom/?track=slug` with full interactivity (progress tracking, tools mode, concept windows)
 - **Cross-track Navigation** — Clickable prerequisites link between related topics
 - **Prerequisite Behavior** — Smart defaults (same-track = same tab, cross-track = new tab)
 
@@ -161,9 +167,9 @@ Current version is v0.20.7
   - "+" button on concept lists (signed-in users)
   - Modal for entering concept name
   - Custom concepts styled distinctly (dashed border)
-- [x] Live preview (partially done - preview toggle exists)
-- [ ] Export as JSON/ZIP (ready to deploy)
-- [ ] Import existing roadmap to edit
+- [x] Live preview (edit/preview toggle in editor)
+- [x] Export as JSON (single track with conceptNotes)
+- [x] Import track from JSON file
 - [ ] Drag-and-drop reordering for sections and topics
 
 ---

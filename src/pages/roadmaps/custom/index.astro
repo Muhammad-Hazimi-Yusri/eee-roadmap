@@ -89,6 +89,40 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
       .replace(/^-+|-+$/g, '');      // Remove leading/trailing dashes
   }
 
+  function exportTrack(slug: string, track: any) {
+    // Get concept notes for this track
+    const allConceptNotes = (window as any).conceptNotes || {};
+    const trackConceptNotes: Record<string, string> = {};
+    
+    // Filter conceptNotes to only include this track's notes
+    const trackPrefix = `${slug}/`;
+    Object.entries(allConceptNotes).forEach(([key, value]) => {
+      if (key.startsWith(trackPrefix)) {
+        trackConceptNotes[key] = value as string;
+      }
+    });
+
+    // Build export object
+    const exportData = {
+      meta: track.meta,
+      sections: track.sections,
+      ...(Object.keys(trackConceptNotes).length > 0 && { conceptNotes: trackConceptNotes })
+    };
+
+    // Create and trigger download
+    const json = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${slug}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   async function openPrereqPicker(onSelect: (prereq: string) => void) {    // Get official tracks from window
     const officialTracks = (window as any).officialTracksData || [];
     
@@ -311,6 +345,36 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
     const container = document.getElementById('custom-roadmap-container');
     const errorEl = document.getElementById('track-error');
 
+    // Import track from file
+    const isImportMode = params.get('import') === 'true';
+    if (isImportMode) {
+      const importData = sessionStorage.getItem('eee-import-track');
+      sessionStorage.removeItem('eee-import-track'); // Clear after reading
+      
+      if (!importData) {
+        alert('No import data found. Please try importing again.');
+        window.location.href = '/roadmaps/';
+        return;
+      }
+      
+      try {
+        const track = JSON.parse(importData);
+        
+        // Store conceptNotes if present (will be saved with track)
+        if (track.conceptNotes) {
+          (window as any).importedConceptNotes = track.conceptNotes;
+          delete track.conceptNotes; // Remove from track data
+        }
+        
+        initEditor(track, null, true); // true = isImport
+      } catch (err) {
+        console.error('Failed to parse import data:', err);
+        alert('Failed to load import data.');
+        window.location.href = '/roadmaps/';
+      }
+      return;
+    }
+
     // Create new track
     if (isNewMode) {
       initEditor(null); // null = new track
@@ -348,13 +412,20 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
           <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// custom track</p>
           <div class="custom-track-header-row">
             <h1 class="text-3xl font-bold">${track.meta.title}</h1>
-            <button class="btn btn--outline edit-track-btn" id="edit-track-btn">✎ Edit</button>
+            <div class="custom-track-actions">
+              <button class="btn btn--outline" id="export-track-btn">↑ Export</button>
+              <button class="btn btn--outline" id="edit-track-btn">✎ Edit</button>
+            </div>
           </div>
           <p class="text-muted">${track.meta.description}</p>
         `;
 
         document.getElementById('edit-track-btn')?.addEventListener('click', () => {
           window.location.search = `?track=${slug}&edit=true`;
+        });
+
+        document.getElementById('export-track-btn')?.addEventListener('click', () => {
+          exportTrack(slug, track);
         });
       }
 
@@ -406,7 +477,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
 
   initCustomTrack();
 
-  function initEditor(track: any, slug?: string) {
+function initEditor(track: any, slug?: string | null, isImport: boolean = false) {
     const header = document.getElementById('track-header');
     const viewContainer = document.getElementById('custom-roadmap-container');
     const editorContainer = document.getElementById('editor-container');
@@ -417,7 +488,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
     
     // Update header
     if (header) {
-      const mode = track ? 'Edit' : 'Create';
+      const mode = isImport ? 'Import' : (track ? 'Edit' : 'Create');
       const title = track?.meta?.title || 'New Track';
       header.innerHTML = `
         <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// ${mode.toLowerCase()} custom track</p>
@@ -495,6 +566,28 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
         
         // Add/update track
         content.tracks[newSlug] = editorState;
+        
+        // If importing, also save the conceptNotes
+        const importedNotes = (window as any).importedConceptNotes;
+        if (importedNotes) {
+          if (!content.conceptNotes) {
+            content.conceptNotes = {};
+          }
+          
+          // Remap conceptNotes keys to use new slug (in case title changed)
+          Object.entries(importedNotes).forEach(([key, value]) => {
+            // Key format: "old-slug/topic-id/concept-name"
+            const parts = key.split('/');
+            if (parts.length >= 3) {
+              const [, ...rest] = parts; // Remove old slug
+              const newKey = `${newSlug}/${rest.join('/')}`;
+              content.conceptNotes![newKey] = value as string;
+            }
+          });
+          
+          // Clean up
+          delete (window as any).importedConceptNotes;
+        }
         
         // Save to Supabase
         const success = await saveCustomContent(content);
@@ -604,6 +697,16 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
 
     // Bind meta field changes to state
     bindMetaFields(state);
+
+    // Add section button (bind once here, not in bindSectionEvents)
+    document.getElementById('add-section-btn')?.addEventListener('click', () => {
+      state.sections.push({
+        id: `section-${Date.now()}`,
+        title: 'New Section',
+        items: []
+      });
+      renderSections(state);
+    });
     
     // Render existing sections
     renderSections(state);
@@ -790,16 +893,6 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
         const topicIndex = parseInt(target.dataset.topic!);
         state.sections[sectionIndex].items[topicIndex].description = target.value;
       });
-    });
-
-    // Add section
-    document.getElementById('add-section-btn')?.addEventListener('click', () => {
-      state.sections.push({
-        id: `section-${Date.now()}`,
-        title: 'New Section',
-        items: []
-      });
-      renderSections(state);
     });
 
     // Remove section

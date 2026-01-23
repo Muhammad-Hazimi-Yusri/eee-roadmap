@@ -234,15 +234,24 @@ export async function injectCustomTracks(): Promise<void> {
   const trackEntries = Object.entries(tracks);
 
   // Always add "Create New Track" card first
-  const createCard = document.createElement('a');
-  createCard.href = '/roadmaps/custom/?new=true';
+  const createCard = document.createElement('div');
   createCard.className = 'custom-track-card custom-track-card--create';
   createCard.innerHTML = `
     <div class="custom-track-card__icon">+</div>
     <h3 class="custom-track-card__title">Create New Track</h3>
     <p class="custom-track-card__desc">Build your own learning roadmap</p>
+    <div class="custom-track-card__actions">
+      <a href="/roadmaps/custom/?new=true" class="btn btn--sm btn--primary">New</a>
+      <button class="btn btn--sm btn--outline import-track-btn">↓ Import</button>
+    </div>
   `;
   grid.appendChild(createCard);
+
+  // Import button handler
+  createCard.querySelector('.import-track-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openImportDialog();
+  });
 
   // Render each custom track
   trackEntries.forEach(([slug, track]) => {
@@ -260,6 +269,48 @@ export async function injectCustomTracks(): Promise<void> {
     `;
     grid.appendChild(card);
   });
+}
+
+/**
+ * Opens file dialog to import a track from JSON
+ */
+function openImportDialog(): void {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  
+  input.addEventListener('change', async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      
+      // Validate structure
+      if (!data.meta || !data.sections) {
+        alert('Invalid track file. Must contain "meta" and "sections".');
+        return;
+      }
+      
+      if (!data.meta.title) {
+        alert('Invalid track file. Missing "meta.title".');
+        return;
+      }
+      
+      // Store in sessionStorage for editor to pick up
+      sessionStorage.setItem('eee-import-track', JSON.stringify(data));
+      
+      // Redirect to editor in import mode
+      window.location.href = '/roadmaps/custom/?import=true';
+      
+    } catch (err) {
+      console.error('Failed to parse import file:', err);
+      alert('Failed to parse file. Make sure it\'s valid JSON.');
+    }
+  });
+  
+  input.click();
 }
 
 /**

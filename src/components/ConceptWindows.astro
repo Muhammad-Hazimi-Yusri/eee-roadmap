@@ -284,6 +284,10 @@
     margin-left: 8px;
     opacity: 0.6;
     transition: opacity 0.15s ease;
+    position: relative;
+    z-index: 10;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .concept-window-edit:hover {
@@ -1157,6 +1161,7 @@
 
     titlebar?.addEventListener('mousedown', (e) => {
       if (controls?.contains(e.target as Node)) return;
+      if ((e.target as Element)?.closest('.concept-window-edit')) return;
       
       const winData = openWindows.find(w => w.id === windowId);
       if (winData?.isMaximized) return;
@@ -1203,6 +1208,7 @@
     // Touch support - prevent page scroll when dragging
     titlebar?.addEventListener('touchstart', (e) => {
       if (controls?.contains(e.target as Node)) return;
+      if ((e.target as Element)?.closest('.concept-window-edit')) return;
       
       const winData = openWindows.find(w => w.id === windowId);
       if (winData?.isMaximized) return;

@@ -70,10 +70,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - UX improvements for concept editing
   - Helpful placeholder for empty custom concepts with edit hint
   - Hint in track editor: "add notes via concept window after saving"
+- Export custom track as JSON
+  - "↑ Export" button on custom track view page
+  - Downloads `{slug}.json` with meta, sections, and conceptNotes
+- Import custom track from JSON
+  - "↓ Import" button on Create New Track card
+  - Validates file structure before importing
+  - Opens editor in Import mode with data pre-filled
+  - Supports conceptNotes from exported tracks
 
 ### Fixed
 - Add Section button not working when sections list is empty
   - Caused by early return before binding event handlers
+- Add Section button creating duplicate sections (event listener stacking)
+- Mobile: Edit button in ConceptWindow not responding to touch (drag handler intercepting)
 
 ### Changed
 - Refactored roadmap rendering for reuse
