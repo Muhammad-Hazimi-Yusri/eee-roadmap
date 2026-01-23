@@ -58,6 +58,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Custom concepts: Full content editing (replaces entire content)
   - Notes stored as markdown in `conceptNotes`, parsed on display
   - Dynamic tooltips: "Add notes" vs "Edit notes" based on state
+  - Helpful placeholder for empty custom concepts with edit hint
 - Add custom concepts to official tracks
   - "+" button at end of concept lists (visible when signed in)
   - Modal dialog for entering concept name
@@ -78,21 +79,32 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Validates file structure before importing
   - Opens editor in Import mode with data pre-filled
   - Supports conceptNotes from exported tracks
+- Drag-and-drop reordering in track editor
+  - SortableJS integration for smooth drag experience
+  - Drag handle icon (⠿) for sections and topics
+  - Auto-scroll while dragging near edges
+  - Touch/mobile support
+- Collapsible sections and topics in track editor
+  - Toggle arrows to collapse/expand content
+  - Collapse state preserved during edits
+  - Makes reordering easier with many items
+- Client-side markdown parser (`src/utils/parseNotesClient.ts`)
+  - Separate from build-time parser (no Node.js dependencies)
+  - Supports KaTeX for LaTeX equations
+  - Supports images and PDF embeds
+
+### Changed
+- New sections/topics start with empty title and auto-focus for immediate editing
+- Track editor concepts field includes hint: "add notes via concept window after saving"
+- Create New Track card now shows "New" and "Import" buttons
 
 ### Fixed
 - Add Section button not working when sections list is empty
   - Caused by early return before binding event handlers
 - Add Section button creating duplicate sections (event listener stacking)
 - Mobile: Edit button in ConceptWindow not responding to touch (drag handler intercepting)
-
-### Changed
-- Refactored roadmap rendering for reuse
-  - `src/utils/renderRoadmap.ts` - generates roadmap HTML from sections data
-  - `src/utils/roadmapInteractions.ts` - extracted all interaction logic
-- Moved roadmap component CSS to `global.css` for dynamic content support
-- Prerequisite URLs now properly formatted
-  - Official tracks: `/roadmaps/{track}/#{topic-id}`
-  - Custom tracks: `/roadmaps/custom/?track={slug}#{topic-id}`
+- Prereq picker failing when custom tracks contain null items
+- Custom tracks with null items in sections not loading
 
 ### Technical Notes
 - Custom concepts parsed to HTML at save time (not runtime) for performance

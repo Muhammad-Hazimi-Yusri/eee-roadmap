@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.20.8-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.20.9-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.20.8
+Current version is v0.20.9
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -59,7 +59,11 @@ Current version is v0.20.8
 - **Custom Tracks** — Create your own learning roadmaps with the built-in editor (requires sign-in)
   - Full track editor: sections, topics, concepts, resources, prerequisites
   - Prerequisite picker with cascading dropdowns (official + custom tracks)
-  - Preview mode before saving
+  - Drag-and-drop reordering for sections and topics
+  - Collapsible sections/topics for easier organization
+  - Live preview before saving
+  - Export track as JSON for backup/sharing
+  - Import track from JSON file
   - Stored in Supabase (syncs across devices)
 - **Custom Track Display** — View custom tracks at `/roadmaps/custom/?track=slug` with full interactivity (progress tracking, tools mode, concept windows)
 - **Cross-track Navigation** — Clickable prerequisites link between related topics
@@ -133,14 +137,11 @@ Current version is v0.20.8
 - [x] Legend for node states
 - [x] Per-track mini graph on roadmap pages (focused on current track with cross-track prereqs)
 - [x] Filter by track on homepage graph
+
 </details>
 
----
-
-### In Progress
-
-#### v0.20 - Custom Tracks & Editor
-
+<details>
+<summary><strong>v0.20 - Custom Tracks & Editor ✓</strong></summary>
 **Goal:** Let users create and manage their own learning tracks.
 
 - [x] Custom content storage in Supabase (per-user, private, 500KB limit)
@@ -170,21 +171,28 @@ Current version is v0.20.8
 - [x] Live preview (edit/preview toggle in editor)
 - [x] Export as JSON (single track with conceptNotes)
 - [x] Import track from JSON file
-- [ ] Drag-and-drop reordering for sections and topics
+- [x] Drag-and-drop reordering for sections and topics
+</details>
 
 ---
 
-### Planned
+### In Progress
 
-#### v0.21 - Test Coverage & Quality
+#### v0.21 - Test Coverage & Code Quality (Refactor)
 
-**Goal:** Improve existing test suite for better reliability and coverage.
+**Goal:** Improve existing test suite for better reliability and coverage, then improve code quality by linting checks and refactor. 
 
 - [ ] Fix/unskip flaky Playwright tests (Supabase timing issues)
 - [ ] Add tests for new sync/auth functionality
 - [ ] Visual regression tests (when UI stabilizes)
 - [ ] Accessibility tests (a11y)
 - [ ] Increase unit test coverage for utilities
+- [ ] Add linting and duplicate checks
+- [ ] Refactor as needed
+
+---
+
+### Planned
 
 #### v0.22 - Content Verification
 

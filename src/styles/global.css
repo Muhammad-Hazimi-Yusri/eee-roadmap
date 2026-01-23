@@ -696,3 +696,79 @@
     display: flex;
     gap: 0.5rem;
   }
+
+  /* Drag and drop sorting */
+  .sortable-ghost {
+    opacity: 0.4;
+    background: var(--color-bg-grid);
+  }
+
+  .sortable-chosen {
+    background: var(--color-bg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .editor-section-header,
+  .editor-topic-header {
+    cursor: grab;
+  }
+
+  .editor-section-header:active,
+  .editor-topic-header:active {
+    cursor: grabbing;
+  }
+
+  .sortable-fallback {
+    opacity: 0.8;
+    background: var(--color-bg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Collapse toggle button */
+  .collapse-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: transform 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .collapse-toggle:hover {
+    color: var(--color-text);
+  }
+
+  .collapse-icon {
+    font-size: 0.7rem;
+    display: inline-block;
+    transition: transform 0.15s ease;
+  }
+
+  /* Collapsed state */
+  .editor-section-body.collapsed,
+  .editor-topic-body.collapsed {
+    display: none;
+  }
+
+  /* Drag handle styling */
+  .drag-handle {
+    cursor: grab;
+    color: var(--color-text-muted);
+    padding: 4px;
+    user-select: none;
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .drag-handle:hover {
+    color: var(--color-text);
+  }
+
+  .drag-handle:active {
+    cursor: grabbing;
+  }

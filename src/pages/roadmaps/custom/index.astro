@@ -80,6 +80,14 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
   import { loadCustomContent, saveCustomContent } from '../../../lib/sync';
   import { renderRoadmapHtml } from '../../../utils/renderRoadmap';
   import { initRoadmapInteractions } from '../../../utils/roadmapInteractions';
+  import Sortable from 'sortablejs';
+
+  // Track collapsed state
+  const collapsedSections = new Set<number>();
+  const collapsedTopics = new Set<string>();
+  // Track Sortable instances for cleanup
+  let sectionsSortable: Sortable | null = null;
+  let topicsSortables: Sortable[] = [];
 
   function generateSlug(title: string): string {
     return title
@@ -132,13 +140,15 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
       slug,
       title: track.meta.title,
       isCustom: true,
-      sections: track.sections.map((section: any) => ({
+      sections: (track.sections || []).map((section: any) => ({
         id: section.id,
         title: section.title,
-        topics: section.items.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-        }))
+        topics: (section.items || [])
+          .filter((item: any) => item && item.id)
+          .map((item: any) => ({
+            id: item.id,
+            title: item.title || '',
+          }))
       }))
     }));
 
@@ -396,6 +406,12 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
         return;
       }
 
+      // Clean up any null items in sections
+      track.sections = (track.sections || []).map((section: any) => ({
+        ...section,
+        items: (section.items || []).filter((item: any) => item !== null)
+      }));
+
       if (isEditMode) {
         initEditor(track, slug);
         return;
@@ -455,11 +471,11 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
     }
   }
 
-  function buildConceptData(sections: any[]) {
+ function buildConceptData(sections: any[]) {
     const conceptData: Record<string, Record<string, { notesHtml?: string; isCustom?: boolean }>> = {};
 
     for (const section of sections) {
-      for (const item of section.items || []) {
+      for (const item of (section.items || []).filter((i: any) => i !== null)) {
         if (item.concepts?.length) {
           conceptData[item.id] = {};
           for (const concept of item.concepts) {
@@ -702,10 +718,14 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
     document.getElementById('add-section-btn')?.addEventListener('click', () => {
       state.sections.push({
         id: `section-${Date.now()}`,
-        title: 'New Section',
+        title: '',
         items: []
       });
       renderSections(state);
+      // Focus the new section's title input
+      const inputs = document.querySelectorAll('.editor-section-title');
+      const lastInput = inputs[inputs.length - 1] as HTMLInputElement;
+      lastInput?.focus();
     });
     
     // Render existing sections
@@ -741,6 +761,10 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
     container.innerHTML = state.sections.map((section: any, sectionIndex: number) => `
       <div class="editor-section" data-section-index="${sectionIndex}">
         <div class="editor-section-header">
+          <span class="drag-handle" title="Drag to reorder">⠿</span>
+          <button type="button" class="collapse-toggle collapse-toggle--section" data-section="${sectionIndex}" title="Toggle collapse">
+            <span class="collapse-icon">▼</span>
+          </button>
           <input 
             type="text" 
             class="editor-input editor-section-title" 
@@ -752,24 +776,86 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
           <button type="button" class="btn btn--danger btn--sm remove-section-btn" data-section="${sectionIndex}">✕</button>
         </div>
         
-        <div class="editor-topics" id="topics-${sectionIndex}">
-          ${section.items.map((item: any, topicIndex: number) => renderTopicEditor(item, sectionIndex, topicIndex)).join('')}
-        </div>
-        
-        <button type="button" class="btn btn--outline btn--sm add-topic-btn" data-section="${sectionIndex}">+ Add Topic</button>
+        <div class="editor-section-body" data-section-body="${sectionIndex}">
+          <div class="editor-topics" id="topics-${sectionIndex}">
+            ${section.items.map((item: any, topicIndex: number) => renderTopicEditor(item, sectionIndex, topicIndex)).join('')}
+          </div>
+          
+          <button type="button" class="btn btn--outline btn--sm add-topic-btn" data-section="${sectionIndex}">+ Add Topic</button>
+        </div>        
       </div>
     `).join('');
 
     // Bind section events
     bindSectionEvents(state);
+
+    // Initialize drag-and-drop for sections
+    const sectionsContainer = document.getElementById('sections-container');
+    if (sectionsContainer) {
+      // Destroy previous instance
+      if (sectionsSortable) {
+        sectionsSortable.destroy();
+      }
+      sectionsSortable = Sortable.create(sectionsContainer, {
+        animation: 150,
+        handle: '.drag-handle',
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        forceFallback: true,
+        fallbackClass: 'sortable-fallback',
+        scroll: true,
+        bubbleScroll: true,
+        scrollSensitivity: 100,
+        scrollSpeed: 15,
+        onEnd: (evt) => {
+          if (evt.oldIndex !== undefined && evt.newIndex !== undefined) {
+            const [moved] = state.sections.splice(evt.oldIndex, 1);
+            state.sections.splice(evt.newIndex, 0, moved);
+          }
+        }
+      });
+    }
+    
+    // Initialize drag-and-drop for topics within each section
+    // Destroy previous instances
+    topicsSortables.forEach(s => s.destroy());
+    topicsSortables = [];
+    
+    state.sections.forEach((_: any, sectionIndex: number) => {
+      const topicsContainer = document.getElementById(`topics-${sectionIndex}`);
+      if (topicsContainer) {
+        const sortable = Sortable.create(topicsContainer, {
+          animation: 150,
+          handle: '.drag-handle',
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          forceFallback: true,
+          fallbackClass: 'sortable-fallback',
+          scroll: true,
+          bubbleScroll: true,
+          scrollSensitivity: 100,
+          scrollSpeed: 15,
+          onEnd: (evt) => {
+            if (evt.oldIndex !== undefined && evt.newIndex !== undefined) {
+              const [moved] = state.sections[sectionIndex].items.splice(evt.oldIndex, 1);
+              state.sections[sectionIndex].items.splice(evt.newIndex, 0, moved);
+            }
+          }
+        });
+        topicsSortables.push(sortable);
+      }
+    });
   }
 
   function renderTopicEditor(item: any, sectionIndex: number, topicIndex: number): string {
     return `
       <div class="editor-topic" data-section="${sectionIndex}" data-topic="${topicIndex}">
         <div class="editor-topic-header">
-          <span class="editor-topic-dot"></span>
-          <input 
+          <span class="drag-handle" title="Drag to reorder">⠿</span>
+          <button type="button" class="collapse-toggle collapse-toggle--topic" data-section="${sectionIndex}" data-topic="${topicIndex}" title="Toggle collapse">
+            <span class="collapse-icon">▼</span>
+          </button>
+          <input
             type="text" 
             class="editor-input editor-topic-title" 
             value="${item.title}" 
@@ -781,7 +867,7 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
           <button type="button" class="btn btn--danger btn--sm remove-topic-btn" data-section="${sectionIndex}" data-topic="${topicIndex}">✕</button>
         </div>
         
-        <div class="editor-topic-body">
+        <div class="editor-topic-body" data-topic-body="${sectionIndex}-${topicIndex}">
           <textarea 
             class="editor-input editor-topic-desc" 
             placeholder="Topic description..."
@@ -905,6 +991,70 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
       });
     });
 
+    // Toggle section collapse
+    document.querySelectorAll('.collapse-toggle--section').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const target = e.currentTarget as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const body = document.querySelector(`[data-section-body="${sectionIndex}"]`);
+        const icon = target.querySelector('.collapse-icon');
+        
+        if (body) {
+          const isCollapsed = body.classList.toggle('collapsed');
+          if (icon) icon.textContent = isCollapsed ? '▶' : '▼';
+          
+          // Track state
+          if (isCollapsed) {
+            collapsedSections.add(sectionIndex);
+          } else {
+            collapsedSections.delete(sectionIndex);
+          }
+        }
+      });
+    });
+
+    // Toggle topic collapse
+    document.querySelectorAll('.collapse-toggle--topic').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const target = e.currentTarget as HTMLButtonElement;
+        const sectionIndex = target.dataset.section;
+        const topicIndex = target.dataset.topic;
+        const key = `${sectionIndex}-${topicIndex}`;
+        const body = document.querySelector(`[data-topic-body="${key}"]`);
+        const icon = target.querySelector('.collapse-icon');
+        
+        if (body) {
+          const isCollapsed = body.classList.toggle('collapsed');
+          if (icon) icon.textContent = isCollapsed ? '▶' : '▼';
+          
+          // Track state
+          if (isCollapsed) {
+            collapsedTopics.add(key);
+          } else {
+            collapsedTopics.delete(key);
+          }
+        }
+      });
+    });
+
+    // Restore collapsed state after re-render
+    collapsedSections.forEach(sectionIndex => {
+      const body = document.querySelector(`[data-section-body="${sectionIndex}"]`);
+      const icon = document.querySelector(`.collapse-toggle--section[data-section="${sectionIndex}"] .collapse-icon`);
+      if (body) body.classList.add('collapsed');
+      if (icon) icon.textContent = '▶';
+    });
+
+    collapsedTopics.forEach(key => {
+      const body = document.querySelector(`[data-topic-body="${key}"]`);
+      const [sectionIndex, topicIndex] = key.split('-');
+      const icon = document.querySelector(`.collapse-toggle--topic[data-section="${sectionIndex}"][data-topic="${topicIndex}"] .collapse-icon`);
+      if (body) body.classList.add('collapsed');
+      if (icon) icon.textContent = '▶';
+    });
+
     // Add topic
     document.querySelectorAll('.add-topic-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -913,11 +1063,15 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
         const topicId = `topic-${Date.now()}`; // Temporary, will update on title change
         state.sections[sectionIndex].items.push({
           id: topicId,
-          title: 'New Topic',
+          title: '',
           description: '',
           concepts: []
         });
         renderSections(state);
+        // Focus the new topic's title input
+        const topicInputs = document.querySelectorAll(`[data-section="${sectionIndex}"][data-field="topic-title"]`);
+        const lastInput = topicInputs[topicInputs.length - 1] as HTMLInputElement;
+        lastInput?.focus();
       });
     });
 
