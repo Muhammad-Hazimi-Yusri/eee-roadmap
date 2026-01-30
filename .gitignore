@@ -45,3 +45,6 @@ src/data/pdf-manifest.json
 # Generated data files (built from YAML sources)
 src/data/*.json
 !src/data/sample.json
+
+# Windows file system metadata
+*:Zone.Identifier
