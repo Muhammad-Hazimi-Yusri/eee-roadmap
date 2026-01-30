@@ -7,6 +7,7 @@ import { join } from 'path';
 const PDFJS_VERSION = '5.4.449';
 const PDFJS_DIR = 'public/pdfjs';
 const TEMP_ZIP = join(tmpdir(), 'pdfjs.zip');
+const isWindows = process.platform === 'win32';
 
 if (existsSync(PDFJS_DIR)) {
   console.log('PDF.js already installed, skipping...');
@@ -25,9 +26,13 @@ if (!existsSync(TEMP_ZIP)) {
   process.exit(1);
 }
 
-// Extract using tar (available on Windows 10+)
+// Extract - Windows tar supports zip, Linux/macOS use unzip
 await mkdir(PDFJS_DIR, { recursive: true });
-execSync(`tar -xf "${TEMP_ZIP}" -C "${PDFJS_DIR}"`, { stdio: 'inherit' });
+if (isWindows) {
+  execSync(`tar -xf "${TEMP_ZIP}" -C "${PDFJS_DIR}"`, { stdio: 'inherit' });
+} else {
+  execSync(`unzip -q "${TEMP_ZIP}" -d "${PDFJS_DIR}"`, { stdio: 'inherit' });
+}
 
 // Cleanup
 await rm(TEMP_ZIP);
