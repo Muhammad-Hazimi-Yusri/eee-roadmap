@@ -1,9 +1,12 @@
 import { existsSync } from 'fs';
-import { mkdir } from 'fs/promises';
+import { mkdir, rm } from 'fs/promises';
 import { execSync } from 'child_process';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
 const PDFJS_VERSION = '5.4.449';
 const PDFJS_DIR = 'public/pdfjs';
+const TEMP_ZIP = join(tmpdir(), 'pdfjs.zip');
 
 if (existsSync(PDFJS_DIR)) {
   console.log('PDF.js already installed, skipping...');
@@ -14,14 +17,19 @@ console.log(`Downloading PDF.js v${PDFJS_VERSION}...`);
 
 await mkdir('public', { recursive: true });
 
-execSync(`curl -fL https://github.com/mozilla/pdf.js/releases/download/v${PDFJS_VERSION}/pdfjs-${PDFJS_VERSION}-dist.zip -o /tmp/pdfjs.zip`, { stdio: 'inherit' });
+// Download
+execSync(`curl -fL https://github.com/mozilla/pdf.js/releases/download/v${PDFJS_VERSION}/pdfjs-${PDFJS_VERSION}-dist.zip -o "${TEMP_ZIP}"`, { stdio: 'inherit' });
 
-if (!existsSync('/tmp/pdfjs.zip')) {
-  console.error('Download failed: /tmp/pdfjs.zip does not exist');
+if (!existsSync(TEMP_ZIP)) {
+  console.error(`Download failed: ${TEMP_ZIP} does not exist`);
   process.exit(1);
 }
 
-execSync(`unzip -q /tmp/pdfjs.zip -d ${PDFJS_DIR}`, { stdio: 'inherit' });
-execSync(`rm /tmp/pdfjs.zip`, { stdio: 'inherit' });
+// Extract using tar (available on Windows 10+)
+await mkdir(PDFJS_DIR, { recursive: true });
+execSync(`tar -xf "${TEMP_ZIP}" -C "${PDFJS_DIR}"`, { stdio: 'inherit' });
+
+// Cleanup
+await rm(TEMP_ZIP);
 
 console.log('PDF.js installed successfully!');
