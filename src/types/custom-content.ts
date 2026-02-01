@@ -5,7 +5,7 @@
  * Custom tracks and concepts added to existing tracks.
  */
 
-import type { Concept, Roadmap } from './roadmap';
+import type { Roadmap } from './roadmap';
 
 /** Custom concept with pre-parsed HTML (parsed at save time in editor) */
 export interface CustomConcept {

@@ -54,7 +54,7 @@ function checkDuplicateTopicIds() {
   
   // Find duplicates
   const duplicates = [...topicIdMap.entries()]
-    .filter(([_, tracks]) => tracks.length > 1);
+    .filter(([_topicId, tracks]) => tracks.length > 1);
   
   if (duplicates.length > 0) {
     console.log('  ❌ Duplicate topic IDs found:\n');

@@ -46,8 +46,8 @@ function renderPrerequisites(prerequisites?: string[]): string {
   const tags = prerequisites.map(prereq => {
     const parts = prereq.split('/');
     if (parts.length >= 2) {
-      let track = parts[0];
-      let id = parts[1];
+      const track = parts[0];
+      const id = parts[1];
       const displayParts = parts.slice(2);
       const displayName = displayParts.length > 0 
         ? displayParts.join('/') 

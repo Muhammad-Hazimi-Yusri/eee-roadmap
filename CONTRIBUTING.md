@@ -270,6 +270,7 @@ This project uses [Husky](https://typicode.github.io/husky/) for pre-commit hook
 ```bash
 npm run build:data    # Rebuild JSON from YAML
 npm run validate      # Validate against schema
+npm run lint          # ESLint checks
 ```
 
 Before pushing, run the full test suite manually:

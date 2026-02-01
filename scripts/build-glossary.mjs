@@ -15,9 +15,6 @@ const DATA_DIR = join(ROOT, 'src/data');
 const GLOSSARY_PATH = join(CONTENT_DIR, '_glossary.yaml');
 const OUTPUT_PATH = join(DATA_DIR, '_glossary.json');
 
-// Roadmap files to scan (exclude non-roadmap files)
-const EXCLUDE_FILES = ['sample', '_glossary'];
-
 /**
  * Slugify a term for use as ID
  * e.g., "Ohm's Law" → "ohms-law"

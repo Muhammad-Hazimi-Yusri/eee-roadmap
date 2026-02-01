@@ -1,6 +1,6 @@
 // src/utils/customContent.ts
 
-import type { CustomContent, CustomConcept } from '../types/custom-content';
+import type { CustomConcept } from '../types/custom-content';
 import { loadCustomContent } from '../lib/sync';
 
 /**

@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import type { RoadmapSection } from './roadmap';
 import { roadmaps } from '../data';
 
 describe('Roadmap data validation', () => {

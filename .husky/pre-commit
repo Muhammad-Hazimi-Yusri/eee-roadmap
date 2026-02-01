@@ -22,6 +22,9 @@ npm run build:data || exit 1
 echo "🔍 Validating schema..."
 npm run validate || exit 1
 
+echo "🧹 Linting..."
+npm run lint || exit 1
+
 echo ""
 echo "✅ Pre-commit checks passed"
 echo "💡 Run 'npm run test:all' manually before pushing"

@@ -11,6 +11,35 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.21.X] - 2025-02-01
+
+**Test Coverage & Code Quality**
+
+### Added
+- ESLint configuration with TypeScript and Astro support
+  - `eslint.config.js` with flat config format
+  - TypeScript-ESLint for type-aware linting
+  - Astro plugin for `.astro` file support
+  - Node.js globals configured for scripts
+  - Vitest globals configured for test files
+- New npm scripts: `lint`, `lint:fix`
+- Lint check added to pre-commit hook
+
+### Fixed
+- Missing `</section>` closing tag in profile.astro (parsing error)
+- Unused imports converted to type-only imports
+- `let` → `const` for never-reassigned variables
+- Empty catch blocks now allowed (common pattern)
+
+### Removed
+- Unused `EXCLUDE_FILES` variable in build-glossary.mjs
+
+### Technical Notes
+- 140 `any` type warnings remain (to be addressed incrementally)
+- ESLint configured to allow underscore-prefixed unused variables
+- Type definition files (`.d.ts`) excluded from unused-vars rule
+
+
 ## [0.20.X] - 2025-01-22
 
 **Custom Tracks & Editor (WIP)**

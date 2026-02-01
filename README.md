@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.20.9-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.0-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.20.9
+Current version is v0.21.0
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -180,15 +180,18 @@ Current version is v0.20.9
 
 #### v0.21 - Test Coverage & Code Quality (Refactor)
 
-**Goal:** Improve existing test suite for better reliability and coverage, then improve code quality by linting checks and refactor. 
+**Goal:** Improve existing test suite for better reliability and coverage, then improve code quality by linting checks and refactor.
 
+- [x] Add linting (ESLint with TypeScript + Astro)
+- [x] Add lint to pre-commit hook
 - [ ] Fix/unskip flaky Playwright tests (Supabase timing issues)
 - [ ] Add tests for new sync/auth functionality
 - [ ] Visual regression tests (when UI stabilizes)
 - [ ] Accessibility tests (a11y)
 - [ ] Increase unit test coverage for utilities
-- [ ] Add linting and duplicate checks
+- [ ] Add CSS duplicate checks
 - [ ] Refactor as needed
+- [ ] Lighthouse score and perfomance optimisation
 
 ---
 
@@ -261,113 +264,59 @@ Current version is v0.20.9
 
 ## Project Structure
 ```
-eee-roadmap/
-├── content/
-│   ├── _glossary.yaml          # Glossary terms and acronyms
-│   ├── fundamentals.yaml       # Fundamentals track (human-editable)
-│   ├── core.yaml               # Core track
-│   ├── advanced.yaml           # Advanced track
-│   ├── distributed-generation.yaml  # Specialization track
-│   ├── power-system-fundamentals.yaml  # Specialization track
-│   └── sample.yaml             # Template for new tracks (excluded from build)
-├── public/
-│   ├── favicon.svg
-│   ├── pdfjs/                  # PDF.js viewer (auto-downloaded via postinstall)
-│   ├── pdfs/                   # Downloaded PDFs (auto-generated)
-│   └── pdf-manifest.json       # URL → local path mapping (auto-generated)
+food-wars/
+├── e2e/                        # Playwright E2E tests
+│   └── home.spec.ts
+├── public/                     # Static assets
 ├── scripts/
-│   ├── build-data.mjs          # Converts YAML roadmap files to JSON
-│   ├── build-glossary.mjs      # Generates glossary with reverse index
-│   ├── build-graph-data.mjs    # Generates graph nodes/edges from roadmaps
-│   ├── build-search-index.mjs  # Generates search index from JSON files
-│   ├── download-pdfs.mjs       # Downloads external PDFs from data files
-│   ├── setup-pdfjs.mjs         # Downloads PDF.js on npm install
-│   └── validate.mjs            # Validates YAML roadmap files against schema
+│   └── bump-version.mjs        # Version updater
 ├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── test-supabase/  # API test route
+│   │   ├── auth/
+│   │   │   ├── callback/       # OAuth callback handler
+│   │   │   └── error/          # Auth error page
+│   │   ├── test/               # Color palette test page
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx            # Home (inventory)
 │   ├── components/
-│   │   ├── ConceptWindows.astro
-│   │   ├── CTA.astro
-│   │   ├── CustomCursor.astro
-│   │   ├── DemoRoadmap.astro
-│   │   ├── Features.astro
-│   │   ├── Footer.astro
-│   │   ├── GlossaryTooltips.astro
-│   │   ├── Header.astro
-│   │   ├── Hero.astro
-│   │   ├── Placeholder.astro
-│   │   ├── ProgressFilter.astro
-│   │   ├── Roadmap.astro
-│   │   ├── RoadmapGraph.astro  # Homepage graph visualization
-│   │   ├── RoadmapSettings.astro
-│   │   ├── SearchBar.astro
-│   │   ├── ThemeToggle.astro
-│   │   ├── TrackGraph.astro    # Per-track graph visualization
-│   │   └── Tracks.astro
-│   ├── data/
-│   │   ├── index.ts            # Dynamic JSON loader
-│   │   ├── sample.json         # Example structure for contributors
-│   │   ├── *.json              # Generated from YAML (git-ignored)
-│   │   ├── _glossary.json      # Glossary with reverse index (auto-generated)
-│   │   ├── graph-data.json     # Graph nodes/edges (auto-generated)
-│   │   ├── search-index.json   # Search index (auto-generated)
-│   │   └── pdf-manifest.json   # URL → local path mapping (auto-generated)
-│   ├── layouts/
-│   │   └── Layout.astro
+│   │   ├── diner/              # Themed components
+│   │   │   ├── Noren.tsx       # Curtain header
+│   │   │   ├── UserMenu.tsx    # User dropdown
+│   │   │   ├── WelcomeModal.tsx
+│   │   │   └── WoodCard.tsx    # Legacy item card
+│   │   ├── inventory/          # Inventory feature
+│   │   │   ├── AddItemForm.tsx
+│   │   │   ├── EditItemForm.tsx
+│   │   │   ├── InventoryList.tsx  # Legacy list
+│   │   │   ├── InventoryStats.tsx
+│   │   │   ├── InventoryWarnings.tsx
+│   │   │   ├── StockCard.tsx   # New v0.4 card
+│   │   │   └── StockList.tsx   # New v0.4 list
+│   │   └── ui/                 # shadcn components
+│   ├── hooks/
+│   │   └── useGuestStorage.ts
 │   ├── lib/
-│   │   ├── supabase.ts         # Supabase client
-│   │   └── sync.ts             # Progress sync utilities
-│   ├── pages/
-│   │   ├── roadmaps/
-│   │   │   ├── custom/
-│   │   │   │   └── index.astro   # Custom track view/edit page
-│   │   │   ├── index.astro       # All tracks page
-│   │   │   └── [slug].astro      # Dynamic track pages
-│   │   ├── about.astro
-│   │   ├── contribute.astro
-│   │   ├── glossary.astro
-│   │   ├── guides.astro
-│   │   ├── index.astro
-│   │   ├── privacy.astro
-│   │   ├── profile.astro
-│   │   ├── projects.astro
-│   │   └── resources.astro
-│   ├── styles/
-│   │   └── global.css
-│   ├── types/
-│   │   ├── custom-content.ts     # Custom tracks/concepts types
-│   │   ├── cytoscape-dagre.d.ts  # Type declaration for cytoscape-dagre
-│   │   └── roadmap.ts
-│   └── utils/
-│       ├── customContent.ts      # Custom content injection utilities
-│       ├── parseNotes.ts
-│       ├── parseNotes.test.ts
-│       ├── parseNotesClient.ts   # Client-side markdown parser
-│       ├── progress.ts
-│       ├── progress.test.ts
-│       ├── renderRoadmap.ts      # Roadmap HTML generation utility
-│       ├── roadmapInteractions.ts # Roadmap interaction logic
-│       ├── tools.ts
-│       ├── tools.test.ts
-│       ├── trackColors.ts      # Dynamic track color utilities
-│       ├── trail.ts
-│       ├── trail.test.ts
-│       ├── url.ts
-│       ├── url.test.ts
-│       └── wrapGlossaryTerms.ts
-├── tests/
-│   ├── integration/            # Playwright integration tests
-│   └── e2e/                    # Playwright E2E tests
-├── .github/
-│   └── workflows/
-│       └── deploy.yml
-├── astro.config.mjs
-├── tailwind.config.mjs
-├── tsconfig.json
-├── vitest.config.ts
-├── playwright.config.ts
-├── package.json
-├── CONTRIBUTING.md
+│   │   ├── supabase/
+│   │   │   ├── client.ts       # Browser client
+│   │   │   ├── inventory.ts    # DB queries
+│   │   │   ├── middleware.ts   # Auth middleware
+│   │   │   └── server.ts       # Server client
+│   │   ├── __tests__/          # Unit tests
+│   │   ├── inventory.ts        # Legacy inventory helpers
+│   │   ├── inventory-utils.ts  # Expiry/stats utilities
+│   │   ├── storage.ts          # Guest localStorage
+│   │   └── utils.ts            # General utilities
+│   └── types/
+│       └── database.ts         # TypeScript types
+├── supabase/
+│   └── migrations/
+│       └── 001_schema.sql      # Database schema
+├── BRANDING.md                 # Design system
 ├── CHANGELOG.md
+├── CONTRIBUTING.md
 └── README.md
 ```
 

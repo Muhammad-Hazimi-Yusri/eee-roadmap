@@ -615,7 +615,7 @@ export function initRoadmapInteractions(): void {
   // SWIPE GESTURES
   // ============================================
   let isMouseDown = false;
-  let swipedPills: Set<string> = new Set();
+  const swipedPills: Set<string> = new Set();
   let touchStartedOnInteractive = false;
 
   function initSwipeGestures() {
