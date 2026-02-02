@@ -47,7 +47,9 @@ sections:
             notes: |
               Non-impedant conductive bar serving as central power distribution point in substations.
               
-              ![Busbar arrangement](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Non_sectional_system_of_busbar.svg/400px-Non_sectional_system_of_busbar.svg.png)
+              ![Busbar arrangement](https://commons.wikimedia.org/wiki/Special:FilePath/Non_sectional_system_of_busbar.svg)
+              
+              *Image: Wikimedia Commons, Public Domain*
           - name: Kirchhoff's Laws
             notes: |
               **KCL (Current Law):** Sum of currents entering a node equals sum leaving.
@@ -120,7 +122,9 @@ sections:
               
               **Why simplify?** Three phases are balanced in normal operation, so one line represents all three.
               
-              ![Example SLD](https://upload.wikimedia.org/wikipedia/commons/6/62/One-line_diagram.svg)
+              ![Example SLD](https://commons.wikimedia.org/wiki/Special:FilePath/One-line_diagram.svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 3.0*
           - name: Reading Convention
             notes: |
               Standard approach:
@@ -191,13 +195,9 @@ sections:
           - name: Power Triangle
             notes: |
               Graphical representation relating P, Q, and S:
-              ```
-                    /|
-                 S / |
-                  /  | Q
-                 /φ__|
-                   P
-              ```
+              ![Power triangle](https://commons.wikimedia.org/wiki/Special:FilePath/Power_Triangle_01.svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 3.0*
               
               - Horizontal: Active power P
               - Vertical: Reactive power Q  
@@ -362,3 +362,1978 @@ sections:
             url: https://openelectrical.org/index.php?title=Per-unit_System
           - label: "NPTEL - Per Unit Calculations"
             url: https://nptel.ac.in/courses/108105104
+
+  - id: load-flow-analysis
+    title: Load Flow Analysis
+    items:
+      - id: load-flow-fundamentals
+        title: What is Load Flow Analysis
+        description: >-
+          Numerical calculation of steady-state voltages, currents, and power 
+          flows throughout a network. The most fundamental power system study, 
+          used for planning, operations, and as input to other analyses.
+        prerequisites:
+          - power-system-fundamentals/per-unit-system/Per-Unit System
+        outcomes:
+          - Set up a load flow problem with correct bus classifications
+          - Understand purpose and applications of power flow studies
+          - Identify inputs and outputs of load flow analysis
+        concepts:
+          - name: Load Flow Purpose
+            notes: |
+              Answers the question: "Given generation and load, what are the voltages and power flows?"
+              
+              **Calculates:**
+              - Voltage magnitude and angle at each bus
+              - Real and reactive power flow in each branch
+              - System losses
+              - Equipment loading (% of rating)
+          - name: Bus Types
+            notes: |
+              Each bus must be classified for the solver:
+              
+              | Type | Known | Unknown | Purpose |
+              |------|-------|---------|---------|
+              | **Slack** (Swing) | V, θ | P, Q | Reference bus, balances system |
+              | **PV** (Generator) | P, V | Q, θ | Voltage-controlled generation |
+              | **PQ** (Load) | P, Q | V, θ | Most buses - loads and fixed gen |
+              
+              Typically: 1 slack, few PV, many PQ buses.
+          - name: Applications
+            notes: |
+              - **Planning:** Assess new generation/transmission options
+              - **Operations:** Real-time monitoring and control
+              - **Contingency (N-1):** What if a line/generator trips?
+              - **Voltage assessment:** Find weak points needing reactive support
+              - **Loss calculation:** Optimize power flow paths
+        resources:
+          - label: "MIT OCW - Power Flow Analysis"
+            url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+          - label: "PowerWorld Simulator (Free 13-bus)"
+            url: https://www.powerworld.com/products/simulator
+
+      - id: load-flow-methods
+        title: Newton-Raphson and Gauss-Seidel Methods
+        description: >-
+          The two main iterative algorithms for solving load flow equations. 
+          Gauss-Seidel is simpler but slower; Newton-Raphson is the industry 
+          standard for its speed and robustness.
+        prerequisites:
+          - power-system-fundamentals/load-flow-fundamentals/What is Load Flow Analysis
+        outcomes:
+          - Explain conceptual differences between G-S and N-R methods
+          - Understand why N-R is preferred for large systems
+          - Interpret convergence behavior and potential issues
+        concepts:
+          - name: Why Iterative?
+            notes: |
+              Load flow equations are **nonlinear** (power = V × I, but I depends on V).
+              
+              No closed-form solution exists for networks with more than a few buses.
+              
+              Must iterate: guess → calculate → refine → repeat until converged.
+          - name: Gauss-Seidel Method
+            notes: |
+              Sequential update of each bus voltage:
+              
+              $$V_i^{(k+1)} = \frac{1}{Y_{ii}} \left[ \frac{P_i - jQ_i}{V_i^{(k)*}} - \sum_{j \neq i} Y_{ij} V_j^{(k)} \right]$$
+              
+              **Pros:** Simple to understand and code
+              
+              **Cons:** Slow (100+ iterations), poor convergence for large/meshed networks
+              
+              **Use:** Small systems, educational purposes
+          - name: Newton-Raphson Method
+            notes: |
+              Solves power mismatch equations using Jacobian matrix:
+              
+              $$\begin{bmatrix} \Delta P \\ \Delta Q \end{bmatrix} = \mathbf{J} \begin{bmatrix} \Delta \theta \\ \Delta V \end{bmatrix}$$
+              
+              **Jacobian structure:**
+              
+              $$\mathbf{J} = \begin{bmatrix} \frac{\partial P}{\partial \theta} & \frac{\partial P}{\partial V} \\ \frac{\partial Q}{\partial \theta} & \frac{\partial Q}{\partial V} \end{bmatrix}$$
+              
+              **Pros:** Fast (3-5 iterations), robust, industry standard
+              
+              **Cons:** More complex, requires Jacobian calculation
+          - name: Fast Decoupled Method
+            notes: |
+              Simplification of N-R exploiting natural decoupling:
+              
+              - **P-θ:** Real power strongly coupled to angles
+              - **Q-V:** Reactive power strongly coupled to voltages
+              
+              Solves two smaller systems instead of one large one. Even faster for transmission networks.
+          - name: Convergence
+            notes: |
+              **Converged:** Mismatches below tolerance (typically 0.001 pu)
+              
+              **Divergence causes:**
+              - Poor initial guess (use flat start: V=1.0, θ=0)
+              - Excessive reactive demand
+              - Islanded sections
+              - Negative impedance (modelling error)
+        resources:
+          - label: "NPTEL - Load Flow Methods"
+            url: https://nptel.ac.in/courses/108105067
+          - label: "Pandapower (Python library)"
+            url: https://www.pandapower.org/
+
+      - id: interpreting-load-flow
+        title: Interpreting Load Flow Results
+        description: >-
+          How to read and analyze load flow outputs: voltage profiles, 
+          line loadings, losses, and reactive power flows. Identifying 
+          problems and potential solutions.
+        prerequisites:
+          - power-system-fundamentals/load-flow-methods/Newton-Raphson and Gauss-Seidel Methods
+        outcomes:
+          - Analyze voltage profiles and identify violations
+          - Identify overloaded elements from load flow results
+          - Calculate and interpret system losses
+        concepts:
+          - name: Voltage Profile
+            notes: |
+              Plot of voltage magnitude across buses, typically ordered by electrical distance from source.
+              
+              **Acceptable range:** Usually 0.95 - 1.05 pu (±5%)
+              
+              **Violations indicate:**
+              - Heavy loading (voltage drop)
+              - Insufficient reactive support
+              - Need for tap changer adjustment or capacitor banks
+          - name: Branch Loading
+            notes: |
+              Power flow as percentage of thermal rating:
+              
+              $$\text{Loading} = \frac{|S_{flow}|}{S_{rating}} \times 100\%$$
+              
+              **Watch for:**
+              - \>80% - approaching limit, monitor closely
+              - \>100% - overloaded, requires action
+              
+              Heavily loaded lines are **bottlenecks** limiting power transfer.
+          - name: System Losses
+            notes: |
+              Total real power losses:
+              
+              $$P_{loss} = \sum P_{generation} - \sum P_{load}$$
+              
+              **Typical values:** 2-8% of total generation
+              
+              **Loss breakdown:**
+              - Transmission: ~2-3%
+              - Distribution: ~4-6%
+              
+              High losses indicate inefficient power flow paths.
+          - name: Reactive Power Flow
+            notes: |
+              Shows where Q is generated and consumed.
+              
+              **Key observations:**
+              - Generators at Q limits? May need more reactive support
+              - Long lines consuming Q? Consider series compensation
+              - Transformers with high Q flow? Check tap positions
+          - name: Results Table Example
+            notes: |
+              Typical load flow output:
+              
+              | Bus | V (pu) | θ (°) | P (MW) | Q (MVAR) |
+              |-----|--------|-------|--------|----------|
+              | 1 (Slack) | 1.000 | 0.0 | 150.2 | 45.3 |
+              | 2 (PV) | 1.020 | -2.1 | 80.0 | 23.1 |
+              | 3 (PQ) | 0.985 | -4.5 | -50.0 | -20.0 |
+              
+              Negative P/Q = load consuming power
+        resources:
+          - label: "OpenDSS - Distribution System Simulator"
+            url: https://sourceforge.net/projects/electricdss/
+          - label: "MATPOWER (MATLAB)"
+            url: https://matpower.org/
+
+  - id: fault-analysis
+    title: Fault Analysis
+    items:
+      - id: fault-types
+        title: Types of Faults
+        description: >-
+          Classification of short circuit faults in power systems: three-phase, 
+          single line-to-ground, line-to-line, and double line-to-ground. 
+          Understanding fault severity and frequency of occurrence.
+        prerequisites:
+          - power-system-fundamentals/interpreting-load-flow/Interpreting Load Flow Results
+        outcomes:
+          - Classify fault types from descriptions and diagrams
+          - Explain which faults are most severe and most common
+          - Understand sequence network connections for each fault type
+        concepts:
+          - name: Three-Phase Fault (LLL)
+            notes: |
+              All three phases short-circuited together (with or without ground).
+              
+              ![Three-phase fault](https://commons.wikimedia.org/wiki/Special:FilePath/Threephaseshortcircuit.svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 3.0*
+              
+              - **Severity:** Most severe (highest current)
+              - **Frequency:** Rarest (~5% of faults)
+              - **Analysis:** Simplest - system remains balanced, only positive sequence needed
+          - name: Single Line-to-Ground (SLG)
+            notes: |
+              One phase contacts ground.
+              
+              - **Severity:** Depends on grounding (can exceed 3-phase in solidly grounded systems)
+              - **Frequency:** Most common (~70-80% of faults)
+              - **Analysis:** Requires all three sequence networks in series
+              
+              Common causes: Lightning, tree contact, insulator flashover
+          - name: Line-to-Line Fault (LL)
+            notes: |
+              Two phases short-circuited together (not involving ground).
+              
+              - **Severity:** ~87% of three-phase fault current
+              - **Frequency:** ~15-20% of faults
+              - **Analysis:** Positive and negative sequence networks in parallel
+          - name: Double Line-to-Ground (LLG)
+            notes: |
+              Two phases short-circuited together and to ground.
+              
+              - **Severity:** Can exceed three-phase in some cases
+              - **Frequency:** ~5-10% of faults
+              - **Analysis:** Most complex - all sequences in parallel
+          - name: Fault Severity Ranking
+            notes: |
+              For **solidly grounded** systems (typical UK distribution):
+              
+              $$I_{3\phi} > I_{SLG} > I_{LLG} > I_{LL}$$
+              
+              For **impedance grounded** systems:
+              
+              $$I_{3\phi} > I_{LLG} > I_{LL} > I_{SLG}$$
+              
+              Three-phase fault is usually used for **equipment rating** as it's the worst case.
+        resources:
+          - label: "Circuit Globe - Symmetrical and Unsymmetrical Faults"
+            url: https://circuitglobe.com/symmetrical-and-unsymmetrical-faults.html
+
+      - id: symmetrical-components
+        title: Symmetrical Components Theory
+        description: >-
+          Mathematical technique to analyze unbalanced conditions by 
+          decomposing into three balanced systems: positive, negative, and 
+          zero sequence. Essential for unbalanced fault calculations.
+        prerequisites:
+          - power-system-fundamentals/fault-types/Types of Faults
+        outcomes:
+          - Convert between phase and sequence quantities
+          - Draw sequence networks for system components
+          - Apply correct sequence network connections for different faults
+        concepts:
+          - name: Why Symmetrical Components?
+            notes: |
+              Unbalanced three-phase systems are difficult to analyze directly.
+              
+              **Solution:** Decompose into three **balanced** systems that can be analyzed independently, then recombine.
+              
+              Invented by Charles Fortescue (1918).
+          - name: The Three Sequences
+            notes: |
+              ![Symmetrical components](https://commons.wikimedia.org/wiki/Special:FilePath/Symmetrical_components_three_phase.svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 4.0*
+              
+              **Positive sequence (1):** ABC rotation (normal operating condition)
+              - Generators produce only positive sequence EMF
+              
+              **Negative sequence (2):** ACB rotation (reverse)
+              - Created by unbalanced conditions
+              - Causes heating in machines
+              
+              **Zero sequence (0):** All three phasors in phase
+              - Represents ground return current
+              - Only flows if there's a ground path
+          - name: The 'a' Operator
+            notes: |
+              Complex operator that rotates by 120°:
+              
+              $$a = 1 \angle 120° = -0.5 + j0.866$$
+              
+              $$a^2 = 1 \angle 240° = -0.5 - j0.866$$
+              
+              $$a^3 = 1$$
+              
+              $$1 + a + a^2 = 0$$
+          - name: Transformation Equations
+            notes: |
+              **Phase to sequence:**
+              
+              $$\begin{bmatrix} V_0 \\ V_1 \\ V_2 \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 1 & 1 & 1 \\ 1 & a & a^2 \\ 1 & a^2 & a \end{bmatrix} \begin{bmatrix} V_a \\ V_b \\ V_c \end{bmatrix}$$
+              
+              **Sequence to phase:**
+              
+              $$\begin{bmatrix} V_a \\ V_b \\ V_c \end{bmatrix} = \begin{bmatrix} 1 & 1 & 1 \\ 1 & a^2 & a \\ 1 & a & a^2 \end{bmatrix} \begin{bmatrix} V_0 \\ V_1 \\ V_2 \end{bmatrix}$$
+          - name: Sequence Network Connections
+            notes: |
+              For each fault type, connect sequence networks differently:
+              
+              | Fault | Connection |
+              |-------|------------|
+              | **3-phase** | Positive only |
+              | **SLG** | All three in **series** |
+              | **LL** | Positive & negative in **parallel** |
+              | **LLG** | All three in **parallel** |
+        resources:
+          - label: "SEL - Symmetrical Components Tutorial"
+            url: https://selinc.com/api/download/100688
+          - label: "NPTEL - Symmetrical Components"
+            url: https://nptel.ac.in/courses/108105067
+
+      - id: fault-calculations
+        title: Fault Levels and Short Circuit Calculations
+        description: >-
+          Calculating fault current magnitude using per-unit and MVA methods. 
+          Results used for equipment selection, protection settings, and 
+          arc flash studies.
+        prerequisites:
+          - power-system-fundamentals/symmetrical-components/Symmetrical Components Theory
+        outcomes:
+          - Calculate fault levels using MVA and per-unit methods
+          - Select appropriate equipment ratings based on fault levels
+          - Understand relationship between impedance and fault current
+        concepts:
+          - name: Fault Level Definition
+            notes: |
+              Maximum power (MVA) or current (kA) that flows during a fault at a given point.
+              
+              **Two expressions:**
+              
+              $$\text{Fault MVA} = \frac{S_{base}}{Z_{pu}}$$
+              
+              $$\text{Fault kA} = \frac{\text{Fault MVA}}{\sqrt{3} \times kV}$$
+          - name: Per-Unit Method
+            notes: |
+              For three-phase fault at a bus:
+              
+              $$I_f (pu) = \frac{V_{pre-fault}}{Z_{total}}$$
+              
+              Usually assume $V_{pre-fault} = 1.0$ pu.
+              
+              **Example:** If total impedance to fault = 0.1 pu:
+              
+              $$I_f = \frac{1.0}{0.1} = 10 \text{ pu}$$
+          - name: MVA Method
+            notes: |
+              Quick calculation without per-unit conversion:
+              
+              **Series impedances:** $\frac{1}{MVA_{total}} = \frac{1}{MVA_1} + \frac{1}{MVA_2}$
+              
+              **Parallel sources:** $MVA_{total} = MVA_1 + MVA_2$
+              
+              **Example:** 
+              - Grid infeed: 500 MVA
+              - Transformer: 10% on 20 MVA base → $\frac{20}{0.1} = 200$ MVA
+              
+              $$\frac{1}{MVA_f} = \frac{1}{500} + \frac{1}{200}$$
+              
+              $$MVA_f = 143 \text{ MVA}$$
+          - name: X/R Ratio
+            notes: |
+              Ratio of reactance to resistance in fault path.
+              
+              **Importance:**
+              - Determines DC offset decay rate
+              - Affects peak asymmetrical current
+              - Higher X/R → slower decay → higher peak
+              
+              **Typical values:**
+              - Transmission: X/R = 15-30
+              - Distribution: X/R = 5-15
+              - LV systems: X/R = 2-5
+          - name: Making vs Breaking Current
+            notes: |
+              **Making current:** Peak asymmetrical (first half-cycle)
+              
+              $$I_{peak} = I_{sym} \times \sqrt{2} \times (1 + e^{-\frac{R}{X}\pi})$$
+              
+              **Breaking current:** RMS symmetrical (after few cycles)
+              
+              Circuit breakers rated for both values.
+        resources:
+          - label: "Arc Advisor - MVA to kA Conversion"
+            url: https://arcadvisor.com/legacy/mva-ka-conversion
+
+      - id: why-fault-analysis
+        title: Why Fault Analysis Matters
+        description: >-
+          Applications of fault studies in equipment selection, protection 
+          design, safety assessment, and system planning. Understanding 
+          how fault levels impact every aspect of power system design.
+        prerequisites:
+          - power-system-fundamentals/fault-calculations/Fault Levels and Short Circuit Calculations
+        outcomes:
+          - Explain importance of fault analysis for safety and equipment
+          - Relate fault levels to protection coordination
+          - Understand impact of DG on fault levels
+        concepts:
+          - name: Equipment Rating
+            notes: |
+              All equipment must withstand fault conditions:
+              
+              | Equipment | Fault Rating Needed |
+              |-----------|-------------------|
+              | Circuit breakers | Breaking & making capacity |
+              | Busbars | Short-time withstand (1-3 sec) |
+              | Cables | Short-circuit rating |
+              | CTs | Thermal & dynamic limits |
+              
+              **Under-rated equipment** can fail catastrophically during faults.
+          - name: Protection Design
+            notes: |
+              Relay settings require accurate fault currents:
+              
+              - **Pick-up settings:** Must detect minimum fault current
+              - **Time grading:** Based on fault magnitude variation
+              - **Reach settings:** Distance relays need accurate impedances
+              
+              Wrong fault data = wrong protection = nuisance trips or failure to operate.
+          - name: Arc Flash Safety
+            notes: |
+              Arc flash energy proportional to fault current and duration:
+              
+              $$E = I^{1.081} \times t \times k$$
+              
+              Higher fault level → higher incident energy → more PPE required.
+              
+              **IEEE 1584** standard requires fault study for arc flash assessment.
+          - name: Impact of Distributed Generation
+            notes: |
+              Adding DG increases fault levels:
+              
+              - **Synchronous generators:** Contribute 4-6× rated current
+              - **Inverter-based (solar/wind):** Limited to 1.1-1.5× rated
+              
+              Existing equipment may become under-rated when DG added.
+              
+              **Re-assessment required** for any new generation connection.
+          - name: Standards
+            notes: |
+              Key fault calculation standards:
+              
+              - **IEC 60909:** International standard, uses voltage factors
+              - **IEEE C37 series:** North American practice
+              - **ENA G74:** UK-specific for DG connections
+              
+              IPSA supports IEC 60909 and multiple other methods.
+        resources:
+          - label: "Coursera - Power System Protection"
+            url: https://www.coursera.org/specializations/power-system-generation-transmission-and-protection
+
+  - id: protection-basics
+    title: Protection Fundamentals
+    items:
+      - id: protection-principles
+        title: Protection System Principles
+        description: >-
+          The fundamental requirements of power system protection: speed, 
+          selectivity, sensitivity, and reliability. Understanding how 
+          protection systems detect faults and isolate them.
+        prerequisites:
+          - power-system-fundamentals/why-fault-analysis/Why Fault Analysis Matters
+        outcomes:
+          - Explain the four key requirements of protection systems
+          - Understand basic protection system components
+          - Describe the protection chain from detection to isolation
+        concepts:
+          - name: Purpose of Protection
+            notes: |
+              Detect abnormal conditions and isolate faulted equipment to:
+              
+              - **Protect people** from electric shock and arc flash
+              - **Limit equipment damage** by clearing faults quickly
+              - **Maintain system stability** by preventing cascade failures
+              - **Minimize outage extent** by isolating only faulted section
+          - name: The Four S's
+            notes: |
+              **Speed:** Clear faults quickly (typically <100ms for transmission)
+              - Limits equipment damage
+              - Reduces arc flash energy
+              - Maintains stability
+              
+              **Selectivity:** Only trip the minimum necessary equipment
+              - Also called "discrimination"
+              - Faulted section isolated, rest remains energized
+              
+              **Sensitivity:** Detect all faults, even low-magnitude ones
+              - Must see minimum fault current
+              - Balance with security (avoid nuisance trips)
+              
+              **Security/Reliability:** Operate when required, not otherwise
+              - Dependability: Will operate for genuine faults
+              - Security: Won't operate for external faults or load
+          - name: Protection System Components
+            notes: |
+              ![Protection relay panel](https://commons.wikimedia.org/wiki/Special:FilePath/Protective_Relays_Hydroelectric_Station.JPG)
+              
+              *Image: Wtshymanski, Wikimedia Commons, CC BY-SA 3.0*
+              
+              **CT (Current Transformer):** Measures current, isolates relay from HV
+              
+              **VT (Voltage Transformer):** Measures voltage, provides isolation
+              
+              **Relay:** Processes CT/VT signals, makes trip decision
+              
+              **Circuit Breaker:** Interrupts fault current
+              
+              **DC Supply:** Battery-backed power for relays and trip coils
+          - name: Protection Chain
+            notes: |
+              Fault → CT/VT detect → Relay processes → Trip signal → Breaker opens
+              
+              **Typical times:**
+              - Relay operation: 20-40 ms
+              - Breaker operation: 40-80 ms
+              - Total clearance: 60-120 ms (transmission)
+              - Distribution: up to 500 ms+ (for coordination)
+        resources:
+          - label: "NPTEL - Power System Protection"
+            url: https://nptel.ac.in/courses/108105104
+
+      - id: protection-relays
+        title: Protection Relay Types
+        description: >-
+          The main types of protection relays: overcurrent, distance, and 
+          differential. Understanding operating principles and applications 
+          for each type.
+        prerequisites:
+          - power-system-fundamentals/protection-principles/Protection System Principles
+        outcomes:
+          - Explain operating principle of each relay type
+          - Select appropriate relay type for different applications
+          - Understand ANSI device numbering system
+        concepts:
+          - name: Overcurrent Relays (50/51)
+            notes: |
+              Trips when current exceeds a threshold.
+              
+              **50 - Instantaneous:** Fixed time, high pickup
+              - Typically set to see close-in faults only
+              - Operates in 20-50 ms
+              
+              **51 - Time Overcurrent:** Inverse time characteristic
+              - Higher current = faster operation
+              - Allows coordination with downstream devices
+              
+              **Application:** Distribution networks, motor protection, backup protection
+          - name: IDMT Characteristics
+            notes: |
+              Inverse Definite Minimum Time curves:
+              
+              ![Time-current characteristic](https://commons.wikimedia.org/wiki/Special:FilePath/Standard_Trip_Characteristic_of_a_Thermomagnetic_Circuit_Breaker.svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 4.0*
+              
+              $$t = \frac{TMS \times k}{(I/I_s)^\alpha - 1}$$
+              
+              Where:
+              - TMS = Time Multiplier Setting
+              - $I_s$ = Pick-up current setting
+              - k, α = curve constants
+              
+              | Curve | k | α |
+              |-------|---|---|
+              | Standard Inverse (SI) | 0.14 | 0.02 |
+              | Very Inverse (VI) | 13.5 | 1.0 |
+              | Extremely Inverse (EI) | 80 | 2.0 |
+              
+              **VI/EI** used where fault current varies significantly with location.
+          - name: Distance Relays (21)
+            notes: |
+              Measures impedance (Z = V/I) to determine fault location.
+              
+              
+              **Zones:**
+              - **Zone 1:** 80-85% of line, instantaneous
+              - **Zone 2:** 100-120% of line, ~0.3s delay
+              - **Zone 3:** 150-200%, backup, ~1s delay
+              
+              **Application:** Transmission line protection
+          - name: Differential Relays (87)
+            notes: |
+              Compares current entering vs leaving protected zone.
+              
+              $$I_{operate} = |I_{in} - I_{out}|$$
+              
+              If difference exceeds threshold → internal fault → trip.
+              
+              **Key property:** 100% selective - only operates for internal faults
+              
+              **Applications:**
+              - Transformer (87T)
+              - Generator (87G)
+              - Busbar (87B)
+              - Motor (87M)
+          - name: ANSI Device Numbers
+            notes: |
+              Standard numbering for protection functions:
+              
+              | Number | Function |
+              |--------|----------|
+              | 21 | Distance |
+              | 25 | Synch check |
+              | 27 | Undervoltage |
+              | 50 | Instantaneous OC |
+              | 51 | Time OC |
+              | 59 | Overvoltage |
+              | 67 | Directional OC |
+              | 81 | Frequency |
+              | 87 | Differential |
+              
+              Suffix letters: N=neutral, G=ground, T=transformer
+        resources:
+          - label: "PAC Basics - Protection Fundamentals"
+            url: https://pacbasics.org/
+          - label: "GE Multilin - Relay School"
+            url: https://www.gegridsolutions.com/multilin/
+
+      - id: protection-coordination
+        title: Protection Coordination
+        description: >-
+          Designing protection systems so that only the device nearest 
+          the fault operates, minimizing the extent of the outage. 
+          Time grading, current grading, and coordination principles.
+        prerequisites:
+          - power-system-fundamentals/protection-relays/Protection Relay Types
+        outcomes:
+          - Design coordinated protection schemes
+          - Calculate coordination time intervals
+          - Select appropriate IDMT curve characteristics
+        concepts:
+          - name: Discrimination Principle
+            notes: |
+              **Goal:** Only the device closest to the fault should operate.
+              
+              If fault at point F:
+              ```
+              Source ──[A]──[B]──[C]── F ──[Load]
+              ```
+              
+              Relay C should trip first. If C fails, B backs up. If B fails, A backs up.
+              
+              Achieved through **time grading** and/or **current grading**.
+          - name: Time Grading
+            notes: |
+              Upstream devices have progressively longer delays.
+              
+              **Coordination Time Interval (CTI):** 0.3 - 0.5 seconds
+              
+              Accounts for:
+              - Breaker operating time (~50-80 ms)
+              - Relay overshoot (~50 ms)
+              - Safety margin (~100 ms)
+              
+              **Example:**
+              - Relay C: 0.1s at max fault
+              - Relay B: 0.1 + 0.4 = 0.5s
+              - Relay A: 0.5 + 0.4 = 0.9s
+          - name: Current Grading
+            notes: |
+              Use fault current magnitude differences to discriminate.
+              
+              Fault current decreases with distance from source due to line impedance.
+              
+              Set instantaneous elements (50) to see only close-in faults:
+              
+              $$I_{pickup} > I_{fault,downstream}$$
+              
+              **Limitation:** Doesn't work well on short feeders or where fault current doesn't vary much.
+          - name: Grading Margin Calculation
+            notes: |
+              For IDMT relays, check coordination at **maximum fault current** through both devices:
+              
+              1. Calculate downstream relay time at max fault
+              2. Add CTI (0.3-0.5s)
+              3. Calculate upstream TMS to achieve this time
+              
+              $$TMS_{upstream} = \frac{(t_{downstream} + CTI) \times ((I/I_s)^\alpha - 1)}{k}$$
+          - name: Coordination Challenges
+            notes: |
+              **Parallel feeders:** Both see same fault current - need directional elements (67)
+              
+              **Ring networks:** Fault current from both directions - need directional or differential
+              
+              **DG infeed:** Changes fault current magnitude and direction
+              
+              **Motor contribution:** Adds to fault current, decays quickly
+        resources:
+          - label: "Coursera - Protection Coordination"
+            url: https://www.coursera.org/specializations/power-system-generation-transmission-and-protection
+
+      - id: time-current-curves
+        title: Time-Current Curves
+        description: >-
+          Graphical representation of protection device characteristics. 
+          How to plot, read, and use TCCs for coordination studies.
+        prerequisites:
+          - power-system-fundamentals/protection-coordination/Protection Coordination
+        outcomes:
+          - Construct and interpret TCC plots
+          - Identify coordination margins and problems
+          - Verify protection against equipment damage curves
+        concepts:
+          - name: TCC Basics
+            notes: |
+              Log-log plot showing operating time vs current.
+              
+              **Axes:**
+              - X-axis: Current (log scale), usually in Amps
+              - Y-axis: Time (log scale), in seconds
+              
+              **Why log-log?** Covers wide ranges (0.01s to 1000s, 10A to 100kA)
+          - name: Device Curves
+            notes: |
+              **Fuses:** Show as bands (two lines)
+              - Left line: Minimum melting time
+              - Right line: Total clearing time
+              
+              **Relays:** Show as single lines (adjustable)
+              - Family of curves for different TMS settings
+              
+              **Breakers:** Vertical lines at:
+              - Continuous rating
+              - Instantaneous trip (if equipped)
+          - name: Coordination on TCCs
+            notes: |
+              **Rules for proper coordination:**
+              
+              1. Downstream curve must be **below and left** of upstream
+              2. Maintain CTI gap at all fault current levels
+              3. Check at both minimum and maximum fault points
+              
+              **Crossover:** Where curves intersect = loss of coordination
+          - name: Damage Curves
+            notes: |
+              Equipment withstand limits plotted on same TCC:
+              
+              **Cable damage curve:**
+              $$I^2 t = k$$
+              Where k depends on conductor material and insulation
+              
+              **Transformer:** Inrush point and thermal damage
+              
+              **Motor:** Starting current and locked rotor time
+              
+              **Rule:** Protective device curve must be **left of** damage curve (faster operation).
+          - name: TCC Example
+            notes: |
+              Reading a coordination study:
+              ```plaintext
+              Time (s)
+              1000 |
+               100 |          [Upstream Relay]
+                10 |     [Downstream Relay]
+                 1 |  
+               0.1 | [Fuse]
+              0.01 |_________________________
+                   10   100   1k   10k   Current (A)
+              ```
+              
+              Check gaps between curves at fault current levels.
+        resources:
+          - label: "ETAP TCC Tutorial"
+            url: https://etap.com/
+
+      - id: protection-zones
+        title: Protection Zones and Backup
+        description: >-
+          Dividing the power system into protection zones with overlapping 
+          boundaries. Primary and backup protection philosophy to ensure 
+          no blind spots.
+        prerequisites:
+          - power-system-fundamentals/time-current-curves/Time-Current Curves
+        outcomes:
+          - Define protection zones for power system components
+          - Design primary and backup protection schemes
+          - Understand zone overlap at circuit breakers
+        concepts:
+          - name: Zone Definition
+            notes: |
+              A **zone** is an area of the network protected by a specific relay or set of relays.
+              
+              **Zone boundaries** defined by CT locations.
+              
+              **Principle:** Every element must be within at least one zone.
+          - name: Zone Overlap
+            notes: |
+              Zones should **overlap at circuit breakers** to avoid blind spots.
+              ```
+              Zone A              Zone B
+              |<────────────>|<────────────>|
+              CT            CB            CT
+              ```
+              
+              Fault at CB location seen by both zones - both may trip (acceptable for reliability).
+          - name: Primary Protection
+            notes: |
+              First line of defense for a zone.
+              
+              **Characteristics:**
+              - Fast operation (instantaneous or Zone 1)
+              - Highly selective (only for internal faults)
+              - Examples: Differential (87), Distance Zone 1 (21)
+              
+              Should clear ~90% of faults.
+          - name: Backup Protection
+            notes: |
+              **Local backup:** Duplicate protection within same zone
+              - Same speed and selectivity as primary
+              - Protects against relay/CT failure
+              - Example: Dual main protections
+              
+              **Remote backup:** Protection from adjacent zones
+              - Slower (time-delayed)
+              - Less selective (trips more than necessary)
+              - Example: Distance Zone 2/3, time-graded overcurrent
+          - name: Typical Protection Schemes
+            notes: |
+              | Equipment | Primary | Backup |
+              |-----------|---------|--------|
+              | Transmission line | Distance (21) | Distance Z2/Z3, OC |
+              | Transformer | Differential (87T) | Overcurrent (51), REF |
+              | Busbar | Differential (87B) | Breaker fail, remote |
+              | Generator | Differential (87G) | Overcurrent, loss of excitation |
+              | Motor | Thermal (49), Diff | Overcurrent (51) |
+          - name: Breaker Failure Protection
+            notes: |
+              What if the breaker doesn't open?
+              
+              **Breaker Failure (50BF):**
+              1. Trip signal sent to breaker
+              2. Timer starts (typically 150-200ms)
+              3. If fault current still flowing → trip all adjacent breakers
+              
+              Last resort backup - isolates larger area but prevents catastrophic failure.
+        resources:
+          - label: "IEEE - Protection Zones"
+            url: https://ieeexplore.ieee.org/document/9640382/
+          - label: "Electrical Axis - Zones of Protection"
+            url: http://www.electricalaxis.com/
+  
+  - id: network-components
+    title: Network Components
+    items:
+      - id: transformers
+        title: Transformers in Power Networks
+        description: >-
+          Power transformers for voltage transformation: ratings, impedance, 
+          tap changers, and vector groups. Understanding how transformer 
+          parameters affect load flow and fault studies.
+        prerequisites:
+          - power-system-fundamentals/protection-zones/Protection Zones and Backup
+        outcomes:
+          - Specify transformer ratings, impedances, and vector groups
+          - Understand tap changer operation and voltage regulation
+          - Calculate fault current contribution through transformers
+        concepts:
+          - name: Transformer Basics
+            notes: |
+              ![Power transformer](https://commons.wikimedia.org/wiki/Special:FilePath/Transformer3d_col3.svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 3.0*
+              
+              Voltage transformation by turns ratio:
+              
+              $$\frac{V_1}{V_2} = \frac{N_1}{N_2}$$
+              
+              **Ratings specified:**
+              - MVA (apparent power)
+              - Primary/secondary voltage (kV)
+              - Impedance (%Z on rating)
+              - Vector group
+          - name: Transformer Impedance
+            notes: |
+              Impedance limits fault current and causes voltage drop.
+              
+              **Typical values:**
+              - Distribution (11/0.4kV): 4-6%
+              - Primary (33/11kV): 7-10%
+              - Transmission (132/33kV): 10-15%
+              
+              **Fault current through transformer:**
+              
+              $$I_{fault} = \frac{100}{Z\%} \times I_{rated}$$
+              
+              Example: 10% impedance → fault current = 10× rated
+          - name: Tap Changers
+            notes: |
+              Adjust turns ratio to regulate voltage.
+              
+              **OLTC (On-Load Tap Changer):**
+              - Changes taps without interrupting load
+              - Typical range: ±10% in 1.25% or 1.67% steps
+              - Located on HV winding (lower current)
+              - Automatic voltage regulation (AVR) control
+              
+              **Off-circuit tap changer:**
+              - Must de-energize to change
+              - Used for fixed adjustment only
+          - name: Vector Groups
+            notes: |
+              ![Transformer vector groups](https://commons.wikimedia.org/wiki/Special:FilePath/Delta-Wye_Transformer.png)
+              
+              *Image: Wikimedia Commons*
+              
+              Notation describes winding connections and phase shift.
+              
+              **Letters:**
+              - D/d = Delta
+              - Y/y = Star (Wye)
+              - N/n = Neutral brought out
+              - Capital = HV, lowercase = LV
+              
+              **Number:** Phase shift in clock hours (× 30°)
+              
+              **Common groups:**
+              | Group | Shift | Application |
+              |-------|-------|-------------|
+              | Dyn11 | -30° | Distribution |
+              | YNd1 | +30° | Generator step-up |
+              | Yy0 | 0° | Auto-transformer |
+          - name: Parallel Operation
+            notes: |
+              Transformers in parallel must have:
+              
+              1. **Same vector group** (or compatible: Dy1 with Dy1)
+              2. **Same voltage ratio** (within tap range)
+              3. **Similar impedance** (within 10% for load sharing)
+              
+              Mismatched vector groups → circulating currents → overheating
+        resources:
+          - label: "The Engineering Mindset - Transformers"
+            url: https://theengineeringmindset.com/how-do-transformers-work/
+          - label: "Electrical4U - Vector Groups"
+            url: https://www.electrical4u.com/vector-group-of-transformer/
+
+      - id: cables
+        title: Cables and Underground Lines
+        description: >-
+          Power cable construction, impedance characteristics, current 
+          ratings, and voltage drop calculations. Derating factors for 
+          installation conditions.
+        prerequisites:
+          - power-system-fundamentals/transformers/Transformers in Power Networks
+        outcomes:
+          - Calculate cable sizing for ampacity and voltage drop
+          - Apply derating factors for installation conditions
+          - Understand cable impedance characteristics
+        concepts:
+          - name: Cable Construction
+            notes: |
+              ![Cable cross-section](https://commons.wikimedia.org/wiki/Special:FilePath/Hochspannungskabel_400kV_Querschnitt.JPG)
+              
+              *Image: Wikimedia Commons, CC BY-SA 3.0*
+              
+              **Layers (inside out):**
+              1. Conductor (copper or aluminium)
+              2. Conductor screen
+              3. Insulation (XLPE, EPR, or PVC)
+              4. Insulation screen
+              5. Metallic sheath/screen
+              6. Outer sheath (PE or PVC)
+              
+              **Insulation temperature limits:**
+              - XLPE: 90°C continuous, 250°C short-circuit
+              - PVC: 70°C continuous
+          - name: Cable Impedance
+            notes: |
+              Cables have **higher R/X ratio** than overhead lines.
+              
+              **Typical values at 50Hz:**
+              
+              | Cable | R (Ω/km) | X (Ω/km) | R/X |
+              |-------|----------|----------|-----|
+              | LV 185mm² | 0.164 | 0.073 | 2.2 |
+              | 11kV 185mm² | 0.164 | 0.090 | 1.8 |
+              | 33kV 300mm² | 0.060 | 0.110 | 0.5 |
+              
+              High R/X ratio means **voltage drop dominated by real power** at LV.
+          - name: Current Rating (Ampacity)
+            notes: |
+              Maximum continuous current limited by:
+              - Conductor temperature
+              - Insulation thermal limits
+              - Heat dissipation (installation method)
+              
+              **Base rating** from manufacturer tables, then apply derating:
+              
+              $$I_{rated} = I_{base} \times K_1 \times K_2 \times K_3 \times K_4$$
+          - name: Derating Factors
+            notes: |
+              | Factor | Description | Typical Range |
+              |--------|-------------|---------------|
+              | $K_1$ | Ambient temperature | 0.7 - 1.1 |
+              | $K_2$ | Grouping (multiple cables) | 0.6 - 1.0 |
+              | $K_3$ | Soil thermal resistivity | 0.8 - 1.0 |
+              | $K_4$ | Depth of burial | 0.95 - 1.0 |
+              
+              **Example:** 400A base × 0.9 × 0.7 × 0.95 × 0.98 = 235A
+          - name: Voltage Drop Calculation
+            notes: |
+              Three-phase voltage drop:
+              
+              $$\Delta V = \frac{\sqrt{3} \times I \times L \times (R \cos\phi + X \sin\phi)}{1000}$$
+              
+              Where:
+              - I = current (A)
+              - L = length (m)
+              - R, X = resistance, reactance (Ω/km)
+              
+              **UK limits (BS 7671):**
+              - Lighting: 3%
+              - Other: 5%
+              - Total from origin: 5%
+        resources:
+          - label: "BS 7671 Cable Sizing Guide"
+            url: https://electrical.theiet.org/
+          - label: "Nexans Cable Calculator"
+            url: https://www.nexans.co.uk/
+
+      - id: overhead-lines
+        title: Overhead Lines
+        description: >-
+          Transmission and distribution overhead line characteristics: 
+          impedance, thermal ratings, sag considerations, and comparison 
+          with cables.
+        prerequisites:
+          - power-system-fundamentals/cables/Cables and Underground Lines
+        outcomes:
+          - Calculate overhead line impedance
+          - Understand thermal rating methods (static vs dynamic)
+          - Compare overhead lines with underground cables
+        concepts:
+          - name: Line Construction
+            notes: |
+              ![Transmission tower](https://commons.wikimedia.org/wiki/Special:FilePath/Crossing_electricity_pylon_330_kV_01.jpg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 4.0*
+              
+              **Conductor types:**
+              - ACSR: Aluminium Conductor Steel Reinforced
+              - AAAC: All Aluminium Alloy Conductor
+              - HTLS: High Temperature Low Sag (for uprating)
+              
+              **Typical spans:** 
+              - Distribution: 50-150m
+              - Transmission: 300-500m
+          - name: Line Impedance
+            notes: |
+              Overhead lines have **lower R/X ratio** than cables.
+              
+              **Typical values (per km):**
+              
+              | Line | R (Ω/km) | X (Ω/km) | R/X |
+              |------|----------|----------|-----|
+              | 11kV distribution | 0.3 | 0.35 | 0.9 |
+              | 33kV | 0.12 | 0.38 | 0.3 |
+              | 132kV | 0.06 | 0.40 | 0.15 |
+              | 400kV | 0.03 | 0.32 | 0.1 |
+              
+              Higher X due to wider conductor spacing (air insulation).
+          - name: Thermal Ratings
+            notes: |
+              Current limited by conductor temperature (sag limit or annealing).
+              
+              **Static rating:** Conservative fixed value
+              - Assumes: high ambient, full sun, low wind
+              - Typically 50-75% of actual capacity
+              
+              **Dynamic Line Rating (DLR):** Real-time calculation
+              - Uses weather data (wind, ambient, solar)
+              - Can increase capacity 10-30%
+              - Requires monitoring equipment
+          - name: Sag and Clearance
+            notes: |
+              Conductor sag increases with:
+              - Temperature (thermal expansion)
+              - Current (resistive heating)
+              - Ice loading (weight)
+              
+              **Sag formula (parabolic approximation):**
+              
+              $$S = \frac{wL^2}{8T}$$
+              
+              Where:
+              - w = weight per unit length
+              - L = span length
+              - T = conductor tension
+              
+              **Clearance requirements** (to ground, buildings, other lines) set maximum allowable sag.
+          - name: OHL vs Cable Comparison
+            notes: |
+              | Aspect | Overhead Line | Cable |
+              |--------|---------------|-------|
+              | Capital cost | Lower (5-10×) | Higher |
+              | Maintenance | Higher | Lower |
+              | Visual impact | High | None |
+              | Reliability | Weather-affected | Protected |
+              | Fault rate | Higher | Lower |
+              | Repair time | Faster | Slower |
+              | Reactive power | Generates (line charging) | Consumes |
+              | Urban use | Limited | Preferred |
+        resources:
+          - label: "US DOE - Dynamic Line Rating"
+            url: https://www.energy.gov/oe/articles/dynamic-line-rating-report-congress-june-2019
+          - label: "IEEE 738 - Line Rating Calculation"
+            url: https://standards.ieee.org/
+
+      - id: generators
+        title: Generators and Synchronous Machines
+        description: >-
+          Synchronous generator characteristics, capability curves, and 
+          reactive power control. Understanding generator contribution 
+          to fault current and voltage regulation.
+        prerequisites:
+          - power-system-fundamentals/overhead-lines/Overhead Lines
+        outcomes:
+          - Interpret generator capability curves
+          - Understand excitation control and reactive power
+          - Calculate generator fault current contribution
+        concepts:
+          - name: Synchronous Machine Basics
+            notes: |
+              ![Synchronous generator](https://commons.wikimedia.org/wiki/Special:FilePath/Turbogenerator01.jpg)
+              
+              *Image: Wikimedia Commons, Public Domain*
+              
+              **Speed-frequency relationship:**
+              
+              $$f = \frac{P \times N}{120}$$
+              
+              Where:
+              - f = frequency (Hz)
+              - P = number of poles
+              - N = speed (rpm)
+              
+              For 50Hz: 2-pole = 3000rpm, 4-pole = 1500rpm
+          - name: Generator Reactances
+            notes: |
+              Multiple reactances for different timescales:
+              
+              | Reactance | Symbol | Typical (pu) | Timescale |
+              |-----------|--------|--------------|-----------|
+              | Sub-transient | $X''_d$ | 0.1-0.25 | 0-50ms |
+              | Transient | $X'_d$ | 0.15-0.35 | 50ms-2s |
+              | Synchronous | $X_d$ | 1.0-2.5 | Steady-state |
+              
+              **Fault studies use $X''_d$** for maximum (initial) fault current.
+          - name: Capability Curve
+            notes: |
+              ![Generator capability curve](https://commons.wikimedia.org/wiki/Special:FilePath/Capability_curve_with_minimum_power_level.svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 4.0*
+              
+              P-Q diagram showing operating limits:
+              
+              **Limits:**
+              - **Right arc:** Armature current (MVA rating)
+              - **Top arc:** Field current (over-excitation)
+              - **Bottom curve:** Stator end heating (under-excitation)
+              - **Vertical line:** Prime mover (MW limit)
+              
+              Generator can operate anywhere inside the curve.
+          - name: Excitation and Reactive Power
+            notes: |
+              Field current controls reactive power output:
+              
+              **Over-excited:** High field current → exports Q → supports voltage
+              
+              **Under-excited:** Low field current → absorbs Q → may depress voltage
+              
+              **AVR (Automatic Voltage Regulator):**
+              - Maintains terminal voltage setpoint
+              - Adjusts field current automatically
+              - Droop setting for load sharing
+          - name: Generator Control Modes
+            notes: |
+              In load flow analysis:
+              
+              **PV mode (voltage control):**
+              - P and V specified
+              - Q calculated (within limits)
+              - Normal operation
+              
+              **PQ mode (fixed output):**
+              - P and Q both specified
+              - V calculated
+              - Used when at reactive limit
+              
+              **Slack bus:**
+              - V and θ specified (reference)
+              - P and Q calculated
+              - Balances system losses
+          - name: Fault Current Contribution
+            notes: |
+              Generator fault current decays over time:
+              
+              $$I''_f = \frac{E''}{X''_d}$$ (sub-transient, first few cycles)
+              
+              $$I'_f = \frac{E'}{X'_d}$$ (transient, up to ~2 seconds)
+              
+              $$I_f = \frac{E}{X_d}$$ (steady-state, if fault sustained)
+              
+              **Typical contribution:** 4-6× rated current initially
+        resources:
+          - label: "NPTEL - Synchronous Machines"
+            url: https://nptel.ac.in/courses/108105017
+          - label: "All About Circuits - Synchronous Generators"
+            url: https://www.allaboutcircuits.com/
+  
+  - id: distributed-generation
+    title: Distributed Generation
+    items:
+      - id: dg-grid-connection
+        title: How Renewables Connect to the Grid
+        description: >-
+          Grid connection architectures for solar PV and wind generation. 
+          Understanding inverter-based resources, transformer requirements, 
+          and connection voltage selection.
+        prerequisites:
+          - power-system-fundamentals/generators/Generators and Synchronous Machines
+        outcomes:
+          - Describe grid connection architectures for solar and wind
+          - Understand inverter-based resource characteristics
+          - Select appropriate connection voltage for different capacities
+        concepts:
+          - name: Solar PV Connection
+            notes: |
+              ![Solar PV array](https://commons.wikimedia.org/wiki/Special:FilePath/Photovoltaik_Dachanlage_Hannover_-_Schwarze_Heide_-_1_MW.jpg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 3.0*
+
+              **Connection chain:**
+              
+              PV Panels (DC) → Inverter (DC/AC) → Transformer → Grid
+              
+              **Inverter functions:**
+              - DC to AC conversion
+              - Maximum Power Point Tracking (MPPT)
+              - Grid synchronisation
+              - Power factor control
+              - Anti-islanding protection
+          - name: Wind Turbine Connection
+            notes: |
+              ![Wind turbine](https://commons.wikimedia.org/wiki/Special:FilePath/Wind_turbine_int.svg)
+              
+              *Image: Arne Nordmann, Wikimedia Commons, CC BY-SA 2.5*
+              
+              **Two main types:**
+              
+              **DFIG (Doubly-Fed Induction Generator):**
+              - Partial converter (30% rating)
+              - Limited fault ride-through
+              - Older technology
+              
+              **Full Converter:**
+              - 100% power through converter
+              - Better fault ride-through
+              - Decoupled from grid frequency
+              - Modern standard
+          - name: Connection Voltage Selection
+            notes: |
+              Voltage level based on capacity:
+              
+              | Capacity | Typical Voltage | Connection |
+              |----------|-----------------|------------|
+              | <50 kW | 400V (LV) | Single premises |
+              | 50kW - 1MW | 400V or 11kV | LV or HV feeder |
+              | 1 - 10 MW | 11kV or 33kV | Primary substation |
+              | 10 - 50 MW | 33kV or 132kV | BSP or GSP |
+              | >50 MW | 132kV+ | Transmission |
+              
+              DNO specifies minimum connection voltage in offer.
+          - name: Inverter-Based Resources (IBR)
+            notes: |
+              Key differences from synchronous machines:
+              
+              | Aspect | Synchronous | Inverter |
+              |--------|-------------|----------|
+              | Inertia | Yes (rotating mass) | No (virtual possible) |
+              | Fault current | 4-6× rated | 1.1-1.5× rated |
+              | Frequency response | Inherent | Programmed |
+              | Reactive capability | Full range | Limited by rating |
+              
+              **Grid-forming vs Grid-following:**
+              - Grid-following: Needs grid voltage reference
+              - Grid-forming: Can establish voltage/frequency (emerging)
+          - name: Connection Equipment
+            notes: |
+              Typical DG connection includes:
+              
+              - **Inverter(s)** with protection settings
+              - **LV switchboard** with metering
+              - **Transformer** (if HV connection)
+              - **HV switchgear** (ring main unit or circuit breaker)
+              - **G99 protection relay** (interface protection)
+              - **Metering** (import/export, half-hourly)
+        resources:
+          - label: "IET - Grid Connection of Solar PV"
+            url: https://electrical.theiet.org/
+          - label: "RenewableUK - Wind Energy"
+            url: https://www.renewableuk.com/
+
+      - id: uk-grid-codes
+        title: UK Grid Code Compliance (G99/G100)
+        description: >-
+          UK requirements for connecting generation to distribution networks. 
+          Engineering Recommendation G99 classifications, technical requirements, 
+          and the connection application process.
+        prerequisites:
+          - power-system-fundamentals/dg-grid-connection/How Renewables Connect to the Grid
+        outcomes:
+          - Classify generators by G99 type
+          - Understand key technical requirements
+          - Navigate UK connection application process
+        concepts:
+          - name: G99 Overview
+            notes: |
+              **Engineering Recommendation G99** (replaced G59 in 2019)
+              
+              Aligns UK with EU Requirements for Generators (RfG).
+              
+              Applies to all new generation connecting to distribution networks (up to 132kV).
+              
+              **Key document:** ENA Engineering Recommendation G99
+          - name: Generator Classification
+            notes: |
+              Based on capacity and connection voltage:
+              
+              | Type | Capacity | Voltage | Requirements |
+              |------|----------|---------|--------------|
+              | A | 0.8kW - 1MW | <110kV | Basic |
+              | B | 1 - 10 MW | <110kV | Intermediate |
+              | C | 10 - 50 MW | <110kV | Advanced |
+              | D | ≥50 MW or ≥110kV | Any | Full compliance |
+              
+              Higher types have more onerous requirements.
+          - name: Key Technical Requirements
+            notes: |
+              **Frequency response:**
+              - LFSM-O: Reduce output above 50.4Hz
+              - LFSM-U: Maintain output down to 47.5Hz
+              - FSM: Optional fast frequency response
+              
+              **Voltage ride-through:**
+              - Must stay connected during voltage dips
+              - Type-dependent duration and depth
+              
+              **Reactive capability:**
+              - Power factor range (typically 0.95 lag to 0.95 lead)
+              - Voltage control modes
+              
+              **Protection settings:**
+              - Over/under frequency and voltage
+              - Rate of Change of Frequency (RoCoF)
+              - Vector shift (Loss of Mains)
+          - name: G100 Export Limiting
+            notes: |
+              **G100** allows connection where network capacity is limited.
+              
+              **Active Network Management (ANM):**
+              - Real-time curtailment signals
+              - Generator reduces output when network constrained
+              - Enables more DG without reinforcement
+              
+              **Principle of Access:**
+              - Last-in, first-off (LIFO)
+              - Or pro-rata sharing
+          - name: Connection Process
+            notes: |
+              **Steps to connect:**
+              
+              1. **Application:** Submit G99 form A to DNO
+              2. **Assessment:** DNO studies impact (4-12 weeks)
+              3. **Offer:** Connection offer with costs and timescales
+              4. **Acceptance:** Sign agreement, pay charges
+              5. **Design:** Detailed design and approval
+              6. **Construction:** Install equipment
+              7. **Commissioning:** Witness tests, settings verification
+              8. **Energisation:** Final Operating Notification (FON)
+              
+              **Typical timescales:** 3-18 months depending on complexity
+        resources:
+          - label: "ENA - Engineering Recommendations"
+            url: https://www.energynetworks.org/
+          - label: "National Grid ESO - Grid Code"
+            url: https://www.nationalgrideso.com/industry-information/codes/
+
+      - id: voltage-rise
+        title: Voltage Rise from Embedded Generation
+        description: >-
+          How distributed generation causes voltage rise on distribution 
+          networks, calculation methods, and mitigation strategies. A key 
+          constraint on DG hosting capacity.
+        prerequisites:
+          - power-system-fundamentals/uk-grid-codes/UK Grid Code Compliance (G99/G100)
+        outcomes:
+          - Calculate voltage rise from DG connections
+          - Understand R/X ratio effects at different voltage levels
+          - Design mitigation strategies
+        concepts:
+          - name: The Voltage Rise Problem
+            notes: |
+              Traditional networks designed for **one-way power flow**:
+              ```
+              Substation → Feeder → Loads
+              (Voltage drops along feeder)
+              ```
+              
+              With DG, power can flow **backwards**:
+              ```
+              Substation ← DG export
+              (Voltage rises at DG location)
+              ```
+              
+              Voltage may exceed statutory limits (+10% / -6% in UK).
+          - name: Voltage Rise Formula
+            notes: |
+              Approximate voltage change from injected power:
+              
+              $$\Delta V \approx \frac{P \cdot R + Q \cdot X}{V}$$
+              
+              Where:
+              - P, Q = active/reactive power injection
+              - R, X = resistance/reactance to source
+              - V = nominal voltage
+              
+              **In per-unit:**
+              
+              $$\Delta V_{pu} \approx P_{pu} \cdot R_{pu} + Q_{pu} \cdot X_{pu}$$
+          - name: R/X Ratio Effect
+            notes: |
+              | Network | R/X Ratio | Dominant Factor |
+              |---------|-----------|-----------------|
+              | LV (400V) | 2-5 | Active power (P) |
+              | 11kV | 1-2 | Both P and Q |
+              | 33kV | 0.3-0.5 | Reactive power (Q) |
+              | 132kV | 0.1-0.2 | Reactive power (Q) |
+              
+              **Key insight:** At LV, voltage rise mainly from **real power** export.
+              
+              Reactive power absorption has limited effect on LV voltage.
+          - name: UK Voltage Limits
+            notes: |
+              **Statutory limits (ESQCR):**
+              - LV: 230V +10% / -6% (216V to 253V)
+              - HV: ±6% of nominal
+              
+              **DNO planning limits (more conservative):**
+              - Typically allow +3% rise from DG at minimum load
+              - Ensures headroom for voltage regulation
+          - name: Mitigation Strategies
+            notes: |
+              **Network solutions:**
+              - Conductor upgrades (reduce R)
+              - New transformer (reduce impedance)
+              - Voltage regulators / boosters
+              
+              **DG solutions:**
+              - Reactive power absorption (Q negative)
+              - Power factor control (limited at LV)
+              - Active power curtailment
+              - Export limiting (G100)
+              
+              **Smart solutions:**
+              - OLTC coordinated control
+              - Active Network Management (ANM)
+              - Battery storage for peak shaving
+        resources:
+          - label: "IET - Voltage Rise Calculations"
+            url: https://electrical.theiet.org/
+          - label: "Western Power Distribution - DG Connections"
+            url: https://www.nationalgrid.co.uk/
+
+      - id: power-system-anti-islanding
+        title: Anti-Islanding Protection
+        description: >-
+          Preventing distributed generation from energising an isolated 
+          section of network. Detection methods, protection settings, 
+          and UK requirements for Loss of Mains protection.
+        prerequisites:
+          - power-system-fundamentals/voltage-rise/Voltage Rise from Embedded Generation
+        outcomes:
+          - Explain islanding hazards
+          - Specify anti-islanding protection settings
+          - Design Loss of Mains protection schemes
+        concepts:
+          - name: What is Islanding?
+            notes: |
+              ![Grid connection with storage](https://commons.wikimedia.org/wiki/Special:FilePath/BESS_(battery_energy_storage_system).svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 4.0*
+              
+              **Islanding:** DG continues to energise a section of network that has been disconnected from the main grid.
+              
+              Can occur when:
+              - Upstream breaker opens (fault, maintenance)
+              - DG output matches local load (balanced island)
+          - name: Islanding Hazards
+            notes: |
+              **Safety:**
+              - Network assumed dead may be live
+              - Risk to personnel working on "isolated" network
+              - Public contact with downed conductors
+              
+              **Equipment:**
+              - Poor power quality (voltage/frequency drift)
+              - Out-of-phase reclosing (severe damage)
+              - Fault clearance failure (no grid fault current)
+              
+              **Requirement:** Disconnect within **2 seconds** of island forming.
+          - name: Passive Detection Methods
+            notes: |
+              Detect abnormal conditions caused by islanding:
+              
+              | Method | Setting | Notes |
+              |--------|---------|-------|
+              | Under-voltage (27) | 0.8 pu | 0.5s delay |
+              | Over-voltage (59) | 1.1 pu | 1.0s delay |
+              | Under-frequency (81U) | 47.5 Hz | 0.5s delay |
+              | Over-frequency (81O) | 52 Hz | 0.5s delay |
+              | RoCoF (81R) | 1.0 Hz/s | 0.5s delay |
+              | Vector Shift (VS) | 6° | Instantaneous |
+              
+              **Limitation:** May not detect balanced island (generation = load).
+          - name: Active Detection Methods
+            notes: |
+              Inverter deliberately perturbs output to detect island:
+              
+              **Frequency shift:** Slight bias causes runaway if islanded
+              
+              **Reactive power variation:** Inject Q pulses, monitor V response
+              
+              **Impedance measurement:** Inject signal, measure grid impedance
+              
+              More reliable than passive methods but can interact between multiple inverters.
+          - name: UK G99 Requirements
+            notes: |
+              **Loss of Mains (LoM) protection settings:**
+              
+              | Protection | Setting | Delay |
+              |------------|---------|-------|
+              | Under-frequency | 47.5 Hz | 0.5s |
+              | Over-frequency | 52.0 Hz | 0.5s |
+              | Under-voltage | 0.8 pu | 2.5s |
+              | Over-voltage | 1.1 pu | 1.0s |
+              | RoCoF | 1.0 Hz/s | 0.5s |
+              
+              **Note:** RoCoF settings relaxed from 0.125 Hz/s to 1.0 Hz/s to improve stability with low inertia.
+              
+              Vector shift generally **not used** in UK (nuisance tripping).
+          - name: Interface Protection Panel
+            notes: |
+              G99-compliant protection relay provides:
+              
+              - Voltage and frequency protection (27, 59, 81)
+              - RoCoF protection (df/dt)
+              - Intertrip receive (from DNO)
+              - Status monitoring and event logging
+              
+              **Must be type-tested** to G99 requirements.
+              
+              Common manufacturers: Woodward, Schneider, ABB, Siemens
+        resources:
+          - label: "ENA - Loss of Mains Protection"
+            url: https://www.energynetworks.org/
+          - label: "IEEE 1547 - DG Interconnection"
+            url: https://standards.ieee.org/
+  
+  - id: uk-power-system
+    title: UK Power System
+    items:
+      - id: uk-network-structure
+        title: UK Network Structure
+        description: >-
+          Organisation of the GB electricity system: the system operator (NESO), 
+          transmission owners, and distribution network operators. Understanding 
+          roles, responsibilities, and regulatory framework.
+        prerequisites:
+          - power-system-fundamentals/power-system-anti-islanding/Anti-Islanding Protection
+        outcomes:
+          - Identify roles of NESO, transmission owners, and DNOs
+          - Understand UK regulatory framework
+          - Navigate industry organisation structure
+        concepts:
+          - name: GB System Overview
+            notes: |
+              ![UK National Grid map](https://commons.wikimedia.org/wiki/Special:FilePath/Map_of_the_National_Grid_in_Great_Britain.svg)
+              
+              *Image: Wikimedia Commons, CC BY-SA 3.0*
+              
+              Great Britain has a **unified synchronous grid** covering England, Wales, and Scotland.
+              
+              Northern Ireland is part of the all-island Irish system (connected via HVDC).
+              
+              **Key principle:** Separation of system operation from asset ownership.
+          - name: National Energy System Operator (NESO)
+            notes: |
+              **NESO** (formerly National Grid ESO, separated October 2024)
+              
+              **Role:** Balances supply and demand in real-time
+              
+              **Responsibilities:**
+              - Frequency control (maintain 50Hz ± 0.5Hz)
+              - Voltage management
+              - Constraint management
+              - Balancing mechanism operation
+              - Future Energy Scenarios (FES)
+              - Network planning and connections
+              
+              **Not an asset owner** - operates the system impartially.
+          - name: Transmission Owners (TOs)
+            notes: |
+              Own and maintain the high-voltage transmission network:
+              
+              | TO | Area | Voltages |
+              |----|------|----------|
+              | **NGET** | England & Wales | 275kV, 400kV |
+              | **SP Transmission** | Southern Scotland | 132kV, 275kV, 400kV |
+              | **SHET** (SSE) | Northern Scotland | 132kV, 275kV |
+              
+              **Note:** 132kV is transmission in Scotland, distribution in England & Wales.
+              
+              Regulated by Ofgem under RIIO-T2 price control.
+          - name: Distribution Network Operators (DNOs)
+            notes: |
+              Own and operate local distribution networks:
+              
+              | DNO Group | Operating Areas |
+              |-----------|-----------------|
+              | **UK Power Networks** | London, East, South East |
+              | **National Grid ED** | Midlands, South West, South Wales |
+              | **SP Energy Networks** | Merseyside, North Wales, Central/Southern Scotland |
+              | **SSE Networks** | Northern Scotland, Southern England |
+              | **Northern Powergrid** | North East, Yorkshire |
+              | **Electricity North West** | North West England |
+              
+              **14 licensed DNO areas** across GB.
+              
+              Regulated under RIIO-ED2 price control.
+          - name: Regulatory Framework
+            notes: |
+              **Ofgem:** Independent regulator
+              - Sets price controls (allowed revenues)
+              - Enforces licence conditions
+              - Protects consumer interests
+              
+              **ELEXON:** Settlement body
+              - Balancing and Settlement Code (BSC)
+              - Calculates imbalance charges
+              
+              **Energy Networks Association (ENA):**
+              - Industry body for network operators
+              - Publishes Engineering Recommendations (G99, P28, etc.)
+        resources:
+          - label: "National Grid ESO - About Us"
+            url: https://www.nationalgrideso.com/
+          - label: "Ofgem - Network Regulation"
+            url: https://www.ofgem.gov.uk/
+
+      - id: uk-voltage-levels
+        title: UK Voltage Levels
+        description: >-
+          Standard voltage levels used in the GB power system from 400kV 
+          transmission down to 230V consumer supply. Understanding the 
+          hierarchy and interface points between networks.
+        prerequisites:
+          - power-system-fundamentals/uk-network-structure/UK Network Structure
+        outcomes:
+          - Identify UK voltage levels and their applications
+          - Understand substation hierarchy and interface points
+          - Select appropriate voltage for different connections
+        concepts:
+          - name: Transmission Voltages
+            notes: |
+              **Supergrid (England & Wales):**
+              - 400kV - Main bulk transmission
+              - 275kV - Older transmission, some areas
+              
+              **Scotland:**
+              - 400kV, 275kV - Main transmission
+              - 132kV - Transmission (not distribution)
+              
+              **Interconnectors:**
+              - HVDC links to France, Netherlands, Belgium, Norway, Ireland
+              - Typically ±320kV to ±525kV DC
+          - name: Distribution Voltages
+            notes: |
+              | Voltage | Name | Typical Use |
+              |---------|------|-------------|
+              | 132kV | EHV (E&W only) | Grid Supply Points, large industrial |
+              | 33kV | HV | Primary distribution, bulk supply |
+              | 11kV | HV | Secondary distribution, commercial |
+              | 6.6kV | HV | Some older urban networks |
+              | 400V | LV (3-phase) | Commercial, small industrial |
+              | 230V | LV (1-phase) | Domestic consumers |
+              
+              **Note:** Some areas have 20kV or 22kV instead of 11kV.
+          - name: Interface Points
+            notes: |
+              **Grid Supply Point (GSP):**
+              - Transmission to distribution interface
+              - 400kV/275kV → 132kV (or 33kV in some areas)
+              - Metering point for settlement
+              
+              **Bulk Supply Point (BSP):**
+              - 132kV → 33kV transformation
+              - Feeds multiple primary substations
+              
+              **Primary Substation:**
+              - 33kV → 11kV transformation
+              - Feeds HV distribution network
+              
+              **Secondary Substation (Distribution):**
+              - 11kV → 400V transformation
+              - Pole-mounted or ground-mounted
+              - Feeds LV network to consumers
+          - name: Substation Diagram
+            notes: |
+              Typical voltage hierarchy:
+              ```
+              400kV ──┬── GSP
+                      │
+              132kV ──┼── BSP
+                      │
+               33kV ──┼── Primary
+                      │
+               11kV ──┼── Secondary
+                      │
+              400V ───┴── Consumer
+              ```
+              
+              Each step typically has 2-3 transformers for redundancy.
+          - name: Nominal vs Declared Voltage
+            notes: |
+              **Nominal voltage:** System design voltage (e.g., 11kV, 400V)
+              
+              **Declared voltage:** What supplier declares to customers
+              - LV: 230V (was 240V until 1995 harmonisation)
+              - Tolerance: +10% / -6% (216V to 253V)
+              
+              **Historical note:** UK moved from 240V ±6% to 230V +10%/-6%, effectively the same range but aligned with European standard.
+        resources:
+          - label: "ENA - Electricity Networks Overview"
+            url: https://www.energynetworks.org/
+          - label: "National Grid - Network Route Maps"
+            url: https://www.nationalgrid.com/
+
+      - id: uk-standards
+        title: UK Standards and Engineering Recommendations
+        description: >-
+          Key technical standards governing UK power system design and operation. 
+          Engineering Recommendations for connections, power quality, and 
+          planning standards.
+        prerequisites:
+          - power-system-fundamentals/uk-voltage-levels/UK Voltage Levels
+        outcomes:
+          - Apply relevant Engineering Recommendations to projects
+          - Assess power quality compliance (flicker, harmonics, unbalance)
+          - Navigate UK connection requirements
+        concepts:
+          - name: Engineering Recommendations Overview
+            notes: |
+              **Engineering Recommendations (ERECs)** published by ENA:
+              
+              Industry-agreed technical standards for:
+              - Generator connections (G-series)
+              - Power quality (P-series)
+              - Design and planning (various)
+              
+              **Not legally binding** but effectively mandatory via DNO connection agreements.
+          - name: G99 - Generator Connections
+            notes: |
+              **G99:** Requirements for connection of generation equipment
+              
+              Replaced G59 (large) and G83 (small) in April 2019.
+              
+              **Scope:** All generation 0.8kW to 50MW connecting at <110kV
+              
+              **Key requirements:**
+              - Frequency and voltage ride-through
+              - Reactive capability
+              - Protection settings (LoM, over/under V & f)
+              - Compliance process and testing
+              
+              See earlier topic on G99 for details.
+          - name: G100 - Export Limiting
+            notes: |
+              **G100:** Technical requirements for export limiting schemes
+              
+              Allows connection where network capacity limited:
+              - **ANM (Active Network Management):** Real-time curtailment
+              - **Export limiting:** Fixed maximum export
+              - **Timed connections:** Export only at certain times
+              
+              Enables more DG without costly reinforcement.
+          - name: P28 - Voltage Fluctuations
+            notes: |
+              **P28:** Planning limits for voltage fluctuations
+              
+              **Flicker:** Rapid voltage variations causing visible light flicker
+              
+              **Limits:**
+              - Short-term severity $P_{st} \leq 1.0$
+              - Long-term severity $P_{lt} \leq 0.8$
+              - Step changes $\leq 3\%$ (frequent) or 6% (infrequent)
+              
+              **Causes:** Motor starting, arc furnaces, wind turbines
+              
+              **Assessment:** Required for large loads or generation connections
+          - name: P29 - Voltage Unbalance
+            notes: |
+              **P29:** Planning limits for voltage unbalance
+              
+              **Unbalance:** Difference between phase voltages
+              
+              $$\text{VUF} = \frac{V_2}{V_1} \times 100\%$$
+              
+              Where $V_2$ = negative sequence, $V_1$ = positive sequence
+              
+              **Limits:**
+              - Planning level: 1.3%
+              - Compatibility level: 2.0%
+              
+              **Causes:** Single-phase loads, unbalanced three-phase loads
+          - name: G5 - Harmonics
+            notes: |
+              **G5/4-1:** Planning levels for harmonic voltage distortion
+              
+              **THD (Total Harmonic Distortion):**
+              
+              $$THD = \frac{\sqrt{\sum_{h=2}^{40} V_h^2}}{V_1} \times 100\%$$
+              
+              **Planning limits (% of fundamental):**
+              
+              | Voltage | THD | Individual (odd) |
+              |---------|-----|------------------|
+              | LV | 5% | 4-5% |
+              | MV (11-33kV) | 4% | 3-4% |
+              | HV (132kV) | 3% | 2-3% |
+              
+              **Causes:** Power electronics, VFDs, rectifiers, LED lighting
+          - name: Other Key Standards
+            notes: |
+              **Security standards:**
+              - **SQSS:** Security and Quality of Supply Standard (transmission)
+              - **P2/6:** Security of supply (distribution) - being replaced by P2/8
+              
+              **Design standards:**
+              - **BS 7671:** Wiring Regulations (LV installations)
+              - **ENA TS 41-24:** Guidelines for LV connections
+              
+              **Grid codes:**
+              - **Grid Code:** Transmission-connected parties
+              - **Distribution Code:** Distribution-connected parties
+              - **CUSC:** Connection and Use of System Code
+        resources:
+          - label: "ENA - Engineering Recommendations"
+            url: https://www.energynetworks.org/assets/images/Resource%20library/ENA%20EREC%20index%20v18.pdf
+          - label: "National Grid ESO - Grid Code"
+            url: https://www.nationalgrideso.com/industry-information/codes/grid-code
+
+      - id: uk-system-operation
+        title: UK System Operation Basics
+        description: >-
+          How the GB electricity system is balanced in real-time. Understanding 
+          frequency control, the balancing mechanism, and constraint management.
+        prerequisites:
+          - power-system-fundamentals/uk-standards/UK Standards and Engineering Recommendations
+        outcomes:
+          - Explain how system frequency is maintained
+          - Understand the balancing mechanism basics
+          - Describe constraint management approaches
+        concepts:
+          - name: Frequency Control
+            notes: |
+              **Target:** 50.00 Hz ± 0.2 Hz (normal operating range)
+              
+              **Frequency rises** when generation > demand
+              **Frequency falls** when demand > generation
+              
+              **Response services:**
+              
+              | Service | Speed | Duration |
+              |---------|-------|----------|
+              | Inertia | Instantaneous | Seconds |
+              | Primary response | 10 seconds | 30 seconds |
+              | Secondary response | 30 seconds | 30 minutes |
+              | Tertiary / reserve | Minutes | Hours |
+              
+              NESO procures these services from generators and batteries.
+          - name: Balancing Mechanism
+            notes: |
+              **BM:** Real-time market for balancing
+              
+              **How it works:**
+              1. Generators/suppliers submit bids and offers
+              2. **Bid:** Price to reduce output (or increase demand)
+              3. **Offer:** Price to increase output (or reduce demand)
+              4. NESO accepts bids/offers to balance system
+              5. Settled at bid/offer price (pay-as-bid)
+              
+              **Gate closure:** 1 hour before delivery
+              
+              **Imbalance price:** Cash-out for parties not in balance
+          - name: Constraint Management
+            notes: |
+              **Constraint:** When power flow exceeds line/transformer rating
+              
+              **Causes:**
+              - High renewable output in weak areas
+              - Outages reducing network capacity
+              - Demand patterns
+              
+              **Actions:**
+              - Re-dispatch generation (BM actions)
+              - Curtail wind/solar
+              - Intertrips (automatic post-fault)
+              
+              **Constraint costs:** £500M+ annually (growing with renewables)
+          - name: Demand Forecasting
+            notes: |
+              NESO forecasts demand to plan generation:
+              
+              **Timescales:**
+              - Week ahead: Unit commitment
+              - Day ahead: Final schedules
+              - Intraday: Adjustments
+              - Real-time: Balancing actions
+              
+              **Factors:**
+              - Weather (temperature, wind, solar)
+              - Time of day/week/year
+              - TV pickups (kettles at half-time!)
+              - Bank holidays
+              - COVID showed how much patterns can change
+          - name: Future Challenges
+            notes: |
+              System operation becoming more complex:
+              
+              **Low inertia:**
+              - Less synchronous generation
+              - Faster frequency changes
+              - Need for synthetic inertia from batteries/IBRs
+              
+              **Variable renewables:**
+              - High instantaneous penetration (>70% at times)
+              - Need for flexibility (storage, DSR, interconnectors)
+              
+              **Distributed resources:**
+              - Millions of small generators/batteries
+              - Visibility challenge for NESO
+              - Local vs national balancing
+        resources:
+          - label: "National Grid ESO - Balancing Services"
+            url: https://www.nationalgrideso.com/industry-information/balancing-services
+          - label: "ELEXON - Imbalance Pricing"
+            url: https://www.elexon.co.uk/
+          - label: "Grid Watch - Live GB Grid Data"
+            url: https://gridwatch.co.uk/

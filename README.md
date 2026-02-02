@@ -4,7 +4,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **[Live Demo →](https://eee-roadmap.muhammadhazimiyusri.uk)**
 
-> ⚠️ **Content Notice:** Roadmap content (descriptions, concepts, resources) is AI-generated and has not been manually verified. Links may be outdated or broken. Use as a learning guide, not authoritative reference. Contributions and corrections welcome!
+> ⚠️ **Content Notice:** Roadmap content (descriptions, concepts, resources) is AI-generated and has not been manually verified. Links may be outdated or broken. Use as a learning guide, not authoritative reference. Contributions and corrections welcome! 
 
 ---
 
