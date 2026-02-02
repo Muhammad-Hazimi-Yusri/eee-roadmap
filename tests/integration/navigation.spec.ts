@@ -14,6 +14,7 @@ test.describe('Page navigation', () => {
 
   test('roadmap pages load directly', async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/');
+    await page.waitForSelector('body[data-js-ready="true"]');
     await expect(page.locator('.roadmap-node').first()).toBeVisible();
   });
 });
@@ -21,6 +22,7 @@ test.describe('Page navigation', () => {
 test.describe('Hash anchor navigation', () => {
   test('navigating to hash expands the topic node', async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/#dc-circuits');
+    await page.waitForSelector('body[data-js-ready="true"]');
     
     const nodeButton = page.locator('#dc-circuits .node-button');
     await expect(nodeButton).toHaveAttribute('aria-expanded', 'true', { timeout: 10000 });
@@ -30,6 +32,7 @@ test.describe('Hash anchor navigation', () => {
 test.describe('Prerequisite links', () => {
   test('prereq link to same track stays in same tab by default', async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/');
+    await page.waitForSelector('body[data-js-ready="true"]');
     await page.click('#ac-circuits .node-button');
     
     const prereqLink = page.locator('#ac-circuits .prereq-tag--link[href*="fundamentals"]').first();
@@ -41,6 +44,7 @@ test.describe('Prerequisite links', () => {
 
   test('prereq link to different track opens new tab in smart mode', async ({ page }) => {
     await page.goto('/roadmaps/core/');
+    await page.waitForSelector('body[data-js-ready="true"]');
     await page.click('#transistors .node-button');
     
     const prereqLink = page.locator('#transistors .prereq-tag--link[href*="fundamentals"]').first();

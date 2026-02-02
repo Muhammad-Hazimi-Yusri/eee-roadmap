@@ -3,7 +3,9 @@ import { test, expect } from '@playwright/test';
 test.describe('Simple mode interactions', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/');
+    await page.waitForSelector('body[data-js-ready="true"]');
     await page.click('#dc-circuits .node-button');
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
   });
 
   test('double-click marks concept as complete', async ({ page }) => {
@@ -30,18 +32,24 @@ test.describe('Simple mode interactions', () => {
 test.describe('Progress persistence', () => {
   test('completed state persists after reload', async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/');
+    await page.waitForSelector('body[data-js-ready="true"]');
     await page.click('#dc-circuits .node-button');
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
     
     const pill = page.locator('#dc-circuits .concept-pill').first();
+    await expect(pill).toBeVisible();
     await pill.dblclick();
     await expect(pill).toHaveClass(/concept-pill--completed/);
     
     await page.reload();
+    await page.waitForSelector('body[data-js-ready="true"]');
     
+    // Node may already be expanded from localStorage - only click if collapsed
     const isExpanded = await page.locator('#dc-circuits .node-button').getAttribute('aria-expanded');
     if (isExpanded !== 'true') {
       await page.click('#dc-circuits .node-button');
     }
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
     
     const samePill = page.locator('#dc-circuits .concept-pill').first();
     await expect(samePill).toHaveClass(/concept-pill--completed/);
@@ -49,18 +57,24 @@ test.describe('Progress persistence', () => {
 
   test('important state persists after reload', async ({ page }) => {
     await page.goto('/roadmaps/fundamentals/');
+    await page.waitForSelector('body[data-js-ready="true"]');
     await page.click('#dc-circuits .node-button');
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
     
     const pill = page.locator('#dc-circuits .concept-pill').first();
+    await expect(pill).toBeVisible();
     await pill.click({ modifiers: ['Shift'] });
     await expect(pill).toHaveClass(/concept-pill--important/);
     
     await page.reload();
+    await page.waitForSelector('body[data-js-ready="true"]');
     
+    // Node may already be expanded from localStorage - only click if collapsed
     const isExpanded = await page.locator('#dc-circuits .node-button').getAttribute('aria-expanded');
     if (isExpanded !== 'true') {
       await page.click('#dc-circuits .node-button');
     }
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
     
     const samePill = page.locator('#dc-circuits .concept-pill').first();
     await expect(samePill).toHaveClass(/concept-pill--important/);
@@ -99,7 +113,9 @@ test.describe('Demo component', () => {
 test.describe('Cross-track prerequisite navigation', () => {
   test('clicking cross-track prereq opens in new tab (smart mode)', async ({ page, context }) => {
     await page.goto('/roadmaps/core/');
+    await page.waitForSelector('body[data-js-ready="true"]');
     await page.click('#transistors .node-button');
+    await page.waitForSelector('#transistors .node-content:not([hidden])');
     
     const prereqLink = page.locator('#transistors .prereq-tag--link[href*="fundamentals"]').first();
     

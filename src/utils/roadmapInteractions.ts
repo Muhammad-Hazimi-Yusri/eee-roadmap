@@ -29,7 +29,9 @@ import {
 import { queueSync } from '../lib/sync';
 
 export function initRoadmapInteractions(): void {
-
+  // Debug: mark that JS initialized
+  document.body.setAttribute('data-js-ready', 'true');
+  
   const progressStore = createProgressStore('eee-progress-v2', 'local');
   const { 
     isComplete, 
