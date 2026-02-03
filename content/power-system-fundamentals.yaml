@@ -1308,8 +1308,8 @@ sections:
               
               Mismatched vector groups → circulating currents → overheating
         resources:
-          - label: "The Engineering Mindset - Transformers"
-            url: https://theengineeringmindset.com/how-do-transformers-work/
+          - label: "The Engineering Mindset - Electrical"
+            url: https://theengineeringmindset.com/electrical/
           - label: "Electrical4U - Vector Groups"
             url: https://www.electrical4u.com/vector-group-of-transformer/
 
@@ -1763,7 +1763,7 @@ sections:
           - label: "ENA - Engineering Recommendations"
             url: https://www.energynetworks.org/
           - label: "National Grid ESO - Grid Code"
-            url: https://www.nationalgrideso.com/industry-information/codes/
+            url: https://www.neso.energy/industry-information/codes/
 
       - id: voltage-rise
         title: Voltage Rise from Embedded Generation
@@ -2033,7 +2033,7 @@ sections:
               - Publishes Engineering Recommendations (G99, P28, etc.)
         resources:
           - label: "National Grid ESO - About Us"
-            url: https://www.nationalgrideso.com/
+            url: https://www.neso.energy/
           - label: "Ofgem - Network Regulation"
             url: https://www.ofgem.gov.uk/
 
@@ -2235,9 +2235,9 @@ sections:
               - **CUSC:** Connection and Use of System Code
         resources:
           - label: "ENA - Engineering Recommendations"
-            url: https://www.energynetworks.org/assets/images/Resource%20library/ENA%20EREC%20index%20v18.pdf
+            url: https://www.energynetworks.org/industry-hub/resource-library
           - label: "National Grid ESO - Grid Code"
-            url: https://www.nationalgrideso.com/industry-information/codes/grid-code
+            url: https://www.neso.energy/industry-information/codes/grid-code
 
       - id: uk-system-operation
         title: UK System Operation Basics
@@ -2332,7 +2332,7 @@ sections:
               - Local vs national balancing
         resources:
           - label: "National Grid ESO - Balancing Services"
-            url: https://www.nationalgrideso.com/industry-information/balancing-services
+            url: https://www.neso.energy/industry-information/balancing-services
           - label: "ELEXON - Imbalance Pricing"
             url: https://www.elexon.co.uk/
           - label: "Grid Watch - Live GB Grid Data"

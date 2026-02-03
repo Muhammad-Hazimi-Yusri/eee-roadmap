@@ -3,6 +3,7 @@
   "skip": [
     "https://www.electronics-tutorials.ws/*",
     "https://energysavingtrust.org.uk/advice/solar-panels/*",
+    "https://www.energynetworks.org/*",
     "og-image\\.png",
     ".*/og-image\\.png"       
   ]
