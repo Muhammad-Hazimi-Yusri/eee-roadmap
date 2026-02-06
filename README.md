@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.1-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.0
+Current version is v0.21.1
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -184,14 +184,16 @@ Current version is v0.21.0
 
 - [x] Add linting (ESLint with TypeScript + Astro)
 - [x] Add lint to pre-commit hook
-- [ ] Fix/unskip flaky Playwright tests (Supabase timing issues)
+- [x] Fix/unskip flaky Playwright tests (Supabase timing issues)
+- [x] Add knip for unused code detection
+- [x] Add madge for dependency graph / circular import detection
 - [ ] Add tests for new sync/auth functionality
 - [ ] Visual regression tests (when UI stabilizes)
 - [ ] Accessibility tests (a11y)
 - [ ] Increase unit test coverage for utilities
 - [ ] Add CSS duplicate checks
 - [ ] Refactor as needed
-- [ ] Lighthouse score and perfomance optimisation
+- [ ] Lighthouse score and performance optimisation
 
 ---
 
@@ -367,6 +369,9 @@ Get these from [Supabase Dashboard](https://supabase.com) → Project Settings �
 | `npm run test:e2e` | Run Playwright integration/E2E tests |
 | `npm run test:all` | Run all tests (Vitest + Playwright) |
 | `npm run download:pdfs` | Manually download external PDFs |
+| `npm run knip` | Find unused files, exports, and dependencies |
+| `npm run madge:circular` | Check for circular dependencies |
+| `npm run madge:graph` | Generate dependency graph image (WSL/Linux only) |
 
 ### Adding PDFs
 

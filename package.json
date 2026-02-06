@@ -1,7 +1,7 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.21.0", 
+  "version": "0.21.1",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs",
@@ -23,6 +23,9 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:all": "vitest run && playwright test",
+    "knip": "knip",
+    "madge": "madge --extensions ts,js --image dependency-graph.svg src/",
+    "madge:circular": "madge --extensions ts,js --circular src/",
     "version:bump": "node scripts/bump-version.mjs",
     "prepare": "husky"
   },
@@ -64,6 +67,9 @@
     "eslint": "^9.39.2",
     "eslint-plugin-astro": "^1.5.0",
     "husky": "^9.1.7",
+    "knip": "^5.82.1",
+    "linkinator": "^7.5.3",
+    "madge": "^8.0.0",
     "typescript-eslint": "^8.53.1",
     "vitest": "^4.0.16",
     "yaml": "^2.8.2"

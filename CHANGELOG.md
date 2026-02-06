@@ -24,12 +24,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Vitest globals configured for test files
 - New npm scripts: `lint`, `lint:fix`
 - Lint check added to pre-commit hook
+- knip for detecting unused files, exports, and dependencies
+- madge for circular dependency detection and dependency graph visualization
 
 ### Fixed
 - Missing `</section>` closing tag in profile.astro (parsing error)
 - Unused imports converted to type-only imports
 - `let` → `const` for never-reassigned variables
 - Empty catch blocks now allowed (common pattern)
+- Flaky Playwright tests in CI (race condition)
+  - Added `data-js-ready` attribute to signal JS initialization
+  - Tests now wait for JS ready instead of `networkidle`
+  - Persistence tests handle already-expanded nodes after reload
 
 ### Removed
 - Unused `EXCLUDE_FILES` variable in build-glossary.mjs
