@@ -1,0 +1,1670 @@
+# content/advanced-power-system-analysis.yaml
+# EEE Roadmap - Advanced Power System Analysis Track
+# Based on: Advanced Power System Analysis: A Complete Technical Reference
+# Human-editable source. Auto-converts to JSON on build.
+
+meta:
+  title: Advanced Power System Analysis
+  description: >-
+    Eight critical power system analysis domains for engineers using 
+    commercial software (IPSA, ETAP, PowerWorld, PSS/E). Covers fault 
+    calculations, arc flash, protection coordination, stability, motor 
+    starting, harmonics, contingency analysis, and scripting automation.
+  icon: shield-alert
+  featured: false
+  category: specialization
+  order: 25
+
+sections:
+  - id: fault-calculations
+    title: "SECTION 1: IEC 60909 Fault Calculations"
+    items:
+      - id: iec-60909-methodology
+        title: IEC 60909 Methodology
+        description: >-
+          The IEC 60909-0:2016 standard for calculating short-circuit 
+          currents in three-phase AC systems. Covers voltage factors, 
+          impedance corrections, and the distinct current quantities 
+          needed for equipment rating and protection coordination.
+        prerequisites:
+          - power-system-fundamentals/per-unit-system/Per-Unit System
+          - power-system-fundamentals/why-fault-analysis/Why Fault Analysis Matters
+        outcomes:
+          - Apply IEC 60909 voltage factors for max/min fault calculations
+          - Calculate initial symmetrical short-circuit current
+          - Determine peak current using kappa factor
+          - Distinguish between IEC and ANSI fault calculation approaches
+        concepts:
+          - name: Voltage Factors (c factors)
+            notes: |
+              Unlike ANSI/IEEE (prefault voltage = 1.0 pu), IEC 60909 uses **voltage factors** to account for voltage variations, tap positions, and subtransient behaviour.
+
+              | Voltage Level | $c_{max}$ | $c_{min}$ |
+              |---------------|-----------|-----------|
+              | LV (≤1 kV) | 1.05 | 0.95 |
+              | MV/HV (>1 kV) | 1.10 | 1.00 |
+
+              - $c_{max}$: equipment rating (maximum fault current)
+              - $c_{min}$: protection coordination (minimum fault current)
+
+              ![Three-phase short circuit diagram](https://commons.wikimedia.org/wiki/Special:FilePath/Three_phase_short_circuit.svg)
+
+              *Image: Three-phase short circuit — Wikimedia Commons, CC BY-SA 3.0*
+          - name: Initial Symmetrical Short-Circuit Current
+            notes: |
+              The RMS value at fault inception:
+
+              $$I''_k = \frac{c \times U_n}{\sqrt{3} \times Z_k}$$
+
+              Where:
+              - $c$ = voltage factor
+              - $U_n$ = nominal system voltage
+              - $Z_k$ = positive-sequence impedance at fault location
+          - name: Peak Current (ip)
+            notes: |
+              Accounts for DC offset (worst-case asymmetry):
+
+              $$i_p = \kappa \times \sqrt{2} \times I''_k$$
+
+              The kappa factor:
+
+              $$\kappa = 1.02 + 0.98 \times e^{-3R/X}$$
+
+              Ranges from **1.1** (high R/X) to **2.0** (low R/X, near generators).
+
+              ![Short-circuit current waveform showing DC offset](https://commons.wikimedia.org/wiki/Special:FilePath/Short_circuit_current_waveform.svg)
+
+              *Image: Short-circuit current waveform with DC offset — Wikimedia Commons, Public Domain*
+          - name: Impedance Correction Factors
+            notes: |
+              Key difference from ANSI: IEC applies correction factors to component impedances.
+
+              **Transformer correction:**
+
+              $$K_T = \frac{0.95 \times c_{max}}{1 + 0.6 \times x_T}$$
+
+              **Generator correction:**
+
+              $$K_G = \frac{U_n}{U_{rG}} \times \frac{c_{max}}{1 + x''_d \times \sin\varphi_{rG}}$$
+
+              These corrections make IEC results **5–10% higher** than ANSI — critical when mixing equipment rated to different standards.
+          - name: Breaking and Thermal Currents
+            notes: |
+              Beyond $I''_k$, IEC 60909 defines:
+
+              - **Symmetrical breaking current** $I_b$: accounts for AC decay near generators (relevant for breaker interrupting rating)
+              - **Thermal equivalent current** $I_{th}$: for equipment thermal withstand over fault duration
+
+              $$I_{th} = I''_k \times \sqrt{m + n}$$
+
+              Where $m$ accounts for DC component decay and $n$ for AC component decay.
+        resources:
+          - label: "IEC 60909 Overview — pandapower docs"
+            url: https://pandapower.readthedocs.io/en/latest/shortcircuit/currents.html
+          - label: "MIT OCW 6.061 - Electric Power Systems"
+            url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+
+      - id: asymmetrical-faults
+        title: Asymmetrical Fault Analysis
+        description: >-
+          Sequence network connections for unbalanced faults. How positive, 
+          negative, and zero-sequence impedances combine to determine fault 
+          currents for line-to-earth, line-to-line, and double line-to-earth faults.
+        prerequisites:
+          - advanced-power-system-analysis/iec-60909-methodology/IEC 60909 Methodology
+        outcomes:
+          - Connect sequence networks for different fault types
+          - Calculate asymmetrical fault currents
+          - Explain the role of transformer winding connections in zero-sequence paths
+        concepts:
+          - name: Sequence Network Connections
+            notes: |
+              Unbalanced faults are solved using symmetrical components:
+
+              **Line-to-earth fault** (most common, ~70% of faults):
+
+              $$I''_{k1} = \frac{\sqrt{3} \times c \times U_n}{Z_1 + Z_2 + Z_0}$$
+
+              Series connection of all three sequence networks.
+
+              **Line-to-line fault:**
+
+              $$I''_{k2} = \frac{c \times U_n}{Z_1 + Z_2}$$
+
+              No zero-sequence involvement.
+
+              ![Symmetrical components diagram](https://commons.wikimedia.org/wiki/Special:FilePath/Symmetrical_components.png)
+
+              *Image: Symmetrical components — Wikimedia Commons, CC BY-SA 4.0*
+          - name: Zero-Sequence Impedance
+            notes: |
+              Zero-sequence behaviour depends critically on **transformer winding connections**:
+
+              | Winding | $Z_0$ Path |
+              |---------|-----------|
+              | Yg-Yg | Through both windings |
+              | Yg-Delta | Blocked by delta (provides ground reference) |
+              | Delta-Delta | No zero-sequence path |
+              | Yg-Yg (with delta tertiary) | Stabilised, delta provides $Z_0$ circulation |
+
+              Delta windings act as zero-sequence current traps — they circulate $I_0$ within the winding but don't pass it through.
+
+              ![Delta-Wye transformer connection](https://commons.wikimedia.org/wiki/Special:FilePath/Transformer_wye-delta.svg)
+
+              *Image: Wye-Delta transformer connection — Wikimedia Commons, Public Domain*
+        resources:
+          - label: "All About Circuits — Symmetrical Components"
+            url: https://www.allaboutcircuits.com/textbook/alternating-current/
+          - label: "pandapower — Short Circuit Calculation"
+            url: https://pandapower.readthedocs.io/en/latest/shortcircuit/
+
+  - id: arc-flash
+    title: "SECTION 2: IEEE 1584 Arc Flash Assessment"
+    items:
+      - id: arc-flash-fundamentals
+        title: Arc Flash Hazard Fundamentals
+        description: >-
+          IEEE 1584-2018 methodology for calculating incident energy 
+          exposure during electrical work. Covers electrode configurations, 
+          arcing current calculations, and the critical relationship between 
+          arc duration and incident energy.
+        prerequisites:
+          - advanced-power-system-analysis/iec-60909-methodology/IEC 60909 Methodology
+          - power-system-fundamentals/why-fault-analysis/Why Fault Analysis Matters
+        outcomes:
+          - Explain the five electrode configurations and their impact on incident energy
+          - Calculate arcing current from bolted fault current
+          - Describe the relationship between arc duration and incident energy
+          - Apply IEEE 1584-2018 applicability limits
+        concepts:
+          - name: Electrode Configurations
+            notes: |
+              The 2018 revision introduced **five electrode configurations** based on over 1,800 arc flash tests (vs ~300 in 2002):
+
+              | Config | Description | Relative Energy |
+              |--------|-------------|-----------------|
+              | VCB | Vertical conductors in box | Baseline |
+              | VCBB | Vertical with insulating barrier | Lower |
+              | HCB | Horizontal in box | **2–3× higher** |
+              | VOA | Vertical open air | Lower |
+              | HOA | Horizontal open air | Moderate |
+
+              **HCB is worst-case** — arc plasma is directed toward the worker.
+
+              ![Electric arc](https://commons.wikimedia.org/wiki/Special:FilePath/Electric_arc_in_the_Electricity_Museum.jpg)
+
+              *Image: Electric arc demonstration — Wikimedia Commons, CC BY-SA 3.0*
+          - name: Arcing Current Calculation
+            notes: |
+              Arcing current is derived from bolted fault current using empirically fitted polynomials:
+
+              $$\lg(I_{arc}) = k_1 + k_2 \lg(I_{bf}) + k_3 [\lg(I_{bf})]^2 + \cdots$$
+
+              Where coefficients vary by electrode configuration and voltage level.
+
+              A critical improvement: the **variable arc current variation factor** replaces the fixed 15% reduction from the 2002 edition. Lower arcing currents at reduced voltage can cause:
+
+              1. Longer protective device clearing times
+              2. Potentially **higher** incident energy than full arcing current
+
+              Software must calculate at both normal and minimum arcing current, reporting the **higher** value.
+          - name: Incident Energy and Arc Duration
+            notes: |
+              The fundamental relationship:
+
+              **Incident energy is directly proportional to arc duration.**
+
+              Arc duration = protective device clearing time at the calculated arcing current.
+
+              $$E \propto t_{arc}$$
+
+              Reducing clearing time from 500 ms to 50 ms reduces incident energy by **~90%**.
+
+              **Worst-case scenario:** If arcing current falls on an inverse-time curve, reduced current → longer clearing time → potentially higher incident energy. This is why IEEE 1584 requires dual calculations.
+          - name: Applicability Limits
+            notes: |
+              IEEE 1584-2018 is valid for:
+
+              | Parameter | Low Voltage | Medium Voltage |
+              |-----------|------------|----------------|
+              | Voltage | 208 V – 600 V | 601 V – 15 kV |
+              | Bolted fault current | 500 A – 106 kA | 200 A – 65 kA |
+              | Gap between conductors | 6.35 – 76.2 mm | 19.05 – 254 mm |
+              | Working distance | ≥ 305 mm | ≥ 305 mm |
+
+              Outside these limits, alternative methods (e.g., Lee method for >15 kV) must be used.
+        resources:
+          - label: "IEEE 1584-2018 Overview — Littelfuse"
+            url: https://www.littelfuse.com/technical-resources/technical-center/ieee-1584-arc-flash-hazard
+          - label: "Arc Flash Explained — Electrical Safety Authority"
+            url: https://www.esasafe.com/awareness/electrical-safety/arc-flash
+
+      - id: ppe-and-boundaries
+        title: PPE Categories and Arc Flash Boundaries
+        description: >-
+          Translating incident energy calculations into practical safety 
+          requirements. NFPA 70E PPE categories, arc flash boundary 
+          determination, and NEC requirements for arc energy reduction.
+        prerequisites:
+          - advanced-power-system-analysis/arc-flash-fundamentals/Arc Flash Hazard Fundamentals
+        outcomes:
+          - Determine PPE category from incident energy
+          - Calculate arc flash boundary distance
+          - Explain NEC 240.87 arc energy reduction requirements
+          - Identify when engineering controls are required over PPE
+        concepts:
+          - name: Arc Flash Boundary (AFB)
+            notes: |
+              The distance at which incident energy equals **1.2 cal/cm²** — the threshold for onset of second-degree burns on unprotected skin.
+
+              AFB is calculated using the same IEEE 1584 equations but solving for distance rather than energy at a fixed distance.
+
+              Typical AFB values:
+              - Low voltage switchgear: 0.5–3 m
+              - Medium voltage switchgear: 3–10+ m
+              - Depends heavily on clearing time and fault current
+
+              ![Arc flash warning label](https://commons.wikimedia.org/wiki/Special:FilePath/Arc-flash_label.jpg)
+
+              *Image: Arc flash hazard warning label — Wikimedia Commons, CC BY-SA 3.0*
+          - name: NFPA 70E PPE Categories
+            notes: |
+              NFPA 70E translates IEEE 1584 incident energy into PPE categories:
+
+              | Category | Max Incident Energy | Typical PPE |
+              |----------|-------------------|-------------|
+              | 1 | 4 cal/cm² | Arc-rated shirt + pants, safety glasses |
+              | 2 | 8 cal/cm² | Arc-rated coveralls, face shield |
+              | 3 | 25 cal/cm² | Arc flash suit, hood |
+              | 4 | 40 cal/cm² | Multi-layer arc flash suit |
+              | **>40 cal/cm²** | — | **No standard PPE rated** |
+
+              Above 40 cal/cm², engineering controls are mandatory: de-energisation, remote operation, or arc energy reduction.
+
+              ![Electrical worker wearing PPE](https://commons.wikimedia.org/wiki/Special:FilePath/Lineworker_changing_transformer.jpg)
+
+              *Image: Electrical lineworker with safety equipment — Wikimedia Commons, CC BY-SA 2.0*
+          - name: Arc Energy Reduction (NEC 240.87)
+            notes: |
+              NEC 240.87 mandates arc energy reduction for circuit breakers **≥1200 A**. Approved methods:
+
+              1. **Zone-selective interlocking (ZSI):** Upstream device reduces delay when downstream device detects fault
+              2. **Differential relaying:** Compares current in/out of protected zone
+              3. **Energy-reducing maintenance switch:** Temporarily reduces trip delay for maintenance
+              4. **Arc flash relays:** Detect arc light + overcurrent, initiate rapid trip (<50 ms)
+
+              Arc flash relays are increasingly popular — they detect visible light from the arc and can reduce clearing time to **<35 ms**, dramatically cutting incident energy.
+        resources:
+          - label: "NFPA 70E Overview — NFPA"
+            url: https://www.nfpa.org/codes-and-standards/nfpa-70-e
+          - label: "Arc Flash PPE Guide — Oberon Company"
+            url: https://oberoncompany.com/pages/arc-flash-clothing-guide
+
+  - id: protection-coordination
+    title: "Section 3: Protection Coordination"
+    items:
+      - id: tcc-and-grading
+        title: Time-Current Curves and Grading Margins
+        description: >-
+          IEC 60255 and IEEE C37.112 inverse-time relay characteristics,
+          coordination time intervals, and grading methodology for
+          series-connected protective devices.
+        prerequisites:
+          - power-system-fundamentals/protection-coordination/Protection Coordination
+          - power-system-fundamentals/time-current-curves/Time-Current Curves
+        outcomes:
+          - Select appropriate IEC 60255 inverse curve type for an application
+          - Calculate relay operating time from TMS and curve parameters
+          - Determine grading margins for numerical and electromechanical relays
+          - Identify coordination failures on TCC plots
+        concepts:
+          - name: IEC 60255 Standard Inverse Curves
+            notes: |
+              ![Protective relay panel](https://commons.wikimedia.org/wiki/Special:FilePath/Protective_Relays_Hydroelectric_Station.JPG)
+
+              *Image: Electromechanical protective relays — Wtshymanski, Wikimedia Commons, CC BY-SA 3.0*
+
+              The general IEC 60255 inverse-time equation:
+
+              $$t = TMS \times \frac{k}{\left(\frac{I}{I_s}\right)^\alpha - 1}$$
+
+              where $t$ is operating time, $TMS$ is the time multiplier setting,
+              $I$ is fault current, $I_s$ is pickup current, and $k$, $\alpha$ are
+              curve constants.
+
+              **Standard curve types and their constants:**
+
+              | Curve Type | k | α | Application |
+              |---|---|---|---|
+              | Standard Inverse (SI) | 0.14 | 0.02 | General purpose |
+              | Very Inverse (VI) | 13.5 | 1.0 | Variable fault current with distance |
+              | Extremely Inverse (EI) | 80.0 | 2.0 | Motor starting, fuse coordination |
+
+              The IEEE C37.112 formulation uses a slightly different structure:
+
+              $$t = TD \times \left(\frac{A}{\left(\frac{I}{I_s}\right)^p - 1} + B\right)$$
+
+              **Curve selection guidance:**
+              - **SI:** Fault current does not vary much across the network
+              - **VI:** Significant impedance between relay locations changes fault magnitude
+              - **EI:** Need to coordinate with fuse curves or ride through motor starting current
+
+          - name: Coordination Time Interval
+            notes: |
+              The grading margin (CTI) between series devices must account for:
+
+              1. **Relay timing error** — ±5% for numerical, ±7.5% for electromechanical (at 2–5× pickup)
+              2. **Overshoot time** — negligible for numerical, 0.05–0.1s for electromechanical
+              3. **Circuit breaker opening time** — 0.04–0.08s modern, 0.1–0.15s older
+              4. **CT errors** — ±3% typical, affects apparent current seen by relay
+
+              **Resulting CTI values:**
+
+              | Relay Combination | Typical CTI |
+              |---|---|
+              | Numerical ↔ Numerical | 0.2–0.3 s |
+              | Numerical ↔ Electromechanical | 0.3–0.4 s |
+              | Electromechanical ↔ Electromechanical | 0.4–0.5 s |
+
+              **Grading procedure (load → source):**
+
+              1. Set downstream device below equipment damage curve
+              2. Calculate downstream operating time at maximum through-fault
+              3. Add CTI to get required upstream time
+              4. Solve for upstream TMS:
+
+              $$TMS_{upstream} = \frac{(t_{downstream} + CTI) \times \left[\left(\frac{I}{I_s}\right)^\alpha - 1\right]}{k}$$
+
+              5. Verify coordination holds at all intermediate fault levels
+              6. Check for **crossover points** where curves intersect (loss of coordination)
+
+          - name: Selectivity Mechanisms
+            notes: |
+              Four mechanisms achieve selective fault isolation:
+
+              **1. Current grading (instantaneous elements, ANSI 50)**
+              - Downstream devices see higher fault current due to source impedance
+              - Set pickup above maximum downstream fault: $I_{pickup} > I_{fault,downstream}$
+              - Limitation: ineffective on short feeders where fault current varies little
+
+              **2. Time grading (IDMT elements, ANSI 51)**
+              - Upstream devices have progressively longer delays
+              - Works universally but accumulates delay toward source
+
+              **3. Energy-based selectivity (I²t)**
+              - Compare let-through energy of downstream fuse/breaker
+              - Upstream device must not operate before downstream clears
+
+              **4. Zone-selective interlocking (ZSI)**
+              - Direct communication between devices via control wiring
+              - Downstream device signals upstream: "I see the fault, wait"
+              - If no restraint signal → upstream trips instantaneously (close-in fault)
+              - Dramatically reduces arc flash energy at upstream locations
+        resources:
+          - label: "IEC 60255-151: Measuring relays and protection equipment"
+            url: https://webstore.iec.ch/en/publication/1170
+          - label: "IEEE C37.112: Standard Inverse-Time Characteristic Equations"
+            url: https://standards.ieee.org/ieee/C37.112/10688/
+          - label: "GE Multilin - Relay Coordination Fundamentals"
+            url: https://www.gegridsolutions.com/multilin/
+
+      - id: differential-and-distance
+        title: Differential and Distance Protection
+        description: >-
+          Unit protection using Kirchhoff's Current Law for transformers,
+          busbars, and generators. Impedance-based distance protection
+          with multi-zone reach settings for transmission lines.
+        prerequisites:
+          - power-system-fundamentals/protection-relays/Protection Relay Types
+          - power-system-fundamentals/protection-zones/Protection Zones and Backup
+          - advanced-power-system-analysis/tcc-and-grading/Time-Current Curves and Grading Margins
+        outcomes:
+          - Configure percentage restraint differential relay settings
+          - Explain harmonic restraint for transformer inrush discrimination
+          - Set distance relay zone reaches and timers
+          - Design primary and backup protection using zones 1, 2, and 3
+        concepts:
+          - name: Differential Protection Principles
+            notes: |
+              ![Relay symbols](https://commons.wikimedia.org/wiki/Special:FilePath/Relay_symbols.svg)
+
+              *Image: Relay circuit symbols — Wikimedia Commons, Public Domain*
+
+              Differential protection applies Kirchhoff's Current Law: under
+              healthy conditions, current entering a protected zone equals
+              current leaving. Any difference indicates an internal fault.
+
+              $$I_{operate} = |I_{in} - I_{out}|$$
+
+              **Key property:** 100% selective — only operates for faults
+              within the zone boundary defined by CT locations.
+
+              **Applications by ANSI device number:**
+              - **87T** — Transformer differential
+              - **87B** — Busbar differential
+              - **87G** — Generator differential
+              - **87M** — Motor differential
+
+          - name: Transformer Differential Settings
+            notes: |
+              Transformer differential relays use **percentage restraint**
+              characteristics to remain stable during through-faults where
+              CT errors produce false differential current.
+
+              The restraint current is typically:
+
+              $$I_{restraint} = \frac{|I_1| + |I_2|}{2}$$
+
+              **Dual-slope characteristic:**
+
+              | Parameter | Typical Setting | Purpose |
+              |---|---|---|
+              | Slope 1 | 15–25% | Normal CT mismatch errors |
+              | Slope 2 | 50–80% | CT saturation during heavy through-faults |
+              | Minimum pickup | 0.2–0.3 pu | Sensitivity floor |
+
+              **Harmonic restraint** prevents false tripping during
+              transformer energisation (magnetising inrush):
+              - Inrush produces characteristic **2nd harmonic content**
+              - Typical restraint threshold: **15–20% second harmonic** relative to fundamental
+              - Over-excitation produces 5th harmonic — separate restraint at ~25%
+
+              **CT ratio mismatch compensation:**
+              Software in numerical relays applies vector group correction
+              (e.g., Dyn11 → 30° phase shift) and ratio compensation
+              automatically. For electromechanical relays, interposing CTs
+              are required.
+
+          - name: Distance Protection Zones
+            notes: |
+              ![Electrical substation](https://commons.wikimedia.org/wiki/Special:FilePath/Electrical_Substation.JPG)
+
+              *Image: Electrical substation — Wtshymanski, Wikimedia Commons, Public Domain*
+
+              Distance relays measure impedance to determine fault location.
+              The apparent impedance during a fault:
+
+              $$Z_{apparent} = \frac{V_{relay}}{I_{relay}}$$
+
+              If $Z_{apparent}$ falls within the relay's operating characteristic
+              (mho circle or quadrilateral), a trip is initiated.
+
+              **Multi-zone reach settings:**
+
+              | Zone | Reach | Timer | Purpose |
+              |---|---|---|---|
+              | Zone 1 | 80–85% of line $Z_L$ | Instantaneous | Primary protection, underreaches to avoid overtripping |
+              | Zone 2 | 120–150% of line $Z_L$ | 0.3–0.5 s | Covers full line plus remote bus backup |
+              | Zone 3 | Covers adjacent line | 1.0–1.5 s | Remote backup for adjacent line relays |
+
+              **Why Zone 1 underreaches (80–85%):**
+              - CT and VT measurement errors (±3% each)
+              - Line impedance data uncertainty
+              - Prevents unwanted instantaneous trip for faults beyond the remote bus
+
+              **Zone 2 overlap coordination:**
+              Zone 2 of line A overlaps with Zone 1 of line B at the remote bus.
+              The time delay ensures the local Zone 1 relay trips first.
+              If Zone 1 fails, Zone 2 provides time-delayed backup.
+
+          - name: Distance Relay Characteristics
+            notes: |
+              **Mho (circular) characteristic:**
+              - Inherently directional
+              - Good reach along resistive and reactive axes
+              - Traditional choice for transmission lines
+              - Reach affected by fault resistance and load encroachment
+
+              **Quadrilateral characteristic:**
+              - Independent resistive and reactive reach settings
+              - Better coverage of resistive faults (e.g., arcing faults, tower footing resistance)
+              - Preferred for shorter lines and cable circuits
+              - Requires separate directional element
+
+              **Practical considerations:**
+              - **Load encroachment:** Heavy load produces low apparent impedance that may enter Zone 3 — use load blinders or shaped characteristics
+              - **Infeed effect:** Intermediate source current makes fault appear further away — Zone 2 reach must account for this
+              - **Mutual coupling:** Zero-sequence mutual impedance between parallel lines affects ground distance elements — requires compensation factor
+
+              **Coordination study methodology (complete):**
+
+              1. Start at load end, set downstream devices below equipment damage curves
+              2. Add grading margins progressively toward source
+              3. Set distance Zone 1 to 80–85% of each line
+              4. Set Zone 2 to cover full line with time delay
+              5. Verify Zone 2 does not overreach into Zone 1 operating time of adjacent lines
+              6. Set Zone 3 for remote backup with adequate delay
+              7. Verify all settings under maximum and minimum fault conditions
+              8. Check performance with and without infeed sources
+        resources:
+          - label: "IEEE C37.113: Guide for Protective Relay Applications to Transmission Lines"
+            url: https://standards.ieee.org/ieee/C37.113/10691/
+          - label: "CIGRE B5 - Protection and Automation"
+            url: https://www.cigre.org/gb/publications/detail/660-protection-relay-coordination.html
+          - label: "PAC Basics - Distance Protection Tutorial"
+            url: https://pacbasics.org/
+
+  - id: transient-stability
+    title: "Section 4: Transient Stability"
+    items:
+      - id: swing-equation-and-eac
+        title: Swing Equation and Equal Area Criterion
+        description: >-
+          Rotor dynamics of synchronous machines following large disturbances,
+          the swing equation derivation, equal area criterion for SMIB systems,
+          and critical clearing time determination.
+        prerequisites:
+          - power-system-fundamentals/generators/Synchronous Machine Basics
+          - power-system-fundamentals/generators/Generator Reactances
+        outcomes:
+          - Derive and apply the swing equation for a synchronous machine
+          - Calculate critical clearing angle using the equal area criterion
+          - Determine critical clearing time for protection coordination
+          - Assess stability margins for different fault scenarios
+        concepts:
+          - name: The Swing Equation
+            notes: |
+              ![Steam turbine rotor](https://commons.wikimedia.org/wiki/Special:FilePath/Dampfturbine_Laeufer01.jpg)
+
+              *Image: Steam turbine rotor — Wikimedia Commons, CC BY-SA 3.0*
+
+              The **swing equation** governs rotor angle dynamics following
+              a disturbance. It balances mechanical input against electrical
+              output through the rotor's angular momentum:
+
+              $$M \frac{d^2\delta}{dt^2} = P_m - P_e = P_a$$
+
+              where $M$ is angular momentum, $\delta$ is rotor angle relative
+              to synchronous reference, $P_m$ is mechanical power input,
+              $P_e$ is electrical power output, and $P_a$ is accelerating power.
+
+              In per-unit form using the **inertia constant** $H$ (MJ/MVA):
+
+              $$\frac{2H}{\omega_s} \frac{d^2\delta}{dt^2} = P_m - P_e$$
+
+              **Typical inertia constants:**
+
+              | Machine Type | H (seconds) |
+              |---|---|
+              | Steam turbine generators | 4–9 |
+              | Hydro units | 2–4 |
+              | Wind (DFIG) | 2–6 |
+
+              Higher $H$ means more stored kinetic energy and longer time
+              to respond to disturbances. This explains concern about
+              **reduced system inertia** as synchronous generation is
+              displaced by converter-interfaced renewables.
+
+              **Physical interpretation:**
+              - When $P_m > P_e$: rotor accelerates, $\delta$ increases
+              - When $P_e > P_m$: rotor decelerates, $\delta$ decreases
+              - Steady state: $P_m = P_e$, $\delta$ constant
+
+          - name: Equal Area Criterion
+            notes: |
+              The **equal area criterion (EAC)** provides graphical stability
+              assessment for single-machine-infinite-bus (SMIB) systems
+              without solving differential equations.
+
+              For a lossless system, electrical power output follows the
+              power-angle curve:
+
+              $$P_e = P_{max} \sin\delta = \frac{|V_G||V_\infty|}{X} \sin\delta$$
+
+              **When a fault occurs:**
+
+              1. $P_e$ drops (possibly to zero for a bolted terminal fault)
+                 while $P_m$ continues → creates **accelerating area** $A_1$
+              2. Rotor angle $\delta$ advances as rotor speeds up
+              3. After fault clearing, $P_e > P_m$ → creates
+                 **decelerating area** $A_2$
+              4. Stability requires $A_2 \geq A_1$ before $\delta$ exceeds
+                 $\delta_{max}$ on the post-fault curve
+
+              $$A_1 = \int_{\delta_0}^{\delta_c} (P_m - P_{e,fault}) \, d\delta$$
+
+              $$A_2 = \int_{\delta_c}^{\delta_{max}} (P_{e,post} - P_m) \, d\delta$$
+
+              The **critical clearing angle** $\delta_{cr}$ is the maximum
+              angle at which the fault can be cleared and still maintain
+              $A_2 = A_1$. Beyond $\delta_{cr}$, synchronism is lost.
+
+              **Key insight:** The system can remain stable even when
+              $\delta > 90°$ during the transient swing — the 90° limit
+              applies only to steady-state stability, not transient stability.
+
+          - name: Critical Clearing Time
+            notes: |
+              **Critical clearing time (CCT)** is the maximum fault duration
+              that maintains stability — protection must operate faster
+              than CCT.
+
+              **Typical CCT values:**
+
+              | Fault Type | CCT Range |
+              |---|---|
+              | Three-phase fault at generator terminals | 100–200 ms |
+              | Remote line-to-ground fault | 300–500+ ms |
+
+              **Factors that increase CCT (improve stability):**
+              - Higher machine inertia ($H$)
+              - Lower pre-fault loading (larger stability margin)
+              - Greater electrical distance to fault
+              - Faster excitation systems
+              - Higher post-fault transmission capacity (redundant lines)
+
+              **Relationship to protection coordination:**
+              The total fault clearing time comprises:
+              - Relay operating time (20–40 ms for numerical relays)
+              - Circuit breaker opening time (40–80 ms modern SF₆)
+              - Total: typically 60–120 ms
+
+              For a CCT of 150 ms, the **stability margin** is only
+              30–90 ms — demonstrating why fast protection is critical
+              for generator stability.
+
+              **Study timeframe:**
+              - First-swing stability: 3–5 seconds
+              - Multi-swing (large interconnections): up to 20 seconds
+              - Governor response (too slow for first swing): 0.5–2 seconds
+
+      - id: excitation-and-pss
+        title: Excitation Systems and Power System Stabilizers
+        description: >-
+          IEEE Std 421.5 excitation system models, automatic voltage
+          regulator response, and power system stabilizer design for
+          damping electromechanical oscillations.
+        prerequisites:
+          - power-system-fundamentals/generators/Excitation
+          - advanced-power-system-analysis/swing-equation-and-eac/The Swing Equation
+        outcomes:
+          - Identify IEEE 421.5 excitation system model types
+          - Explain how AVR response affects transient stability
+          - Describe PSS operating principle and tuning methodology
+          - Distinguish first-swing stability from damping improvement
+        concepts:
+          - name: IEEE 421.5 Excitation Models
+            notes: |
+              ![Electrical substation](https://commons.wikimedia.org/wiki/Special:FilePath/Electrical_Substation.JPG)
+
+              *Image: Electrical substation — Wtshymanski, Wikimedia Commons, Public Domain*
+
+              **IEEE Std 421.5-2016** defines standard models for
+              excitation systems used in stability studies. Key model types:
+
+              | Model | Type | Description |
+              |---|---|---|
+              | ST1A | Static (thyristor) | Fast response, fed from generator terminals or auxiliary bus |
+              | AC4A | Alternator-rectifier | Rotating AC exciter with controlled rectifier |
+              | DC1A | DC commutator | Older rotating DC exciter, slower response |
+
+              **Static excitation (ST1A) advantages:**
+              - Very fast forcing capability (ceiling voltage in <0.1s)
+              - High initial response ratio
+              - Improves first-swing transient stability
+              - Can provide both positive and negative field forcing
+
+              **Limitation:** Static exciters depend on generator terminal
+              voltage — during close-in faults, terminal voltage collapses
+              and exciter output is reduced precisely when it's needed most.
+
+              **Automatic Voltage Regulator (AVR) impact on stability:**
+              - Fast AVR improves **first-swing stability** by maintaining
+                field flux and thus electrical power output during faults
+              - However, high-gain AVR can reduce **damping** of
+                subsequent oscillations — this is where PSS is essential
+
+          - name: Power System Stabilizer
+            notes: |
+              A **Power System Stabilizer (PSS)** adds supplementary damping
+              to electromechanical oscillations by modulating the excitation
+              system output.
+
+              **Operating principle:**
+              The PSS detects rotor speed deviations and applies a
+              compensating signal to the AVR voltage reference. When the
+              rotor accelerates, PSS reduces excitation (reducing electrical
+              torque), and vice versa — providing a **damping torque**
+              component in phase with speed deviation.
+
+              **PSS2B (dual-input stabilizer):**
+              Uses both electrical power and shaft speed as inputs:
+              - Speed signal: direct measure of rotor oscillation
+              - Power signal: provides better transient response
+              - Combination gives robust performance across operating conditions
+
+              **Tuning methodology:**
+              1. Identify electromechanical oscillation modes (typically 0.2–2.0 Hz)
+                 - **Local modes:** 1.0–2.0 Hz (single machine against system)
+                 - **Inter-area modes:** 0.2–0.8 Hz (groups of machines oscillating)
+              2. Set PSS phase compensation to provide damping torque at modal frequencies
+              3. Adjust gain for adequate damping without excessive AVR interaction
+              4. Verify with eigenvalue analysis (all modes positively damped)
+
+              **Design trade-off:**
+              - Too much PSS gain → excessive voltage variation during disturbances
+              - Too little PSS gain → insufficient damping, sustained oscillations
+              - Typical target: damping ratio $\zeta > 5\%$ for all electromechanical modes
+
+          - name: Stability Study Methodology
+            notes: |
+              **Complete transient stability study workflow:**
+
+              1. **Build network model** — generators with IEEE 421.5
+                 excitation, governor models, load models (constant
+                 impedance / constant current / constant power mix)
+
+              2. **Establish base case power flow** — verify steady-state
+                 operating point, generator MW/MVAr dispatch, voltage profile
+
+              3. **Define contingencies** — N-1 and critical N-2 events:
+                 three-phase faults, line trips, generator trips, load rejection
+
+              4. **Run time-domain simulation** — typically 5–20 seconds,
+                 monitoring rotor angles, bus voltages, line flows
+
+              5. **Assess stability criteria:**
+                 - Rotor angle separation < 180° (or returns toward equilibrium)
+                 - Voltage recovery > 0.8 pu within 1 second of fault clearing
+                 - Frequency within acceptable band (49.5–50.5 Hz for UK)
+                 - Damping ratio of oscillations > 5%
+
+              6. **Determine CCT** for each contingency — binary search
+                 on fault duration until stability boundary found
+
+              7. **Verify protection operates within CCT** — if not,
+                 protection settings or system reinforcement required
+
+              **Software tools:** PSS/E, PowerWorld, DIgSILENT PowerFactory,
+              ETAP, PSCAD (for electromagnetic transients)
+        resources:
+          - label: "IEEE Std 421.5-2016: Excitation System Models"
+            url: https://standards.ieee.org/ieee/421.5/5765/
+          - label: "IEEE/CIGRE Joint Task Force on Stability Terms and Definitions"
+            url: https://resourcecenter.ieee-pes.org/publications/technical-reports/PES_TR0066_062020.html
+          - label: "Kundur - Power System Stability and Control (reference textbook)"
+            url: https://www.mheducation.com/
+
+  - id: motor-starting
+    title: "Section 5: Motor Starting Studies"
+    items:
+      - id: voltage-dip-analysis
+        title: Voltage Dip and Starting Current Analysis
+        description: >-
+          Locked-rotor current characteristics of induction motors,
+          voltage dip prediction methods, and acceptance criteria
+          for motor starting on utility and generator-supplied systems.
+        prerequisites:
+          - power-system-fundamentals/generators/Generator Reactances
+          - power-system-fundamentals/per-unit/Per-Unit System
+        outcomes:
+          - Calculate voltage dip from motor starting kVA and system short-circuit capacity
+          - Apply NEMA code letter ratings to determine starting kVA
+          - Assess voltage dip impact on contactors, controls, and lighting
+          - Size generators for direct-on-line motor starting
+        concepts:
+          - name: Locked-Rotor Current Characteristics
+            notes: |
+              ![Squirrel cage rotor](https://commons.wikimedia.org/wiki/Special:FilePath/Squirrel_cage.jpg)
+
+              *Image: Squirrel cage rotor — Wikimedia Commons*
+
+              At standstill, an induction motor has no back-EMF, producing
+              **locked-rotor currents of 5–8 times full-load amperes (FLA)**
+              that persist for 5–30 seconds during acceleration.
+
+              This current flows at a severely lagging power factor
+              (10–25%), imposing both real and reactive power demands.
+
+              **NEMA code letters** specify starting kVA per horsepower.
+              Code G (most common) indicates 5.6–6.29 kVA/HP:
+
+              $$kVA_{start} = \text{Code Letter} \times HP$$
+
+              A 500 HP motor at Code G may draw **over 3000 kVA
+              during starting** — potentially exceeding the transformer
+              or generator rating at the supply bus.
+
+              **Torque-speed relationship during acceleration:**
+              - At standstill: high current, low power factor, moderate torque
+              - During acceleration: current decreases as back-EMF develops
+              - Near full speed: current drops to normal FLA, slip typically 2–5%
+
+          - name: Voltage Dip Calculation
+            notes: |
+              The percentage voltage dip at a motor bus:
+
+              $$\%V_{dip} \approx \frac{kVA_{start}}{kVA_{SC}} \times 100\%$$
+
+              where $kVA_{start}$ is motor starting kVA and $kVA_{SC}$ is
+              the system short-circuit capacity at the motor bus.
+
+              **Acceptance criteria for different equipment:**
+
+              | Equipment | Minimum Voltage |
+              |---|---|
+              | Motor terminals (adequate torque) | 80% (torque ∝ V², so 64% torque) |
+              | AC contactors (pickup) | 85% |
+              | Solid-state controls | 90% |
+              | Lighting flicker (objectionable) | 97% (3% dip limit) |
+
+              **Generator-supplied systems are more severe:**
+              Generator transient reactance $X'_d$ (typically 15–25%)
+              limits fault contribution, making voltage dips deeper
+              compared to utility-supplied systems.
+
+              **Generator sizing rules of thumb:**
+
+              | Starting Method | Generator kVA : Motor HP |
+              |---|---|
+              | Direct-on-line (DOL) | 10–15× |
+              | Reduced-voltage methods | 3–4× |
+
+              **IEEE 1453** addresses voltage flicker using Pst
+              (short-term) and Plt (long-term) indices, with planning
+              level of $P_{st} \leq 1.0$ for low-voltage systems.
+
+          - name: Sequential Starting Strategy
+            notes: |
+              When multiple large motors must start on the same system,
+              **sequential starting with 30–60 second delays** between
+              starts allows voltage recovery before each subsequent start.
+
+              **Study approach:**
+
+              1. **Static analysis (snapshot)** — calculates voltage at
+                 the instant of starting, assumes worst-case locked-rotor
+                 impedance. Quick screening tool.
+
+              2. **Dynamic analysis (time-domain)** — simulates the
+                 complete acceleration transient including:
+                 - Motor torque-speed curve vs load torque curve
+                 - Generator excitation response and voltage recovery
+                 - Governor response for frequency dip
+                 - Interaction between motors already running and the starting motor
+
+              **Key checks in dynamic study:**
+              - Motor accelerates to full speed (torque exceeds load at all speeds)
+              - Voltage recovers above 90% within acceptable time
+              - Running motors do not stall during the voltage dip
+              - Frequency does not drop below 95% on island systems
+
+      - id: reduced-voltage-starting
+        title: Reduced-Voltage Starting Methods
+        description: >-
+          Star-delta, autotransformer, soft starter, and variable
+          frequency drive starting methods with comparative analysis
+          of current reduction, torque capability, and application
+          suitability.
+        prerequisites:
+          - advanced-power-system-analysis/voltage-dip-analysis/Locked-Rotor Current Characteristics
+        outcomes:
+          - Compare starting current and torque for each reduced-voltage method
+          - Select appropriate starting method for a given application
+          - Calculate line current reduction for autotransformer starting
+          - Specify soft starter and VFD starting parameters
+        concepts:
+          - name: Star-Delta and Autotransformer Starting
+            notes: |
+              ![Induction motor](https://commons.wikimedia.org/wiki/Special:FilePath/Squirrel-motor.jpg)
+
+              *Image: Squirrel cage induction motor — Wikimedia Commons*
+
+              **Star-delta starting (Y-Δ):**
+              - Motor windings connected in star during start, then switched to delta
+              - Both current and torque reduced to **33% of DOL values**
+              - Suitable only for unloaded or light-load starts
+              - Transition causes a current transient (momentary disconnection)
+              - Motor must have both ends of all three phase windings accessible (6 terminals)
+
+              **Autotransformer starting:**
+              Common taps at 50%, 65%, 80% of line voltage.
+
+              At the 65% tap:
+
+              | Parameter | Value |
+              |---|---|
+              | Motor terminal voltage | 65% of line |
+              | Motor current | 65% of DOL motor current |
+              | **Line current** | **42% of DOL** ($0.65^2 = 0.42$) |
+              | Motor torque | 42% of DOL ($\propto V^2$) |
+
+              The autotransformer provides better **torque-per-line-ampere**
+              ratio than star-delta because the transformer action reduces
+              line current by the square of the voltage ratio.
+
+              **Key advantage:** Line current = motor current × tap²,
+              giving more starting torque for the same line current impact.
+
+          - name: Soft Starters and VFDs
+            notes: |
+              **Soft starters (thyristor phase-angle control):**
+              - Adjustable voltage ramp from reduced voltage to full voltage
+              - Current limiting typically settable from 150–600% FLA
+              - Provides smooth, controlled acceleration without current transients
+              - Can include soft-stop (voltage ramp-down) for pump applications
+              - Limitation: reduced voltage means reduced torque — not suitable for high-inertia loads requiring full torque from standstill
+
+              **Variable Frequency Drives (VFDs):**
+              - Starting current typically **only 100–150% FLA**
+              - Maintains **full torque capability from zero speed**
+              - Controlled V/Hz operation keeps flux constant during acceleration
+              - Most sophisticated and expensive solution
+              - Additional benefits: energy savings at partial load, precise speed control
+
+              **Comparative summary:**
+
+              | Method | Line Current | Torque | Cost | Best For |
+              |---|---|---|---|---|
+              | DOL | 100% (5–8× FLA) | 100% | Lowest | Small motors, stiff systems |
+              | Star-delta | 33% | 33% | Low | Unloaded starts only |
+              | Autotransformer | 42–64% | 42–64% | Medium | General industrial |
+              | Soft starter | 150–600% FLA | Reduced | Medium | Pumps, fans, conveyors |
+              | VFD | 100–150% FLA | 100% | Highest | High-inertia, variable speed |
+
+              **Selection criteria:**
+              - Required starting torque vs load torque curve
+              - Acceptable voltage dip at the motor bus
+              - Number of starts per hour (thermal duty)
+              - Need for speed control during normal operation
+              - Budget and maintenance capability
+        resources:
+          - label: "IEEE 3002.7-2018: Motor-Starting Studies"
+            url: https://standards.ieee.org/ieee/3002.7/6027/
+          - label: "IEEE 1453-2022: Voltage Flicker"
+            url: https://standards.ieee.org/ieee/1453/10821/
+          - label: "NEMA MG 1: Motors and Generators"
+            url: https://www.nema.org/standards/view/nema-mg-1-motors-and-generators
+  
+  - id: harmonic-analysis
+    title: "Section 6: Harmonic Analysis"
+    items:
+      - id: harmonic-sources-and-effects
+        title: Harmonic Sources and Distortion Metrics
+        description: >-
+          Characteristic harmonics from power electronic converters,
+          THD calculation, IEEE 519 limits, and effects of harmonics
+          on transformers, cables, and rotating machines.
+        prerequisites:
+          - power-system-fundamentals/ac-theory/AC Fundamentals
+        outcomes:
+          - Identify characteristic harmonics of 6-pulse, 12-pulse, and 18-pulse converters
+          - Calculate THD from individual harmonic magnitudes
+          - Apply IEEE 519-2022 voltage and current distortion limits
+          - Assess harmonic heating effects on transformers and cables
+        concepts:
+          - name: Harmonic Sources and Spectra
+            notes: |
+              ![3-phase AC waveform](https://commons.wikimedia.org/wiki/Special:FilePath/3_phase_AC_waveform.svg)
+
+              *Image: Three-phase AC waveform (fundamental) — Wikimedia Commons*
+
+              Harmonics are sinusoidal components at integer multiples
+              of the fundamental frequency (50/60 Hz), originating
+              from **nonlinear loads** that draw non-sinusoidal current.
+
+              **Six-pulse rectifier** characteristic harmonics at
+              orders $h = 6k \pm 1$ (where $k = 1, 2, 3, \ldots$):
+
+              | Harmonic Order | Frequency (50 Hz) | Typical Magnitude |
+              |---|---|---|
+              | 5th | 250 Hz | 20% of fundamental |
+              | 7th | 350 Hz | 14% |
+              | 11th | 550 Hz | 9% |
+              | 13th | 650 Hz | 8% |
+              | 17th | 850 Hz | 5% |
+              | 19th | 950 Hz | 4% |
+
+              Without mitigation, six-pulse drives produce
+              **THDi of 80–100%**.
+
+              **Higher pulse configurations:**
+
+              | Configuration | Cancelled Harmonics | Typical THDi |
+              |---|---|---|
+              | 6-pulse + 3% reactor | — (reduced magnitudes) | 30–40% |
+              | 12-pulse | 5th, 7th | 10–15% |
+              | 18-pulse | 5th, 7th, 11th, 13th | 3–5% |
+              | Active front end (AFE) | All significant | < 3% |
+
+          - name: THD Calculation and IEEE 519 Limits
+            notes: |
+              **Total Harmonic Distortion:**
+
+              $$THD = \frac{\sqrt{\sum_{h=2}^{H} V_h^2}}{V_1} \times 100\%$$
+
+              where $V_h$ is the RMS value of the $h$th harmonic
+              and $V_1$ is the fundamental component.
+              $H$ is typically taken as 50 (can be limited to 25
+              in most practical cases).
+
+              **IEEE 519-2022 voltage distortion limits at PCC:**
+
+              | System Voltage | Individual Harmonic | THDv |
+              |---|---|---|
+              | ≤ 1 kV | 5.0% | 8.0% |
+              | 1–69 kV | 3.0% | 5.0% |
+              | 69–161 kV | 1.5% | 2.5% |
+              | > 161 kV | 1.0% | 1.5% |
+
+              **IEEE 519-2022 current distortion limits** depend on
+              the ratio $I_{SC}/I_L$ (short-circuit current to
+              maximum demand load current) at the PCC — higher
+              ratios (stiffer systems) allow more distortion.
+
+              The limits apply at the **point of common coupling
+              (PCC)** between utility and customer, not at
+              individual equipment terminals.
+
+          - name: Harmonic Effects on Equipment
+            notes: |
+              **Transformers:**
+              - Increased eddy current losses: $P_{ec,h} = P_{ec,1} \times h^2$
+              - Increased stray losses in structural parts
+              - K-factor rating quantifies harmonic heating:
+
+              $$K = \sum_{h=1}^{H} \left(\frac{I_h}{I_1}\right)^2 \times h^2$$
+
+              K-factor rated transformers (K-4, K-13, K-20, K-30)
+              are designed for harmonic-rich loads without derating.
+
+              **Cables:**
+              - Skin effect increases AC resistance at harmonic
+                frequencies: $R_{ac,h} \approx R_{dc} \times \sqrt{h}$
+              - Proximity effect further increases losses
+              - Triplen harmonics (3rd, 9th, 15th) add in neutral
+                conductor — neutral may carry **up to 1.73× phase
+                current** with single-phase nonlinear loads
+
+              **Rotating machines:**
+              - Negative-sequence harmonics (5th, 11th) create
+                reverse-rotating fields causing torque pulsations
+              - Rotor heating from induced harmonic currents
+              - Audible noise and vibration
+
+              **Capacitors:**
+              - Current increases with frequency: $I_h = h \times \omega C \times V_h$
+              - Risk of thermal overload and dielectric failure
+              - IEEE Std 18 limits: 135% of rated current,
+                110% of rated voltage, 135% of rated kvar
+
+      - id: resonance-and-mitigation
+        title: Resonance Analysis and Harmonic Mitigation
+        description: >-
+          Parallel and series resonance with power factor correction
+          capacitors, frequency scanning analysis, and mitigation
+          strategies including passive filters and active solutions.
+        prerequisites:
+          - advanced-power-system-analysis/harmonic-sources-and-effects/Harmonic Sources and Spectra
+        outcomes:
+          - Calculate parallel resonant frequency for a given system and capacitor bank
+          - Interpret frequency scan plots to identify resonance risks
+          - Design single-tuned passive harmonic filters
+          - Select appropriate mitigation strategy for a given harmonic problem
+        concepts:
+          - name: Resonance with Capacitor Banks
+            notes: |
+              ![Electrical substation](https://commons.wikimedia.org/wiki/Special:FilePath/Electrical_Substation.JPG)
+
+              *Image: Electrical substation with capacitor banks — Wikimedia Commons*
+
+              The critical concern is **resonance between system
+              inductance and power factor correction capacitors**.
+
+              **Parallel resonance** creates high impedance at the
+              resonant frequency, amplifying even small harmonic
+              currents into large voltage distortion.
+
+              The resonant harmonic order:
+
+              $$h_r \approx \sqrt{\frac{MVA_{SC}}{MVAr_{cap}}}$$
+
+              **Example:** 20 MVA short-circuit system with 2 MVAr
+              capacitor bank: $h_r = \sqrt{20/2} = 3.2$ — dangerously
+              close to the 3rd harmonic.
+
+              **Series resonance** creates low impedance paths that
+              can sink excessive harmonic currents into filters or
+              capacitors, potentially causing thermal overload.
+
+              **Frequency scanning analysis:**
+              - Plots driving-point impedance vs frequency
+              - Peaks indicate parallel resonance (high Z)
+              - Valleys indicate series resonance (low Z)
+              - Critical check: resonant peaks must not coincide
+                with characteristic harmonic frequencies
+
+          - name: Harmonic Penetration Study Method
+            notes: |
+              Harmonic penetration uses **current injection** where
+              nonlinear loads are modelled as ideal current sources
+              injecting their characteristic spectrum:
+
+              $$[V]_h = [Z]_h \times [I]_h$$
+
+              Harmonic voltages from harmonic currents and network
+              impedance at each frequency $h$.
+
+              **Frequency-dependent component modelling:**
+
+              | Component | Impedance at Harmonic $h$ |
+              |---|---|
+              | Inductor | $X_{L,h} = h \times X_{L,1}$ |
+              | Capacitor | $X_{C,h} = X_{C,1} / h$ |
+              | Resistor (skin effect) | $R_h \approx R_1 \times \sqrt{h}$ |
+              | Transformer | Leakage reactance × $h$, with frequency-dependent losses |
+
+              **Transformer winding connections** affect harmonic
+              propagation — **delta windings block triplen harmonics**
+              (3rd, 9th, 15th) from passing between voltage levels.
+
+              This is why distribution transformers are commonly
+              Dyn11 — the delta primary traps triplen currents.
+
+          - name: Mitigation Strategies
+            notes: |
+              **Passive single-tuned filter design:**
+              - Tuned slightly below target harmonic (e.g., 4.7th for 5th)
+              - Provides low impedance path to divert harmonic current
+              - Also supplies reactive power at fundamental frequency
+              - Risk: can attract harmonics from elsewhere in the system
+              - Must be designed considering system impedance variations
+
+              **Filter tuning calculation:**
+
+              $$f_{tune} = \frac{1}{2\pi\sqrt{LC}}$$
+
+              Quality factor $Q = X_L / R$ determines sharpness
+              of tuning (typical Q = 30–60 for power filters).
+
+              **Other mitigation approaches:**
+
+              | Strategy | Effectiveness | Cost |
+              |---|---|---|
+              | Line reactors (3–5%) | THDi: 80% → 35% | Low |
+              | 12-pulse rectifier | THDi: 10–15% | Medium |
+              | 18-pulse rectifier | THDi: 3–5% | Medium-High |
+              | Passive tuned filter | Targets specific harmonics | Medium |
+              | Active filter (STATCOM) | Broadband, adaptive | High |
+              | Hybrid (passive + active) | Best overall performance | Highest |
+
+              **Design sequence for harmonic study:**
+              1. Model system with all nonlinear loads as current sources
+              2. Perform frequency scan — identify resonance risks
+              3. Check IEEE 519 compliance at PCC without mitigation
+              4. If non-compliant: apply mitigation and re-check
+              5. Verify capacitor duty (IEEE Std 18) and transformer K-factor
+              6. Check sensitivity to system impedance variations (±10% typical)
+        resources:
+          - label: "IEEE 519-2022: Harmonic Control in Electric Power Systems"
+            url: https://standards.ieee.org/ieee/519/10677/
+          - label: "IEEE 3002.8-2018: Harmonic Study Methodology"
+            url: https://standards.ieee.org/ieee/3002.8/6028/
+          - label: "IEC 61000 Series: EMC Standards"
+            url: https://webstore.iec.ch/en/publication/4133
+  
+  - id: contingency-analysis
+    title: "Section 7: Contingency Analysis"
+    items:
+      - id: n1-security-criteria
+        title: N-1 Security Criteria and Screening Methods
+        description: >-
+          The N-1 reliability principle, NERC TPL and ENTSO-E planning
+          standards, DC power flow screening using sensitivity factors,
+          and performance index ranking for contingency selection.
+        prerequisites:
+          - power-system-fundamentals/load-flow-analysis/Interpreting Load Flow Results
+        outcomes:
+          - Explain the N-1, N-1-1, and N-2 security criteria
+          - Calculate post-contingency flows using LODF and PTDF factors
+          - Rank contingencies using performance index screening
+          - Distinguish between planning and operational contingency assessment
+        concepts:
+          - name: N-1 Criterion and Reliability Standards
+            notes: |
+              ![Transmission lines](https://commons.wikimedia.org/wiki/Special:FilePath/Transmission_Lines_at_Sunset.jpg)
+
+              *Image: Transmission lines — Wikimedia Commons*
+
+              The **N-1 criterion** requires that power systems withstand
+              loss of any single major component — transmission line,
+              transformer, or generator — without violating:
+              - Thermal limits
+              - Voltage limits
+              - Stability constraints
+
+              **Extended criteria:**
+
+              | Criterion | Description | Application |
+              |---|---|---|
+              | N-1 | Loss of any single element | Standard planning/operations |
+              | N-1-1 | Second contingency after system adjustment | Planning studies |
+              | N-2 | Simultaneous loss of two elements | Common-mode failures (double-circuit towers) |
+
+              **Regulatory frameworks:**
+              - **NERC TPL-001-5.1** (North America): Transmission
+                planning requirements for Category B (N-1) and
+                Category C (N-1-1) events
+              - **ENTSO-E System Operation Guideline** (EU 2017/1485):
+                European transmission security standards
+
+          - name: DC Power Flow Screening
+            notes: |
+              DC screening enables rapid evaluation of thousands of
+              contingencies using linear sensitivity factors.
+
+              **Power Transfer Distribution Factors (PTDF):**
+              Fraction of a transaction flowing on each line:
+
+              $$PTDF_{l,i \to j} = \frac{\Delta P_l}{\Delta P_{transaction}}$$
+
+              **Line Outage Distribution Factors (LODF):**
+              Flow redistribution when line $k$ trips:
+
+              $$LODF_{l,k} = \frac{\Delta P_l}{P_k^{pre}}$$
+
+              **Post-contingency flow calculation:**
+
+              $$P_l^{post} = P_l^{pre} + LODF_{l,k} \times P_k^{pre}$$
+
+              This allows checking all N-1 cases without re-solving
+              power flow for each contingency — extremely fast.
+
+              **Performance index ranking:**
+
+              $$PI = \sum \left(\frac{P_l}{P_l^{max}}\right)^{2n}$$
+
+              Ranks contingencies by severity. Only the top-ranked
+              (most severe) cases proceed to full AC analysis.
+
+          - name: DC vs AC Contingency Analysis
+            notes: |
+              **DC power flow screening** is fast but approximate:
+              - Assumes flat voltage profile (all buses 1.0 pu)
+              - Ignores reactive power and losses
+              - Good for thermal screening
+              - Cannot detect voltage violations
+
+              **Full AC contingency analysis** captures:
+              - Voltage depression at load buses
+              - Reactive power redistribution
+              - Generator reactive limits (Q limits)
+              - Tap changer response
+              - Voltage stability concerns
+
+              **Practical workflow:**
+              1. DC screening: rank all N-1 contingencies by PI
+              2. Select top 50–100 most severe cases
+              3. Run full AC power flow for selected cases
+              4. Check thermal, voltage, and stability criteria
+              5. Identify violations and corrective actions
+
+      - id: limits-and-corrective-actions
+        title: System Limits and Corrective Actions
+        description: >-
+          Thermal ratings for lines and transformers, voltage
+          acceptance criteria, P-V curve analysis for voltage
+          stability, and corrective action mechanisms including
+          remedial action schemes (RAS) and SCOPF.
+        prerequisites:
+          - advanced-power-system-analysis/n1-security-criteria/N-1 Criterion and Reliability Standards
+        outcomes:
+          - Apply normal and emergency thermal ratings for lines and transformers
+          - Interpret P-V curves to assess voltage stability margins
+          - Describe corrective actions for contingency violations
+          - Explain security-constrained optimal power flow (SCOPF)
+        concepts:
+          - name: Thermal and Voltage Limits
+            notes: |
+              ![Electrical substation](https://commons.wikimedia.org/wiki/Special:FilePath/Electrical_Substation.JPG)
+
+              *Image: Electrical substation — Wikimedia Commons*
+
+              **Transmission line thermal ratings:**
+
+              | Rating Type | Description | Duration |
+              |---|---|---|
+              | Normal | Continuous operation | Indefinite |
+              | Emergency (LTE) | 110–125% of normal | 2–4 hours |
+              | Short-time (STE) | Higher than emergency | 15–30 minutes |
+
+              Line ratings depend on conductor type, ambient
+              temperature, wind speed, and acceptable sag.
+              IEEE 738 defines the calculation methodology.
+
+              **Transformer loading (IEEE C57.91):**
+
+              | Loading Level | Hot-spot Limit | Duration |
+              |---|---|---|
+              | Normal | 110°C | Continuous |
+              | Emergency | 140°C | Hours (depends on prior loading) |
+              | Short-time | 180°C | Minutes |
+
+              **Voltage limits:**
+
+              | Condition | Typical Range |
+              |---|---|
+              | Pre-contingency | 0.95–1.05 pu |
+              | Post-contingency | 0.90–1.05 pu |
+              | EHV systems | Tighter bands (±2.5%) |
+
+          - name: Voltage Stability and P-V Curves
+            notes: |
+              **P-V (nose) curves** plot bus voltage against system
+              loading — the fundamental tool for voltage stability
+              assessment.
+
+              Key features of the P-V curve:
+              - **Operating point**: current voltage and loading
+              - **Nose point**: maximum loadability (voltage collapse)
+              - **Stability margin**: distance from operating point
+                to the nose point, typically expressed in MW
+
+              $$\text{Margin} = P_{nose} - P_{operating}$$
+
+              A system is **voltage stable** if the operating point
+              is on the upper portion of the curve (above the nose).
+
+              **Factors reducing voltage stability margin:**
+              - Loss of reactive power sources (generators at Q limit)
+              - Long transmission distances
+              - Heavy loading conditions
+              - Loss of transmission lines (N-1 contingencies)
+
+              Post-contingency P-V analysis determines whether
+              voltage collapse risk exists after credible outages.
+
+          - name: Corrective Actions and SCOPF
+            notes: |
+              **Corrective actions for contingency violations:**
+
+              1. **Generation redispatch** — shift power from
+                 constrained path to relieve overloads
+              2. **Topology switching** — open/close breakers to
+                 redistribute flow
+              3. **Reactive compensation** — switch capacitor banks,
+                 adjust SVCs/STATCOMs
+              4. **Load shedding** — last resort, shed non-critical
+                 load to maintain system integrity
+
+              **Remedial Action Schemes (RAS):**
+              Automatic corrective actions triggered by specific
+              contingencies:
+              - Generator tripping
+              - Controlled separation
+              - HVDC power order changes
+              - Automatic load shedding
+
+              NERC defines RAS as "automatic protection systems
+              designed to detect abnormal conditions and take
+              corrective actions other than isolation of faulted
+              components."
+
+              **Security-Constrained Optimal Power Flow (SCOPF):**
+              Optimises dispatch while respecting **both** pre-contingency
+              and post-contingency constraints simultaneously:
+
+              $$\min \sum C_i(P_{G,i})$$
+
+              Subject to:
+              - Pre-contingency power flow equations
+              - Post-contingency flow limits for all credible N-1 cases
+              - Generator limits, voltage limits
+
+              Provides the most economically efficient dispatch
+              that maintains N-1 security — the standard tool for
+              real-time market operations and planning studies.
+        resources:
+          - label: "NERC TPL-001-5.1: Transmission System Planning"
+            url: https://www.nerc.com/pa/Stand/Reliability%20Standards/TPL-001-5.1.pdf
+          - label: "IEEE 738: Line Thermal Ratings"
+            url: https://standards.ieee.org/ieee/738/11524/
+          - label: "IEEE C57.91: Transformer Loading Guide"
+            url: https://standards.ieee.org/ieee/C57.91/10964/
+    
+  - id: python-automation
+    title: "Section 8: Python Scripting and Automation"
+    items:
+      - id: commercial-software-apis
+        title: Commercial Software Python APIs
+        description: >-
+          Python integration with PSS/E, PowerWorld, DIgSILENT
+          PowerFactory, and ETAP for automating power system studies
+          including batch simulations and result extraction.
+        prerequisites:
+          - advanced-power-system-analysis/n1-security-criteria/DC Power Flow Screening
+        outcomes:
+          - Initialise and run power flow via PSS/E psspy module
+          - Access PowerWorld through SimAuto/ESA interface
+          - Describe DIgSILENT PowerFactory Python API workflow
+          - Implement the load-modify-solve-extract automation pattern
+        concepts:
+          - name: PSS/E Python Integration
+            notes: |
+              ![Electrical substation model](https://commons.wikimedia.org/wiki/Special:FilePath/Electrical_substation_model_(side-view).PNG)
+
+              *Image: Electrical substation model — Wikimedia Commons*
+
+              **PSS/E (Siemens PTI)** provides the `psspy` module,
+              the industry-standard power system simulation API.
+
+              **Initialisation:**
+              ```python
+              import psse35
+              import psspy
+              psspy.psseinit(150000)  # max buses
+              ```
+
+              **Core functions:**
+
+              | Function | Purpose |
+              |---|---|
+              | `psspy.case('file.sav')` | Load saved case |
+              | `psspy.fnsl()` | Newton-Raphson power flow |
+              | `psspy.accc_parallel_2()` | Contingency analysis |
+              | `psspy.abusreal()` | Get bus voltage data |
+              | `psspy.aflowreal()` | Get branch flow data |
+
+              All functions return `ierr` (integer error code).
+              **Always check:** `ierr == 0` means success.
+
+              One documented case achieved **2,544 power flow
+              simulations** using PSS/E automation — weeks of
+              manual effort completed in hours.
+
+          - name: PowerWorld and Other APIs
+            notes: |
+              **PowerWorld SimAuto / ESA:**
+
+              The ESA (Easy SimAuto) library wraps the COM interface
+              and returns results as pandas DataFrames:
+              ```python
+              from esa import SAW
+              saw = SAW('case.pwb')
+              bus_data = saw.GetParametersSingleElement(
+                  'bus', ['BusNum', 'BusNomVolt', 'BusPUVolt'], [1])
+              ```
+
+              **DIgSILENT PowerFactory:**
+              ```python
+              import powerfactory as pf
+              app = pf.GetApplication()
+              project = app.ActivateProject('MyProject')
+              ldf = app.GetFromStudyCase('ComLdf')
+              ldf.Execute()  # run load flow
+              ```
+
+              Supports both DPL (internal language) and
+              comprehensive Python API.
+
+              **ETAP:**
+              RESTful APIs through ETAP DataHub with `etapPy`
+              client, enabling local and distributed execution.
+
+              **Open-source alternative — pandapower:**
+              ```python
+              import pandapower as pp
+              import pandapower.networks as pn
+              net = pn.case9()
+              pp.runpp(net)
+              print(net.res_bus)  # voltage results
+              ```
+
+              Complete Python-native environment — excellent
+              for learning before moving to commercial tools.
+
+          - name: Core Automation Pattern
+            notes: |
+              The fundamental pattern for batch studies:
+              ```
+              Load base case
+              FOR each scenario:
+                  Apply modifications
+                  Solve power flow
+                  IF converged:
+                      Extract results
+                  ELSE:
+                      Log failure
+                  Restore base case
+              END FOR
+              Generate report
+              ```
+
+              **PSS/E example:**
+              ```python
+              results = {}
+              for scenario in scenarios:
+                  psspy.case('base.sav')
+                  apply_modifications(scenario)
+                  ierr = psspy.fnsl()
+                  if ierr == 0:
+                      results[scenario] = extract_results()
+              ```
+
+              **Critical best practices:**
+              - Always reload base case between scenarios
+                (modifications are cumulative otherwise)
+              - Check `ierr` return values — silent failures
+                produce meaningless results
+              - Log all actions for troubleshooting
+              - Validate against manual GUI calculations
+                before trusting batch results
+
+      - id: automation-workflows
+        title: Study Workflows and Report Generation
+        description: >-
+          Common automated workflows including batch contingency
+          analysis, Monte Carlo studies, sensitivity sweeps, and
+          automated report generation with pandas and matplotlib.
+        prerequisites:
+          - advanced-power-system-analysis/commercial-software-apis/Core Automation Pattern
+        outcomes:
+          - Implement batch N-1 contingency screening in Python
+          - Design a sensitivity analysis sweep over key parameters
+          - Generate formatted Excel reports from simulation results
+          - Apply error handling and logging to automation scripts
+        concepts:
+          - name: Batch Contingency Analysis
+            notes: |
+              **Automated N-1 screening workflow:**
+              ```
+              1. Load base case, solve power flow
+              2. Record pre-contingency state
+              3. FOR each contingency (line/transformer/generator):
+                     Remove element
+                     Solve power flow
+                     Check thermal limits, voltage limits
+                     Record violations
+                     Restore element
+              4. Rank contingencies by severity
+              5. Report violations and critical contingencies
+              ```
+
+              **Typical result structure:**
+
+              | Contingency | Worst Overload | Worst Voltage | Converged |
+              |---|---|---|---|
+              | Line A-B trip | Line C-D: 112% | Bus 7: 0.91 pu | Yes |
+              | Transformer T1 | Line E-F: 105% | Bus 12: 0.88 pu | Yes |
+              | Generator G3 | Line A-B: 98% | Bus 3: 0.93 pu | Yes |
+
+              For large systems (1000+ contingencies), use
+              PSS/E's built-in `accc` functions or PowerWorld's
+              contingency analysis — far faster than Python loops.
+
+          - name: Sensitivity and Monte Carlo Studies
+            notes: |
+              **Sensitivity analysis** — sweep one parameter
+              while holding others constant:
+              ```
+              FOR load_level in [80%, 90%, 100%, 110%, 120%]:
+                  Scale all loads to load_level
+                  Solve power flow
+                  Record: voltages, line loadings, losses
+              ```
+
+              Produces curves showing how outputs vary with
+              the swept parameter — essential for identifying
+              critical thresholds and operating margins.
+
+              **Monte Carlo simulation** — sample from
+              probability distributions:
+              ```
+              FOR trial in range(N_trials):
+                  Sample: load (normal dist), generation
+                          (availability), line status (outage rate)
+                  Apply sampled values
+                  Solve power flow
+                  Record outcomes (violations, losses, etc.)
+              ```
+
+              Produces probability distributions of outcomes:
+              - P(voltage violation) at each bus
+              - Expected annual overload hours per line
+              - Loss distribution under uncertainty
+
+              Typically requires **1,000–10,000 trials** for
+              stable statistics — only practical with automation.
+
+          - name: Report Generation and Best Practices
+            notes: |
+              **Automated reporting with Python ecosystem:**
+
+              | Library | Purpose |
+              |---|---|
+              | pandas | Data manipulation, pivot tables |
+              | matplotlib / plotly | Voltage profiles, loading charts |
+              | openpyxl | Excel output with formatting |
+              | fpdf / reportlab | PDF report generation |
+              | Jinja2 | HTML report templates |
+
+              **Typical report outputs:**
+              - Voltage profile plots (pre/post-contingency)
+              - Branch loading bar charts (sorted by severity)
+              - Summary tables of all violations
+              - Sensitivity curves (loading vs parameter)
+
+              **Engineering best practices:**
+
+              1. **Version control** — Git for all scripts,
+                 track changes alongside model versions
+              2. **Error handling** — wrap all API calls in
+                 try/except, log failures with context
+              3. **Validation** — compare automated results
+                 against manual GUI runs for a subset of cases
+              4. **Documentation** — docstrings explaining
+                 study purpose, assumptions, and limitations
+              5. **Reproducibility** — save input parameters,
+                 random seeds, and software version with results
+              6. **Modular design** — separate data input,
+                 simulation engine, and reporting into distinct
+                 modules for reuse across studies
+        resources:
+          - label: "pandapower (Open-Source)"
+            url: https://www.pandapower.org/
+          - label: "ESA - Easy SimAuto for PowerWorld"
+            url: https://github.com/mzy2240/ESA
+          - label: "PyPSSE from NREL"
+            url: https://github.com/NREL/PyPSSE
+          - label: "PSS/E Python Community"
+            url: https://psspy.org/

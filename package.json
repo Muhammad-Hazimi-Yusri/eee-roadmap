@@ -1,7 +1,7 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.21.1",
+  "version": "0.21.2",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs",
@@ -12,7 +12,7 @@
     "validate": "node scripts/validate.mjs",
     "dev": "npm run build:data && npm run download:pdfs && astro dev",
     "dev:check": "npm run build:data && npm run validate && npm run test:run && npm run build && npm run check-links",
-    "build": "npm run build:data && npm run download:pdfs && astro build",
+    "build": "npm run build:data && npm run validate && npm run download:pdfs && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",

@@ -396,7 +396,7 @@ const clientData = {
         }
       } catch {}
       // Default: all tracks visible except long-chain tracks
-      const defaultHidden = ['power-system-fundamentals'];
+      const defaultHidden = ['power-system-fundamentals', 'advanced-power-system-analysis'];
       return new Set(data.tracks.map((t: any) => t.slug).filter((s: string) => !defaultHidden.includes(s)));
     }
 
