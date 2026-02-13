@@ -156,7 +156,7 @@ sections:
           - label: "All About Circuits — Symmetrical Components"
             url: https://www.allaboutcircuits.com/textbook/alternating-current/
           - label: "pandapower — Short Circuit Calculation"
-            url: https://pandapower.readthedocs.io/en/latest/shortcircuit/
+            url: https://pandapower.readthedocs.io/en/stable/shortcircuit/currents.html
 
   - id: arc-flash
     title: "SECTION 2: IEEE 1584 Arc Flash Assessment"
@@ -233,11 +233,7 @@ sections:
               | Working distance | ≥ 305 mm | ≥ 305 mm |
 
               Outside these limits, alternative methods (e.g., Lee method for >15 kV) must be used.
-        resources:
-          - label: "IEEE 1584-2018 Overview — Littelfuse"
-            url: https://www.littelfuse.com/technical-resources/technical-center/ieee-1584-arc-flash-hazard
-          - label: "Arc Flash Explained — Electrical Safety Authority"
-            url: https://www.esasafe.com/awareness/electrical-safety/arc-flash
+        resources: []
 
       - id: ppe-and-boundaries
         title: PPE Categories and Arc Flash Boundaries
@@ -296,9 +292,7 @@ sections:
               Arc flash relays are increasingly popular — they detect visible light from the arc and can reduce clearing time to **<35 ms**, dramatically cutting incident energy.
         resources:
           - label: "NFPA 70E Overview — NFPA"
-            url: https://www.nfpa.org/codes-and-standards/nfpa-70-e
-          - label: "Arc Flash PPE Guide — Oberon Company"
-            url: https://oberoncompany.com/pages/arc-flash-clothing-guide
+            url: https://www.nfpa.org/codes-and-standards/nfpa-70e-standard-development/70e
 
   - id: protection-coordination
     title: "Section 3: Protection Coordination"
@@ -539,8 +533,6 @@ sections:
         resources:
           - label: "IEEE C37.113: Guide for Protective Relay Applications to Transmission Lines"
             url: https://standards.ieee.org/ieee/C37.113/10691/
-          - label: "CIGRE B5 - Protection and Automation"
-            url: https://www.cigre.org/gb/publications/detail/660-protection-relay-coordination.html
           - label: "PAC Basics - Distance Protection Tutorial"
             url: https://pacbasics.org/
 
@@ -780,8 +772,6 @@ sections:
         resources:
           - label: "IEEE Std 421.5-2016: Excitation System Models"
             url: https://standards.ieee.org/ieee/421.5/5765/
-          - label: "IEEE/CIGRE Joint Task Force on Stability Terms and Definitions"
-            url: https://resourcecenter.ieee-pes.org/publications/technical-reports/PES_TR0066_062020.html
           - label: "Kundur - Power System Stability and Control (reference textbook)"
             url: https://www.mheducation.com/
 
@@ -974,7 +964,7 @@ sections:
           - label: "IEEE 1453-2022: Voltage Flicker"
             url: https://standards.ieee.org/ieee/1453/10821/
           - label: "NEMA MG 1: Motors and Generators"
-            url: https://www.nema.org/standards/view/nema-mg-1-motors-and-generators
+            url: https://www.nema.org/standards/view/motors-and-generators
   
   - id: harmonic-analysis
     title: "Section 6: Harmonic Analysis"
