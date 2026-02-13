@@ -4,6 +4,8 @@
     "https://www.electronics-tutorials.ws/*",
     "https://energysavingtrust.org.uk/advice/solar-panels/*",
     "https://www.energynetworks.org/*",
+    "https://commons.wikimedia.org/*",
+    "https://upload.wikimedia.org/*",
     "og-image\\.png",
     ".*/og-image\\.png"       
   ]

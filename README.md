@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.4-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.5-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.4
+Current version is v0.21.5
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -214,6 +214,7 @@ Current version is v0.21.4
 
 ### Known Issues & Polish
 
+- [ ] Broken Wikimedia embedded images: ~10 return 404 (moved/renamed), ~175 return 429 (rate-limited by link checker). Need to fix 404s with updated URLs and add concurrency/retry to `check-links` so Wikimedia 429s don't fail the build. Verify all embedded images and PDFs are accessible on the live site.
 - [ ] iOS Safari: dark mode demo tools switch menu arrow visibility
 - [ ] iOS Safari: trail persistence in two-finger swipe (tools mode)
 - [ ] Mobile: fullscreen mode bottom bar overlap
