@@ -80,6 +80,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
   import { loadCustomContent, saveCustomContent } from '../../../lib/sync';
   import { renderRoadmapHtml } from '../../../utils/renderRoadmap';
   import { initRoadmapInteractions } from '../../../utils/roadmapInteractions';
+  import { parseNotesClient } from '../../../utils/parseNotesClient';
   import Sortable from 'sortablejs';
 
   // Track collapsed state
@@ -467,8 +468,10 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
         container.innerHTML = renderRoadmapHtml(track.sections);
       }
 
-      // Build conceptData for ConceptWindows
-      buildConceptData(track.sections);
+      // Build conceptData for ConceptWindows (merge conceptNotes from Supabase)
+      const conceptNotes = content.conceptNotes || {};
+      (window as any).conceptNotes = conceptNotes;
+      buildConceptData(track.sections, slug, conceptNotes);
 
       // Initialize interactions for the rendered roadmap
       initRoadmapInteractions();
@@ -488,7 +491,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
     }
   }
 
- function buildConceptData(sections: any[]) {
+ function buildConceptData(sections: any[], slug: string, conceptNotes: Record<string, string>) {
     const conceptData: Record<string, Record<string, { notesHtml?: string; isCustom?: boolean }>> = {};
 
     for (const section of sections) {
@@ -496,8 +499,11 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
         if (item.concepts?.length) {
           conceptData[item.id] = {};
           for (const concept of item.concepts) {
+            const noteKey = `${slug}/${item.id}/${concept.name}`;
+            // conceptNotes override track structure notes for custom concepts
+            const rawNotes = conceptNotes[noteKey] || concept.notesHtml || concept.notes || '';
             conceptData[item.id][concept.name] = {
-              notesHtml: concept.notesHtml || concept.notes || '',
+              notesHtml: rawNotes ? parseNotesClient(rawNotes) : '',
               isCustom: true,
             };
           }

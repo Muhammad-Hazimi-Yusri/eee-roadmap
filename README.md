@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.6-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.7-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.6
+Current version is v0.21.7
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -52,7 +52,7 @@ Current version is v0.21.6
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 - **Import/Export** — Back up your progress as JSON; import with merge or replace options
 - **Graph View** — Interactive visualization of topic connections and prerequisites; fullscreen mode on all devices; dark mode support; progress status indicators; per-track focused view on roadmap pages
-- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; works for both official and custom tracks
+- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; field-level toggles (description, prerequisites, outcomes, concept notes, resources); optional 2-column layout; works for both official and custom tracks
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -193,6 +193,9 @@ Current version is v0.21.6
 - [x] Print mode (select & print concepts/topics/sections as PDF)
 - [x] Delete custom tracks (with confirmation modal, cleans up associated data)
 - [x] Print mode for custom tracks (client-side rendering)
+- [x] Fix custom track concept notes not persisting on reload
+- [x] Fix concept window rendering raw markdown instead of HTML on custom tracks
+- [x] Print mode: field-level toggles and 2-column layout option
 - [ ] Add tests for new sync/auth functionality
 - [ ] Visual regression tests (when UI stabilizes)
 - [ ] Accessibility tests (a11y)
@@ -258,6 +261,7 @@ Current version is v0.21.6
 - Freemium tiers (if user growth warrants)
 - Community contributions workflow
 - User feedback system (comments per section)
+- WYSIWYG concept notes editor (Notion-like toolbar with bold, linking, embedding support)
 
 ---
 

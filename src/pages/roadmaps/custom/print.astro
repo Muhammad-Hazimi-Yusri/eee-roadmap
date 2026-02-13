@@ -18,6 +18,22 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
         <!-- Built client-side -->
       </div>
 
+      <div class="print-fields-section">
+        <span class="print-fields-label">Show fields</span>
+        <label class="print-tree-item"><input type="checkbox" data-field-toggle="description" checked /><span>Description</span></label>
+        <label class="print-tree-item"><input type="checkbox" data-field-toggle="prerequisites" checked /><span>Prerequisites</span></label>
+        <label class="print-tree-item"><input type="checkbox" data-field-toggle="outcomes" checked /><span>Outcomes</span></label>
+        <label class="print-tree-item"><input type="checkbox" data-field-toggle="concepts" checked /><span>Concept Notes</span></label>
+        <label class="print-tree-item"><input type="checkbox" data-field-toggle="resources" checked /><span>Resources</span></label>
+      </div>
+
+      <div class="print-layout-toggle">
+        <label class="print-tree-item">
+          <input type="checkbox" id="two-col-toggle" />
+          <span>2-column layout</span>
+        </label>
+      </div>
+
       <button class="btn print-btn" id="print-btn">Print / Save as PDF</button>
     </aside>
 
@@ -110,7 +126,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
       if (metaEl) metaEl.textContent = `${sections.length} sections \u00b7 ${totalTopics} topics \u00b7 ${totalConcepts} concepts`;
       if (urlEl) urlEl.textContent = `eee-roadmap.muhammadhazimiyusri.uk/roadmaps/custom/?track=${slug}`;
 
-      // Parse concept notes
+      // Parse concept notes from track structure
       const conceptNotesMap: Record<string, Record<string, string>> = {};
       for (const section of sections) {
         for (const item of section.items) {
@@ -123,6 +139,17 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
             }
           }
         }
+      }
+
+      // Merge user-edited conceptNotes (overrides track structure notes)
+      const savedNotes = content.conceptNotes || {};
+      for (const [noteKey, markdown] of Object.entries(savedNotes)) {
+        const parts = noteKey.split('/');
+        if (parts[0] !== slug || parts.length < 3) continue;
+        const topicId = parts[1];
+        const conceptName = parts.slice(2).join('/');
+        if (!conceptNotesMap[topicId]) conceptNotesMap[topicId] = {};
+        conceptNotesMap[topicId][conceptName] = parseNotesClient(markdown as string);
       }
 
       // Build sidebar tree
@@ -182,17 +209,17 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
                   ${escapeHtml(item.title)}
                   ${item.optional ? '<span class="print-optional-badge">optional</span>' : ''}
                 </h3>
-                <p class="print-description">${escapeHtml(item.description || '')}</p>
+                <p class="print-description" data-print-field="description">${escapeHtml(item.description || '')}</p>
 
                 ${prereqs.length > 0 ? `
-                  <div class="print-field">
+                  <div class="print-field" data-print-field="prerequisites">
                     <span class="print-field-label">Prerequisites:</span>
                     <span class="print-field-value">${prereqs.map(escapeHtml).join(', ')}</span>
                   </div>
                 ` : ''}
 
                 ${item.outcomes && item.outcomes.length > 0 ? `
-                  <div class="print-field">
+                  <div class="print-field" data-print-field="outcomes">
                     <span class="print-field-label">You'll learn to:</span>
                     <ul class="print-outcomes">
                       ${item.outcomes.map((o: string) => `<li>${escapeHtml(o)}</li>`).join('')}
@@ -201,7 +228,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
                 ` : ''}
 
                 ${item.concepts && item.concepts.length > 0 ? `
-                  <div class="print-concepts-area">
+                  <div class="print-concepts-area" data-print-field="concepts">
                     ${item.concepts.map((c: any) => `
                       <div class="print-concept" data-print-concept="${escapeHtml(item.id)}:${escapeHtml(c.name)}" hidden>
                         <span class="print-concept-name">${escapeHtml(c.name)}</span>
@@ -214,7 +241,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
                 ` : ''}
 
                 ${item.resources && item.resources.length > 0 ? `
-                  <div class="print-field">
+                  <div class="print-field" data-print-field="resources">
                     <span class="print-field-label">Resources:</span>
                     <ul class="print-resources">
                       ${item.resources.map((r: any) => `
@@ -234,6 +261,23 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
 
       // Wire up checkbox logic (same as PrintRoadmap.astro)
       initCheckboxes();
+
+      // Wire up field toggles
+      document.querySelectorAll<HTMLInputElement>('[data-field-toggle]').forEach(toggle => {
+        toggle.addEventListener('change', () => {
+          const field = toggle.dataset.fieldToggle!;
+          document.querySelectorAll<HTMLElement>(`[data-print-field="${field}"]`).forEach(el => {
+            el.hidden = !toggle.checked;
+          });
+        });
+      });
+
+      // Wire up 2-column toggle
+      document.getElementById('two-col-toggle')?.addEventListener('change', (e) => {
+        document.querySelector('.print-page')?.classList.toggle(
+          'print-two-col', (e.target as HTMLInputElement).checked
+        );
+      });
 
     } catch (err) {
       console.error('Failed to load custom track for print:', err);
@@ -482,8 +526,8 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
   }
 
   .print-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
     border-bottom: 2px solid var(--color-text);
   }
 
@@ -527,7 +571,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
 
   /* Sections */
   .print-section {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
   .print-section-title {
@@ -542,10 +586,9 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
 
   /* Topics */
   .print-topic {
-    margin-bottom: 1.25rem;
-    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-border);
-    break-inside: avoid;
   }
 
   .print-topic-title {
@@ -570,7 +613,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
   }
 
   .print-field {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
   }
 
   .print-field-label {
@@ -609,7 +652,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
     margin-top: 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
 
   .print-concept {
@@ -632,7 +675,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
   }
 
   .print-concept-notes p {
-    margin: 0.25rem 0;
+    margin: 0.125rem 0;
   }
 
   .print-concept-notes img {
@@ -672,6 +715,39 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
     color: var(--color-text-muted);
     margin-left: 0.5rem;
     word-break: break-all;
+  }
+
+  /* Field toggles */
+  .print-fields-section {
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .print-fields-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.25rem;
+  }
+
+  /* Layout toggle */
+  .print-layout-toggle {
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.5rem;
+  }
+
+  .print-two-col #print-content {
+    column-count: 2;
+    column-gap: 1.5rem;
+  }
+
+  .print-two-col .print-section {
+    break-inside: avoid-column;
   }
 
   /* ========================================
@@ -714,7 +790,11 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
     }
 
     .print-topic {
-      break-inside: avoid;
+      break-inside: auto;
+    }
+
+    .print-topic-title {
+      break-after: avoid;
     }
 
     .print-section-title {

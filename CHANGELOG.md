@@ -39,6 +39,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Same checkbox tree, cascading selection, and live preview as official tracks
   - Same A4 print styles, forced light mode, and page break management
   - Print button added to custom track view header
+- Field-level toggles in print sidebar (custom tracks)
+  - Checkboxes to show/hide: Description, Prerequisites, Outcomes, Concept Notes, Resources
+  - Applies globally to all selected items in preview and print output
+- 2-column layout toggle in print mode (custom tracks)
+  - Optional multi-column layout for denser output
+  - Sections avoid splitting across columns
 - Delete custom tracks
   - Delete button on custom track cards (appears on hover, top-right corner)
   - Delete button on custom track view page header (red outline styling)
@@ -47,6 +53,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Dismiss via Cancel button, backdrop click, or Escape key
 
 ### Fixed
+- Custom track concept notes lost on page reload
+  - `buildConceptData()` only read from track structure, never merged `conceptNotes` from Supabase
+  - Now merges user-edited conceptNotes over track structure notes; caches `window.conceptNotes` early
+- Concept window showing raw markdown instead of rendered HTML on custom tracks
+  - `buildConceptData()` stored `concept.notes` without parsing through `parseNotesClient`
+  - Now parses all notes (track structure and conceptNotes) through `marked` + KaTeX before display
+- Print mode not showing user-edited concept notes on custom tracks
+  - `conceptNotesMap` only read from track structure; now also merges `content.conceptNotes` from Supabase
 - Missing `</section>` closing tag in profile.astro (parsing error)
 - Unused imports converted to type-only imports
 - `let` → `const` for never-reassigned variables
@@ -55,6 +69,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Added `data-js-ready` attribute to signal JS initialization
   - Tests now wait for JS ready instead of `networkidle`
   - Persistence tests handle already-expanded nodes after reload
+
+### Changed
+- Print layout spacing tightened (custom tracks)
+  - Reduced margins on sections, topics, header, fields, concept notes
+  - Topics now break across pages (`break-inside: auto`) — headers stay with content (`break-after: avoid`)
+  - Reduces whitespace waste in printed output
 
 ### Removed
 - Unused `EXCLUDE_FILES` variable in build-glossary.mjs
