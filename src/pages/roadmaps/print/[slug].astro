@@ -1,0 +1,20 @@
+---
+import PrintLayout from '../../../layouts/PrintLayout.astro';
+import PrintRoadmap from '../../../components/PrintRoadmap.astro';
+import { getRoadmap, getAllTracks } from '../../../data';
+
+export function getStaticPaths() {
+  const tracks = getAllTracks();
+  return tracks.map(({ slug, meta }) => ({
+    params: { slug },
+    props: { title: meta.title, description: meta.description }
+  }));
+}
+
+const { slug } = Astro.params;
+const { title } = Astro.props;
+---
+
+<PrintLayout title={`${title} - Print`}>
+  <PrintRoadmap sections={getRoadmap(slug)} trackSlug={slug} title={title} />
+</PrintLayout>

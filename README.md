@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.2-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.3-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.2
+Current version is v0.21.3
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -52,6 +52,7 @@ Current version is v0.21.2
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 - **Import/Export** — Back up your progress as JSON; import with merge or replace options
 - **Graph View** — Interactive visualization of topic connections and prerequisites; fullscreen mode on all devices; dark mode support; progress status indicators; per-track focused view on roadmap pages
+- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -187,6 +188,7 @@ Current version is v0.21.2
 - [x] Fix/unskip flaky Playwright tests (Supabase timing issues)
 - [x] Add knip for unused code detection
 - [x] Add madge for dependency graph / circular import detection
+- [x] Print mode (select & print concepts/topics/sections as PDF)
 - [ ] Add tests for new sync/auth functionality
 - [ ] Visual regression tests (when UI stabilizes)
 - [ ] Accessibility tests (a11y)
@@ -266,57 +268,71 @@ Current version is v0.21.2
 
 ## Project Structure
 ```
-food-wars/
-├── e2e/                        # Playwright E2E tests
-│   └── home.spec.ts
-├── public/                     # Static assets
+eee-roadmap/
+├── content/                       # YAML roadmap data (source of truth)
+│   ├── _glossary.yaml             # 100+ EEE terms and definitions
+│   ├── fundamentals.yaml          # Track: Fundamentals
+│   ├── core.yaml                  # Track: Core
+│   ├── advanced.yaml              # Track: Advanced
+│   ├── distributed-generation.yaml
+│   ├── power-system-fundamentals.yaml
+│   ├── advanced-power-system-analysis.yaml
+│   └── sample.yaml                # Template for contributors
+├── public/                        # Static assets (PDFs, PDF.js viewer)
 ├── scripts/
-│   └── bump-version.mjs        # Version updater
+│   ├── build-data.mjs             # YAML → JSON converter
+│   ├── build-glossary.mjs         # Glossary JSON + reverse index
+│   ├── build-graph-data.mjs       # Graph nodes/edges from tracks
+│   ├── build-search-index.mjs     # Fuse.js search index
+│   ├── bump-version.mjs           # Interactive version updater
+│   ├── download-pdfs.mjs          # External PDF downloader
+│   ├── setup-pdfjs.mjs            # PDF.js viewer setup
+│   └── validate.mjs               # Schema validation
 ├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   └── test-supabase/  # API test route
-│   │   ├── auth/
-│   │   │   ├── callback/       # OAuth callback handler
-│   │   │   └── error/          # Auth error page
-│   │   ├── test/               # Color palette test page
-│   │   ├── globals.css
-│   │   ├── layout.tsx
-│   │   └── page.tsx            # Home (inventory)
 │   ├── components/
-│   │   ├── diner/              # Themed components
-│   │   │   ├── Noren.tsx       # Curtain header
-│   │   │   ├── UserMenu.tsx    # User dropdown
-│   │   │   ├── WelcomeModal.tsx
-│   │   │   └── WoodCard.tsx    # Legacy item card
-│   │   ├── inventory/          # Inventory feature
-│   │   │   ├── AddItemForm.tsx
-│   │   │   ├── EditItemForm.tsx
-│   │   │   ├── InventoryList.tsx  # Legacy list
-│   │   │   ├── InventoryStats.tsx
-│   │   │   ├── InventoryWarnings.tsx
-│   │   │   ├── StockCard.tsx   # New v0.4 card
-│   │   │   └── StockList.tsx   # New v0.4 list
-│   │   └── ui/                 # shadcn components
-│   ├── hooks/
-│   │   └── useGuestStorage.ts
+│   │   ├── ConceptWindows.astro   # Draggable note windows + editor
+│   │   ├── DemoRoadmap.astro      # Homepage interactive demo
+│   │   ├── GlossaryTooltips.astro # Auto-linked term tooltips
+│   │   ├── Header.astro           # Nav + auth + search
+│   │   ├── PrintRoadmap.astro     # Print mode: checkbox tree + preview
+│   │   ├── Roadmap.astro          # Main roadmap renderer
+│   │   ├── RoadmapGraph.astro     # Homepage graph visualization
+│   │   ├── RoadmapSettings.astro  # Settings panel (modes, focus)
+│   │   ├── SearchBar.astro        # Global search (Ctrl+K)
+│   │   ├── TrackGraph.astro       # Per-track mini graph
+│   │   └── ...                    # Hero, Footer, Tracks, CTA, etc.
+│   ├── data/                      # Generated JSON (from content/*.yaml)
+│   │   ├── index.ts               # Data loader (getRoadmap, getAllTracks)
+│   │   └── *.json                 # Auto-generated, do not edit
+│   ├── layouts/
+│   │   ├── Layout.astro           # Main layout (cursor, canvas, meta)
+│   │   └── PrintLayout.astro      # Minimal layout for print pages
 │   ├── lib/
-│   │   ├── supabase/
-│   │   │   ├── client.ts       # Browser client
-│   │   │   ├── inventory.ts    # DB queries
-│   │   │   ├── middleware.ts   # Auth middleware
-│   │   │   └── server.ts       # Server client
-│   │   ├── __tests__/          # Unit tests
-│   │   ├── inventory.ts        # Legacy inventory helpers
-│   │   ├── inventory-utils.ts  # Expiry/stats utilities
-│   │   ├── storage.ts          # Guest localStorage
-│   │   └── utils.ts            # General utilities
-│   └── types/
-│       └── database.ts         # TypeScript types
-├── supabase/
-│   └── migrations/
-│       └── 001_schema.sql      # Database schema
-├── BRANDING.md                 # Design system
+│   │   ├── supabase.ts            # Supabase client
+│   │   └── sync.ts                # Cross-device sync utilities
+│   ├── pages/
+│   │   ├── roadmaps/
+│   │   │   ├── [slug].astro       # Track detail page
+│   │   │   ├── print/[slug].astro # Print mode page
+│   │   │   ├── custom/index.astro # Custom track viewer/editor
+│   │   │   └── index.astro        # Browse all tracks
+│   │   ├── glossary.astro
+│   │   ├── profile.astro
+│   │   └── index.astro            # Homepage
+│   ├── styles/
+│   │   └── global.css             # CSS variables, components, roadmap styles
+│   ├── types/
+│   │   ├── roadmap.ts             # Core data types
+│   │   └── custom-content.ts      # Custom track types
+│   └── utils/
+│       ├── parseNotes.ts          # Markdown + KaTeX + PDF parser (build-time)
+│       ├── parseNotesClient.ts    # Client-side markdown parser
+│       ├── progress.ts            # Progress tracking (localStorage)
+│       ├── roadmapInteractions.ts # Expand/collapse, concept pills
+│       ├── wrapGlossaryTerms.ts   # Auto-link glossary terms
+│       └── ...                    # url, tools, trail, trackColors, etc.
+├── tests/
+│   └── integration/               # Playwright tests
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 └── README.md

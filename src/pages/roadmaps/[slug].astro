@@ -6,6 +6,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import Roadmap from '../../components/Roadmap.astro';
 import { getRoadmap, getAllTracks } from '../../data';
+import { internalHref } from '../../utils/url';
 import GlossaryTooltips from '../../components/GlossaryTooltips.astro';
 import TrackGraph from '../../components/TrackGraph.astro';
 
@@ -34,7 +35,11 @@ const { title, description } = Astro.props;
       </p>
       <h1 class="text-2xl sm:text-3xl mb-2">{title}</h1>
       <p class="max-w-xl text-muted mb-8">{description}</p>
-      
+      <a href={internalHref(`roadmaps/print/${slug}`)} class="btn mb-8 no-print">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print
+      </a>
+
       <Roadmap sections={getRoadmap(slug)} trackSlug={slug} />
     </div>
     

@@ -26,6 +26,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Lint check added to pre-commit hook
 - knip for detecting unused files, exports, and dependencies
 - madge for circular dependency detection and dependency graph visualization
+- Print mode for PDF export (`/roadmaps/print/[slug]/`)
+  - Checkbox tree: select individual concepts, topics, sections, or entire track
+  - Cascading selection (parent checks all children, indeterminate states)
+  - Live preview of selected content with full details (descriptions, prerequisites, outcomes, concept notes with LaTeX, resources)
+  - `@media print` styles: A4 layout, forced light mode, hidden controls, page break management
+  - Minimal `PrintLayout.astro` without interactive elements (cursor, canvas)
+  - Print button added to track pages
 
 ### Fixed
 - Missing `</section>` closing tag in profile.astro (parsing error)
