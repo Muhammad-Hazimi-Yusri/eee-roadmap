@@ -429,8 +429,13 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
           <div class="custom-track-header-row">
             <h1 class="text-3xl font-bold">${track.meta.title}</h1>
             <div class="custom-track-actions">
+              <a href="/roadmaps/custom/print/?track=${slug}" class="btn btn--outline" id="print-track-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Print
+              </a>
               <button class="btn btn--outline" id="export-track-btn">↑ Export</button>
               <button class="btn btn--outline" id="edit-track-btn">✎ Edit</button>
+              <button class="btn btn--outline btn--danger" id="delete-track-btn">🗑 Delete</button>
             </div>
           </div>
           <p class="text-muted">${track.meta.description}</p>
@@ -442,6 +447,18 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
 
         document.getElementById('export-track-btn')?.addEventListener('click', () => {
           exportTrack(slug, track);
+        });
+
+        document.getElementById('delete-track-btn')?.addEventListener('click', async () => {
+          const { confirmDeleteTrack, deleteCustomTrack } = await import('../../../utils/customContent');
+          const confirmed = await confirmDeleteTrack(track.meta.title);
+          if (!confirmed) return;
+          const success = await deleteCustomTrack(slug);
+          if (success) {
+            window.location.href = '/roadmaps/';
+          } else {
+            alert('Failed to delete track. Are you signed in?');
+          }
         });
       }
 
@@ -1241,6 +1258,22 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
 
   .edit-track-btn {
     flex-shrink: 0;
+  }
+
+  .custom-track-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .btn--danger {
+    color: #b91c1c;
+    border-color: #b91c1c;
+  }
+
+  .btn--danger:hover {
+    background: #b91c1c;
+    color: #fff;
   }
 
   .editor-container,

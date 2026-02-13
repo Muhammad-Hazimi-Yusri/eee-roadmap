@@ -33,6 +33,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `@media print` styles: A4 layout, forced light mode, hidden controls, page break management
   - Minimal `PrintLayout.astro` without interactive elements (cursor, canvas)
   - Print button added to track pages
+- Print mode for custom tracks (`/roadmaps/custom/print/?track=slug`)
+  - Client-side rendering (custom tracks are dynamic, can't use static paths)
+  - Loads track from Supabase, parses concept notes with `marked` + KaTeX client-side
+  - Same checkbox tree, cascading selection, and live preview as official tracks
+  - Same A4 print styles, forced light mode, and page break management
+  - Print button added to custom track view header
+- Delete custom tracks
+  - Delete button on custom track cards (appears on hover, top-right corner)
+  - Delete button on custom track view page header (red outline styling)
+  - Confirmation modal with track name and permanent deletion warning
+  - Cleans up all associated data: track, custom concepts, and concept notes
+  - Dismiss via Cancel button, backdrop click, or Escape key
 
 ### Fixed
 - Missing `</section>` closing tag in profile.astro (parsing error)

@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.5-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.6-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.5
+Current version is v0.21.6
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -52,7 +52,7 @@ Current version is v0.21.5
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 - **Import/Export** — Back up your progress as JSON; import with merge or replace options
 - **Graph View** — Interactive visualization of topic connections and prerequisites; fullscreen mode on all devices; dark mode support; progress status indicators; per-track focused view on roadmap pages
-- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview
+- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; works for both official and custom tracks
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -65,6 +65,8 @@ Current version is v0.21.5
   - Live preview before saving
   - Export track as JSON for backup/sharing
   - Import track from JSON file
+  - Delete track with confirmation (cleans up all associated data)
+  - Print mode for custom tracks (client-side rendering with same checkbox tree UI)
   - Stored in Supabase (syncs across devices)
 - **Custom Track Display** — View custom tracks at `/roadmaps/custom/?track=slug` with full interactivity (progress tracking, tools mode, concept windows)
 - **Cross-track Navigation** — Clickable prerequisites link between related topics
@@ -189,6 +191,8 @@ Current version is v0.21.5
 - [x] Add knip for unused code detection
 - [x] Add madge for dependency graph / circular import detection
 - [x] Print mode (select & print concepts/topics/sections as PDF)
+- [x] Delete custom tracks (with confirmation modal, cleans up associated data)
+- [x] Print mode for custom tracks (client-side rendering)
 - [ ] Add tests for new sync/auth functionality
 - [ ] Visual regression tests (when UI stabilizes)
 - [ ] Accessibility tests (a11y)
@@ -316,6 +320,7 @@ eee-roadmap/
 │   │   │   ├── [slug].astro       # Track detail page
 │   │   │   ├── print/[slug].astro # Print mode page
 │   │   │   ├── custom/index.astro # Custom track viewer/editor
+│   │   │   ├── custom/print.astro # Custom track print mode (client-side)
 │   │   │   └── index.astro        # Browse all tracks
 │   │   ├── glossary.astro
 │   │   ├── profile.astro

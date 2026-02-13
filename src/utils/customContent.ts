@@ -259,6 +259,7 @@ export async function injectCustomTracks(): Promise<void> {
     card.href = `/roadmaps/custom/?track=${slug}`;
     card.className = 'custom-track-card';
     card.innerHTML = `
+      <button class="custom-track-card__delete" title="Delete track" aria-label="Delete track">&times;</button>
       <span class="custom-badge">${track.meta.category?.toUpperCase() || 'CUSTOM'}</span>
       <div class="custom-track-card__icon">✎</div>
       <h3 class="custom-track-card__title">${track.meta.title}</h3>
@@ -267,6 +268,21 @@ export async function injectCustomTracks(): Promise<void> {
         ${track.sections.length} section${track.sections.length !== 1 ? 's' : ''}
       </div>
     `;
+
+    // Delete button handler
+    card.querySelector('.custom-track-card__delete')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const confirmed = await confirmDeleteTrack(track.meta.title);
+      if (!confirmed) return;
+      const success = await deleteCustomTrack(slug);
+      if (success) {
+        card.remove();
+      } else {
+        alert('Failed to delete track. Are you signed in?');
+      }
+    });
+
     grid.appendChild(card);
   });
 }
@@ -320,4 +336,83 @@ function openImportDialog(): void {
 export async function loadConceptNotes(): Promise<void> {
   const content = await loadCustomContent();
   (window as any).conceptNotes = content.conceptNotes || {};
+}
+
+/**
+ * Deletes a custom track and all associated data (concepts, conceptNotes).
+ */
+export async function deleteCustomTrack(slug: string): Promise<boolean> {
+  const { loadCustomContent, saveCustomContent } = await import('../lib/sync');
+  const content = await loadCustomContent();
+
+  // Remove the track
+  delete content.tracks[slug];
+
+  // Remove associated custom concepts
+  if (content.concepts) {
+    const prefix = `${slug}/`;
+    Object.keys(content.concepts).forEach(key => {
+      if (key.startsWith(prefix)) {
+        delete content.concepts![key];
+      }
+    });
+  }
+
+  // Remove associated concept notes
+  if (content.conceptNotes) {
+    const prefix = `${slug}/`;
+    Object.keys(content.conceptNotes).forEach(key => {
+      if (key.startsWith(prefix)) {
+        delete content.conceptNotes![key];
+      }
+    });
+  }
+
+  return await saveCustomContent(content);
+}
+
+/**
+ * Shows a confirmation modal for deleting a custom track.
+ * Returns a promise that resolves to true if confirmed, false if cancelled.
+ */
+export function confirmDeleteTrack(trackTitle: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const modal = document.createElement('div');
+    modal.className = 'add-concept-modal';
+    modal.innerHTML = `
+      <div class="add-concept-modal-backdrop"></div>
+      <div class="add-concept-modal-content">
+        <h3 class="add-concept-modal-title">Delete Track</h3>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0 0 1rem;">
+          Permanently delete <strong>${trackTitle}</strong>? This will remove the track and all its data. This cannot be undone.
+        </p>
+        <div class="add-concept-modal-actions">
+          <button class="btn btn--sm delete-cancel">Cancel</button>
+          <button class="btn btn--sm delete-confirm" style="background: #b91c1c; color: #fff; border-color: #b91c1c;">Delete</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const backdrop = modal.querySelector('.add-concept-modal-backdrop');
+    const cancelBtn = modal.querySelector('.delete-cancel');
+    const confirmBtn = modal.querySelector('.delete-confirm');
+
+    const close = (result: boolean) => {
+      modal.remove();
+      resolve(result);
+    };
+
+    backdrop?.addEventListener('click', () => close(false));
+    cancelBtn?.addEventListener('click', () => close(false));
+    confirmBtn?.addEventListener('click', () => close(true));
+
+    document.addEventListener('keydown', function handler(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        document.removeEventListener('keydown', handler);
+        close(false);
+      }
+    });
+  });
 }

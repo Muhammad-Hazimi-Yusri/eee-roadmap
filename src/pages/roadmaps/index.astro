@@ -2184,4 +2184,32 @@ function getConceptKeys(slug: string): string[] {
     font-size: 0.75rem;
     color: var(--color-text-muted);
   }
+
+  .custom-track-card__delete {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: 1px solid transparent;
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  .custom-track-card:hover .custom-track-card__delete {
+    opacity: 1;
+  }
+
+  .custom-track-card__delete:hover {
+    color: #b91c1c;
+    border-color: #b91c1c;
+  }
 </style>
