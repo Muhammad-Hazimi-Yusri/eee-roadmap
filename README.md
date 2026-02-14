@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.8-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.9-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.8
+Current version is v0.21.9
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -200,8 +200,7 @@ Current version is v0.21.8
 - [x] Print mode: shared CSS/JS extracted into `src/styles/print.css` and `src/utils/printUtils.ts`
 - [x] Print mode: fix page 1 wasted space, table whitespace gaps, column balancing on last page
 - [x] Inline concept notes editor in track editor (click pill to edit `concept.notes` markdown)
-- [ ] Add tests for new sync/auth functionality
-- [ ] Visual regression tests (when UI stabilizes)
+- [x] Add tests for new sync/auth functionality
 - [ ] Accessibility tests (a11y)
 - [ ] Increase unit test coverage for utilities
 - [ ] Add CSS duplicate checks
@@ -236,6 +235,7 @@ Current version is v0.21.8
 - [ ] Custom track cards: display Lucide icon from meta (currently hardcoded)
 - [ ] Custom tracks: integrate with category filters on /roadmaps/ page
 - [ ] Replace browser alerts with custom toast notifications (editor validation)
+- [ ] Visual regression tests (when UI stabilizes)
 
 ---
 
@@ -322,7 +322,8 @@ eee-roadmap/
 │   │   └── PrintLayout.astro      # Minimal layout for print pages
 │   ├── lib/
 │   │   ├── supabase.ts            # Supabase client
-│   │   └── sync.ts                # Cross-device sync utilities
+│   │   ├── sync.ts                # Cross-device sync utilities
+│   │   └── sync.test.ts           # Sync/auth unit tests (63 tests)
 │   ├── pages/
 │   │   ├── roadmaps/
 │   │   │   ├── [slug].astro       # Track detail page

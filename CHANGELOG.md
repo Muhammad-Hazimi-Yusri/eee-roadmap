@@ -46,6 +46,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - 2-column layout toggle in print mode (both official and custom tracks)
   - Optional multi-column layout for denser output
   - `column-fill: auto` in print media (fills first column before overflowing to second)
+- Unit tests for sync/auth functionality (`src/lib/sync.test.ts`)
+  - 63 tests covering all 12 exported functions in `sync.ts`
+  - Mocked Supabase client with chainable query builder
+  - Tests for: auth session handling, cloud progress CRUD, localStorage helpers, merge logic, login sync, pull-and-merge, page-load sync, debounced queueSync, custom content load/save
+  - 100% code coverage on `sync.ts` (statements, branches, functions, lines)
+  - Vitest coverage config updated to include `src/lib/**/*.ts`
 - Inline concept notes editor in track editor
   - Click a concept pill to open an inline markdown textarea for `concept.notes`
   - Distinct from the personal conceptNotes overlay (edits the track structure directly)
