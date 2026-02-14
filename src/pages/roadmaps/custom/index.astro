@@ -901,22 +901,24 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
           
           <div class="editor-concepts">
             <span class="editor-label">Concepts:</span>
-            <span class="editor-hint editor-hint--inline">(add notes via concept window after saving)</span>
+            <span class="editor-hint editor-hint--inline">(click concept to edit notes)</span>
             <div class="editor-concepts-list" id="concepts-${sectionIndex}-${topicIndex}">
               ${(item.concepts || []).map((c: any, conceptIndex: number) => `
-                <span class="editor-concept-pill" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}">
+                <span class="editor-concept-pill ${c.notes ? 'has-notes' : ''}" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}" title="Click to edit notes">
                   ${c.name}
+                  ${c.notes ? '<span class="concept-notes-indicator">\u00b7</span>' : ''}
                   <button type="button" class="remove-concept-btn" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}">×</button>
                 </span>
               `).join('')}
-              <input 
-                type="text" 
-                class="editor-concept-input" 
+              <input
+                type="text"
+                class="editor-concept-input"
                 placeholder="+ Add concept"
                 data-section="${sectionIndex}"
                 data-topic="${topicIndex}"
               />
             </div>
+            <div class="editor-concept-notes-area" id="concept-notes-area-${sectionIndex}-${topicIndex}"></div>
           </div>
 
           <div class="editor-prereqs">
@@ -1140,6 +1142,56 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
         const conceptIndex = parseInt(target.dataset.concept!);
         state.sections[sectionIndex].items[topicIndex].concepts.splice(conceptIndex, 1);
         renderSections(state);
+      });
+    });
+
+    // Edit concept notes (click pill to toggle inline editor)
+    document.querySelectorAll('.editor-concept-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).classList.contains('remove-concept-btn')) return;
+
+        const target = e.currentTarget as HTMLElement;
+        const si = parseInt(target.dataset.section!);
+        const ti = parseInt(target.dataset.topic!);
+        const ci = parseInt(target.dataset.concept!);
+
+        const concept = state.sections[si].items[ti].concepts[ci];
+        const area = document.getElementById(`concept-notes-area-${si}-${ti}`);
+        if (!area) return;
+
+        // Toggle off if clicking same concept
+        const existing = area.querySelector(`[data-notes-for="${ci}"]`);
+        if (existing) {
+          existing.remove();
+          return;
+        }
+
+        // Close any other open editor in this topic
+        area.innerHTML = '';
+
+        area.innerHTML = `
+          <div class="concept-notes-editor" data-notes-for="${ci}">
+            <label class="concept-notes-label">${concept.name} — notes (markdown)</label>
+            <textarea class="editor-input concept-notes-textarea" placeholder="Enter markdown notes for this concept...">${concept.notes || ''}</textarea>
+            <div class="concept-notes-actions">
+              <button type="button" class="btn btn--outline btn--sm concept-notes-save">Save</button>
+              <button type="button" class="btn btn--sm concept-notes-cancel">Cancel</button>
+            </div>
+          </div>
+        `;
+
+        const textarea = area.querySelector('.concept-notes-textarea') as HTMLTextAreaElement;
+        textarea?.focus();
+
+        area.querySelector('.concept-notes-save')?.addEventListener('click', () => {
+          const notes = (area.querySelector('.concept-notes-textarea') as HTMLTextAreaElement).value.trim();
+          state.sections[si].items[ti].concepts[ci].notes = notes || undefined;
+          renderSections(state);
+        });
+
+        area.querySelector('.concept-notes-cancel')?.addEventListener('click', () => {
+          area.innerHTML = '';
+        });
       });
     });
 
@@ -1467,6 +1519,7 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
     border: 1px solid var(--color-border);
     font-size: 0.75rem;
     font-family: "IBM Plex Mono", monospace;
+    cursor: pointer;
   }
 
   .editor-concept-pill .remove-concept-btn {
@@ -1487,6 +1540,51 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
     width: 120px;
+  }
+
+  .editor-concept-pill.has-notes {
+    border-color: var(--color-copper);
+    background: rgba(184, 115, 51, 0.08);
+  }
+
+  .concept-notes-indicator {
+    color: var(--color-copper);
+    font-weight: 700;
+    font-size: 0.65rem;
+  }
+
+  .editor-concept-notes-area {
+    flex-basis: 100%;
+  }
+
+  .concept-notes-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-copper);
+    background: var(--color-bg);
+  }
+
+  .concept-notes-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-copper);
+  }
+
+  .concept-notes-textarea {
+    width: 100%;
+    min-height: 100px;
+    resize: vertical;
+    font-size: 0.8rem;
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  .concept-notes-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
   }
 
   .btn--sm {

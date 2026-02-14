@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.7-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.8-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.7
+Current version is v0.21.8
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -59,6 +59,7 @@ Current version is v0.21.7
 - **Browse All Tracks** — `/roadmaps/` page with category + progress filters and boxed/unboxed view
 - **Custom Tracks** — Create your own learning roadmaps with the built-in editor (requires sign-in)
   - Full track editor: sections, topics, concepts, resources, prerequisites
+  - Inline concept notes editor: click a concept pill to edit its markdown content directly in the editor
   - Prerequisite picker with cascading dropdowns (official + custom tracks)
   - Drag-and-drop reordering for sections and topics
   - Collapsible sections/topics for easier organization
@@ -66,7 +67,7 @@ Current version is v0.21.7
   - Export track as JSON for backup/sharing
   - Import track from JSON file
   - Delete track with confirmation (cleans up all associated data)
-  - Print mode for custom tracks (client-side rendering with same checkbox tree UI)
+  - Print mode with same features as official tracks (client-side rendering)
   - Stored in Supabase (syncs across devices)
 - **Custom Track Display** — View custom tracks at `/roadmaps/custom/?track=slug` with full interactivity (progress tracking, tools mode, concept windows)
 - **Cross-track Navigation** — Clickable prerequisites link between related topics
@@ -195,7 +196,10 @@ Current version is v0.21.7
 - [x] Print mode for custom tracks (client-side rendering)
 - [x] Fix custom track concept notes not persisting on reload
 - [x] Fix concept window rendering raw markdown instead of HTML on custom tracks
-- [x] Print mode: field-level toggles and 2-column layout option
+- [x] Print mode: field-level toggles and 2-column layout option (both official and custom tracks)
+- [x] Print mode: shared CSS/JS extracted into `src/styles/print.css` and `src/utils/printUtils.ts`
+- [x] Print mode: fix page 1 wasted space, table whitespace gaps, column balancing on last page
+- [x] Inline concept notes editor in track editor (click pill to edit `concept.notes` markdown)
 - [ ] Add tests for new sync/auth functionality
 - [ ] Visual regression tests (when UI stabilizes)
 - [ ] Accessibility tests (a11y)
@@ -261,7 +265,7 @@ Current version is v0.21.7
 - Freemium tiers (if user growth warrants)
 - Community contributions workflow
 - User feedback system (comments per section)
-- WYSIWYG concept notes editor (Notion-like toolbar with bold, linking, embedding support)
+- WYSIWYG concept notes editor (Notion-like toolbar with bold, linking, embedding support) to replace the current raw markdown textarea in ConceptWindows
 
 ---
 
@@ -303,7 +307,7 @@ eee-roadmap/
 │   │   ├── DemoRoadmap.astro      # Homepage interactive demo
 │   │   ├── GlossaryTooltips.astro # Auto-linked term tooltips
 │   │   ├── Header.astro           # Nav + auth + search
-│   │   ├── PrintRoadmap.astro     # Print mode: checkbox tree + preview
+│   │   ├── PrintRoadmap.astro     # Print mode: checkbox tree, field toggles, 2-column
 │   │   ├── Roadmap.astro          # Main roadmap renderer
 │   │   ├── RoadmapGraph.astro     # Homepage graph visualization
 │   │   ├── RoadmapSettings.astro  # Settings panel (modes, focus)
@@ -330,13 +334,15 @@ eee-roadmap/
 │   │   ├── profile.astro
 │   │   └── index.astro            # Homepage
 │   ├── styles/
-│   │   └── global.css             # CSS variables, components, roadmap styles
+│   │   ├── global.css             # CSS variables, components, roadmap styles
+│   │   └── print.css              # Shared print mode styles (official + custom)
 │   ├── types/
 │   │   ├── roadmap.ts             # Core data types
 │   │   └── custom-content.ts      # Custom track types
 │   └── utils/
 │       ├── parseNotes.ts          # Markdown + KaTeX + PDF parser (build-time)
 │       ├── parseNotesClient.ts    # Client-side markdown parser
+│       ├── printUtils.ts          # Shared print mode JS (checkboxes, toggles)
 │       ├── progress.ts            # Progress tracking (localStorage)
 │       ├── roadmapInteractions.ts # Expand/collapse, concept pills
 │       ├── wrapGlossaryTerms.ts   # Auto-link glossary terms

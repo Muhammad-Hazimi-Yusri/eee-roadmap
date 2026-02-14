@@ -39,12 +39,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Same checkbox tree, cascading selection, and live preview as official tracks
   - Same A4 print styles, forced light mode, and page break management
   - Print button added to custom track view header
-- Field-level toggles in print sidebar (custom tracks)
+- Field-level toggles in print sidebar (both official and custom tracks)
   - Checkboxes to show/hide: Description, Prerequisites, Outcomes, Concept Notes, Resources
+  - `data-print-field` attributes on all togglable content elements
   - Applies globally to all selected items in preview and print output
-- 2-column layout toggle in print mode (custom tracks)
+- 2-column layout toggle in print mode (both official and custom tracks)
   - Optional multi-column layout for denser output
-  - Sections avoid splitting across columns
+  - `column-fill: auto` in print media (fills first column before overflowing to second)
+- Inline concept notes editor in track editor
+  - Click a concept pill to open an inline markdown textarea for `concept.notes`
+  - Distinct from the personal conceptNotes overlay (edits the track structure directly)
+  - Visual indicator: copper border and dot marker on concepts with notes
+  - Toggle open/close; one editor per topic at a time
+  - Notes saved as part of the track JSON (persists with track to Supabase)
+- Shared print utilities
+  - `src/styles/print.css` — shared print CSS for both official and custom print modes
+  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initColumnToggle()`
+  - Eliminates ~500 lines of duplicated CSS/JS between `PrintRoadmap.astro` and `custom/print.astro`
+- Table styling in print concept notes
+  - `border-collapse`, tight padding, header row background
+  - Eliminates excessive whitespace before tables in printed output
 - Delete custom tracks
   - Delete button on custom track cards (appears on hover, top-right corner)
   - Delete button on custom track view page header (red outline styling)
@@ -69,15 +83,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Added `data-js-ready` attribute to signal JS initialization
   - Tests now wait for JS ready instead of `networkidle`
   - Persistence tests handle already-expanded nodes after reload
+- Print layout: page 1 entirely wasted (title header alone, content pushed to page 2)
+  - Removed `break-inside: avoid-column` from `.print-two-col .print-section`
+  - Large sections no longer pushed entirely to next page; individual topics retain their own break rules
+- Print layout: 2-column mode forces balanced columns on last page
+  - Added `column-fill: auto` in `@media print` so content fills first column fully before overflowing
 
 ### Changed
-- Print layout spacing tightened (custom tracks)
+- Print mode: field-level toggles and 2-column layout now available for official tracks (previously custom-only)
+  - `PrintRoadmap.astro` updated with sidebar controls, `data-print-field` attributes, `#print-content` wrapper
+- Print layout spacing tightened and normalised across both print modes
   - Reduced margins on sections, topics, header, fields, concept notes
   - Topics now break across pages (`break-inside: auto`) — headers stay with content (`break-after: avoid`)
-  - Reduces whitespace waste in printed output
+  - Both official and custom print now share identical CSS from `src/styles/print.css`
+- Track editor concept hint changed from "add notes via concept window after saving" to "click concept to edit notes"
+- `PrintRoadmap.astro` changed from scoped `<style>` to `<style is:global>` with shared CSS import
 
 ### Removed
 - Unused `EXCLUDE_FILES` variable in build-glossary.mjs
+- Duplicated print CSS from `PrintRoadmap.astro` and `custom/print.astro` (replaced by shared `src/styles/print.css`)
+- Duplicated checkbox cascading JS from both print components (replaced by `src/utils/printUtils.ts`)
 
 ### Technical Notes
 - 140 `any` type warnings remain (to be addressed incrementally)
@@ -169,7 +194,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - New sections/topics start with empty title and auto-focus for immediate editing
-- Track editor concepts field includes hint: "add notes via concept window after saving"
+- Track editor concepts field includes hint: "add notes via concept window after saving" (later changed to "click concept to edit notes" in v0.21)
 - Create New Track card now shows "New" and "Import" buttons
 
 ### Fixed
