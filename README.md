@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.10-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.11-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.10
+Current version is v0.21.11
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -203,8 +203,11 @@ Current version is v0.21.10
 - [x] Add tests for new sync/auth functionality
 - [x] Accessibility tests (a11y)
 - [x] Increase unit test coverage for utilities
-- [ ] Add CSS duplicate checks
-- [ ] Refactor as needed
+- [x] CSS duplicate audit and refactoring (design tokens, deduplication, dead code cleanup)
+  - Added CSS custom properties for typography (`--font-mono`, `--font-body`) and surfaces (`--overlay-light`, `--overlay-dark`)
+  - Replaced 115 raw `font-family` declarations across 17 files with `var(--font-mono)`
+  - Consolidated repeated patterns: label styles (7 occurrences → 2 grouped selectors), pill/tag base styles, overlay backgrounds
+  - Removed dead CSS: duplicate `.swipe-trail-canvas`, empty `.concept-pill {}`, redundant transitions
 - [ ] Lighthouse score and performance optimisation
 
 ---
@@ -335,7 +338,7 @@ eee-roadmap/
 │   │   ├── profile.astro
 │   │   └── index.astro            # Homepage
 │   ├── styles/
-│   │   ├── global.css             # CSS variables, components, roadmap styles
+│   │   ├── global.css             # Design tokens, base styles, components, roadmap styles
 │   │   └── print.css              # Shared print mode styles (official + custom)
 │   ├── types/
 │   │   ├── roadmap.ts             # Core data types

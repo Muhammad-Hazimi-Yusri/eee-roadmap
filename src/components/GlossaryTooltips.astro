@@ -1,4 +1,4 @@
----
+﻿---
 // Client-side Tippy.js initialization for glossary links
 import glossaryData from '../data/_glossary.json';
 
@@ -161,7 +161,7 @@ const { terms } = glossaryData;
 
   .glossary-tip-acronyms {
     color: var(--color-muted);
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.75rem;
   }
 
@@ -172,7 +172,7 @@ const { terms } = glossaryData;
 
   .glossary-tip-link {
     display: inline-block;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.6875rem;
     color: var(--color-copper);
     text-decoration: none;

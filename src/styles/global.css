@@ -6,6 +6,7 @@
    CSS VARIABLES
    ======================================== */
 :root {
+  /* Colors */
   --color-bg: #f5f5f0;
   --color-bg-grid: #e0e0d8;
   --color-text: #1a1a1a;
@@ -16,6 +17,14 @@
   --color-pcb-light: #4a7c23;
   --color-border: #888888;
   --color-paper: #f5f5f0;
+
+  /* Typography */
+  --font-mono: "IBM Plex Mono", "Courier New", Courier, monospace;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Surfaces */
+  --overlay-light: rgba(255, 255, 255, 0.5);
+  --overlay-dark: rgba(0, 0, 0, 0.3);
 }
 
 :root.dark {
@@ -39,7 +48,7 @@
   }
 
   body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--font-body);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
@@ -53,7 +62,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "IBM Plex Mono", "Courier New", Courier, monospace;
+    font-family: var(--font-mono);
     font-weight: 600;
     line-height: 1.3;
   }
@@ -96,10 +105,17 @@
     border-bottom: none;
   }
 
-  .section-num {
-    font-family: "IBM Plex Mono", monospace;
+  /* Shared label style: mono, small, muted */
+  .section-num,
+  .resources-label,
+  .prereqs-label,
+  .outcomes-label {
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--color-text-muted);
+  }
+
+  .section-num {
     margin-bottom: 0.25rem;
   }
 
@@ -107,7 +123,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-family: "IBM Plex Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 0.875rem;
     padding: 0.625rem 1.25rem;
     border: 2px solid var(--color-text);
@@ -151,11 +167,11 @@
     border: 1px solid var(--color-border);
     padding: 1.25rem;
     position: relative;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--overlay-light);
   }
 
   :root.dark .track {
-      background: rgba(0, 0, 0, 0.3);
+      background: var(--overlay-dark);
     }
 
   .track::before {
@@ -179,7 +195,7 @@
   }
 
   .wire-list-item {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 0.8125rem;
     padding-left: 1.25rem;
     position: relative;
@@ -207,7 +223,7 @@
 
   /* Stat display */
   .stat-value {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-copper);
@@ -226,11 +242,16 @@
      SHARED INTERACTIVE ELEMENTS
      ======================================== */
   
-  /* Concept pills - interactive tags */
-  .concept-pill {
-    font-family: "IBM Plex Mono", monospace;
+  /* Pill/tag base: mono, small, compact padding */
+  .concept-pill,
+  .prereq-tag {
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
+  }
+
+  /* Concept pills - interactive tags */
+  .concept-pill {
     background-color: var(--color-bg-grid);
     border: 1px solid var(--color-border);
     cursor: pointer;
@@ -265,12 +286,7 @@
     transform: scale(0.95);
   }
 
-  /* Prereq tags */
-  .prereq-tag {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-  }
+  /* Prereq tags (base styles shared with .concept-pill above) */
 
   .prereq-tag--link {
     background-color: var(--color-copper);
@@ -350,16 +366,6 @@
   border-style: solid;
 }
 
-  .swipe-trail-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 9998;
-    opacity: 0.7;
-  }
   .roadmap {
     display: flex;
     flex-direction: column;
@@ -453,7 +459,7 @@
   }
 
   .node-title {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 0.9375rem;
     font-weight: 500;
     color: var(--color-text);
@@ -468,12 +474,12 @@
     margin-left: 0;
     padding: 1rem;
     border: 1px solid var(--color-border);
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--overlay-light);
     transition: background 0.2s, box-shadow 0.2s;
   }
 
   :root.dark .node-content {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--overlay-dark);
   }
 
   /* Paper styling in tools mode */
@@ -504,10 +510,6 @@
     gap: 0.5rem;
   }
 
-  .concept-pill {
-    /* Extends .pill from global.css */
-  }
-
   /* Resources */
   .node-resources {
     margin-top: 0.75rem;
@@ -519,14 +521,8 @@
     gap: 0.5rem;
   }
 
-  .resources-label {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-  }
-
   .resource-link {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
     background-color: var(--color-pcb);
@@ -547,21 +543,12 @@
     margin-bottom: 0.75rem;
   }
 
-  .prereqs-label {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-  }
-
   /* Outcomes */
   .node-outcomes {
     margin-bottom: 0.75rem;
   }
 
   .outcomes-label {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
     display: block;
     margin-bottom: 0.25rem;
   }
@@ -736,13 +723,17 @@
   }
 
   /* Collapse toggle button */
+  .collapse-toggle,
+  .collapse-icon {
+    transition: transform 0.15s ease;
+  }
+
   .collapse-toggle {
     background: none;
     border: none;
     padding: 4px;
     cursor: pointer;
     color: var(--color-text-muted);
-    transition: transform 0.15s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -756,7 +747,6 @@
   .collapse-icon {
     font-size: 0.7rem;
     display: inline-block;
-    transition: transform 0.15s ease;
   }
 
   /* Collapsed state */

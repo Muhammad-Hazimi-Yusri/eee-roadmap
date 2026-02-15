@@ -27,8 +27,10 @@
   gap: 1rem;
 }
 
-.print-back-link {
-  font-family: "IBM Plex Mono", monospace;
+/* Shared label style: mono, small, muted */
+.print-back-link,
+.print-meta {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
@@ -50,7 +52,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.375rem;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   cursor: pointer;
   padding: 0.125rem 0;
 }
@@ -117,7 +119,7 @@
 }
 
 .print-fields-label {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -151,21 +153,18 @@
 }
 
 .print-meta {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
   margin: 0;
 }
 
 .print-url {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   color: var(--color-text-muted);
   margin: 0.25rem 0 0;
 }
 
 .print-empty-msg {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
   color: var(--color-text-muted);
   padding: 3rem 0;
@@ -175,7 +174,7 @@
 .print-error-msg {
   text-align: center;
   padding: 3rem;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
 }
 
 .print-error-msg p {
@@ -235,7 +234,7 @@
 }
 
 .print-field-label {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--color-text-muted);
   display: block;
@@ -285,7 +284,7 @@
 }
 
 .print-concept-name {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -354,7 +353,7 @@
 }
 
 .print-resource-url {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   color: var(--color-text-muted);
   margin-left: 0.5rem;

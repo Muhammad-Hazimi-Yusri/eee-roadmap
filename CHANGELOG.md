@@ -114,6 +114,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Darkened to `#3a7a1a` in dark mode (5.26:1 contrast)
 
 ### Changed
+- CSS design token system introduced in `global.css` `:root`
+  - `--font-mono`: single source of truth for the IBM Plex Mono font stack (was hardcoded 115 times across 17 files)
+  - `--font-body`: system sans-serif font stack for body text
+  - `--overlay-light` / `--overlay-dark`: semi-transparent surface backgrounds (replaces duplicate `rgba()` values)
+- All 115 `font-family: "IBM Plex Mono", monospace` declarations replaced with `var(--font-mono)` across 17 files
+  - `global.css` (12), `print.css` (10), and 15 Astro component/page files (93)
+  - Both double-quoted (`"IBM Plex Mono"`) and single-quoted (`'IBM Plex Mono'`) variants normalised
+- Duplicate overlay backgrounds consolidated with design tokens
+  - `.track` and `.node-content` light/dark backgrounds now use `var(--overlay-light)` / `var(--overlay-dark)`
+- Label styling pattern deduplicated via grouped selectors
+  - `global.css`: `.section-num`, `.resources-label`, `.prereqs-label`, `.outcomes-label` share mono/small/muted base
+  - `print.css`: `.print-back-link`, `.print-meta` share mono/small/muted base
+- Pill/tag base styles extracted into shared `.concept-pill, .prereq-tag` grouped selector
+  - `font-family`, `font-size`, `padding` defined once; unique styles remain on individual selectors
+- `.collapse-toggle` and `.collapse-icon` identical `transition: transform 0.15s ease` consolidated into grouped selector
 - Print mode: field-level toggles and 2-column layout now available for official tracks (previously custom-only)
   - `PrintRoadmap.astro` updated with sidebar controls, `data-print-field` attributes, `#print-content` wrapper
 - Print layout spacing tightened and normalised across both print modes
@@ -127,6 +142,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Unused `EXCLUDE_FILES` variable in build-glossary.mjs
 - Duplicated print CSS from `PrintRoadmap.astro` and `custom/print.astro` (replaced by shared `src/styles/print.css`)
 - Duplicated checkbox cascading JS from both print components (replaced by `src/utils/printUtils.ts`)
+- Duplicate `.swipe-trail-canvas` styles from `global.css` (already defined in `Layout.astro`)
+- Empty no-op `.concept-pill {}` rule with stale `/* Extends .pill from global.css */` comment
+- Redundant individual `font-family`, `font-size`, `color` declarations from `.resources-label`, `.prereqs-label`, `.outcomes-label`, `.print-meta` (now in grouped selectors)
+- Redundant `font-family`, `font-size`, `padding` from `.prereq-tag` (now in shared pill/tag base)
 
 ### Technical Notes
 - 140 `any` type warnings remain (to be addressed incrementally)

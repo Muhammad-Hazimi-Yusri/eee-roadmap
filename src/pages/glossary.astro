@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -276,7 +276,7 @@ const termCount = terms.length;
   }
 
   .glossary-count {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--color-muted);
     white-space: nowrap;
@@ -298,7 +298,7 @@ const termCount = terms.length;
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
@@ -324,7 +324,7 @@ const termCount = terms.length;
   }
 
   .glossary-letter-heading {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-copper);
@@ -378,7 +378,7 @@ const termCount = terms.length;
   }
 
   .glossary-term-acronyms {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8125rem;
     color: var(--color-copper);
   }
@@ -398,7 +398,7 @@ const termCount = terms.length;
   }
 
   .glossary-term-definition :global(code) {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.875em;
     background: var(--color-bg);
     padding: 0.125rem 0.25rem;
@@ -414,7 +414,7 @@ const termCount = terms.length;
   }
 
   .glossary-category-tag {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.6875rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -453,7 +453,7 @@ const termCount = terms.length;
   .appears-in-summary {
     cursor: pointer;
     color: var(--color-muted);
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
   }
 
   .appears-in-summary:hover {
