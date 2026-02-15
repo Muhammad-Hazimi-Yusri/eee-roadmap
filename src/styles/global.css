@@ -135,6 +135,17 @@
     color: white;
   }
 
+  /* Dark mode: darken primary buttons for WCAG AA contrast (4.5:1) with white text */
+  .dark .btn--primary {
+    background-color: #3a7a1a;
+    border-color: #3a7a1a;
+  }
+
+  .dark .btn--primary:hover, .dark .btn--primary:focus {
+    background-color: #4a8a28;
+    border-color: #4a8a28;
+  }
+
   /* Track cards */
   .track {
     border: 1px solid var(--color-border);
@@ -461,7 +472,7 @@
     transition: background 0.2s, box-shadow 0.2s;
   }
 
-  :global(.dark) .node-content {
+  :root.dark .node-content {
     background: rgba(0, 0, 0, 0.3);
   }
 
@@ -473,7 +484,7 @@
     user-select: none;
   }
 
-  :global(.dark) .tools-mode-active .node-content {
+  :root.dark .tools-mode-active .node-content {
     background: rgba(50, 45, 35, 0.9);
   }
 

@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.9-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.10-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.9
+Current version is v0.21.10
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -201,8 +201,8 @@ Current version is v0.21.9
 - [x] Print mode: fix page 1 wasted space, table whitespace gaps, column balancing on last page
 - [x] Inline concept notes editor in track editor (click pill to edit `concept.notes` markdown)
 - [x] Add tests for new sync/auth functionality
-- [ ] Accessibility tests (a11y)
-- [ ] Increase unit test coverage for utilities
+- [x] Accessibility tests (a11y)
+- [x] Increase unit test coverage for utilities
 - [ ] Add CSS duplicate checks
 - [ ] Refactor as needed
 - [ ] Lighthouse score and performance optimisation

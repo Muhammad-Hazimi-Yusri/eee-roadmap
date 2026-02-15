@@ -52,7 +52,7 @@ export function wrapTermsInText(text: string): string {
       return match; // Already wrapped or not found
     }
     wrappedIds.add(termId);
-    return `<span class="glossary-link" data-term-id="${termId}">${match}</span>`;
+    return `<span class="glossary-link" data-term-id="${termId}" role="button" tabindex="0">${match}</span>`;
   });
 }
 
@@ -113,7 +113,7 @@ export function wrapTermsInHtml(html: string): string {
           return match;
         }
         wrappedIds.add(termId);
-        return `<span class="glossary-link" data-term-id="${termId}">${match}</span>`;
+        return `<span class="glossary-link" data-term-id="${termId}" role="button" tabindex="0">${match}</span>`;
       });
     }
     

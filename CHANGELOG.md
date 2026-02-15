@@ -52,6 +52,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Tests for: auth session handling, cloud progress CRUD, localStorage helpers, merge logic, login sync, pull-and-merge, page-load sync, debounced queueSync, custom content load/save
   - 100% code coverage on `sync.ts` (statements, branches, functions, lines)
   - Vitest coverage config updated to include `src/lib/**/*.ts`
+- Automated accessibility (a11y) tests using `@axe-core/playwright`
+  - 11 tests scanning 7 pages + 4 interactive states for WCAG 2.1 AA compliance
+  - Reusable `checkA11y()` helper with tag filtering, exclude selectors, and rule disabling
+  - Tests: homepage, roadmaps index, fundamentals, core, glossary, about, custom tracks
+  - Interactive state tests: expanded node, dark mode, search modal, settings panel
+- Unit tests for 4 previously untested utility files (85 new tests, 100% coverage)
+  - `trackColors.test.ts` — 11 tests: palette colors, HSL overflow, hue wrapping, color map
+  - `parseNotesClient.test.ts` — 25 tests: markdown, images, PDFs, LaTeX, client-side differences
+  - `renderRoadmap.test.ts` — 24 tests: sections, topics, prerequisites, outcomes, concepts, resources
+  - `wrapGlossaryTerms.test.ts` — 25 tests: text wrapping, HTML skip tags, deduplication, term lookup
 - Inline concept notes editor in track editor
   - Click a concept pill to open an inline markdown textarea for `concept.notes`
   - Distinct from the personal conceptNotes overlay (edits the track structure directly)
@@ -94,6 +104,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Large sections no longer pushed entirely to next page; individual topics retain their own break rules
 - Print layout: 2-column mode forces balanced columns on last page
   - Added `column-fill: auto` in `@media print` so content fills first column fully before overflowing
+- Accessibility: unlabeled `<select>` elements in settings panel and demo component
+  - Changed `<span>` to `<label for="...">` on 4 select elements (`interaction-mode`, `prereq-link-behavior`, `demo-interaction-mode`, `demo-prereq-behavior`)
+- Accessibility: invalid `aria-expanded` on glossary tooltip spans
+  - Tippy.js adds `aria-expanded` to trigger elements; `<span>` without a role makes this invalid
+  - Added `role="button" tabindex="0"` to glossary-link spans (also makes them keyboard-navigable)
+- Accessibility: insufficient color contrast on primary buttons in dark mode
+  - White text on `#5fa830` green gave 2.94:1 contrast (needs 4.5:1 for WCAG AA)
+  - Darkened to `#3a7a1a` in dark mode (5.26:1 contrast)
 
 ### Changed
 - Print mode: field-level toggles and 2-column layout now available for official tracks (previously custom-only)
