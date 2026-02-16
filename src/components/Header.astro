@@ -54,7 +54,7 @@ const navLinks = [
   }
 
   /* Mobile portrait: move auth button to top right */
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     .header .container {
       position: relative;
     }
@@ -72,7 +72,7 @@ const navLinks = [
 
 
   /* Mobile portrait: expand search bar */
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     .header :global(.search-wrapper) {
       flex: 1;
     }

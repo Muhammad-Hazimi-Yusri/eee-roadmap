@@ -448,7 +448,7 @@ const demoData = {
     margin-bottom: 1rem;
   }
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     .demo-mini-roadmap {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -463,11 +463,11 @@ const demoData = {
 
   .demo-track {
     border: 1px solid var(--color-border);
-    background: rgba(255, 255, 255, 0.5);
+    background: rgb(255 255 255 / 50%);
   }
 
   :global(.dark) .demo-track {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(0 0 0 / 30%);
   }
 
   .demo-track-header {
@@ -550,11 +550,11 @@ const demoData = {
     margin-left: 0;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-border);
-    background: rgba(255, 255, 255, 0.5);
+    background: rgb(255 255 255 / 50%);
   }
 
   :global(.dark) .demo-node-content {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgb(0 0 0 / 20%);
   }
 
   .demo-node-content[hidden] {
@@ -681,7 +681,7 @@ const demoData = {
     font-size: 0.65rem;
     color: var(--color-text-muted);
     padding: 0.375rem 0.5rem;
-    background-color: rgba(184, 115, 51, 0.1);
+    background-color: rgb(184 115 51 / 10%);
     border: 1px dashed var(--color-copper);
   }
   
@@ -703,11 +703,11 @@ const demoData = {
     gap: 0.75rem;
     padding: 0.75rem 1rem;
     border: 1px solid var(--color-border);
-    background: rgba(255, 255, 255, 0.5);
+    background: rgb(255 255 255 / 50%);
   }
 
   :global(.dark) .demo-topic {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(0 0 0 / 30%);
   }
 
   .demo-topic-title {

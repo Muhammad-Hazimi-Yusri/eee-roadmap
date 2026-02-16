@@ -78,8 +78,9 @@ Current version is v0.21.11
 - **Dynamic Track Discovery** — Drop a YAML file in `content/`, track appears automatically
 - **Developer Tooling:**
   - `npm run validate` — Schema validation
+  - `npm run lint` — ESLint (JS/TS/Astro) + Stylelint (CSS/Astro)
   - `npm run version:bump` — Interactive version updater
-  - Pre-commit hooks for build/validate/test
+  - Pre-commit hooks for build/validate/lint
 
 ### Technical Highlights
 - **Stack:** Astro, TypeScript, Tailwind CSS
@@ -208,6 +209,13 @@ Current version is v0.21.11
   - Replaced 115 raw `font-family` declarations across 17 files with `var(--font-mono)`
   - Consolidated repeated patterns: label styles (7 occurrences → 2 grouped selectors), pill/tag base styles, overlay backgrounds
   - Removed dead CSS: duplicate `.swipe-trail-canvas`, empty `.concept-pill {}`, redundant transitions
+- [x] Stylelint for CSS linting (`.css` + `.astro` `<style>` blocks)
+  - Tailwind-aware config (ignores `@tailwind`, `@apply`, `@layer`, `@screen` at-rules)
+  - Astro-aware config (ignores `:global` pseudo-class, parses `<style>` via `postcss-html`)
+  - BEM class pattern support (`--modifier`, `__element`)
+  - `lint:css` / `lint:css:fix` scripts; integrated into `lint` / `lint:fix`
+  - Added to CI pipeline and pre-commit hook (via `npm run lint`)
+- [x] Fix broken Wikimedia image URLs in advanced-power-system-analysis track (9 non-existent filenames replaced)
 - [ ] Lighthouse score and performance optimisation
 
 ---
@@ -227,7 +235,7 @@ Current version is v0.21.11
 
 ### Known Issues & Polish
 
-- [ ] Broken Wikimedia embedded images: ~10 return 404 (moved/renamed), ~175 return 429 (rate-limited by link checker). Need to fix 404s with updated URLs and add concurrency/retry to `check-links` so Wikimedia 429s don't fail the build. Verify all embedded images and PDFs are accessible on the live site.
+- [ ] Wikimedia embedded images: ~175 return 429 (rate-limited by link checker). Add concurrency/retry to `check-links` so Wikimedia 429s don't fail the build. Verify all embedded images and PDFs are accessible on the live site.
 - [ ] iOS Safari: dark mode demo tools switch menu arrow visibility
 - [ ] iOS Safari: trail persistence in two-finger swipe (tools mode)
 - [ ] Mobile: fullscreen mode bottom bar overlap
@@ -353,6 +361,7 @@ eee-roadmap/
 │       └── ...                    # url, tools, trail, trackColors, etc.
 ├── tests/
 │   └── integration/               # Playwright tests
+├── .stylelintrc.json                 # Stylelint config (CSS linting)
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 └── README.md
@@ -400,6 +409,9 @@ Get these from [Supabase Dashboard](https://supabase.com) → Project Settings �
 | `npm run build:data` | Convert YAML to JSON + glossary + search index |
 | `npm run build:glossary` | Build glossary JSON with reverse index |
 | `npm run validate` | Validate YAML against schema |
+| `npm run lint` | Run ESLint + Stylelint |
+| `npm run lint:fix` | Auto-fix ESLint + Stylelint issues |
+| `npm run lint:css` | Run Stylelint only (CSS + Astro `<style>`) |
 | `npm run test` | Run unit tests (Vitest) in watch mode |
 | `npm run test:run` | Run unit tests once |
 | `npm run test:e2e` | Run Playwright integration/E2E tests |
@@ -407,7 +419,7 @@ Get these from [Supabase Dashboard](https://supabase.com) → Project Settings �
 | `npm run download:pdfs` | Manually download external PDFs |
 | `npm run knip` | Find unused files, exports, and dependencies |
 | `npm run madge:circular` | Check for circular dependencies |
-| `npm run madge:graph` | Generate dependency graph image (WSL/Linux only) |
+| `npm run madge` | Generate dependency graph image |
 
 ### Adding PDFs
 

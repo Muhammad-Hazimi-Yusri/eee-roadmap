@@ -712,7 +712,7 @@ function getConceptKeys(slug: string): string[] {
     left: 0;
     right: 0;
     height: 50px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, transparent 100%);
+    background: linear-gradient(180deg, rgb(0 0 0 / 20%) 0%, transparent 100%);
     opacity: 0;
     transition: opacity 0.3s;
     pointer-events: none;
@@ -727,13 +727,14 @@ function getConceptKeys(slug: string): string[] {
   .box-card:hover .box-card__base,
   .box-card.is-opened .box-card__base {
     box-shadow: 
-      inset 0 15px 30px -10px rgba(0, 0, 0, 0.25),
-      inset 2px 0 8px -4px rgba(0, 0, 0, 0.15),
-    inset -2px 0 8px -4px rgba(0, 0, 0, 0.15),
-    0 8px 25px rgba(0, 0, 0, 0.2);
+      inset 0 15px 30px -10px rgb(0 0 0 / 25%),
+      inset 2px 0 8px -4px rgb(0 0 0 / 15%),
+    inset -2px 0 8px -4px rgb(0 0 0 / 15%),
+    0 8px 25px rgb(0 0 0 / 20%);
 }
+
   .box-card:hover .box-card__base {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 30px rgb(0 0 0 / 20%);
   }
 
   /* Lid */
@@ -808,16 +809,16 @@ function getConceptKeys(slug: string): string[] {
   .box-card:hover .box-card__base,
   .box-card.is-opened .box-card__base {
     box-shadow: 
-      inset 0 20px 30px -15px rgba(0, 0, 0, 0.3),
-      0 8px 30px rgba(0, 0, 0, 0.2);
+      inset 0 20px 30px -15px rgb(0 0 0 / 30%),
+      0 8px 30px rgb(0 0 0 / 20%);
   }
 
   /* Lid gets depth when open */
   .box-card:hover .box-card__lid-front,
   .box-card.is-opened .box-card__lid-front {
     box-shadow: 
-      0 10px 25px rgba(0, 0, 0, 0.4),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+      0 10px 25px rgb(0 0 0 / 40%),
+      inset 0 -2px 4px rgb(0 0 0 / 20%);
   }
 
   /* Lid top face */
@@ -842,7 +843,7 @@ function getConceptKeys(slug: string): string[] {
     left: 0;
     right: 0;
     height: 40px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 100%);
+    background: linear-gradient(180deg, rgb(0 0 0 / 15%) 0%, transparent 100%);
     opacity: 0;
     transition: opacity 0.3s;
     pointer-events: none;
@@ -878,8 +879,8 @@ function getConceptKeys(slug: string): string[] {
     border: 2px solid #0d4028;
     border-radius: 2px;
     box-shadow: 
-      inset 0 -10px 20px rgba(0, 0, 0, 0.3),
-      0 4px 8px rgba(0, 0, 0, 0.2);
+      inset 0 -10px 20px rgb(0 0 0 / 30%),
+      0 4px 8px rgb(0 0 0 / 20%);
     position: relative;
   }
 
@@ -1000,7 +1001,7 @@ function getConceptKeys(slug: string): string[] {
     display: inline-flex;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgb(0 0 0 / 5%);
     padding: 0.25rem 0.5rem;
     border-radius: 3px;
   }
@@ -1011,7 +1012,7 @@ function getConceptKeys(slug: string): string[] {
     color: #5d4e37;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgb(255 255 255 / 40%);
     padding: 0.125rem 0.375rem;
     border-radius: 2px;
   }
@@ -1031,7 +1032,7 @@ function getConceptKeys(slug: string): string[] {
     letter-spacing: 0.03em;
     color: #5d4e37;
     padding: 0.1875rem 0.375rem;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(255 255 255 / 30%);
     border: 1px solid #b8956a;
   }
 
@@ -1041,7 +1042,7 @@ function getConceptKeys(slug: string): string[] {
   }
 
   .box-card.is-opened .box-card__base {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 30px rgb(0 0 0 / 20%);
   }
 
   .box-card.is-opened .box-card__pcb-preview {
@@ -1054,7 +1055,7 @@ function getConceptKeys(slug: string): string[] {
   }
 
   .box-card.is-opened .box-card__lid-front {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 16px rgb(0 0 0 / 30%);
   }
 
   /* ==================== PCB MODAL ==================== */
@@ -1066,13 +1067,13 @@ function getConceptKeys(slug: string): string[] {
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0);
+    background: rgb(0 0 0 / 0%);
     visibility: hidden;
     transition: background 0.3s ease, visibility 0.3s;
   }
 
   .pcb-modal-backdrop.is-open {
-    background: rgba(0, 0, 0, 0.7);
+    background: rgb(0 0 0 / 70%);
     visibility: visible;
   }
 
@@ -1110,8 +1111,8 @@ function getConceptKeys(slug: string): string[] {
     border-radius: 4px;
     padding: 1.5rem;
     box-shadow: 
-      0 4px 8px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      0 4px 8px rgb(0 0 0 / 30%),
+      inset 0 1px 0 rgb(255 255 255 / 10%);
   }
 
   /* Mounting holes */
@@ -1222,9 +1223,9 @@ function getConceptKeys(slug: string): string[] {
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0) 35%,
-      rgba(255, 255, 255, 0.3) 50%,
-      rgba(255, 255, 255, 0) 65%,
+      rgb(255 255 255 / 0%) 35%,
+      rgb(255 255 255 / 30%) 50%,
+      rgb(255 255 255 / 0%) 65%,
       transparent 100%
     );
   }
@@ -1238,6 +1239,7 @@ function getConceptKeys(slug: string): string[] {
     0% {
       transform: translateX(-100%);
     }
+
     100% {
       transform: translateX(100%);
     }
@@ -1250,32 +1252,38 @@ function getConceptKeys(slug: string): string[] {
 
   @keyframes rgb-led {
     0% {
-      background: #ff0000;
-      box-shadow: 0 0 8px #ff0000, 0 0 16px #ff0000;
+      background: #f00;
+      box-shadow: 0 0 8px #f00, 0 0 16px #f00;
     }
+
     16% {
-      background: #ff8800;
-      box-shadow: 0 0 8px #ff8800, 0 0 16px #ff8800;
+      background: #f80;
+      box-shadow: 0 0 8px #f80, 0 0 16px #f80;
     }
+
     33% {
-      background: #ffff00;
-      box-shadow: 0 0 8px #ffff00, 0 0 16px #ffff00;
+      background: #ff0;
+      box-shadow: 0 0 8px #ff0, 0 0 16px #ff0;
     }
+
     50% {
-      background: #00ff00;
-      box-shadow: 0 0 8px #00ff00, 0 0 16px #00ff00;
+      background: #0f0;
+      box-shadow: 0 0 8px #0f0, 0 0 16px #0f0;
     }
+
     66% {
-      background: #00ffff;
-      box-shadow: 0 0 8px #00ffff, 0 0 16px #00ffff;
+      background: #0ff;
+      box-shadow: 0 0 8px #0ff, 0 0 16px #0ff;
     }
+
     83% {
-      background: #8800ff;
-      box-shadow: 0 0 8px #8800ff, 0 0 16px #8800ff;
+      background: #80f;
+      box-shadow: 0 0 8px #80f, 0 0 16px #80f;
     }
+
     100% {
-      background: #ff0000;
-      box-shadow: 0 0 8px #ff0000, 0 0 16px #ff0000;
+      background: #f00;
+      box-shadow: 0 0 8px #f00, 0 0 16px #f00;
     }
   }
 
@@ -1388,7 +1396,7 @@ function getConceptKeys(slug: string): string[] {
     border: 1px solid #444;
     flex-shrink: 0;
     transition: all 0.2s ease;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 50%);
   }
 
   /* Section header as link */
@@ -1403,8 +1411,8 @@ function getConceptKeys(slug: string): string[] {
     width: fit-content;
     position: relative;
     box-shadow: 
-      0 3px 8px rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      0 3px 8px rgb(0 0 0 / 50%),
+      inset 0 1px 0 rgb(255 255 255 / 5%);
     text-decoration: none;
     cursor: pointer;
     transition: border-color 0.2s, transform 0.15s;
@@ -1417,28 +1425,28 @@ function getConceptKeys(slug: string): string[] {
 
   /* LED colors on hover - randomized via nth-child */
   .pcb-section:nth-child(5n+1) .pcb-section__header:hover .pcb-section__led {
-    background: #ff4444;
-    box-shadow: 0 0 8px #ff4444, 0 0 12px #ff4444, inset 0 0 4px rgba(255,255,255,0.3);
+    background: #f44;
+    box-shadow: 0 0 8px #f44, 0 0 12px #f44, inset 0 0 4px rgb(255 255 255 / 30%);
   }
 
   .pcb-section:nth-child(5n+2) .pcb-section__header:hover .pcb-section__led {
-    background: #44ff44;
-    box-shadow: 0 0 8px #44ff44, 0 0 12px #44ff44, inset 0 0 4px rgba(255,255,255,0.3);
+    background: #4f4;
+    box-shadow: 0 0 8px #4f4, 0 0 12px #4f4, inset 0 0 4px rgb(255 255 255 / 30%);
   }
 
   .pcb-section:nth-child(5n+3) .pcb-section__header:hover .pcb-section__led {
-    background: #ffaa00;
-    box-shadow: 0 0 8px #ffaa00, 0 0 12px #ffaa00, inset 0 0 4px rgba(255,255,255,0.3);
+    background: #fa0;
+    box-shadow: 0 0 8px #fa0, 0 0 12px #fa0, inset 0 0 4px rgb(255 255 255 / 30%);
   }
 
   .pcb-section:nth-child(5n+4) .pcb-section__header:hover .pcb-section__led {
-    background: #44aaff;
-    box-shadow: 0 0 8px #44aaff, 0 0 12px #44aaff, inset 0 0 4px rgba(255,255,255,0.3);
+    background: #4af;
+    box-shadow: 0 0 8px #4af, 0 0 12px #4af, inset 0 0 4px rgb(255 255 255 / 30%);
   }
 
   .pcb-section:nth-child(5n+5) .pcb-section__header:hover .pcb-section__led {
-    background: #ff44ff;
-    box-shadow: 0 0 8px #ff44ff, 0 0 12px #ff44ff, inset 0 0 4px rgba(255,255,255,0.3);
+    background: #f4f;
+    box-shadow: 0 0 8px #f4f, 0 0 12px #f4f, inset 0 0 4px rgb(255 255 255 / 30%);
   }
 
   /* IC pins on left - keep this */
@@ -1452,7 +1460,7 @@ function getConceptKeys(slug: string): string[] {
     height: 60%;
     background: repeating-linear-gradient(
       180deg,
-      transparent 0px,
+      transparent 0,
       transparent 3px,
       #b8860b 3px,
       #b8860b 6px,
@@ -1481,14 +1489,14 @@ function getConceptKeys(slug: string): string[] {
     font-size: 0.6875rem;
     text-decoration: none;
     transition: all 0.15s;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
   }
 
   .pcb-topic__link:hover {
     background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
     border-color: #b8860b;
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 40%);
   }
 
   .pcb-topic__link::after {
@@ -1506,11 +1514,11 @@ function getConceptKeys(slug: string): string[] {
     background: linear-gradient(180deg, #d4a84b 0%, #b8860b 50%, #8a6508 100%);
     border-radius: 1px;
     flex-shrink: 0;
-    box-shadow: 0 0 2px rgba(184, 134, 11, 0.5);
+    box-shadow: 0 0 2px rgb(184 134 11 / 50%);
   }
 
   .pcb-topic__name {
-    color: rgba(245, 245, 240, 0.85);
+    color: rgb(245 245 240 / 85%);
     white-space: nowrap;
   }
 
@@ -1523,8 +1531,8 @@ function getConceptKeys(slug: string): string[] {
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(184, 134, 11, 0.3) 10%,
-      rgba(184, 134, 11, 0.3) 90%,
+      rgb(184 134 11 / 30%) 10%,
+      rgb(184 134 11 / 30%) 90%,
       transparent 100%
     );
   }
@@ -1535,7 +1543,7 @@ function getConceptKeys(slug: string): string[] {
     justify-content: space-between;
     margin-top: 1rem;
     padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgb(255 255 255 / 10%);
     font-family: var(--font-mono);
     font-size: 0.5625rem;
     text-transform: uppercase;
@@ -1556,7 +1564,7 @@ function getConceptKeys(slug: string): string[] {
   :root.dark .box-card__title,
   .dark .box-card__title { 
     color: #f5f0e8; 
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 50%);
   }
 
   :root.dark .box-card__desc,
@@ -1572,7 +1580,7 @@ function getConceptKeys(slug: string): string[] {
   :root.dark .box-card__stat,
   .dark .box-card__stat {
     color: #d4c8b8;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgb(0 0 0 / 20%);
     padding: 0.125rem 0.375rem;
     border-radius: 2px;
   }
@@ -1580,7 +1588,7 @@ function getConceptKeys(slug: string): string[] {
   :root.dark .box-card__section,
   .dark .box-card__section {
     color: #e0d8cc;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(0 0 0 / 30%);
     border-color: #4a3a2a;
   }
 
@@ -1592,7 +1600,7 @@ function getConceptKeys(slug: string): string[] {
   }
 
   /* ==================== RESPONSIVE ==================== */
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     .tracks-grid {
       gap: 1.5rem;
     }
@@ -1614,6 +1622,7 @@ function getConceptKeys(slug: string): string[] {
     .instruction-desktop {
       display: none;
     }
+
     .instruction-mobile {
       display: inline;
     }
@@ -1663,7 +1672,7 @@ function getConceptKeys(slug: string): string[] {
     color: #5d4e37;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 1px 2px 4px rgb(0 0 0 / 10%);
   }
 
   /* Torn edge effect */
@@ -1732,7 +1741,7 @@ function getConceptKeys(slug: string): string[] {
     background: #efe9db;
     border-color: #b8956a;
     transform: translateY(-1px);
-    box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 2px 3px 6px rgb(0 0 0 / 15%);
   }
 
   /* Active state */
@@ -1740,8 +1749,8 @@ function getConceptKeys(slug: string): string[] {
     background: #fffdf7;
     border: 1px solid var(--color-copper, #b8860b);
     box-shadow: 
-      2px 3px 6px rgba(0, 0, 0, 0.12),
-      inset 0 0 0 1px rgba(184, 134, 11, 0.2);
+      2px 3px 6px rgb(0 0 0 / 12%),
+      inset 0 0 0 1px rgb(184 134 11 / 20%);
     padding-right: 1.75rem;
   }
 
@@ -1769,7 +1778,7 @@ function getConceptKeys(slug: string): string[] {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: #5d4e37;
-    background: rgba(201, 184, 150, 0.3);
+    background: rgb(201 184 150 / 30%);
     padding: 0.375rem 0.625rem;
     border-left: 2px solid var(--color-copper, #b8860b);
   }
@@ -1777,7 +1786,7 @@ function getConceptKeys(slug: string): string[] {
   :root.dark .filter-section__label,
   .dark .filter-section__label {
     color: #a89878;
-    background: rgba(90, 74, 53, 0.3);
+    background: rgb(90 74 53 / 30%);
   }
 
   /* Dark mode */
@@ -1882,6 +1891,7 @@ function getConceptKeys(slug: string): string[] {
 
   .box-card__pcb-board {
     position: relative;
+
     --pcb-green: #1a5c38;
     --pcb-copper: #b8860b;
     --pcb-silkscreen: #f5f5f0;
@@ -1991,7 +2001,7 @@ function getConceptKeys(slug: string): string[] {
   .box-card__pcb-topics {
     list-style: none;
     padding: 0;
-    margin: 0.375rem 0 0 0;
+    margin: 0.375rem 0 0;
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
@@ -2000,7 +2010,7 @@ function getConceptKeys(slug: string): string[] {
   .box-card__pcb-topic {
     font-size: 0.625rem;
     padding: 0.1875rem 0.375rem;
-    background: rgba(184, 134, 11, 0.2);
+    background: rgb(184 134 11 / 20%);
     border: 1px solid var(--pcb-copper);
     border-radius: 1px;
     color: var(--pcb-silkscreen);
@@ -2014,6 +2024,7 @@ function getConceptKeys(slug: string): string[] {
   }
 
   /* ==================== UNBOXED GRID STATE ==================== */
+
   /* Transition setup for all cards */
   .box-card__lid {
     transition: transform 0.4s ease;
@@ -2157,7 +2168,7 @@ function getConceptKeys(slug: string): string[] {
     border-style: solid;
     background: var(--color-bg-grid);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
   }
 
   .custom-track-card__icon {

@@ -388,18 +388,18 @@
 
   :root,
   :root.dark {
-    --color-bg: #ffffff;
+    --color-bg: #fff;
     --color-bg-grid: #f0f0f0;
-    --color-text: #000000;
-    --color-text-muted: #444444;
+    --color-text: #000;
+    --color-text-muted: #444;
     --color-copper: #8B6914;
     --color-pcb: #2d5016;
-    --color-border: #999999;
-    --color-paper: #ffffff;
+    --color-border: #999;
+    --color-paper: #fff;
   }
 
   @page {
-    size: A4;
+    size: a4;
     margin: 1.5cm;
   }
 

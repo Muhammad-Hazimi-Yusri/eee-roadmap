@@ -22,8 +22,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Astro plugin for `.astro` file support
   - Node.js globals configured for scripts
   - Vitest globals configured for test files
-- New npm scripts: `lint`, `lint:fix`
+- Stylelint configuration for CSS linting (`.css` files + `<style>` blocks in `.astro` components)
+  - `.stylelintrc.json` extending `stylelint-config-standard` and `stylelint-config-html`
+  - Tailwind-aware: ignores `@tailwind`, `@apply`, `@layer`, `@screen`, `@config` at-rules and `theme()` function
+  - Astro-aware: ignores `:global` pseudo-class, parses `<style>` blocks via `postcss-html`
+  - BEM class pattern support (`--modifier`, `__element`)
+  - Disabled rules: `no-descending-specificity`, `no-duplicate-selectors`, `declaration-block-single-line-max-declarations` (false positives with project patterns)
+- New npm scripts: `lint`, `lint:fix`, `lint:css`, `lint:css:fix`
 - Lint check added to pre-commit hook
+- Lint step added to CI pipeline (GitHub Actions, runs after `build:data`, before tests)
 - knip for detecting unused files, exports, and dependencies
 - madge for circular dependency detection and dependency graph visualization
 - Print mode for PDF export (`/roadmaps/print/[slug]/`)
@@ -83,6 +90,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Dismiss via Cancel button, backdrop click, or Escape key
 
 ### Fixed
+- 9 broken Wikimedia Commons image URLs in `advanced-power-system-analysis.yaml`
+  - Filenames were non-existent on Commons (AI-generated guesses)
+  - Replaced with verified filenames: `Threephaseshortcircuit.svg`, `Short_Circuit_Current.svg`, `Symmetrical_components_three_phase.svg`, `Delta-Wye_Transformer.png`, `Welding-electric-arc.svg`, `Warnzeichen_Störlichtbogen_-_Fehlerlichtbogen.svg`, `Stator_and_rotor_by_Zureks.JPG`, `Motor_internals.JPG`
+  - Reused `Electrical_Substation.JPG` where no direct replacement found
+- Deprecated `word-break: break-word` in profile.astro replaced with `overflow-wrap: break-word`
+- Duplicate `mask-image` property in RoadmapGraph.astro (created by Stylelint auto-fix removing `-webkit-` prefix)
 - Custom track concept notes lost on page reload
   - `buildConceptData()` only read from track structure, never merged `conceptNotes` from Supabase
   - Now merges user-edited conceptNotes over track structure notes; caches `window.conceptNotes` early
@@ -114,6 +127,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Darkened to `#3a7a1a` in dark mode (5.26:1 contrast)
 
 ### Changed
+- `npm run lint` now runs both ESLint and Stylelint sequentially
+- CSS modernized across all components via Stylelint auto-fix (~130 violations)
+  - `rgba()` → `rgb()` with modern color-function notation
+  - Alpha values: decimal → percentage (`0.5` → `50%`)
+  - Hex colors shortened where possible (`#ffffff` → `#fff`)
+  - Media queries: `(max-width: ...)` → context range notation
+  - Redundant shorthand values removed (`0 0 1.5rem 0` → `0 0 1.5rem`)
+  - Longhand properties collapsed to shorthands where applicable (`inset`)
+  - `-webkit-mask-image` vendor prefix removed (unprefixed `mask-image` sufficient)
 - CSS design token system introduced in `global.css` `:root`
   - `--font-mono`: single source of truth for the IBM Plex Mono font stack (was hardcoded 115 times across 17 files)
   - `--font-body`: system sans-serif font stack for body text

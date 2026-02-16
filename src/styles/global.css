@@ -10,21 +10,21 @@
   --color-bg: #f5f5f0;
   --color-bg-grid: #e0e0d8;
   --color-text: #1a1a1a;
-  --color-text-muted: #555555;
+  --color-text-muted: #555;
   --color-copper: #b87333;
   --color-copper-light: #d4956a;
   --color-pcb: #2d5016;
   --color-pcb-light: #4a7c23;
-  --color-border: #888888;
+  --color-border: #888;
   --color-paper: #f5f5f0;
 
   /* Typography */
-  --font-mono: "IBM Plex Mono", "Courier New", Courier, monospace;
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier New", courier, monospace;
+  --font-body: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, sans-serif;
 
   /* Surfaces */
-  --overlay-light: rgba(255, 255, 255, 0.5);
-  --overlay-dark: rgba(0, 0, 0, 0.3);
+  --overlay-light: rgb(255 255 255 / 50%);
+  --overlay-dark: rgb(0 0 0 / 30%);
 }
 
 :root.dark {
@@ -32,7 +32,7 @@
   --color-bg-grid: #2a2a26;
   --color-text: #e8e8e0;
   --color-text-muted: #a0a090;
-  --color-border: #555555;
+  --color-border: #555;
   --color-paper: #1a1a18;
   --color-pcb: #5fa830;
   --color-pcb-light: #7cc44a;
@@ -238,6 +238,7 @@
   .text-muted {
     color: var(--color-text-muted);
   }
+
 /* ========================================
      SHARED INTERACTIVE ELEMENTS
      ======================================== */
@@ -269,17 +270,17 @@
   }
 
   .concept-pill--important {
-    background-color: rgba(255, 220, 100, 0.5);
-    border-color: rgb(200, 170, 50);
+    background-color: rgb(255 220 100 / 50%);
+    border-color: rgb(200 170 50);
   }
 
   :root.dark .concept-pill--important {
-    background-color: rgba(255, 200, 50, 0.3);
-    border-color: rgb(180, 150, 40);
+    background-color: rgb(255 200 50 / 30%);
+    border-color: rgb(180 150 40);
   }
 
   .concept-pill--completed.concept-pill--important {
-    background-color: rgba(255, 220, 100, 0.3);
+    background-color: rgb(255 220 100 / 30%);
   }
 
   .concept-pill--swiping {
@@ -303,7 +304,7 @@
   }
 
   .prereq-tag--static {
-    background-color: rgba(184, 115, 51, 0.15);
+    background-color: rgb(184 115 51 / 15%);
     color: var(--color-text-muted);
     border: 1px dashed var(--color-copper);
     cursor: pointer;
@@ -320,6 +321,7 @@
   }
 
   /* Tools mode - hide system cursor */
+
   /* Hide native cursor in tools mode - including child elements */
   .demo-tools-active,
   .demo-tools-active .concept-pill,
@@ -484,14 +486,14 @@
 
   /* Paper styling in tools mode */
   .tools-mode-active .node-content {
-    background: rgba(255, 253, 240, 0.9);
-    box-shadow: inset 0 0 0 1px var(--color-copper), 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: rgb(255 253 240 / 90%);
+    box-shadow: inset 0 0 0 1px var(--color-copper), 0 2px 4px rgb(0 0 0 / 10%);
     border-color: var(--color-copper);
     user-select: none;
   }
 
   :root.dark .tools-mode-active .node-content {
-    background: rgba(50, 45, 35, 0.9);
+    background: rgb(50 45 35 / 90%);
   }
 
   .node-description {
@@ -584,9 +586,9 @@
   }
 
   @keyframes focus-glow {
-    0% { box-shadow: 0 0 0 0 rgba(184, 134, 11, 0.7); }
-    50% { box-shadow: 0 0 8px 4px rgba(184, 134, 11, 0.5); }
-    100% { box-shadow: 0 0 0 0 rgba(184, 134, 11, 0); }
+    0% { box-shadow: 0 0 0 0 rgb(184 134 11 / 70%); }
+    50% { box-shadow: 0 0 8px 4px rgb(184 134 11 / 50%); }
+    100% { box-shadow: 0 0 0 0 rgb(184 134 11 / 0%); }
   }
 
   /* Add Custom Concept Button */
@@ -614,7 +616,7 @@
     opacity: 1;
     border-color: var(--color-copper);
     color: var(--color-copper);
-    background: rgba(184, 115, 51, 0.1);
+    background: rgb(184 115 51 / 10%);
   }
 
   /* Add Concept Modal */
@@ -630,7 +632,7 @@
   .add-concept-modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgb(0 0 0 / 50%);
   }
 
   .add-concept-modal-content {
@@ -641,7 +643,7 @@
     padding: 1.5rem;
     min-width: 300px;
     max-width: 90vw;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 30%);
   }
 
   .add-concept-modal-title {
@@ -703,7 +705,7 @@
 
   .sortable-chosen {
     background: var(--color-bg);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
   }
 
   .editor-section-header,
@@ -719,7 +721,7 @@
   .sortable-fallback {
     opacity: 0.8;
     background: var(--color-bg);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
   }
 
   /* Collapse toggle button */

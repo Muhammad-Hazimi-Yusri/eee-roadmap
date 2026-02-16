@@ -262,14 +262,14 @@
   }
 
   /* Tablet: hide shortcut only */
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     .search-shortcut {
       display: none;
     }
   }
 
   /* Mobile: shorter hint */
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     .search-hint {
       display: none;
     }
@@ -302,7 +302,7 @@
   .search-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgb(0 0 0 / 60%);
   }
 
   /* Search container */
@@ -313,7 +313,7 @@
     background: var(--color-bg);
     border: 2px solid var(--color-border);
     border-radius: 8px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 16px 48px rgb(0 0 0 / 30%);
     transform: translateY(-10px);
     transition: transform 0.2s ease;
   }

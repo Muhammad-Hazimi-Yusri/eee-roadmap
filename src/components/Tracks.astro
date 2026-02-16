@@ -63,7 +63,7 @@ function getIcon(iconName: string) {
     border: 1px solid var(--color-border);
     padding: 1.25rem;
     position: relative;
-    background: rgba(255, 255, 255, 0.6);
+    background: rgb(255 255 255 / 60%);
     transition: transform 0.2s, box-shadow 0.2s;
   }
 
@@ -71,15 +71,12 @@ function getIcon(iconName: string) {
   .track::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: repeating-linear-gradient(
       transparent,
       transparent 1.5rem,
-      rgba(0, 0, 0, 0.03) 1.5rem,
-      rgba(0, 0, 0, 0.03) calc(1.5rem + 1px)
+      rgb(0 0 0 / 3%) 1.5rem,
+      rgb(0 0 0 / 3%) calc(1.5rem + 1px)
     );
     pointer-events: none;
     opacity: 0.5;
@@ -87,7 +84,7 @@ function getIcon(iconName: string) {
 
   .track:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
   }
 
   /* Color-coded left border - uses data-level from HTML */
@@ -108,19 +105,19 @@ function getIcon(iconName: string) {
 
   /* Dark mode */
   :global(.dark) .track {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(0 0 0 / 30%);
   }
 
   :global(.dark) .track::after {
     background: repeating-linear-gradient(
       transparent,
       transparent 1.5rem,
-      rgba(255, 255, 255, 0.03) 1.5rem,
-      rgba(255, 255, 255, 0.03) calc(1.5rem + 1px)
+      rgb(255 255 255 / 3%) 1.5rem,
+      rgb(255 255 255 / 3%) calc(1.5rem + 1px)
     );
   }
 
   :global(.dark) .track:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 40%);
   }
 </style>

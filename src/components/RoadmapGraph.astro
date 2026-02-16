@@ -566,7 +566,7 @@ const clientData = {
     display: none;
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(0 0 0 / 30%);
     border: none;
     cursor: pointer;
     align-items: center;
@@ -581,7 +581,7 @@ const clientData = {
     border: 2px solid var(--color-text);
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     .graph-container {
       height: 250px;
     }
@@ -673,7 +673,7 @@ const clientData = {
     color: var(--color-text);
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     .graph-fullscreen-btn {
       display: none;
     }
@@ -720,7 +720,7 @@ const clientData = {
     box-shadow: 0 0 6px #f59e0b;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     .graph-legend {
       gap: 0.75rem;
       font-size: 0.625rem;
@@ -742,7 +742,6 @@ const clientData = {
     scrollbar-color: var(--color-border) transparent;
     -webkit-overflow-scrolling: touch;
     mask-image: linear-gradient(to right, transparent, black 1rem, black calc(100% - 1rem), transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 1rem, black calc(100% - 1rem), transparent);
   }
 
   .graph-filters::-webkit-scrollbar {
@@ -785,6 +784,7 @@ const clientData = {
 
   .graph-filter-pill--all {
     --pill-color: var(--color-text);
+
     font-weight: 600;
   }
 

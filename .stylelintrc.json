@@ -1,0 +1,40 @@
+{
+  "extends": ["stylelint-config-standard", "stylelint-config-html"],
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["tailwind", "apply", "layer", "screen", "config"]
+      }
+    ],
+    "function-no-unknown": [
+      true,
+      {
+        "ignoreFunctions": ["theme"]
+      }
+    ],
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["global"]
+      }
+    ],
+    "selector-class-pattern": [
+      "^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)*(--[a-z0-9]+(-[a-z0-9]+)*)*$",
+      {
+        "message": "Expected class selector to be kebab-case with optional BEM modifiers (--) and elements (__)"
+      }
+    ],
+    "no-duplicate-selectors": null,
+    "declaration-block-single-line-max-declarations": null,
+    "import-notation": null,
+    "no-descending-specificity": null
+  },
+  "overrides": [
+    {
+      "files": ["**/*.astro"],
+      "customSyntax": "postcss-html"
+    }
+  ],
+  "ignoreFiles": ["dist/**", "node_modules/**", ".astro/**", "coverage/**"]
+}

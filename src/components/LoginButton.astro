@@ -321,7 +321,7 @@ import { RefreshCw } from '@lucide/astro';
     min-width: 180px;
     background: var(--color-bg);
     border: 1px solid var(--color-border);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
     z-index: 1000;
   }
 
@@ -360,11 +360,11 @@ import { RefreshCw } from '@lucide/astro';
 
   /* Dark mode */
   :global(.dark) .auth-dropdown {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
   }
 
   /* Mobile: hide logged-in user text, keep chevron for dropdown */
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     .auth-name {
       display: none;
     }

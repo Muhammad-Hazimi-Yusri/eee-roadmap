@@ -1429,7 +1429,7 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
     grid-template-columns: 1fr 1fr 1fr;
   }
 
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     .editor-field-row,
     .editor-field-row--3 {
       grid-template-columns: 1fr;
@@ -1544,7 +1544,7 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
 
   .editor-concept-pill.has-notes {
     border-color: var(--color-copper);
-    background: rgba(184, 115, 51, 0.08);
+    background: rgb(184 115 51 / 8%);
   }
 
   .concept-notes-indicator {
@@ -1616,7 +1616,7 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
   }
 
   .custom-track-card--create:hover {
-    background: rgba(184, 115, 51, 0.1);
+    background: rgb(184 115 51 / 10%);
     border-color: var(--color-copper-light);
   }
 
@@ -1748,7 +1748,7 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
   .prereq-picker-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgb(0 0 0 / 50%);
   }
 
   .prereq-picker-content {

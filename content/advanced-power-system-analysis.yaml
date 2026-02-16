@@ -47,7 +47,7 @@ sections:
               - $c_{max}$: equipment rating (maximum fault current)
               - $c_{min}$: protection coordination (minimum fault current)
 
-              ![Three-phase short circuit diagram](https://commons.wikimedia.org/wiki/Special:FilePath/Three_phase_short_circuit.svg)
+              ![Three-phase short circuit diagram](https://commons.wikimedia.org/wiki/Special:FilePath/Threephaseshortcircuit.svg)
 
               *Image: Three-phase short circuit — Wikimedia Commons, CC BY-SA 3.0*
           - name: Initial Symmetrical Short-Circuit Current
@@ -72,7 +72,7 @@ sections:
 
               Ranges from **1.1** (high R/X) to **2.0** (low R/X, near generators).
 
-              ![Short-circuit current waveform showing DC offset](https://commons.wikimedia.org/wiki/Special:FilePath/Short_circuit_current_waveform.svg)
+              ![Short-circuit current waveform showing DC offset](https://commons.wikimedia.org/wiki/Special:FilePath/Short_Circuit_Current.svg)
 
               *Image: Short-circuit current waveform with DC offset — Wikimedia Commons, Public Domain*
           - name: Impedance Correction Factors
@@ -133,7 +133,7 @@ sections:
 
               No zero-sequence involvement.
 
-              ![Symmetrical components diagram](https://commons.wikimedia.org/wiki/Special:FilePath/Symmetrical_components.png)
+              ![Symmetrical components diagram](https://commons.wikimedia.org/wiki/Special:FilePath/Symmetrical_components_three_phase.svg)
 
               *Image: Symmetrical components — Wikimedia Commons, CC BY-SA 4.0*
           - name: Zero-Sequence Impedance
@@ -149,7 +149,7 @@ sections:
 
               Delta windings act as zero-sequence current traps — they circulate $I_0$ within the winding but don't pass it through.
 
-              ![Delta-Wye transformer connection](https://commons.wikimedia.org/wiki/Special:FilePath/Transformer_wye-delta.svg)
+              ![Delta-Wye transformer connection](https://commons.wikimedia.org/wiki/Special:FilePath/Delta-Wye_Transformer.png)
 
               *Image: Wye-Delta transformer connection — Wikimedia Commons, Public Domain*
         resources:
@@ -191,9 +191,9 @@ sections:
 
               **HCB is worst-case** — arc plasma is directed toward the worker.
 
-              ![Electric arc](https://commons.wikimedia.org/wiki/Special:FilePath/Electric_arc_in_the_Electricity_Museum.jpg)
+              ![Electric arc welding diagram](https://commons.wikimedia.org/wiki/Special:FilePath/Welding-electric-arc.svg)
 
-              *Image: Electric arc demonstration — Wikimedia Commons, CC BY-SA 3.0*
+              *Image: Electric arc diagram — Wikimedia Commons, CC BY-SA 3.0*
           - name: Arcing Current Calculation
             notes: |
               Arcing current is derived from bolted fault current using empirically fitted polynomials:
@@ -260,9 +260,9 @@ sections:
               - Medium voltage switchgear: 3–10+ m
               - Depends heavily on clearing time and fault current
 
-              ![Arc flash warning label](https://commons.wikimedia.org/wiki/Special:FilePath/Arc-flash_label.jpg)
+              ![Arc flash hazard warning sign](https://commons.wikimedia.org/wiki/Special:FilePath/Warnzeichen_St%C3%B6rlichtbogen_-_Fehlerlichtbogen.svg)
 
-              *Image: Arc flash hazard warning label — Wikimedia Commons, CC BY-SA 3.0*
+              *Image: Arc flash hazard warning sign — Wikimedia Commons, Public Domain*
           - name: NFPA 70E PPE Categories
             notes: |
               NFPA 70E translates IEEE 1584 incident energy into PPE categories:
@@ -277,9 +277,9 @@ sections:
 
               Above 40 cal/cm², engineering controls are mandatory: de-energisation, remote operation, or arc energy reduction.
 
-              ![Electrical worker wearing PPE](https://commons.wikimedia.org/wiki/Special:FilePath/Lineworker_changing_transformer.jpg)
+              ![Electrical substation equipment](https://commons.wikimedia.org/wiki/Special:FilePath/Electrical_Substation.JPG)
 
-              *Image: Electrical lineworker with safety equipment — Wikimedia Commons, CC BY-SA 2.0*
+              *Image: Electrical substation — Wikimedia Commons, CC BY 2.0*
           - name: Arc Energy Reduction (NEC 240.87)
             notes: |
               NEC 240.87 mandates arc energy reduction for circuit breakers **≥1200 A**. Approved methods:
@@ -795,9 +795,9 @@ sections:
         concepts:
           - name: Locked-Rotor Current Characteristics
             notes: |
-              ![Squirrel cage rotor](https://commons.wikimedia.org/wiki/Special:FilePath/Squirrel_cage.jpg)
+              ![Stator and rotor of an electric motor](https://commons.wikimedia.org/wiki/Special:FilePath/Stator_and_rotor_by_Zureks.JPG)
 
-              *Image: Squirrel cage rotor — Wikimedia Commons*
+              *Image: Stator and rotor — Wikimedia Commons, CC BY-SA 3.0*
 
               At standstill, an induction motor has no back-EMF, producing
               **locked-rotor currents of 5–8 times full-load amperes (FLA)**
@@ -896,9 +896,9 @@ sections:
         concepts:
           - name: Star-Delta and Autotransformer Starting
             notes: |
-              ![Induction motor](https://commons.wikimedia.org/wiki/Special:FilePath/Squirrel-motor.jpg)
+              ![Induction motor internals](https://commons.wikimedia.org/wiki/Special:FilePath/Motor_internals.JPG)
 
-              *Image: Squirrel cage induction motor — Wikimedia Commons*
+              *Image: Induction motor internals — Wikimedia Commons, Public Domain*
 
               **Star-delta starting (Y-Δ):**
               - Motor windings connected in star during start, then switched to delta

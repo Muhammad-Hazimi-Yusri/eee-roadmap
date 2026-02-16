@@ -402,7 +402,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     margin-bottom: 1.5rem;
   }
 
-  @media (max-width: 360px) {
+  @media (width <= 360px) {
     .user-card {
       flex-direction: column;
       text-align: center;
@@ -431,7 +431,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
-    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .user-email {
@@ -460,7 +460,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     font-size: 0.875rem;
   }
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     .signin-prompt {
       flex-direction: column;
       align-items: stretch;
@@ -488,7 +488,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     grid-template-columns: 1fr;
   }
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     .progress-grid {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -558,7 +558,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
 
   .track-card:hover {
     border-color: var(--color-copper);
-    box-shadow: 0 2px 8px rgba(184, 115, 51, 0.15);
+    box-shadow: 0 2px 8px rgb(184 115 51 / 15%);
   }
 
   .track-header {
@@ -646,7 +646,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
     gap: 0.5rem;
   }
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     .data-actions {
       flex-direction: column;
     }
@@ -679,7 +679,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
   .import-dialog-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgb(0 0 0 / 50%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -701,7 +701,7 @@ const tracksData = getAllTracks().map(({ slug, meta }) => {
   .import-dialog-title {
     font-size: 1.125rem;
     font-weight: 700;
-    margin: 0 0 1rem 0;
+    margin: 0 0 1rem;
   }
 
   .import-dialog-info {
