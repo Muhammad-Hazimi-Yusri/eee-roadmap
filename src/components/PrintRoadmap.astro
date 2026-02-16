@@ -98,14 +98,56 @@ for (const section of sections) {
       <label class="print-tree-item"><input type="checkbox" data-field-toggle="resources" checked /><span>Resources</span></label>
     </div>
 
-    <div class="print-layout-toggle">
+    <div class="print-fields-section">
+      <span class="print-fields-label">Options</span>
       <label class="print-tree-item">
-        <input type="checkbox" id="two-col-toggle" />
-        <span>2-column layout</span>
+        <input type="checkbox" id="high-contrast-toggle" />
+        <span>High contrast (no gray)</span>
+      </label>
+    </div>
+
+    <div class="print-layout-toggle">
+      <span class="print-fields-label">Layout</span>
+      <label class="print-tree-item">
+        <input type="radio" name="print-layout" value="normal" checked data-layout-radio />
+        <span>Normal (A4)</span>
+      </label>
+      <label class="print-tree-item">
+        <input type="radio" name="print-layout" value="two-col" data-layout-radio />
+        <span>2-column (A4)</span>
+      </label>
+      <label class="print-tree-item">
+        <input type="radio" name="print-layout" value="booklet-duplex" data-layout-radio />
+        <span>Booklet A5 (double-sided)</span>
+      </label>
+      <label class="print-tree-item">
+        <input type="radio" name="print-layout" value="booklet-single" data-layout-radio />
+        <span>Booklet A5 (single-sided)</span>
       </label>
     </div>
 
     <button class="btn print-btn" id="print-btn">Print / Save as PDF</button>
+
+    <div class="booklet-workflow" id="booklet-workflow" hidden>
+      <div class="booklet-step-block">
+        <span class="booklet-step-badge">1</span>
+        <div class="booklet-step-body">
+          <p class="booklet-step-text">Save your content as an A5 PDF first. In the print dialog, choose <strong>"Save as PDF"</strong>.</p>
+          <button class="btn print-btn" id="booklet-save-btn">Save as A5 PDF</button>
+        </div>
+      </div>
+      <div class="booklet-step-block">
+        <span class="booklet-step-badge">2</span>
+        <div class="booklet-step-body">
+          <p class="booklet-step-text">Select the saved PDF below. It will be rearranged into booklet page order and downloaded automatically.</p>
+          <label class="btn print-btn booklet-upload-label" id="booklet-upload-label">
+            Select A5 PDF &rarr; Download Booklet
+            <input type="file" accept=".pdf" id="booklet-file-input" hidden />
+          </label>
+        </div>
+      </div>
+      <div class="booklet-status" id="booklet-status"></div>
+    </div>
   </aside>
 
   <!-- Preview area -->
@@ -202,10 +244,11 @@ for (const section of sections) {
 </div>
 
 <script>
-  import { initPrintCheckboxes, initFieldToggles, initColumnToggle } from '../utils/printUtils';
+  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initLayoutMode } from '../utils/printUtils';
   initPrintCheckboxes();
   initFieldToggles();
-  initColumnToggle();
+  initHighContrastToggle();
+  initLayoutMode();
 </script>
 
 <style is:global>

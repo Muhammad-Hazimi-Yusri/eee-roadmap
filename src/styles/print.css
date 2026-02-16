@@ -107,6 +107,12 @@
   justify-content: center;
 }
 
+/* Ensure hidden attribute works even on elements with explicit display values */
+.print-btn[hidden],
+.booklet-workflow[hidden] {
+  display: none !important;
+}
+
 /* ----------------------------------------
    SIDEBAR CONTROLS (field toggles, layout)
    ---------------------------------------- */
@@ -130,6 +136,15 @@
 .print-layout-toggle {
   border-top: 1px solid var(--color-border);
   padding-top: 0.5rem;
+}
+
+/* ----------------------------------------
+   HIGH CONTRAST (no gray)
+   ---------------------------------------- */
+.print-high-contrast {
+  --color-text-muted: #000;
+  --color-border: #000;
+  --color-bg-grid: #e0e0e0;
 }
 
 /* ----------------------------------------
@@ -368,6 +383,85 @@
   column-gap: 1.5rem;
 }
 
+/* ----------------------------------------
+   BOOKLET WORKFLOW (A5 → pdf-lib → A4 booklet)
+   ---------------------------------------- */
+
+/* Booklet workflow UI in sidebar */
+.booklet-workflow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.75rem;
+}
+
+.booklet-step-block {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.booklet-step-badge {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--color-copper);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.1rem;
+}
+
+.booklet-step-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.booklet-step-text {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.booklet-step-text strong {
+  color: var(--color-text);
+}
+
+.booklet-upload-label {
+  display: block;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.booklet-status {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-align: center;
+  padding: 0.25rem;
+  min-height: 1rem;
+}
+
+.booklet-status--success {
+  color: var(--color-pcb);
+}
+
+.booklet-status--error {
+  color: #c33;
+  overflow-wrap: break-word;
+}
+
 /* ========================================
    PRINT MEDIA
    ======================================== */
@@ -427,4 +521,12 @@
   .print-two-col #print-content {
     column-fill: auto;
   }
+
+  /* High contrast print overrides */
+  .print-high-contrast {
+    --color-text-muted: #000;
+    --color-border: #000;
+    --color-bg-grid: #e0e0e0;
+  }
+
 }

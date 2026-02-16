@@ -77,8 +77,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Notes saved as part of the track JSON (persists with track to Supabase)
 - Shared print utilities
   - `src/styles/print.css` — shared print CSS for both official and custom print modes
-  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initColumnToggle()`
+  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initHighContrastToggle()`, `initLayoutMode()`
   - Eliminates ~500 lines of duplicated CSS/JS between `PrintRoadmap.astro` and `custom/print.astro`
+- High contrast mode in print (both official and custom tracks)
+  - Checkbox toggle: "High contrast (no gray)" in print sidebar
+  - Overrides `--color-text-muted`, `--color-border`, `--color-bg-grid` to solid black/dark values
+  - Works in both screen preview and `@media print` output
+  - Useful for printers that render gray text as blurry
+- A5 booklet printing mode (both official and custom tracks)
+  - Layout radio group: Normal (A4), 2-column (A4), Booklet A5 (double-sided), Booklet A5 (single-sided)
+  - Two-step workflow: (1) save content as A5 PDF via browser print dialog, (2) upload PDF for booklet imposition
+  - Client-side PDF conversion using pdf-lib: embeds A5 pages 2-up on A4 landscape with correct booklet page ordering
+  - Booklet imposition algorithm: pads to multiple of 4, reorders pages so folding produces sequential reading order
+  - Double-sided mode: interleaved front/back sheet order for duplex printing
+  - Single-sided mode: all fronts first, then all backs reversed (print, flip stack, print again)
+  - Dynamic `@page { size: A5 }` injection when booklet mode is active
+  - Step-by-step UI with numbered badges and status messages
+  - Automatic download of converted booklet PDF
 - Table styling in print concept notes
   - `border-collapse`, tight padding, header row background
   - Eliminates excessive whitespace before tables in printed output
@@ -126,6 +141,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - White text on `#5fa830` green gave 2.94:1 contrast (needs 4.5:1 for WCAG AA)
   - Darkened to `#3a7a1a` in dark mode (5.26:1 contrast)
 
+### Dependencies
+- Added `pdf-lib` for client-side PDF manipulation (booklet imposition)
+
 ### Changed
 - `npm run lint` now runs both ESLint and Stylelint sequentially
 - CSS modernized across all components via Stylelint auto-fix (~130 violations)
@@ -159,6 +177,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Both official and custom print now share identical CSS from `src/styles/print.css`
 - Track editor concept hint changed from "add notes via concept window after saving" to "click concept to edit notes"
 - `PrintRoadmap.astro` changed from scoped `<style>` to `<style is:global>` with shared CSS import
+- Print sidebar layout toggle: single 2-column checkbox replaced with radio group (Normal A4, 2-column A4, Booklet A5 double-sided, Booklet A5 single-sided)
+- `initColumnToggle()` deprecated (no-op stub); replaced by `initLayoutMode()` which handles all layout modes including booklet
 
 ### Removed
 - Unused `EXCLUDE_FILES` variable in build-glossary.mjs
