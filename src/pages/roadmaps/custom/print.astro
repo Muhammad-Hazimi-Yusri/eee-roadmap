@@ -33,6 +33,10 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
           <input type="checkbox" id="high-contrast-toggle" />
           <span>High contrast (no gray)</span>
         </label>
+        <label class="print-tree-item">
+          <input type="checkbox" id="section-breaks-toggle" />
+          <span>New page per section</span>
+        </label>
       </div>
 
       <div class="print-layout-toggle">
@@ -106,7 +110,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
 
 <script>
   import { loadCustomContent } from '../../../lib/sync';
-  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initLayoutMode } from '../../../utils/printUtils';
+  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode } from '../../../utils/printUtils';
   import { marked } from 'marked';
   import markedKatex from 'marked-katex-extension';
 
@@ -306,6 +310,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
       initPrintCheckboxes();
       initFieldToggles();
       initHighContrastToggle();
+      initSectionBreaksToggle();
       initLayoutMode();
 
     } catch (err) {

@@ -148,6 +148,17 @@
 }
 
 /* ----------------------------------------
+   SECTION PAGE BREAKS
+   ---------------------------------------- */
+.print-section-breaks .print-section + .print-section {
+  break-before: page;
+}
+
+.print-two-col .print-section-breaks .print-section + .print-section {
+  break-before: column;
+}
+
+/* ----------------------------------------
    PREVIEW AREA
    ---------------------------------------- */
 .print-preview {

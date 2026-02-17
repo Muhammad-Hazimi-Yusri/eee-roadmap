@@ -169,6 +169,18 @@ export function initHighContrastToggle(): void {
   });
 }
 
+/**
+ * Initialise section page-break toggle.
+ * Toggles the .print-section-breaks class on #print-content.
+ */
+export function initSectionBreaksToggle(): void {
+  document.getElementById('section-breaks-toggle')?.addEventListener('change', (e) => {
+    document.getElementById('print-content')?.classList.toggle(
+      'print-section-breaks', (e.target as HTMLInputElement).checked
+    );
+  });
+}
+
 /* ========================================
    BOOKLET: A5 page style + pdf-lib converter
    ======================================== */

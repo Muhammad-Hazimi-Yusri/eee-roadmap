@@ -104,6 +104,10 @@ for (const section of sections) {
         <input type="checkbox" id="high-contrast-toggle" />
         <span>High contrast (no gray)</span>
       </label>
+      <label class="print-tree-item">
+        <input type="checkbox" id="section-breaks-toggle" />
+        <span>New page per section</span>
+      </label>
     </div>
 
     <div class="print-layout-toggle">
@@ -244,10 +248,11 @@ for (const section of sections) {
 </div>
 
 <script>
-  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initLayoutMode } from '../utils/printUtils';
+  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode } from '../utils/printUtils';
   initPrintCheckboxes();
   initFieldToggles();
   initHighContrastToggle();
+  initSectionBreaksToggle();
   initLayoutMode();
 </script>
 

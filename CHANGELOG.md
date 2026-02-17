@@ -77,7 +77,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Notes saved as part of the track JSON (persists with track to Supabase)
 - Shared print utilities
   - `src/styles/print.css` — shared print CSS for both official and custom print modes
-  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initHighContrastToggle()`, `initLayoutMode()`
+  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initHighContrastToggle()`, `initSectionBreaksToggle()`, `initLayoutMode()`
   - Eliminates ~500 lines of duplicated CSS/JS between `PrintRoadmap.astro` and `custom/print.astro`
 - High contrast mode in print (both official and custom tracks)
   - Checkbox toggle: "High contrast (no gray)" in print sidebar
@@ -94,6 +94,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Dynamic `@page { size: A5 }` injection when booklet mode is active
   - Step-by-step UI with numbered badges and status messages
   - Automatic download of converted booklet PDF
+- Section page breaks toggle in print mode (both official and custom tracks)
+  - Checkbox: "New page per section" in print sidebar Options
+  - Normal/booklet layout: `break-before: page` between sections
+  - 2-column layout: `break-before: column` between sections (forces new column instead of new page)
+  - Toggles `.print-section-breaks` class on `#print-content`
 - Table styling in print concept notes
   - `border-collapse`, tight padding, header row background
   - Eliminates excessive whitespace before tables in printed output

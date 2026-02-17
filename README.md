@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.12-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.13-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.12
+Current version is v0.21.13
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -52,7 +52,7 @@ Current version is v0.21.12
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 - **Import/Export** — Back up your progress as JSON; import with merge or replace options
 - **Graph View** — Interactive visualization of topic connections and prerequisites; fullscreen mode on all devices; dark mode support; progress status indicators; per-track focused view on roadmap pages
-- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; field-level toggles (description, prerequisites, outcomes, concept notes, resources); optional 2-column layout; high contrast mode (no gray text); A5 booklet printing with pdf-lib imposition (double-sided or single-sided); works for both official and custom tracks
+- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; field-level toggles (description, prerequisites, outcomes, concept notes, resources); optional 2-column layout; section page breaks (new page per section, or column break in 2-column mode); high contrast mode (no gray text); A5 booklet printing with pdf-lib imposition (double-sided or single-sided); works for both official and custom tracks
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -218,6 +218,7 @@ Current version is v0.21.12
 - [x] Fix broken Wikimedia image URLs in advanced-power-system-analysis track (9 non-existent filenames replaced)
 - [x] Print mode: high contrast toggle (converts gray text/borders to black for printers that render gray poorly)
 - [x] Print mode: A5 booklet printing with pdf-lib imposition (double-sided and single-sided options)
+- [x] Print mode: section page breaks toggle (new page per section in normal layout, column break in 2-column mode)
 - [ ] Lighthouse score and performance optimisation
 
 ---
