@@ -49,6 +49,22 @@ for (const section of sections) {
       <span>Select all</span>
     </label>
 
+    <div class="print-fields-section print-filter-section">
+      <span class="print-fields-label">Quick select</span>
+      <label class="print-tree-item">
+        <input type="checkbox" data-progress-filter="completed" />
+        <span>Completed</span>
+      </label>
+      <label class="print-tree-item">
+        <input type="checkbox" data-progress-filter="highlighted" />
+        <span>Highlighted</span>
+      </label>
+      <label class="print-tree-item">
+        <input type="checkbox" data-progress-filter="incomplete" />
+        <span>Incomplete</span>
+      </label>
+    </div>
+
     <div class="print-tree">
       {sections.map((section) => (
         <div class="print-tree-section">
@@ -248,12 +264,14 @@ for (const section of sections) {
 </div>
 
 <script>
-  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode } from '../utils/printUtils';
-  initPrintCheckboxes();
+  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode, initProgressFilters, initPdfQrCodes } from '../utils/printUtils';
+  const { updateParentStates, updatePreview } = initPrintCheckboxes();
+  initProgressFilters(updateParentStates, updatePreview);
   initFieldToggles();
   initHighContrastToggle();
   initSectionBreaksToggle();
   initLayoutMode();
+  initPdfQrCodes();
 </script>
 
 <style is:global>

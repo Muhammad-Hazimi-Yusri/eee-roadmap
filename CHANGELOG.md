@@ -77,7 +77,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Notes saved as part of the track JSON (persists with track to Supabase)
 - Shared print utilities
   - `src/styles/print.css` — shared print CSS for both official and custom print modes
-  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initHighContrastToggle()`, `initSectionBreaksToggle()`, `initLayoutMode()`
+  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initHighContrastToggle()`, `initSectionBreaksToggle()`, `initLayoutMode()`, `initProgressFilters()`, `initPdfQrCodes()`
   - Eliminates ~500 lines of duplicated CSS/JS between `PrintRoadmap.astro` and `custom/print.astro`
 - High contrast mode in print (both official and custom tracks)
   - Checkbox toggle: "High contrast (no gray)" in print sidebar
@@ -99,6 +99,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Normal/booklet layout: `break-before: page` between sections
   - 2-column layout: `break-before: column` between sections (forces new column instead of new page)
   - Toggles `.print-section-breaks` class on `#print-content`
+- Progress-based quick-select filters in print mode (both official and custom tracks)
+  - "Quick select" section in print sidebar with three checkboxes: Completed (✓), Highlighted (★), Incomplete
+  - Union logic: concept selected if it matches ANY active filter (e.g. checking both Completed and Highlighted selects all concepts that are either)
+  - Unchecking all filters resets to clean slate (all concepts unchecked)
+  - Reads progress from `createProgressStore('eee-progress-v2')` — same localStorage data used by the main roadmap
+  - Cascades selection up through topic → section → select-all checkboxes via shared `updateParentStates()`
+  - `initPrintCheckboxes()` now returns `{ updateParentStates, updatePreview }` for external callers
+- QR codes for PDF embeds in print mode (both official and custom tracks)
+  - PDF embeds (previously hidden with `display: none` in print) now show a QR code linking to the original source URL
+  - QR code generated client-side using `qrcode` package (`QRCode.toDataURL()`)
+  - Displays original PDF URL as text below QR code
+  - Shows hosted site URL (`eee-roadmap.muhammadhazimiyusri.uk/pdfs/...`) as fallback text when available
+  - `data-pdf-url` attribute added to `.notes-pdf-embed` divs in both `parseNotes.ts` (build-time) and `parseNotesClient.ts` (client-side)
+  - Custom track print page configures `marked` image renderer with `data-pdf-url` for PDF embeds
+  - QR visible in both screen preview and print output; iframe and resizer hidden in print context
 - Table styling in print concept notes
   - `border-collapse`, tight padding, header row background
   - Eliminates excessive whitespace before tables in printed output
@@ -148,6 +163,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Dependencies
 - Added `pdf-lib` for client-side PDF manipulation (booklet imposition)
+- Added `qrcode` (+ `@types/qrcode`) for client-side QR code generation in print mode
 
 ### Changed
 - `npm run lint` now runs both ESLint and Stylelint sequentially
@@ -184,6 +200,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `PrintRoadmap.astro` changed from scoped `<style>` to `<style is:global>` with shared CSS import
 - Print sidebar layout toggle: single 2-column checkbox replaced with radio group (Normal A4, 2-column A4, Booklet A5 double-sided, Booklet A5 single-sided)
 - `initColumnToggle()` deprecated (no-op stub); replaced by `initLayoutMode()` which handles all layout modes including booklet
+- `initPrintCheckboxes()` return type changed from `void` to `{ updateParentStates, updatePreview }` so progress filters can trigger parent state cascading and preview updates
+- PDF embeds in print: changed from `display: none` (hidden entirely) to showing QR code with source URL; iframe and resizer hidden separately
 
 ### Removed
 - Unused `EXCLUDE_FILES` variable in build-glossary.mjs

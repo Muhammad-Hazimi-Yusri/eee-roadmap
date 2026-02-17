@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.13-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.14-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.13
+Current version is v0.21.14
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -52,7 +52,7 @@ Current version is v0.21.13
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 - **Import/Export** — Back up your progress as JSON; import with merge or replace options
 - **Graph View** — Interactive visualization of topic connections and prerequisites; fullscreen mode on all devices; dark mode support; progress status indicators; per-track focused view on roadmap pages
-- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; field-level toggles (description, prerequisites, outcomes, concept notes, resources); optional 2-column layout; section page breaks (new page per section, or column break in 2-column mode); high contrast mode (no gray text); A5 booklet printing with pdf-lib imposition (double-sided or single-sided); works for both official and custom tracks
+- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; field-level toggles (description, prerequisites, outcomes, concept notes, resources); optional 2-column layout; section page breaks (new page per section, or column break in 2-column mode); high contrast mode (no gray text); A5 booklet printing with pdf-lib imposition (double-sided or single-sided); progress-based quick-select filters (completed, highlighted, incomplete — union logic); QR codes for embedded PDFs in print output (links to source URL with hosted fallback); works for both official and custom tracks
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -85,7 +85,7 @@ Current version is v0.21.13
 ### Technical Highlights
 - **Stack:** Astro, TypeScript, Tailwind CSS
 - **Search:** Fuse.js fuzzy matching with highlighted snippets
-- **PDFs:** PDF.js for cross-browser viewing, auto-downloaded at build time; pdf-lib for client-side booklet imposition
+- **PDFs:** PDF.js for cross-browser viewing, auto-downloaded at build time; pdf-lib for client-side booklet imposition; qrcode for print-mode QR codes
 - **Math:** KaTeX for LaTeX equation rendering
 - **Mobile:** Touch + stylus support, responsive design
 - **Theming:** Dark mode with system preference detection
@@ -219,6 +219,8 @@ Current version is v0.21.13
 - [x] Print mode: high contrast toggle (converts gray text/borders to black for printers that render gray poorly)
 - [x] Print mode: A5 booklet printing with pdf-lib imposition (double-sided and single-sided options)
 - [x] Print mode: section page breaks toggle (new page per section in normal layout, column break in 2-column mode)
+- [x] Print mode: progress-based quick-select filters (completed ✓, highlighted ★, incomplete — union logic)
+- [x] Print mode: QR codes for embedded PDFs (replaces hidden PDF embeds with scannable QR code + source URL in print output)
 - [ ] Lighthouse score and performance optimisation
 
 ---
@@ -321,7 +323,7 @@ eee-roadmap/
 │   │   ├── DemoRoadmap.astro      # Homepage interactive demo
 │   │   ├── GlossaryTooltips.astro # Auto-linked term tooltips
 │   │   ├── Header.astro           # Nav + auth + search
-│   │   ├── PrintRoadmap.astro     # Print mode: checkbox tree, field toggles, 2-column, high contrast, booklet
+│   │   ├── PrintRoadmap.astro     # Print mode: checkbox tree, field toggles, 2-column, high contrast, booklet, progress filters, PDF QR codes
 │   │   ├── Roadmap.astro          # Main roadmap renderer
 │   │   ├── RoadmapGraph.astro     # Homepage graph visualization
 │   │   ├── RoadmapSettings.astro  # Settings panel (modes, focus)
@@ -357,7 +359,7 @@ eee-roadmap/
 │   └── utils/
 │       ├── parseNotes.ts          # Markdown + KaTeX + PDF parser (build-time)
 │       ├── parseNotesClient.ts    # Client-side markdown parser
-│       ├── printUtils.ts          # Shared print mode JS (checkboxes, toggles, booklet PDF converter)
+│       ├── printUtils.ts          # Shared print mode JS (checkboxes, toggles, booklet PDF, progress filters, PDF QR codes)
 │       ├── progress.ts            # Progress tracking (localStorage)
 │       ├── roadmapInteractions.ts # Expand/collapse, concept pills
 │       ├── wrapGlossaryTerms.ts   # Auto-link glossary terms

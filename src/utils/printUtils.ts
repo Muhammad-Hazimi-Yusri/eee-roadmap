@@ -3,13 +3,16 @@
  * Used by both PrintRoadmap.astro (official tracks) and custom/print.astro (custom tracks).
  */
 import { PDFDocument } from 'pdf-lib';
+import { createProgressStore } from './progress';
+import QRCode from 'qrcode';
 
 /**
  * Initialise cascading checkbox logic for the print sidebar tree.
  * Handles select-all, section → topic → concept cascading,
  * and shows/hides preview elements based on checked state.
+ * Returns update functions so other modules (e.g. progress filters) can trigger re-renders.
  */
-export function initPrintCheckboxes(): void {
+export function initPrintCheckboxes(): { updateParentStates: () => void; updatePreview: () => void } {
   const selectAll = document.querySelector<HTMLInputElement>('[data-select-all]');
   const sectionChecks = document.querySelectorAll<HTMLInputElement>('[data-section-check]');
   const topicChecks = document.querySelectorAll<HTMLInputElement>('[data-topic-check]');
@@ -139,6 +142,8 @@ export function initPrintCheckboxes(): void {
 
   // Print button
   printBtn?.addEventListener('click', () => window.print());
+
+  return { updateParentStates, updatePreview };
 }
 
 /**
@@ -179,6 +184,112 @@ export function initSectionBreaksToggle(): void {
       'print-section-breaks', (e.target as HTMLInputElement).checked
     );
   });
+}
+
+/**
+ * Initialise progress-based quick-select filters.
+ * Allows users to select concepts by status: completed, highlighted, incomplete.
+ * Uses union logic — a concept is selected if it matches ANY active filter.
+ */
+export function initProgressFilters(
+  updateParentStates: () => void,
+  updatePreview: () => void
+): void {
+  const filters = document.querySelectorAll<HTMLInputElement>('[data-progress-filter]');
+  if (filters.length === 0) return;
+
+  const { isComplete, isImportant } = createProgressStore('eee-progress-v2');
+
+  function applyFilters() {
+    const wantCompleted = (document.querySelector('[data-progress-filter="completed"]') as HTMLInputElement)?.checked;
+    const wantHighlighted = (document.querySelector('[data-progress-filter="highlighted"]') as HTMLInputElement)?.checked;
+    const wantIncomplete = (document.querySelector('[data-progress-filter="incomplete"]') as HTMLInputElement)?.checked;
+
+    const conceptChecks = document.querySelectorAll<HTMLInputElement>('[data-concept-check]');
+    const topicChecks = document.querySelectorAll<HTMLInputElement>('[data-topic-check]');
+    const sectionChecks = document.querySelectorAll<HTMLInputElement>('[data-section-check]');
+    const selectAll = document.querySelector<HTMLInputElement>('[data-select-all]');
+
+    // No filters active → uncheck everything (clean slate)
+    if (!wantCompleted && !wantHighlighted && !wantIncomplete) {
+      conceptChecks.forEach(cb => { cb.checked = false; });
+      topicChecks.forEach(tc => { tc.checked = false; tc.indeterminate = false; });
+      sectionChecks.forEach(sc => { sc.checked = false; sc.indeterminate = false; });
+      if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
+      updatePreview();
+      return;
+    }
+
+    // Update every concept checkbox based on progress status
+    conceptChecks.forEach(cb => {
+      const key = cb.dataset.conceptCheck!;
+      const completed = isComplete(key);
+      const highlighted = isImportant(key);
+      const incomplete = !completed;
+
+      cb.checked = (wantCompleted && completed)
+                || (wantHighlighted && highlighted)
+                || (wantIncomplete && incomplete);
+    });
+
+    // Topics with no concepts — uncheck (no progress data)
+    topicChecks.forEach(tc => {
+      const topicId = tc.dataset.topicCheck!;
+      const children = document.querySelectorAll<HTMLInputElement>(
+        `[data-concept-check][data-parent-topic="${topicId}"]`
+      );
+      if (children.length === 0) {
+        tc.checked = false;
+        tc.indeterminate = false;
+      }
+    });
+
+    updateParentStates();
+    updatePreview();
+  }
+
+  filters.forEach(f => f.addEventListener('change', applyFilters));
+}
+
+/**
+ * Generate QR codes for PDF embeds in print mode.
+ * Finds all .notes-pdf-embed elements with data-pdf-url,
+ * generates a QR code linking to the original source URL,
+ * and appends it with a fallback hosted URL.
+ */
+export async function initPdfQrCodes(): Promise<void> {
+  const embeds = document.querySelectorAll<HTMLElement>('.notes-pdf-embed[data-pdf-url]');
+  if (embeds.length === 0) return;
+
+  const siteBase = 'eee-roadmap.muhammadhazimiyusri.uk';
+
+  for (const embed of embeds) {
+    const originalUrl = embed.dataset.pdfUrl!;
+
+    // Get hosted URL from iframe src
+    const iframe = embed.querySelector('iframe');
+    const iframeSrc = iframe?.getAttribute('src') || '';
+    const queryPart = iframeSrc.split('?')[1] || '';
+    const fileParam = new URLSearchParams(queryPart).get('file') || '';
+    const hostedPath = decodeURIComponent(fileParam);
+    const hostedUrl = hostedPath ? `${siteBase}${hostedPath}` : '';
+
+    try {
+      const dataUrl = await QRCode.toDataURL(originalUrl, { width: 80, margin: 1 });
+      const qrContainer = document.createElement('div');
+      qrContainer.className = 'notes-pdf-qr';
+      qrContainer.innerHTML = `
+        <img src="${dataUrl}" alt="QR code for PDF" class="notes-pdf-qr-img" />
+        <div class="notes-pdf-qr-links">
+          <span class="notes-pdf-qr-url">${originalUrl}</span>
+          ${hostedUrl ? `<span class="notes-pdf-qr-fallback">${hostedUrl}</span>` : ''}
+        </div>
+      `;
+      embed.appendChild(qrContainer);
+    } catch {
+      // Skip if QR generation fails
+    }
+  }
 }
 
 /* ========================================

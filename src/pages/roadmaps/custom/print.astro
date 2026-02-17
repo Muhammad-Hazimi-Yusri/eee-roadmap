@@ -14,6 +14,22 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
         <span>Select all</span>
       </label>
 
+      <div class="print-fields-section print-filter-section">
+        <span class="print-fields-label">Quick select</span>
+        <label class="print-tree-item">
+          <input type="checkbox" data-progress-filter="completed" />
+          <span>Completed</span>
+        </label>
+        <label class="print-tree-item">
+          <input type="checkbox" data-progress-filter="highlighted" />
+          <span>Highlighted</span>
+        </label>
+        <label class="print-tree-item">
+          <input type="checkbox" data-progress-filter="incomplete" />
+          <span>Incomplete</span>
+        </label>
+      </div>
+
       <div class="print-tree" id="print-tree">
         <!-- Built client-side -->
       </div>
@@ -110,12 +126,26 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
 
 <script>
   import { loadCustomContent } from '../../../lib/sync';
-  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode } from '../../../utils/printUtils';
+  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode, initProgressFilters, initPdfQrCodes } from '../../../utils/printUtils';
   import { marked } from 'marked';
   import markedKatex from 'marked-katex-extension';
 
   // Configure marked for client-side parsing (no fs-dependent PDF manifest)
   marked.use(markedKatex({ throwOnError: false }));
+  marked.use({
+    renderer: {
+      image({ href, title, text }: { href: string; title: string | null; text: string }) {
+        if (!href) return '';
+        const altText = text || '';
+        const titleAttr = title ? ` title="${title}"` : '';
+        if (href.toLowerCase().endsWith('.pdf')) {
+          const encodedUrl = encodeURIComponent(href);
+          return `<div class="notes-pdf-embed" data-pdf-url="${href}"><iframe src="/pdfjs/web/viewer.html?file=${encodedUrl}" title="${altText || 'PDF document'}" class="notes-pdf-iframe" loading="lazy"></iframe><div class="notes-pdf-resizer" title="Drag to resize PDF"></div></div>`;
+        }
+        return `<img src="${href}" alt="${altText}"${titleAttr} class="notes-image" loading="lazy" />`;
+      }
+    }
+  });
 
   function escapeHtml(str: string): string {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -307,11 +337,13 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
       `).join('');
 
       // Wire up shared print interactions
-      initPrintCheckboxes();
+      const { updateParentStates, updatePreview } = initPrintCheckboxes();
+      initProgressFilters(updateParentStates, updatePreview);
       initFieldToggles();
       initHighContrastToggle();
       initSectionBreaksToggle();
       initLayoutMode();
+      initPdfQrCodes();
 
     } catch (err) {
       console.error('Failed to load custom track for print:', err);

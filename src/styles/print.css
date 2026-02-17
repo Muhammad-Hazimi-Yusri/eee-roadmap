@@ -350,8 +350,42 @@
   max-height: 300px;
 }
 
-.print-concept-notes .notes-pdf-embed {
+/* PDF embeds: hide iframe, show QR code in print context */
+.print-concept-notes .notes-pdf-embed iframe,
+.print-concept-notes .notes-pdf-embed .notes-pdf-resizer {
   display: none;
+}
+
+.print-concept-notes .notes-pdf-qr {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.notes-pdf-qr-img {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.notes-pdf-qr-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.notes-pdf-qr-url {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  word-break: break-all;
+}
+
+.notes-pdf-qr-fallback {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-text-muted);
+  word-break: break-all;
 }
 
 .print-concept-notes .glossary-link {

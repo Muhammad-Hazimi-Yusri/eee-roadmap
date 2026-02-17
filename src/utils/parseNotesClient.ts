@@ -21,9 +21,9 @@ marked.use({
       if (isPdf) {
         const encodedUrl = encodeURIComponent(href);
         return `
-          <div class="notes-pdf-embed">
-            <iframe 
-              src="/pdfjs/web/viewer.html?file=${encodedUrl}" 
+          <div class="notes-pdf-embed" data-pdf-url="${href}">
+            <iframe
+              src="/pdfjs/web/viewer.html?file=${encodedUrl}"
               title="${altText || 'PDF document'}"
               class="notes-pdf-iframe"
               loading="lazy"
