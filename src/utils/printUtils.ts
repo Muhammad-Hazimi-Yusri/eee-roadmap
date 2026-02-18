@@ -292,6 +292,75 @@ export async function initPdfQrCodes(): Promise<void> {
   }
 }
 
+/**
+ * Generate QR codes for resource links in print mode.
+ * Each resource <li> with data-resource-url gets a QR code appended.
+ * Fallback URL points to the topic page on the hosted site.
+ */
+export async function initResourceQrCodes(): Promise<void> {
+  const resources = document.querySelectorAll<HTMLElement>('li[data-resource-url]');
+  if (resources.length === 0) return;
+
+  const siteBase = 'eee-roadmap.muhammadhazimiyusri.uk';
+  const printPage = document.querySelector<HTMLElement>('.print-page');
+  const trackSlug = printPage?.dataset.trackSlug || '';
+  const isCustom = printPage?.dataset.trackType === 'custom';
+
+  for (const li of resources) {
+    const url = li.dataset.resourceUrl!;
+    const topicId = li.dataset.topicId || '';
+
+    const fallbackUrl = isCustom
+      ? `${siteBase}/roadmaps/custom/?track=${trackSlug}#${topicId}`
+      : `${siteBase}/roadmaps/${trackSlug}/#${topicId}`;
+
+    try {
+      const dataUrl = await QRCode.toDataURL(url, { width: 80, margin: 1 });
+      const qrContainer = document.createElement('div');
+      qrContainer.className = 'print-resource-qr';
+      qrContainer.innerHTML = `
+        <img src="${dataUrl}" alt="QR code" class="print-resource-qr-img" />
+        <div class="print-resource-qr-links">
+          <span class="print-resource-qr-url">${url}</span>
+          <span class="print-resource-qr-fallback">${fallbackUrl}</span>
+        </div>
+      `;
+      li.appendChild(qrContainer);
+    } catch {
+      // Skip if QR generation fails
+    }
+  }
+}
+
+/**
+ * Initialise QR/URL display option dropdowns and fallback URL toggle.
+ * Sets data attributes on .print-page that CSS uses to control visibility.
+ */
+export function initQrDisplayOptions(): void {
+  const pdfSelect = document.getElementById('pdf-qr-mode') as HTMLSelectElement | null;
+  const resourceSelect = document.getElementById('resource-qr-mode') as HTMLSelectElement | null;
+  const fallbackToggle = document.getElementById('show-fallback-url') as HTMLInputElement | null;
+  const printPage = document.querySelector<HTMLElement>('.print-page');
+  if (!printPage) return;
+
+  function applyModes() {
+    const pdfMode = pdfSelect?.value || 'both';
+    const resMode = resourceSelect?.value || 'url';
+    const showFallback = fallbackToggle?.checked ?? true;
+
+    printPage!.dataset.pdfQrMode = pdfMode;
+    printPage!.dataset.resourceQrMode = resMode;
+    printPage!.classList.toggle('hide-fallback-url', !showFallback);
+  }
+
+  pdfSelect?.addEventListener('change', applyModes);
+  resourceSelect?.addEventListener('change', applyModes);
+  fallbackToggle?.addEventListener('change', applyModes);
+
+  // Apply defaults on init
+  applyModes();
+}
+
 /* ========================================
    BOOKLET: A5 page style + pdf-lib converter
    ======================================== */

@@ -53,6 +53,28 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
           <input type="checkbox" id="section-breaks-toggle" />
           <span>New page per section</span>
         </label>
+        <label class="print-tree-item print-select-item">
+          <span>PDF links:</span>
+          <select id="pdf-qr-mode">
+            <option value="both">QR + URL</option>
+            <option value="qr">QR only</option>
+            <option value="url">URL only</option>
+            <option value="hidden">Hidden</option>
+          </select>
+        </label>
+        <label class="print-tree-item print-select-item">
+          <span>Resource links:</span>
+          <select id="resource-qr-mode">
+            <option value="url" selected>URL only</option>
+            <option value="both">QR + URL</option>
+            <option value="qr">QR only</option>
+            <option value="hidden">Hidden</option>
+          </select>
+        </label>
+        <label class="print-tree-item">
+          <input type="checkbox" id="show-fallback-url" checked />
+          <span>Show fallback URL</span>
+        </label>
       </div>
 
       <div class="print-layout-toggle">
@@ -126,7 +148,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
 
 <script>
   import { loadCustomContent } from '../../../lib/sync';
-  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode, initProgressFilters, initPdfQrCodes } from '../../../utils/printUtils';
+  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode, initProgressFilters, initPdfQrCodes, initResourceQrCodes, initQrDisplayOptions } from '../../../utils/printUtils';
   import { marked } from 'marked';
   import markedKatex from 'marked-katex-extension';
 
@@ -322,7 +344,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
                     <span class="print-field-label">Resources:</span>
                     <ul class="print-resources">
                       ${item.resources.map((r: any) => `
-                        <li>
+                        <li data-resource-url="${escapeHtml(r.url)}" data-topic-id="${escapeHtml(item.id)}">
                           <span class="print-resource-label">${escapeHtml(r.label)}</span>
                           <span class="print-resource-url">${escapeHtml(r.url)}</span>
                         </li>
@@ -336,6 +358,13 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
         </div>
       `).join('');
 
+      // Set track metadata on print page for QR fallback URLs
+      const printPage = document.querySelector<HTMLElement>('.print-page');
+      if (printPage) {
+        printPage.dataset.trackSlug = slug;
+        printPage.dataset.trackType = 'custom';
+      }
+
       // Wire up shared print interactions
       const { updateParentStates, updatePreview } = initPrintCheckboxes();
       initProgressFilters(updateParentStates, updatePreview);
@@ -344,6 +373,8 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
       initSectionBreaksToggle();
       initLayoutMode();
       initPdfQrCodes();
+      initResourceQrCodes();
+      initQrDisplayOptions();
 
     } catch (err) {
       console.error('Failed to load custom track for print:', err);

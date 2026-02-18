@@ -88,7 +88,7 @@ describe('parseNotesClient', () => {
 
     it('wraps PDF in notes-pdf-embed div', () => {
       const result = parseNotesClient('![PDF](/test.pdf)');
-      expect(result).toContain('<div class="notes-pdf-embed">');
+      expect(result).toContain('<div class="notes-pdf-embed" data-pdf-url="/test.pdf">');
     });
 
     it('includes pdf-resizer for drag-to-resize', () => {

@@ -107,7 +107,7 @@ describe('parseNotes', () => {
 
     it('should wrap PDF in notes-pdf-embed div', () => {
       const result = parseNotes('![PDF](/test.pdf)');
-      expect(result).toContain('<div class="notes-pdf-embed">');
+      expect(result).toContain('<div class="notes-pdf-embed" data-pdf-url="/test.pdf">');
     });
   });
 

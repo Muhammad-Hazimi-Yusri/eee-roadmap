@@ -420,6 +420,125 @@
   word-break: break-all;
 }
 
+/* Resource QR codes (hidden by default, shown via data-resource-qr-mode) */
+.print-resource-qr {
+  display: none;
+}
+
+.print-resource-qr-img {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.print-resource-qr-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.print-resource-qr-url {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  word-break: break-all;
+}
+
+.print-resource-qr-fallback {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-text-muted);
+  word-break: break-all;
+}
+
+/* ----------------------------------------
+   QR/URL DISPLAY MODE CONTROLS
+   ---------------------------------------- */
+
+/* PDF QR modes */
+.print-page[data-pdf-qr-mode="qr"] .notes-pdf-qr-links { display: none; }
+.print-page[data-pdf-qr-mode="url"] .notes-pdf-qr-img { display: none; }
+.print-page[data-pdf-qr-mode="hidden"] .notes-pdf-qr { display: none; }
+
+/* Resource QR modes */
+.print-page[data-resource-qr-mode="both"] .print-resource-qr {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.125rem 0;
+}
+
+.print-page[data-resource-qr-mode="both"] .print-resource-url { display: none; }
+
+.print-page[data-resource-qr-mode="qr"] .print-resource-qr {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.125rem 0;
+}
+
+.print-page[data-resource-qr-mode="qr"] .print-resource-qr-links { display: none; }
+.print-page[data-resource-qr-mode="qr"] .print-resource-url { display: none; }
+
+.print-page[data-resource-qr-mode="hidden"] .print-resource-url { display: none; }
+
+/* QR-only compact layout: items side by side */
+.print-page[data-resource-qr-mode="qr"] .print-resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.print-page[data-resource-qr-mode="qr"] .print-resources li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.print-page[data-resource-qr-mode="qr"] .print-resource-label {
+  font-size: 0.55rem;
+  text-align: center;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.print-page[data-resource-qr-mode="qr"] .print-resource-qr {
+  padding: 0;
+}
+
+.print-page[data-pdf-qr-mode="qr"] .print-concept-notes .notes-pdf-qr {
+  display: inline-flex;
+  vertical-align: top;
+  margin-right: 0.375rem;
+  padding: 0;
+}
+
+/* Fallback URL toggle */
+.print-page.hide-fallback-url .notes-pdf-qr-fallback,
+.print-page.hide-fallback-url .print-resource-qr-fallback {
+  display: none;
+}
+
+/* Select dropdown styling in sidebar */
+.print-select-item {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.print-select-item select {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.125rem 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  flex: 1;
+}
+
 /* ----------------------------------------
    TWO-COLUMN LAYOUT
    ---------------------------------------- */

@@ -37,7 +37,7 @@ for (const section of sections) {
 }
 ---
 
-<div class="print-page">
+<div class="print-page" data-track-slug={trackSlug}>
   <!-- Sidebar: checkbox tree -->
   <aside class="print-sidebar no-print">
     <a href={internalHref(`roadmaps/${trackSlug}`)} class="print-back-link">&larr; Back to track</a>
@@ -123,6 +123,28 @@ for (const section of sections) {
       <label class="print-tree-item">
         <input type="checkbox" id="section-breaks-toggle" />
         <span>New page per section</span>
+      </label>
+      <label class="print-tree-item print-select-item">
+        <span>PDF links:</span>
+        <select id="pdf-qr-mode">
+          <option value="both">QR + URL</option>
+          <option value="qr">QR only</option>
+          <option value="url">URL only</option>
+          <option value="hidden">Hidden</option>
+        </select>
+      </label>
+      <label class="print-tree-item print-select-item">
+        <span>Resource links:</span>
+        <select id="resource-qr-mode">
+          <option value="url" selected>URL only</option>
+          <option value="both">QR + URL</option>
+          <option value="qr">QR only</option>
+          <option value="hidden">Hidden</option>
+        </select>
+      </label>
+      <label class="print-tree-item">
+        <input type="checkbox" id="show-fallback-url" checked />
+        <span>Show fallback URL</span>
       </label>
     </div>
 
@@ -247,7 +269,7 @@ for (const section of sections) {
                   <span class="print-field-label">Resources:</span>
                   <ul class="print-resources">
                     {item.resources.map((r) => (
-                      <li>
+                      <li data-resource-url={r.url} data-topic-id={item.id}>
                         <span class="print-resource-label">{r.label}</span>
                         <span class="print-resource-url">{r.url}</span>
                       </li>
@@ -264,7 +286,7 @@ for (const section of sections) {
 </div>
 
 <script>
-  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode, initProgressFilters, initPdfQrCodes } from '../utils/printUtils';
+  import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode, initProgressFilters, initPdfQrCodes, initResourceQrCodes, initQrDisplayOptions } from '../utils/printUtils';
   const { updateParentStates, updatePreview } = initPrintCheckboxes();
   initProgressFilters(updateParentStates, updatePreview);
   initFieldToggles();
@@ -272,6 +294,8 @@ for (const section of sections) {
   initSectionBreaksToggle();
   initLayoutMode();
   initPdfQrCodes();
+  initResourceQrCodes();
+  initQrDisplayOptions();
 </script>
 
 <style is:global>

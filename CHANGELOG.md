@@ -77,7 +77,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Notes saved as part of the track JSON (persists with track to Supabase)
 - Shared print utilities
   - `src/styles/print.css` — shared print CSS for both official and custom print modes
-  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initHighContrastToggle()`, `initSectionBreaksToggle()`, `initLayoutMode()`, `initProgressFilters()`, `initPdfQrCodes()`
+  - `src/utils/printUtils.ts` — shared JS: `initPrintCheckboxes()`, `initFieldToggles()`, `initHighContrastToggle()`, `initSectionBreaksToggle()`, `initLayoutMode()`, `initProgressFilters()`, `initPdfQrCodes()`, `initResourceQrCodes()`, `initQrDisplayOptions()`
   - Eliminates ~500 lines of duplicated CSS/JS between `PrintRoadmap.astro` and `custom/print.astro`
 - High contrast mode in print (both official and custom tracks)
   - Checkbox toggle: "High contrast (no gray)" in print sidebar
@@ -114,6 +114,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `data-pdf-url` attribute added to `.notes-pdf-embed` divs in both `parseNotes.ts` (build-time) and `parseNotesClient.ts` (client-side)
   - Custom track print page configures `marked` image renderer with `data-pdf-url` for PDF embeds
   - QR visible in both screen preview and print output; iframe and resizer hidden in print context
+- QR codes for resource links in print mode (both official and custom tracks)
+  - Each resource `<li>` with `data-resource-url` gets a QR code generated client-side via `qrcode` package
+  - Fallback URL points to the topic page on the hosted site (official: `/roadmaps/{slug}/#topicId`, custom: `/roadmaps/custom/?track={slug}#topicId`)
+  - `data-resource-url` and `data-topic-id` attributes added to resource list items in both `PrintRoadmap.astro` and `custom/print.astro`
+  - Custom track print page sets `data-track-slug` and `data-track-type="custom"` on `.print-page` for correct fallback URL generation
+- QR/URL display options in print mode (both official and custom tracks)
+  - Two dropdown selects in print sidebar Options section: "PDF links" and "Resource links"
+  - Four modes per dropdown: QR + URL (default for PDFs), QR only, URL only, Hidden
+  - Resource links default to "URL only" (QR generated but hidden until mode changed)
+  - CSS data-attribute selectors (`[data-pdf-qr-mode]`, `[data-resource-qr-mode]`) control visibility of QR images, URL text, and full QR containers
+  - "Show fallback URL" checkbox toggles `.hide-fallback-url` class to hide/show hosted-site fallback URLs on both PDF and resource QR codes
+  - QR-only mode for resources: compact flex-wrap layout with centered labels and inline QR codes
+  - QR-only mode for PDFs: inline-flex layout for side-by-side QR display within concept notes
+  - `initQrDisplayOptions()` in `printUtils.ts` wires up dropdowns and checkbox, sets data attributes on `.print-page`
+  - `initResourceQrCodes()` in `printUtils.ts` generates QR codes for all resource links
 - Table styling in print concept notes
   - `border-collapse`, tight padding, header row background
   - Eliminates excessive whitespace before tables in printed output
@@ -202,6 +217,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `initColumnToggle()` deprecated (no-op stub); replaced by `initLayoutMode()` which handles all layout modes including booklet
 - `initPrintCheckboxes()` return type changed from `void` to `{ updateParentStates, updatePreview }` so progress filters can trigger parent state cascading and preview updates
 - PDF embeds in print: changed from `display: none` (hidden entirely) to showing QR code with source URL; iframe and resizer hidden separately
+- Print sidebar Options: added two dropdown selects (PDF links, Resource links) and a "Show fallback URL" checkbox alongside existing toggles
+- Print sidebar Options now uses `.print-select-item` class for dropdown styling (flex-row, mono font, bordered select)
 
 ### Removed
 - Unused `EXCLUDE_FILES` variable in build-glossary.mjs

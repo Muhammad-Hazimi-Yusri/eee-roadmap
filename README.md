@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.14-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.15-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.14
+Current version is v0.21.15
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -52,7 +52,7 @@ Current version is v0.21.14
 - **Profile Page** — View your progress across all tracks; works offline for guests, syncs when signed in
 - **Import/Export** — Back up your progress as JSON; import with merge or replace options
 - **Graph View** — Interactive visualization of topic connections and prerequisites; fullscreen mode on all devices; dark mode support; progress status indicators; per-track focused view on roadmap pages
-- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; field-level toggles (description, prerequisites, outcomes, concept notes, resources); optional 2-column layout; section page breaks (new page per section, or column break in 2-column mode); high contrast mode (no gray text); A5 booklet printing with pdf-lib imposition (double-sided or single-sided); progress-based quick-select filters (completed, highlighted, incomplete — union logic); QR codes for embedded PDFs in print output (links to source URL with hosted fallback); works for both official and custom tracks
+- **Print Mode** — Select individual concepts, topics, or entire sections to export as a clean PDF; cascading checkbox tree with live preview; field-level toggles (description, prerequisites, outcomes, concept notes, resources); optional 2-column layout; section page breaks (new page per section, or column break in 2-column mode); high contrast mode (no gray text); A5 booklet printing with pdf-lib imposition (double-sided or single-sided); progress-based quick-select filters (completed, highlighted, incomplete — union logic); QR codes for embedded PDFs and resource links (links to source URL with hosted-site fallback); per-type display controls for PDF and resource links (QR + URL, QR only, URL only, hidden); fallback URL toggle; works for both official and custom tracks
 
 ### For Explorers
 - **Four Tracks** — Fundamentals, Core, Advanced, Distributed Generation
@@ -221,6 +221,7 @@ Current version is v0.21.14
 - [x] Print mode: section page breaks toggle (new page per section in normal layout, column break in 2-column mode)
 - [x] Print mode: progress-based quick-select filters (completed ✓, highlighted ★, incomplete — union logic)
 - [x] Print mode: QR codes for embedded PDFs (replaces hidden PDF embeds with scannable QR code + source URL in print output)
+- [x] Print mode: QR codes for resource links + per-type display controls (QR+URL, QR only, URL only, hidden) with fallback URL toggle
 - [ ] Lighthouse score and performance optimisation
 
 ---
@@ -323,7 +324,7 @@ eee-roadmap/
 │   │   ├── DemoRoadmap.astro      # Homepage interactive demo
 │   │   ├── GlossaryTooltips.astro # Auto-linked term tooltips
 │   │   ├── Header.astro           # Nav + auth + search
-│   │   ├── PrintRoadmap.astro     # Print mode: checkbox tree, field toggles, 2-column, high contrast, booklet, progress filters, PDF QR codes
+│   │   ├── PrintRoadmap.astro     # Print mode: checkbox tree, field toggles, 2-column, high contrast, booklet, progress filters, QR display options
 │   │   ├── Roadmap.astro          # Main roadmap renderer
 │   │   ├── RoadmapGraph.astro     # Homepage graph visualization
 │   │   ├── RoadmapSettings.astro  # Settings panel (modes, focus)
@@ -359,7 +360,7 @@ eee-roadmap/
 │   └── utils/
 │       ├── parseNotes.ts          # Markdown + KaTeX + PDF parser (build-time)
 │       ├── parseNotesClient.ts    # Client-side markdown parser
-│       ├── printUtils.ts          # Shared print mode JS (checkboxes, toggles, booklet PDF, progress filters, PDF QR codes)
+│       ├── printUtils.ts          # Shared print mode JS (checkboxes, toggles, booklet PDF, progress filters, QR codes, display options)
 │       ├── progress.ts            # Progress tracking (localStorage)
 │       ├── roadmapInteractions.ts # Expand/collapse, concept pills
 │       ├── wrapGlossaryTerms.ts   # Auto-link glossary terms
