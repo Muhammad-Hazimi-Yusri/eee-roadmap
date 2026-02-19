@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.21.15-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.21.16-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.21.15
+Current version is v0.21.16
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -86,7 +86,10 @@ Current version is v0.21.15
 - **Stack:** Astro, TypeScript, Tailwind CSS
 - **Search:** Fuse.js fuzzy matching with highlighted snippets
 - **PDFs:** PDF.js for cross-browser viewing, auto-downloaded at build time; pdf-lib for client-side booklet imposition; qrcode for print-mode QR codes
-- **Math:** KaTeX for LaTeX equation rendering
+- **Math:** KaTeX for LaTeX equation rendering (conditionally loaded, non-render-blocking)
+- **Performance:** Non-render-blocking fonts/CSS, HTML compression, viewport prefetching, CLS prevention, sitemap, canonical URLs
+- **SEO:** Dynamic OG meta tags, robots.txt, `@astrojs/sitemap`, canonical URLs, theme-color
+- **Accessibility:** Skip-to-content link, WCAG 2.1 AA compliance (axe-core tested), `main` landmarks
 - **Mobile:** Touch + stylus support, responsive design
 - **Theming:** Dark mode with system preference detection
 
@@ -181,9 +184,10 @@ Current version is v0.21.15
 
 ---
 
-### In Progress
+### Completed (cont.)
 
-#### v0.21 - Test Coverage & Code Quality (Refactor)
+<details>
+<summary><strong>v0.21 - Test Coverage & Code Quality (Refactor) ✓</strong></summary>
 
 **Goal:** Improve existing test suite for better reliability and coverage, then improve code quality by linting checks and refactor.
 
@@ -205,24 +209,16 @@ Current version is v0.21.15
 - [x] Accessibility tests (a11y)
 - [x] Increase unit test coverage for utilities
 - [x] CSS duplicate audit and refactoring (design tokens, deduplication, dead code cleanup)
-  - Added CSS custom properties for typography (`--font-mono`, `--font-body`) and surfaces (`--overlay-light`, `--overlay-dark`)
-  - Replaced 115 raw `font-family` declarations across 17 files with `var(--font-mono)`
-  - Consolidated repeated patterns: label styles (7 occurrences → 2 grouped selectors), pill/tag base styles, overlay backgrounds
-  - Removed dead CSS: duplicate `.swipe-trail-canvas`, empty `.concept-pill {}`, redundant transitions
 - [x] Stylelint for CSS linting (`.css` + `.astro` `<style>` blocks)
-  - Tailwind-aware config (ignores `@tailwind`, `@apply`, `@layer`, `@screen` at-rules)
-  - Astro-aware config (ignores `:global` pseudo-class, parses `<style>` via `postcss-html`)
-  - BEM class pattern support (`--modifier`, `__element`)
-  - `lint:css` / `lint:css:fix` scripts; integrated into `lint` / `lint:fix`
-  - Added to CI pipeline and pre-commit hook (via `npm run lint`)
-- [x] Fix broken Wikimedia image URLs in advanced-power-system-analysis track (9 non-existent filenames replaced)
-- [x] Print mode: high contrast toggle (converts gray text/borders to black for printers that render gray poorly)
-- [x] Print mode: A5 booklet printing with pdf-lib imposition (double-sided and single-sided options)
-- [x] Print mode: section page breaks toggle (new page per section in normal layout, column break in 2-column mode)
-- [x] Print mode: progress-based quick-select filters (completed ✓, highlighted ★, incomplete — union logic)
-- [x] Print mode: QR codes for embedded PDFs (replaces hidden PDF embeds with scannable QR code + source URL in print output)
-- [x] Print mode: QR codes for resource links + per-type display controls (QR+URL, QR only, URL only, hidden) with fallback URL toggle
-- [ ] Lighthouse score and performance optimisation
+- [x] Fix broken Wikimedia image URLs in advanced-power-system-analysis track
+- [x] Print mode: high contrast toggle, A5 booklet printing, section page breaks, progress filters, QR codes
+- [x] Lighthouse score and performance optimisation
+  - Non-render-blocking KaTeX CSS (conditional `needsKatex` prop — only loaded on pages that need math)
+  - Non-render-blocking Google Fonts (preload + media swap pattern)
+  - `@astrojs/sitemap`, `robots.txt`, canonical URLs, dynamic OG meta tags
+  - HTML compression, viewport-based link prefetching, skip-to-content link
+  - Homepage Lighthouse Performance: 35 → 69, FCP: 13.2s → 4.8s, LCP: 19.5s → 5.1s
+</details>
 
 ---
 
@@ -308,7 +304,7 @@ eee-roadmap/
 │   ├── power-system-fundamentals.yaml
 │   ├── advanced-power-system-analysis.yaml
 │   └── sample.yaml                # Template for contributors
-├── public/                        # Static assets (PDFs, PDF.js viewer)
+├── public/                        # Static assets (PDFs, PDF.js viewer, robots.txt)
 ├── scripts/
 │   ├── build-data.mjs             # YAML → JSON converter
 │   ├── build-glossary.mjs         # Glossary JSON + reverse index
@@ -335,8 +331,8 @@ eee-roadmap/
 │   │   ├── index.ts               # Data loader (getRoadmap, getAllTracks)
 │   │   └── *.json                 # Auto-generated, do not edit
 │   ├── layouts/
-│   │   ├── Layout.astro           # Main layout (cursor, canvas, meta)
-│   │   └── PrintLayout.astro      # Minimal layout for print pages
+│   │   ├── Layout.astro           # Main layout (SEO meta, fonts, conditional KaTeX, skip link)
+│   │   └── PrintLayout.astro      # Minimal layout for print pages (noindex)
 │   ├── lib/
 │   │   ├── supabase.ts            # Supabase client
 │   │   ├── sync.ts                # Cross-device sync utilities

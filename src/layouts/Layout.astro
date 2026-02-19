@@ -3,14 +3,17 @@ import CustomCursor from '../components/CustomCursor.astro';
 interface Props {
   title: string;
   description?: string;
+  needsKatex?: boolean;
 }
 
-const { 
-  title, 
-  description = "Learn Electrical & Electronic Engineering with structured roadmaps. From circuit fundamentals to advanced power systems." 
+const {
+  title,
+  description = "Learn Electrical & Electronic Engineering with structured roadmaps. From circuit fundamentals to advanced power systems.",
+  needsKatex = false,
 } = Astro.props;
 
 const baseUrl = import.meta.env.BASE_URL;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <!doctype html>
@@ -20,35 +23,47 @@ const baseUrl = import.meta.env.BASE_URL;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f5f5f0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1a18" media="(prefers-color-scheme: dark)" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalUrl} />
 
     <!-- Open Graph / Social Preview -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://eee-roadmap.muhammadhazimiyusri.uk/" />
-    <meta property="og:title" content="EEE Roadmap" />
-    <meta property="og:description" content="Interactive learning path for Electrical & Electronic Engineering" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={`${title} | EEE Roadmap`} />
+    <meta property="og:description" content={description} />
     <meta property="og:image" content="https://eee-roadmap.muhammadhazimiyusri.uk/og-image.png" />
-
-    <!-- KaTeX CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href={`${baseUrl}favicon.svg`} />
-    
-    <!-- Fonts -->
+
+    <!-- Fonts (non-render-blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
+
+    <!-- KaTeX CSS (non-render-blocking, only when needed) -->
+    {needsKatex && (
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" media="print" onload="this.media='all'" />
+    )}
+    {needsKatex && (
+      <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" /></noscript>
+    )}
+
     <title>{title} | EEE Roadmap</title>
     <!-- Theme initialization (prevents flash) -->
     <script is:inline>
       (function() {
         const saved = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
+
         if (saved === 'dark' || (!saved && prefersDark)) {
           document.documentElement.classList.add('dark');
         }
@@ -56,6 +71,7 @@ const baseUrl = import.meta.env.BASE_URL;
     </script>
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
     <slot />
     <CustomCursor />
     <canvas class="swipe-trail-canvas" id="swipe-trail-canvas"></canvas>

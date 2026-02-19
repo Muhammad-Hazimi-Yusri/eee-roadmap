@@ -348,6 +348,8 @@
 .print-concept-notes img {
   max-width: 400px;
   max-height: 300px;
+  width: auto;
+  height: auto;
 }
 
 /* PDF embeds: hide iframe, show QR code in print context */
@@ -680,6 +682,8 @@
   .print-concept-notes img {
     max-width: 250px;
     max-height: 200px;
+    width: auto;
+    height: auto;
   }
 
   .print-two-col #print-content {

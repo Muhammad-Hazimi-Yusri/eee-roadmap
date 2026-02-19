@@ -26,9 +26,9 @@ const { slug } = Astro.params;
 const { title, description } = Astro.props;
 ---
 
-<Layout title={title}>
+<Layout title={title} needsKatex>
   <Header />
-  <main>
+  <main id="main-content">
     <div class="container py-16">
       <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">
         // {slug} track

@@ -24,9 +24,9 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
 }));
 ---
 
-<Layout title="Custom Track">
+<Layout title="Custom Track" needsKatex>
   <Header />
-  <main class="roadmap-page">
+  <main id="main-content" class="roadmap-page">
     <div class="container py-8">
       <!-- Header section - populated client-side -->
       <div id="track-header">

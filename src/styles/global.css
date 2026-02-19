@@ -3,6 +3,36 @@
 @tailwind utilities;
 
 /* ========================================
+   SKIP LINK (accessibility)
+   ======================================== */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 10000;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  border: 2px solid var(--color-text);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ========================================
+   NOTES IMAGE (prevent CLS)
+   ======================================== */
+.notes-image {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ========================================
    CSS VARIABLES
    ======================================== */
 :root {

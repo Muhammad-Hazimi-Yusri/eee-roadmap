@@ -122,7 +122,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
     </aside>
 
     <!-- Preview area -->
-    <main class="print-preview">
+    <main id="main-content" class="print-preview">
       <div class="print-header" id="print-header">
         <h1 class="print-title" id="print-title">Loading...</h1>
         <p class="print-meta" id="print-meta"></p>
@@ -164,7 +164,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
           const encodedUrl = encodeURIComponent(href);
           return `<div class="notes-pdf-embed" data-pdf-url="${href}"><iframe src="/pdfjs/web/viewer.html?file=${encodedUrl}" title="${altText || 'PDF document'}" class="notes-pdf-iframe" loading="lazy"></iframe><div class="notes-pdf-resizer" title="Drag to resize PDF"></div></div>`;
         }
-        return `<img src="${href}" alt="${altText}"${titleAttr} class="notes-image" loading="lazy" />`;
+        return `<img src="${href}" alt="${altText}"${titleAttr} class="notes-image" loading="lazy" width="600" height="400" />`;
       }
     }
   });

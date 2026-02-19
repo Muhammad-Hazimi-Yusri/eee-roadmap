@@ -52,7 +52,7 @@ marked.use({
       }
 
       // Regular image
-      return `<img src="${href}" alt="${altText}"${titleAttr} class="notes-image" loading="lazy" />`;
+      return `<img src="${href}" alt="${altText}"${titleAttr} class="notes-image" loading="lazy" width="600" height="400" />`;
     }
   }
 });

@@ -138,6 +138,27 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Confirmation modal with track name and permanent deletion warning
   - Cleans up all associated data: track, custom concepts, and concept notes
   - Dismiss via Cancel button, backdrop click, or Escape key
+- Lighthouse performance optimisation
+  - Conditional `needsKatex` prop on `Layout.astro` — KaTeX CDN CSS only loaded on pages that use math (homepage, track pages, glossary, custom tracks); all other pages skip it entirely
+  - Non-render-blocking KaTeX CSS using `media="print" onload="this.media='all'"` pattern with `<noscript>` fallback
+  - Non-render-blocking Google Fonts using preload + media swap pattern (both `Layout.astro` and `PrintLayout.astro`)
+  - `<meta name="theme-color">` for light (`#f5f5f0`) and dark (`#1a1a18`) modes (both layouts)
+  - `<link rel="canonical">` on all pages using `Astro.url.pathname` + `Astro.site`
+  - Dynamic Open Graph meta tags: `og:title`, `og:description`, `og:url` now use per-page `title`/`description` props instead of hardcoded homepage values
+  - `<meta name="robots" content="noindex, nofollow">` on `PrintLayout.astro` (print pages shouldn't be indexed)
+  - `public/robots.txt` with sitemap reference
+  - `@astrojs/sitemap` integration — generates `sitemap-index.xml` at build time
+  - `compressHTML: true` in Astro config — strips whitespace/comments from HTML output
+  - `prefetch: { defaultStrategy: 'viewport' }` in Astro config — prefetches links as they enter the viewport
+  - Skip-to-content accessibility link (`<a href="#main-content" class="skip-link">`) as first child of `<body>` in `Layout.astro`
+  - `id="main-content"` added to `<main>` element on all 13 pages
+  - `.skip-link` CSS in `global.css`: visually hidden by default, visible on focus (keyboard navigation)
+  - Explicit `width="600" height="400"` on concept note images in `parseNotes.ts`, `parseNotesClient.ts`, and `custom/print.astro` to prevent CLS (Cumulative Layout Shift)
+  - `.notes-image` CSS rule in `global.css`: `max-width: 100%; height: auto; object-fit: contain`
+  - Print-specific image CSS override (`width: auto; height: auto` in `print.css`) to prevent empty spaces from broken images reserving 600x400 space
+- Lighthouse results (local Lighthouse CLI, Astro preview server):
+  - Homepage: Performance 35 → 69 (+34), FCP 13.2s → 4.8s, LCP 19.5s → 5.1s, TBT 870ms → 20ms, SEO 90 → 92
+  - Fundamentals: Performance 55 → 56, FCP 27.1s → 10.5s, LCP 36.4s → 10.5s, SEO 90 → 92
 
 ### Fixed
 - 9 broken Wikimedia Commons image URLs in `advanced-power-system-analysis.yaml`
@@ -179,6 +200,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Dependencies
 - Added `pdf-lib` for client-side PDF manipulation (booklet imposition)
 - Added `qrcode` (+ `@types/qrcode`) for client-side QR code generation in print mode
+- Added `@astrojs/sitemap` v3.2.1 for automatic sitemap generation at build time
 
 ### Changed
 - `npm run lint` now runs both ESLint and Stylelint sequentially
@@ -219,6 +241,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - PDF embeds in print: changed from `display: none` (hidden entirely) to showing QR code with source URL; iframe and resizer hidden separately
 - Print sidebar Options: added two dropdown selects (PDF links, Resource links) and a "Show fallback URL" checkbox alongside existing toggles
 - Print sidebar Options now uses `.print-select-item` class for dropdown styling (flex-row, mono font, bordered select)
+- `Layout.astro` now accepts `needsKatex` prop (default `false`); KaTeX CDN CSS only included when `true`
+- `Layout.astro` KaTeX CSS changed from render-blocking `<link rel="stylesheet">` to non-render-blocking `media="print" onload` pattern
+- `Layout.astro` Google Fonts changed from render-blocking to non-render-blocking (preload + `media="print" onload` with `<noscript>` fallback)
+- `Layout.astro` OG meta tags now use per-page `title` and `description` props (were hardcoded to homepage values)
+- `PrintLayout.astro` Google Fonts changed from render-blocking to non-render-blocking
+- `PrintLayout.astro` KaTeX CSS kept render-blocking (print pages are `noindex`, correct rendering matters more than load speed)
+- Concept note images now include `width="600" height="400"` HTML attributes for CLS prevention
+- Print mode images override `width`/`height` with `auto` via CSS to prevent empty spaces from broken external images
 
 ### Removed
 - Unused `EXCLUDE_FILES` variable in build-glossary.mjs
@@ -228,6 +258,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Empty no-op `.concept-pill {}` rule with stale `/* Extends .pill from global.css */` comment
 - Redundant individual `font-family`, `font-size`, `color` declarations from `.resources-label`, `.prereqs-label`, `.outcomes-label`, `.print-meta` (now in grouped selectors)
 - Redundant `font-family`, `font-size`, `padding` from `.prereq-tag` (now in shared pill/tag base)
+- Global render-blocking KaTeX CDN `<link>` from `Layout.astro` (was loaded on every page; now conditional via `needsKatex` prop)
 
 ### Technical Notes
 - 140 `any` type warnings remain (to be addressed incrementally)
