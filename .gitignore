@@ -48,3 +48,5 @@ src/data/*.json
 
 # Windows file system metadata
 *:Zone.Identifier
+# Auto-generated concept index (rebuilt by build-concept-index.mjs)
+content/concepts/_index.yaml

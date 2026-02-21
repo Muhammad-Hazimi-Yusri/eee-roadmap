@@ -1,0 +1,675 @@
+# EEE Roadmap — Power Systems Fundamentals Track
+# Migrated to concept library format. Concepts live in content/concepts/
+# See CONTRIBUTING.md for the track and concept library formats.
+meta:
+  title: Power Systems Fundamentals
+  description: Foundation knowledge for power system analysis, from network basics  through UK grid specifics. Prepares learners for IPSA software training.
+  icon: zap
+  featured: true
+  category: specialization
+  order: 20
+sections:
+  - id: network-basics
+    title: Power Network Basics
+    items:
+      - id: busbars-nodes-branches
+        title: Busbars, Nodes, and Branches
+        description: "Foundation concepts for understanding power system structure. Covers  the building blocks of power networks: nodes as connection points,  branches as circuit elements, and busbars as central distribution points."
+        prerequisites:
+          - fundamentals/ac-circuits/AC Circuit Analysis
+          - Complex numbers (phasors)
+        outcomes:
+          - Identify nodes, branches, and loops in power network diagrams
+          - Apply Kirchhoff's laws to power circuits
+          - Convert circuit diagrams to graph representations
+        concepts:
+          - ref: node-bus
+          - ref: branch
+          - ref: busbar
+          - ref: kirchhoffs-laws
+        resources:
+          - label: MIT OCW 6.061 - Electric Power Systems
+            url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+          - label: NPTEL Power System Engineering
+            url: https://nptel.ac.in/courses/108105104
+      - id: network-topologies
+        title: Radial vs Ring vs Mesh Networks
+        description: Power distribution network configurations and their trade-offs.  Understanding when to use radial (simple/cheap), ring (reliable),  or mesh (redundant) topologies for different applications.
+        prerequisites:
+          - power-system-fundamentals/busbars-nodes-branches/Busbars, Nodes, and Branches
+        outcomes:
+          - Classify network topologies from single-line diagrams
+          - Evaluate trade-offs between reliability, cost, and complexity
+          - Select appropriate topology for different applications
+        concepts:
+          - ref: radial-topology
+          - ref: ring-topology
+          - ref: mesh-topology
+        resources:
+          - label: Practical Engineering - How the Power Grid Works
+            url: https://practical.engineering/
+          - label: Electricity Grid Schematic (Wikimedia)
+            url: https://commons.wikimedia.org/wiki/File:Electricity_Grid_Schematic_English.svg
+      - id: single-line-diagrams
+        title: Single Line Diagrams
+        description: Reading and interpreting single-line diagrams (SLDs), the standard  representation for three-phase power systems. Covers symbols,  conventions, and information typically shown.
+        prerequisites:
+          - power-system-fundamentals/network-topologies/Network Topologies
+        outcomes:
+          - Interpret single-line diagrams and identify all components
+          - Understand standard electrical symbols (IEEE/IEC)
+          - Trace power flow paths through systems
+        concepts:
+          - ref: sld-purpose
+          - ref: reading-convention
+          - ref: common-symbols
+        resources:
+          - label: Learn to Interpret SLDs - EEP
+            url: https://electrical-engineering-portal.com/learn-to-interpret-single-line-diagram
+          - label: IEEE/IEC Electrical Symbols (Wikimedia)
+            url: https://commons.wikimedia.org/wiki/Category:DIN_circuit_symbols
+  - id: power-flow-basics
+    title: Power Flow Fundamentals
+    items:
+      - id: active-reactive-power
+        title: Active Power (P) and Reactive Power (Q)
+        description: "Understanding the two components of AC power: real power that does  useful work, and reactive power that maintains magnetic fields.  Essential for power system analysis and equipment sizing."
+        prerequisites:
+          - power-system-fundamentals/single-line-diagrams/Single Line Diagrams
+          - fundamentals/ac-circuits/AC Circuit Analysis
+        outcomes:
+          - Calculate P, Q, and S for single and three-phase systems
+          - Explain physical significance of reactive power
+          - Construct and interpret power triangles
+        concepts:
+          - ref: active-power-p
+          - ref: reactive-power-q
+          - ref: apparent-power-s
+          - ref: power-triangle
+        resources:
+          - label: The Engineering Mindset - AC Power
+            url: https://theengineeringmindset.com/electrical/
+          - label: Khan Academy - AC Circuit Analysis
+            url: https://www.khanacademy.org/science/physics/circuits-topic
+      - id: power-factor
+        title: Power Factor
+        description: The ratio of real to apparent power, indicating how effectively  electrical power is being used. Critical for efficiency, billing,  and equipment sizing.
+        prerequisites:
+          - power-system-fundamentals/active-reactive-power/Active and Reactive Power
+        outcomes:
+          - Calculate power factor from circuit measurements
+          - Determine if power factor is leading or lagging
+          - Design power factor correction using capacitors
+        concepts:
+          - ref: power-factor-definition
+          - ref: leading-vs-lagging
+          - ref: power-factor-correction
+        resources:
+          - label: Power Factor Explained - Engineering Mindset
+            url: https://theengineeringmindset.com/electrical/
+          - label: Power Factor Diagram (Wikimedia)
+            url: https://commons.wikimedia.org/wiki/Special:FilePath/Power_Factor_General_Case.svg
+      - id: voltage-levels
+        title: Voltage Levels and Transformation
+        description: Why power systems use different voltage levels and how transformers  enable efficient power transfer. Understanding the hierarchy from  generation through transmission to distribution.
+        prerequisites:
+          - power-system-fundamentals/power-factor/Power Factor
+        outcomes:
+          - Identify voltage level classifications and their applications
+          - Explain rationale for voltage transformation
+          - Calculate power losses at different voltage levels
+        concepts:
+          - ref: voltage-classifications
+          - ref: why-transform-voltage
+          - ref: system-hierarchy
+        resources:
+          - label: MIT OCW - Power System Structure
+            url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+      - id: per-unit-system
+        title: Per-Unit System
+        description: Expressing electrical quantities as fractions of base values to  simplify calculations across different voltage levels. Essential  skill for all power system analysis.
+        prerequisites:
+          - power-system-fundamentals/voltage-levels/Voltage Levels
+        outcomes:
+          - Select appropriate base values for power system analysis
+          - Convert between actual and per-unit quantities
+          - Perform change-of-base calculations
+        concepts:
+          - ref: per-unit-basics
+          - ref: base-selection
+          - ref: per-unit-conversion
+          - ref: change-of-base
+        resources:
+          - label: Per-Unit System - Open Electrical
+            url: https://openelectrical.org/index.php?title=Per-unit_System
+          - label: NPTEL - Per Unit Calculations
+            url: https://nptel.ac.in/courses/108105104
+  - id: load-flow-analysis
+    title: Load Flow Analysis
+    items:
+      - id: load-flow-fundamentals
+        title: What is Load Flow Analysis
+        description: Numerical calculation of steady-state voltages, currents, and power  flows throughout a network. The most fundamental power system study,  used for planning, operations, and as input to other analyses.
+        prerequisites:
+          - power-system-fundamentals/per-unit-system/Per-Unit System
+        outcomes:
+          - Set up a load flow problem with correct bus classifications
+          - Understand purpose and applications of power flow studies
+          - Identify inputs and outputs of load flow analysis
+        concepts:
+          - ref: load-flow-purpose
+          - ref: bus-types
+          - ref: applications
+        resources:
+          - label: MIT OCW - Power Flow Analysis
+            url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+          - label: PowerWorld Simulator (Free 13-bus)
+            url: https://www.powerworld.com/products/simulator
+      - id: load-flow-methods
+        title: Newton-Raphson and Gauss-Seidel Methods
+        description: The two main iterative algorithms for solving load flow equations.  Gauss-Seidel is simpler but slower; Newton-Raphson is the industry  standard for its speed and robustness.
+        prerequisites:
+          - power-system-fundamentals/load-flow-fundamentals/What is Load Flow Analysis
+        outcomes:
+          - Explain conceptual differences between G-S and N-R methods
+          - Understand why N-R is preferred for large systems
+          - Interpret convergence behavior and potential issues
+        concepts:
+          - ref: why-iterative
+          - ref: gauss-seidel-method
+          - ref: newton-raphson-method
+          - ref: fast-decoupled-method
+          - ref: convergence
+        resources:
+          - label: NPTEL - Load Flow Methods
+            url: https://nptel.ac.in/courses/108105067
+          - label: Pandapower (Python library)
+            url: https://www.pandapower.org/
+      - id: interpreting-load-flow
+        title: Interpreting Load Flow Results
+        description: "How to read and analyze load flow outputs: voltage profiles,  line loadings, losses, and reactive power flows. Identifying  problems and potential solutions."
+        prerequisites:
+          - power-system-fundamentals/load-flow-methods/Newton-Raphson and Gauss-Seidel Methods
+        outcomes:
+          - Analyze voltage profiles and identify violations
+          - Identify overloaded elements from load flow results
+          - Calculate and interpret system losses
+        concepts:
+          - ref: voltage-profile
+          - ref: branch-loading
+          - ref: system-losses
+          - ref: reactive-power-flow
+          - ref: results-table-example
+        resources:
+          - label: OpenDSS - Distribution System Simulator
+            url: https://sourceforge.net/projects/electricdss/
+          - label: MATPOWER (MATLAB)
+            url: https://matpower.org/
+  - id: fault-analysis
+    title: Fault Analysis
+    items:
+      - id: fault-types
+        title: Types of Faults
+        description: "Classification of short circuit faults in power systems: three-phase,  single line-to-ground, line-to-line, and double line-to-ground.  Understanding fault severity and frequency of occurrence."
+        prerequisites:
+          - power-system-fundamentals/interpreting-load-flow/Interpreting Load Flow Results
+        outcomes:
+          - Classify fault types from descriptions and diagrams
+          - Explain which faults are most severe and most common
+          - Understand sequence network connections for each fault type
+        concepts:
+          - ref: three-phase-fault-lll
+          - ref: single-line-to-ground-slg
+          - ref: line-to-line-fault-ll
+          - ref: double-line-to-ground-llg
+          - ref: fault-severity-ranking
+        resources:
+          - label: Circuit Globe - Symmetrical and Unsymmetrical Faults
+            url: https://circuitglobe.com/symmetrical-and-unsymmetrical-faults.html
+      - id: symmetrical-components
+        title: Symmetrical Components Theory
+        description: "Mathematical technique to analyze unbalanced conditions by  decomposing into three balanced systems: positive, negative, and  zero sequence. Essential for unbalanced fault calculations."
+        prerequisites:
+          - power-system-fundamentals/fault-types/Types of Faults
+        outcomes:
+          - Convert between phase and sequence quantities
+          - Draw sequence networks for system components
+          - Apply correct sequence network connections for different faults
+        concepts:
+          - ref: why-symmetrical-components
+          - ref: the-three-sequences
+          - ref: the-a-operator
+          - ref: transformation-equations
+          - ref: sequence-network-connections
+            override:
+              notes_replace: |
+                For each fault type, connect sequence networks differently:
+
+                | Fault | Connection |
+                |-------|------------|
+                | **3-phase** | Positive only |
+                | **SLG** | All three in **series** |
+                | **LL** | Positive & negative in **parallel** |
+                | **LLG** | All three in **parallel** |
+        resources:
+          - label: SEL - Symmetrical Components Tutorial
+            url: https://selinc.com/api/download/100688
+          - label: NPTEL - Symmetrical Components
+            url: https://nptel.ac.in/courses/108105067
+      - id: fault-calculations
+        title: Fault Levels and Short Circuit Calculations
+        description: Calculating fault current magnitude using per-unit and MVA methods.  Results used for equipment selection, protection settings, and  arc flash studies.
+        prerequisites:
+          - power-system-fundamentals/symmetrical-components/Symmetrical Components Theory
+        outcomes:
+          - Calculate fault levels using MVA and per-unit methods
+          - Select appropriate equipment ratings based on fault levels
+          - Understand relationship between impedance and fault current
+        concepts:
+          - ref: fault-level-definition
+          - ref: per-unit-method
+          - ref: mva-method
+          - ref: x-r-ratio
+          - ref: making-vs-breaking-current
+        resources:
+          - label: Arc Advisor - MVA to kA Conversion
+            url: https://arcadvisor.com/legacy/mva-ka-conversion
+      - id: why-fault-analysis
+        title: Why Fault Analysis Matters
+        description: Applications of fault studies in equipment selection, protection  design, safety assessment, and system planning. Understanding  how fault levels impact every aspect of power system design.
+        prerequisites:
+          - power-system-fundamentals/fault-calculations/Fault Levels and Short Circuit Calculations
+        outcomes:
+          - Explain importance of fault analysis for safety and equipment
+          - Relate fault levels to protection coordination
+          - Understand impact of DG on fault levels
+        concepts:
+          - ref: equipment-rating
+          - ref: protection-design
+          - ref: arc-flash-safety
+          - ref: impact-of-distributed-generation
+          - ref: standards
+        resources:
+          - label: Coursera - Power System Protection
+            url: https://www.coursera.org/specializations/power-system-generation-transmission-and-protection
+  - id: protection-basics
+    title: Protection Fundamentals
+    items:
+      - id: protection-principles
+        title: Protection System Principles
+        description: "The fundamental requirements of power system protection: speed,  selectivity, sensitivity, and reliability. Understanding how  protection systems detect faults and isolate them."
+        prerequisites:
+          - power-system-fundamentals/why-fault-analysis/Why Fault Analysis Matters
+        outcomes:
+          - Explain the four key requirements of protection systems
+          - Understand basic protection system components
+          - Describe the protection chain from detection to isolation
+        concepts:
+          - ref: purpose-of-protection
+          - ref: the-four-ss
+          - ref: protection-system-components
+          - ref: protection-chain
+        resources:
+          - label: NPTEL - Power System Protection
+            url: https://nptel.ac.in/courses/108105104
+      - id: protection-relays
+        title: Protection Relay Types
+        description: "The main types of protection relays: overcurrent, distance, and  differential. Understanding operating principles and applications  for each type."
+        prerequisites:
+          - power-system-fundamentals/protection-principles/Protection System Principles
+        outcomes:
+          - Explain operating principle of each relay type
+          - Select appropriate relay type for different applications
+          - Understand ANSI device numbering system
+        concepts:
+          - ref: overcurrent-relays-50-51
+          - ref: idmt-characteristics
+          - ref: distance-relays-21
+          - ref: differential-relays-87
+          - ref: ansi-device-numbers
+        resources:
+          - label: PAC Basics - Protection Fundamentals
+            url: https://pacbasics.org/
+          - label: GE Multilin - Relay School
+            url: https://www.gegridsolutions.com/multilin/
+      - id: protection-coordination
+        title: Protection Coordination
+        description: Designing protection systems so that only the device nearest  the fault operates, minimizing the extent of the outage.  Time grading, current grading, and coordination principles.
+        prerequisites:
+          - power-system-fundamentals/protection-relays/Protection Relay Types
+        outcomes:
+          - Design coordinated protection schemes
+          - Calculate coordination time intervals
+          - Select appropriate IDMT curve characteristics
+        concepts:
+          - ref: discrimination-principle
+          - ref: time-grading
+          - ref: current-grading
+          - ref: grading-margin-calculation
+          - ref: coordination-challenges
+        resources:
+          - label: Coursera - Protection Coordination
+            url: https://www.coursera.org/specializations/power-system-generation-transmission-and-protection
+      - id: time-current-curves
+        title: Time-Current Curves
+        description: Graphical representation of protection device characteristics.  How to plot, read, and use TCCs for coordination studies.
+        prerequisites:
+          - power-system-fundamentals/protection-coordination/Protection Coordination
+        outcomes:
+          - Construct and interpret TCC plots
+          - Identify coordination margins and problems
+          - Verify protection against equipment damage curves
+        concepts:
+          - ref: tcc-basics
+          - ref: device-curves
+          - ref: coordination-on-tccs
+          - ref: damage-curves
+          - ref: tcc-example
+        resources:
+          - label: ETAP TCC Tutorial
+            url: https://etap.com/
+      - id: protection-zones
+        title: Protection Zones and Backup
+        description: Dividing the power system into protection zones with overlapping  boundaries. Primary and backup protection philosophy to ensure  no blind spots.
+        prerequisites:
+          - power-system-fundamentals/time-current-curves/Time-Current Curves
+        outcomes:
+          - Define protection zones for power system components
+          - Design primary and backup protection schemes
+          - Understand zone overlap at circuit breakers
+        concepts:
+          - ref: zone-definition
+          - ref: zone-overlap
+          - ref: primary-protection
+          - ref: backup-protection
+          - ref: typical-protection-schemes
+          - ref: breaker-failure-protection
+        resources:
+          - label: IEEE - Protection Zones
+            url: https://ieeexplore.ieee.org/document/9640382/
+          - label: Electrical Axis - Zones of Protection
+            url: http://www.electricalaxis.com/
+  - id: network-components
+    title: Network Components
+    items:
+      - id: transformers
+        title: Transformers in Power Networks
+        description: "Power transformers for voltage transformation: ratings, impedance,  tap changers, and vector groups. Understanding how transformer  parameters affect load flow and fault studies."
+        prerequisites:
+          - power-system-fundamentals/protection-zones/Protection Zones and Backup
+        outcomes:
+          - Specify transformer ratings, impedances, and vector groups
+          - Understand tap changer operation and voltage regulation
+          - Calculate fault current contribution through transformers
+        concepts:
+          - ref: transformer-basics
+          - ref: transformer-impedance
+          - ref: tap-changers
+          - ref: vector-groups
+          - ref: parallel-operation
+        resources:
+          - label: The Engineering Mindset - Electrical
+            url: https://theengineeringmindset.com/electrical/
+          - label: Electrical4U - Vector Groups
+            url: https://www.electrical4u.com/vector-group-of-transformer/
+      - id: cables
+        title: Cables and Underground Lines
+        description: Power cable construction, impedance characteristics, current  ratings, and voltage drop calculations. Derating factors for  installation conditions.
+        prerequisites:
+          - power-system-fundamentals/transformers/Transformers in Power Networks
+        outcomes:
+          - Calculate cable sizing for ampacity and voltage drop
+          - Apply derating factors for installation conditions
+          - Understand cable impedance characteristics
+        concepts:
+          - ref: cable-construction
+          - ref: cable-impedance
+          - ref: current-rating-ampacity
+          - ref: derating-factors
+          - ref: voltage-drop-calculation
+        resources:
+          - label: BS 7671 Cable Sizing Guide
+            url: https://electrical.theiet.org/
+          - label: Nexans Cable Calculator
+            url: https://www.nexans.co.uk/
+      - id: overhead-lines
+        title: Overhead Lines
+        description: "Transmission and distribution overhead line characteristics:  impedance, thermal ratings, sag considerations, and comparison  with cables."
+        prerequisites:
+          - power-system-fundamentals/cables/Cables and Underground Lines
+        outcomes:
+          - Calculate overhead line impedance
+          - Understand thermal rating methods (static vs dynamic)
+          - Compare overhead lines with underground cables
+        concepts:
+          - ref: line-construction
+          - ref: line-impedance
+          - ref: thermal-ratings
+          - ref: sag-and-clearance
+          - ref: ohl-vs-cable-comparison
+        resources:
+          - label: US DOE - Dynamic Line Rating
+            url: https://www.energy.gov/oe/articles/dynamic-line-rating-report-congress-june-2019
+          - label: IEEE 738 - Line Rating Calculation
+            url: https://standards.ieee.org/
+      - id: generators
+        title: Generators and Synchronous Machines
+        description: Synchronous generator characteristics, capability curves, and  reactive power control. Understanding generator contribution  to fault current and voltage regulation.
+        prerequisites:
+          - power-system-fundamentals/overhead-lines/Overhead Lines
+        outcomes:
+          - Interpret generator capability curves
+          - Understand excitation control and reactive power
+          - Calculate generator fault current contribution
+        concepts:
+          - ref: synchronous-machine-basics
+          - ref: generator-reactances
+          - ref: capability-curve
+          - ref: excitation-and-reactive-power
+          - ref: generator-control-modes
+          - ref: fault-current-contribution
+        resources:
+          - label: NPTEL - Synchronous Machines
+            url: https://nptel.ac.in/courses/108105017
+          - label: All About Circuits - Synchronous Generators
+            url: https://www.allaboutcircuits.com/
+  - id: distributed-generation
+    title: Distributed Generation
+    items:
+      - id: dg-grid-connection
+        title: How Renewables Connect to the Grid
+        description: Grid connection architectures for solar PV and wind generation.  Understanding inverter-based resources, transformer requirements,  and connection voltage selection.
+        prerequisites:
+          - power-system-fundamentals/generators/Generators and Synchronous Machines
+        outcomes:
+          - Describe grid connection architectures for solar and wind
+          - Understand inverter-based resource characteristics
+          - Select appropriate connection voltage for different capacities
+        concepts:
+          - ref: solar-pv-connection
+          - ref: wind-turbine-connection
+          - ref: connection-voltage-selection
+          - ref: inverter-based-resources-ibr
+          - ref: connection-equipment
+        resources:
+          - label: IET - Grid Connection of Solar PV
+            url: https://electrical.theiet.org/
+          - label: RenewableUK - Wind Energy
+            url: https://www.renewableuk.com/
+      - id: uk-grid-codes
+        title: UK Grid Code Compliance (G99/G100)
+        description: UK requirements for connecting generation to distribution networks.  Engineering Recommendation G99 classifications, technical requirements,  and the connection application process.
+        prerequisites:
+          - power-system-fundamentals/dg-grid-connection/How Renewables Connect to the Grid
+        outcomes:
+          - Classify generators by G99 type
+          - Understand key technical requirements
+          - Navigate UK connection application process
+        concepts:
+          - ref: g99-overview
+          - ref: generator-classification
+          - ref: key-technical-requirements
+          - ref: g100-export-limiting
+            override:
+              notes_replace: |
+                **G100** allows connection where network capacity is limited.
+
+                **Active Network Management (ANM):**
+                - Real-time curtailment signals
+                - Generator reduces output when network constrained
+                - Enables more DG without reinforcement
+
+                **Principle of Access:**
+                - Last-in, first-off (LIFO)
+                - Or pro-rata sharing
+          - ref: connection-process
+        resources:
+          - label: ENA - Engineering Recommendations
+            url: https://www.energynetworks.org/
+          - label: National Grid ESO - Grid Code
+            url: https://www.neso.energy/industry-information/codes/
+      - id: voltage-rise
+        title: Voltage Rise from Embedded Generation
+        description: How distributed generation causes voltage rise on distribution  networks, calculation methods, and mitigation strategies. A key  constraint on DG hosting capacity.
+        prerequisites:
+          - power-system-fundamentals/uk-grid-codes/UK Grid Code Compliance (G99/G100)
+        outcomes:
+          - Calculate voltage rise from DG connections
+          - Understand R/X ratio effects at different voltage levels
+          - Design mitigation strategies
+        concepts:
+          - ref: the-voltage-rise-problem
+          - ref: voltage-rise-formula
+          - ref: r-x-ratio-effect
+          - ref: uk-voltage-limits
+          - ref: mitigation-strategies
+            override:
+              notes_replace: |
+                **Network solutions:**
+                - Conductor upgrades (reduce R)
+                - New transformer (reduce impedance)
+                - Voltage regulators / boosters
+
+                **DG solutions:**
+                - Reactive power absorption (Q negative)
+                - Power factor control (limited at LV)
+                - Active power curtailment
+                - Export limiting (G100)
+
+                **Smart solutions:**
+                - OLTC coordinated control
+                - Active Network Management (ANM)
+                - Battery storage for peak shaving
+        resources:
+          - label: IET - Voltage Rise Calculations
+            url: https://electrical.theiet.org/
+          - label: Western Power Distribution - DG Connections
+            url: https://www.nationalgrid.co.uk/
+      - id: power-system-anti-islanding
+        title: Anti-Islanding Protection
+        description: Preventing distributed generation from energising an isolated  section of network. Detection methods, protection settings,  and UK requirements for Loss of Mains protection.
+        prerequisites:
+          - power-system-fundamentals/voltage-rise/Voltage Rise from Embedded Generation
+        outcomes:
+          - Explain islanding hazards
+          - Specify anti-islanding protection settings
+          - Design Loss of Mains protection schemes
+        concepts:
+          - ref: what-is-islanding
+          - ref: islanding-hazards
+          - ref: passive-detection-methods
+          - ref: active-detection-methods
+          - ref: uk-g99-requirements
+          - ref: interface-protection-panel
+        resources:
+          - label: ENA - Loss of Mains Protection
+            url: https://www.energynetworks.org/
+          - label: IEEE 1547 - DG Interconnection
+            url: https://standards.ieee.org/
+  - id: uk-power-system
+    title: UK Power System
+    items:
+      - id: uk-network-structure
+        title: UK Network Structure
+        description: "Organisation of the GB electricity system: the system operator (NESO),  transmission owners, and distribution network operators. Understanding  roles, responsibilities, and regulatory framework."
+        prerequisites:
+          - power-system-fundamentals/power-system-anti-islanding/Anti-Islanding Protection
+        outcomes:
+          - Identify roles of NESO, transmission owners, and DNOs
+          - Understand UK regulatory framework
+          - Navigate industry organisation structure
+        concepts:
+          - ref: gb-system-overview
+          - ref: national-energy-system-operator-neso
+          - ref: transmission-owners-tos
+          - ref: distribution-network-operators-dnos
+          - ref: regulatory-framework
+        resources:
+          - label: National Grid ESO - About Us
+            url: https://www.neso.energy/
+          - label: Ofgem - Network Regulation
+            url: https://www.ofgem.gov.uk/
+      - id: uk-voltage-levels
+        title: UK Voltage Levels
+        description: Standard voltage levels used in the GB power system from 400kV  transmission down to 230V consumer supply. Understanding the  hierarchy and interface points between networks.
+        prerequisites:
+          - power-system-fundamentals/uk-network-structure/UK Network Structure
+        outcomes:
+          - Identify UK voltage levels and their applications
+          - Understand substation hierarchy and interface points
+          - Select appropriate voltage for different connections
+        concepts:
+          - ref: transmission-voltages
+          - ref: distribution-voltages
+          - ref: interface-points
+          - ref: substation-diagram
+          - ref: nominal-vs-declared-voltage
+        resources:
+          - label: ENA - Electricity Networks Overview
+            url: https://www.energynetworks.org/
+          - label: National Grid - Network Route Maps
+            url: https://www.nationalgrid.com/
+      - id: uk-standards
+        title: UK Standards and Engineering Recommendations
+        description: Key technical standards governing UK power system design and operation.  Engineering Recommendations for connections, power quality, and  planning standards.
+        prerequisites:
+          - power-system-fundamentals/uk-voltage-levels/UK Voltage Levels
+        outcomes:
+          - Apply relevant Engineering Recommendations to projects
+          - Assess power quality compliance (flicker, harmonics, unbalance)
+          - Navigate UK connection requirements
+        concepts:
+          - ref: engineering-recommendations-overview
+          - ref: g99-generator-connections
+          - ref: g100-export-limiting
+          - ref: p28-voltage-fluctuations
+          - ref: p29-voltage-unbalance
+          - ref: g5-harmonics
+          - ref: other-key-standards
+        resources:
+          - label: ENA - Engineering Recommendations
+            url: https://www.energynetworks.org/industry-hub/resource-library
+          - label: National Grid ESO - Grid Code
+            url: https://www.neso.energy/industry-information/codes/grid-code
+      - id: uk-system-operation
+        title: UK System Operation Basics
+        description: How the GB electricity system is balanced in real-time. Understanding  frequency control, the balancing mechanism, and constraint management.
+        prerequisites:
+          - power-system-fundamentals/uk-standards/UK Standards and Engineering Recommendations
+        outcomes:
+          - Explain how system frequency is maintained
+          - Understand the balancing mechanism basics
+          - Describe constraint management approaches
+        concepts:
+          - ref: frequency-control
+          - ref: balancing-mechanism
+          - ref: constraint-management
+          - ref: demand-forecasting
+          - ref: future-challenges
+        resources:
+          - label: National Grid ESO - Balancing Services
+            url: https://www.neso.energy/industry-information/balancing-services
+          - label: ELEXON - Imbalance Pricing
+            url: https://www.elexon.co.uk/
+          - label: Grid Watch - Live GB Grid Data
+            url: https://gridwatch.co.uk/

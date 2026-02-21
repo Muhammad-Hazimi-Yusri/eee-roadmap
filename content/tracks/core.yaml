@@ -1,0 +1,426 @@
+# EEE Roadmap — Core Topics Track
+# Migrated to concept library format. Concepts live in content/concepts/
+# See CONTRIBUTING.md for the track and concept library formats.
+meta:
+  title: Core Topics
+  description: The meat of EE. Analog, digital, signals, embedded.
+  icon: sun
+  featured: true
+  category: core
+  order: 2
+sections:
+  - id: analog-electronics
+    title: Analog Electronics
+    items:
+      - id: transistors
+        title: Transistors (BJT & MOSFET)
+        description: The building blocks of amplification and switching. BJTs are current-controlled, MOSFETs are voltage-controlled. Understanding both lets you choose the right device for your application.
+        prerequisites:
+          - fundamentals/dc-circuits/DC Circuits
+          - fundamentals/diodes/Diodes basics
+        outcomes:
+          - Bias BJT and MOSFET circuits for linear operation
+          - Analyze small-signal amplifier behavior
+          - Design basic switching circuits
+          - Read transistor datasheets effectively
+        concepts:
+          - ref: bjt-biasing
+          - ref: mosfet-operation
+          - ref: small-signal-models
+          - ref: saturation-vs-active-region
+        resources:
+          - label: All About Circuits - BJT
+            url: https://www.allaboutcircuits.com/textbook/semiconductors/chpt-4/bipolar-junction-transistors/
+          - label: All About Circuits - MOSFET
+            url: https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/insulated-gate-field-effect-transistors-mosfet/
+          - label: MIT OCW 6.002
+            url: https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/
+      - id: op-amps
+        title: Operational Amplifiers
+        description: The Swiss Army knife of analog design. Two simple rules (virtual short, no input current) let you build amplifiers, filters, comparators, and more. Master the 741 and its modern successors.
+        prerequisites:
+          - fundamentals/dc-circuits/DC Circuits
+          - fundamentals/ac-circuits/AC Circuits
+        outcomes:
+          - Design inverting and non-inverting amplifiers
+          - Build active filters and integrators
+          - Understand op-amp limitations (bandwidth, slew rate)
+          - Select appropriate op-amps for specific applications
+        concepts:
+          - ref: virtual-short
+          - ref: gain-bandwidth-product
+          - ref: feedback
+          - ref: comparators
+        resources:
+          - label: Electronics Tutorials - Op-amps
+            url: https://www.electronics-tutorials.ws/opamp/opamp_1.html
+          - label: All About Circuits - Op-amps
+            url: https://www.allaboutcircuits.com/textbook/semiconductors/chpt-8/introduction-operational-amplifiers/
+          - label: TI Op-Amp Basics
+            url: https://www.ti.com/lit/eb/sloa011b/sloa011b.pdf
+      - id: analog-filters
+        title: Analog Filters
+        description: Shape the frequency content of signals. Low-pass removes noise, high-pass blocks DC, band-pass selects specific frequencies. Active filters with op-amps give you gain plus filtering.
+        prerequisites:
+          - fundamentals/ac-circuits/AC Circuits
+          - core/op-amps/Op-amps basics
+        outcomes:
+          - Design passive RC and RLC filters
+          - Build active filters using op-amps
+          - Analyze filter frequency response using Bode plots
+          - Choose appropriate filter topology for application
+        concepts:
+          - ref: cutoff-frequency
+          - ref: roll-off
+          - ref: butterworth-vs-chebyshev
+          - ref: bode-plots
+        optional: true
+        resources:
+          - label: Electronics Tutorials - Filters
+            url: https://www.electronics-tutorials.ws/filter/filter_1.html
+          - label: All About Circuits - Filters
+            url: https://www.allaboutcircuits.com/textbook/alternating-current/chpt-8/what-is-a-filter/
+  - id: digital-logic
+    title: Digital Logic Design
+    items:
+      - id: boolean-logic-gates
+        title: Boolean Algebra & Logic Gates
+        description: The mathematics of digital systems. AND, OR, NOT gates combine to implement any logical function. Boolean algebra lets you simplify and optimize circuits before building them.
+        prerequisites:
+          - fundamentals/algebra-trig/Basic algebra
+        outcomes:
+          - Simplify Boolean expressions using algebra and K-maps
+          - Convert between truth tables and gate circuits
+          - Implement functions using NAND/NOR as universal gates
+          - Understand gate propagation delay
+        concepts:
+          - ref: truth-tables
+          - ref: k-maps
+          - ref: de-morgans-theorem
+          - ref: universal-gates
+        resources:
+          - label: Neso Academy Digital Electronics
+            url: https://www.nesoacademy.org/ee/05-digital-electronics
+          - label: All About Circuits - Boolean
+            url: https://www.allaboutcircuits.com/textbook/digital/chpt-7/introduction-boolean-algebra/
+      - id: combinational-circuits
+        title: Combinational Circuits
+        description: Outputs depend only on current inputs — no memory. Multiplexers route signals, decoders select devices, adders do arithmetic. These blocks combine to build ALUs and more.
+        prerequisites:
+          - core/boolean-logic-gates/Boolean Algebra & Logic Gates
+        outcomes:
+          - Design multiplexers and demultiplexers
+          - Build encoders, decoders, and priority encoders
+          - Implement binary adders and subtractors
+          - Use ROMs and PLAs for function implementation
+        concepts:
+          - ref: mux-demux
+          - ref: encoders-decoders
+          - ref: adders
+          - ref: comparators
+            override:
+              notes_replace: |
+                Magnitude comparators determine the relationship between two binary
+                numbers: A > B, A = B, or A < B.
+
+                **1-Bit Comparator:**
+
+                $$A > B: A\bar{B}$$
+                $$A = B: \overline{A \oplus B} = A \odot B$$
+                $$A < B: \bar{A}B$$
+
+                **n-Bit Comparator:**
+                Compare bit-by-bit from MSB to LSB. First unequal bit determines result.
+
+                ![Magnitude comparator](https://upload.wikimedia.org/wikipedia/commons/c/c8/Parallel_Magnitude_Comparator.svg)
+
+                **Cascading Comparators:**
+                For wider comparisons, chain comparator ICs (like 74HC85).
+                Each stage has A>B, A=B, A<B inputs from the previous stage.
+
+                ![4-bit comparator extension](https://upload.wikimedia.org/wikipedia/commons/7/79/4_bit_magnitude_comparator_extension.svg)
+
+                **Equality Comparator (Simpler):**
+                Just check if A XOR B = 0 for each bit position, then AND all results.
+
+                $$A = B: \prod_{i=0}^{n-1}(A_i \odot B_i)$$
+
+                **Applications:**
+                - Address matching in networking
+                - Branch conditions in CPUs
+                - Window comparators (range checking)
+                - Sorting networks
+        resources:
+          - label: Neso Academy - Combinational
+            url: https://www.nesoacademy.org/ee/05-digital-electronics
+          - label: GeeksforGeeks Digital Logic
+            url: https://www.geeksforgeeks.org/digital-electronics-logic-design-tutorials/
+      - id: sequential-circuits
+        title: Sequential Circuits
+        description: Circuits with memory — outputs depend on current inputs AND past history. Flip-flops store bits, registers hold bytes, counters sequence through states. The basis of all digital systems.
+        prerequisites:
+          - core/combinational-circuits/Combinational Circuits
+        outcomes:
+          - Design circuits using SR, D, JK, and T flip-flops
+          - Build counters (synchronous and asynchronous)
+          - Design finite state machines
+          - Analyze timing diagrams and setup/hold violations
+        concepts:
+          - ref: flip-flops
+          - ref: registers
+            override:
+              notes_replace: |
+                Registers are groups of flip-flops that store multi-bit values.
+                They can load, hold, or shift data.
+
+                **Parallel Load Register:**
+                All bits loaded simultaneously on clock edge when LOAD=1.
+
+                **Shift Register:**
+                Data shifts one position per clock cycle.
+
+                ![Shift register](https://upload.wikimedia.org/wikipedia/commons/6/60/3_bit_universal_shift_register.svg)
+
+                **Shift Register Types:**
+                - **SISO:** Serial In, Serial Out — delay line
+                - **SIPO:** Serial In, Parallel Out — serial to parallel converter
+                - **PISO:** Parallel In, Serial Out — parallel to serial converter
+                - **PIPO:** Parallel In, Parallel Out — standard register
+
+                ![Bidirectional shift register](https://upload.wikimedia.org/wikipedia/commons/6/69/3_bit_bi-directional_shift_register_circuit.svg)
+
+                **Universal Shift Register:**
+                Can shift left, shift right, parallel load, or hold.
+                Mode select inputs choose the operation.
+
+                **Applications:**
+                - Serial communication (UART)
+                - LED displays (driving many LEDs with few pins)
+                - Pseudo-random number generators (LFSR)
+                - Digital delay lines
+
+                **Ring Counter:**
+                Shift register with output fed back to input.
+                Circulates a single 1 (or 0) through the stages.
+          - ref: counters
+          - ref: state-machines
+        resources:
+          - label: Neso Academy - Sequential
+            url: https://www.nesoacademy.org/ee/05-digital-electronics
+          - label: Ben Eater - 8-bit Computer
+            url: https://eater.net/
+  - id: signals-systems
+    title: Signals & Systems
+    items:
+      - id: signal-basics
+        title: Signal Fundamentals
+        description: The language of information. Continuous vs discrete, periodic vs aperiodic, energy vs power signals. Understanding signal properties is essential before analyzing how systems process them.
+        prerequisites:
+          - fundamentals/calculus/Calculus
+          - Complex numbers
+        outcomes:
+          - Classify signals by their properties
+          - Perform basic signal operations (scaling, shifting)
+          - Understand even/odd decomposition
+          - Work with unit impulse and step functions
+        concepts:
+          - ref: continuous-vs-discrete
+          - ref: periodic-signals
+          - ref: impulse-function
+          - ref: convolution
+        resources:
+          - label: MIT OCW 6.003
+            url: https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/
+          - label: Neso Academy - Signals
+            url: https://www.nesoacademy.org/ee/04-signals-and-systems
+      - id: fourier-analysis
+        title: Fourier Analysis
+        description: Any signal can be decomposed into sinusoids. Fourier series for periodic signals, Fourier transform for aperiodic. This frequency-domain view reveals what filters do and how signals occupy bandwidth.
+        prerequisites:
+          - core/signal-basics/Signal Fundamentals
+          - fundamentals/calculus/Calculus
+        outcomes:
+          - Compute Fourier series coefficients
+          - Apply Fourier transform to common signals
+          - Interpret frequency spectra
+          - Understand Parseval's theorem (energy in time = energy in frequency)
+        concepts:
+          - ref: fourier-series
+          - ref: fourier-transform
+          - ref: spectrum
+          - ref: bandwidth
+        resources:
+          - label: 3Blue1Brown - Fourier
+            url: https://www.youtube.com/watch?v=spUNpyF58BY
+          - label: MIT OCW 6.003
+            url: https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/
+      - id: laplace-z-transform
+        title: Laplace & Z-Transform
+        description: Generalized frequency domain tools. Laplace transform handles continuous systems with initial conditions, Z-transform does the same for discrete systems. Both turn differential/difference equations into algebra.
+        prerequisites:
+          - core/fourier-analysis/Fourier Analysis
+          - Differential equations
+        outcomes:
+          - Apply Laplace transform to solve circuit problems
+          - Find transfer functions from differential equations
+          - Use Z-transform for discrete-time system analysis
+          - Analyze system stability using pole locations
+        concepts:
+          - ref: transfer-function
+            override:
+              notes_replace: |
+                The transfer function $H(s)$ or $H(z)$ is the Laplace/Z-transform
+                of the impulse response. It completely characterizes an LTI system.
+
+                **Laplace Transform:**
+
+                $$X(s) = \int_{0}^{\infty} x(t)e^{-st} \, dt$$
+
+                where $s = \sigma + j\omega$ is a complex frequency.
+
+                **Transfer Function Definition:**
+
+                $$H(s) = \frac{Y(s)}{X(s)}$$
+
+                **From Differential Equations:**
+                For $\frac{d^2y}{dt^2} + 3\frac{dy}{dt} + 2y = x(t)$:
+
+                $$s^2Y(s) + 3sY(s) + 2Y(s) = X(s)$$
+
+                $$H(s) = \frac{Y(s)}{X(s)} = \frac{1}{s^2 + 3s + 2}$$
+
+                **Standard Form:**
+
+                $$H(s) = K\frac{(s-z_1)(s-z_2)...(s-z_m)}{(s-p_1)(s-p_2)...(s-p_n)}$$
+
+                ![Feedback system](https://upload.wikimedia.org/wikipedia/commons/e/ed/Feedback_loop_with_descriptions.svg)
+          - ref: poles-and-zeros
+          - ref: roc
+          - ref: stability
+            override:
+              notes_replace: |
+                A system is BIBO (bounded-input, bounded-output) stable if every
+                bounded input produces a bounded output.
+
+                **Continuous-Time Stability:**
+                All poles must be in the left half-plane (LHP):
+
+                $$\text{Re}(p_i) < 0 \text{ for all poles } p_i$$
+
+                **Discrete-Time Stability:**
+                All poles must be inside the unit circle:
+
+                $$|p_i| < 1 \text{ for all poles } p_i$$
+
+                **Stability Tests:**
+                - **Routh-Hurwitz:** Algebraic test for CT systems
+                - **Jury Test:** Algebraic test for DT systems
+                - **Nyquist Criterion:** Graphical, handles feedback
+
+                **Marginal Stability:**
+                Poles on the boundary (jω-axis or unit circle) give sustained
+                oscillations — theoretically stable but practically risky.
+
+                **Common Stable Systems:**
+                - Low-pass filters (poles in LHP)
+                - Most physical systems without positive feedback
+
+                For more depth, see the [DSPGuide Laplace Chapter](https://www.dspguide.com/CH32.PDF).
+        optional: true
+        resources:
+          - label: MIT OCW 6.003
+            url: https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/
+          - label: Brian Douglas - Control
+            url: https://www.youtube.com/@BrianDouglas
+  - id: microcontrollers
+    title: Microcontrollers
+    items:
+      - id: mcu-basics
+        title: Microcontroller Fundamentals
+        description: A computer on a chip — CPU, memory, and peripherals in one package. Arduino made embedded systems accessible, but understanding what happens under the hood makes you a better developer.
+        prerequisites:
+          - core/boolean-logic-gates/Digital Logic basics
+          - Basic programming
+        outcomes:
+          - Understand microcontroller architecture (CPU, memory, peripherals)
+          - Program GPIO pins for digital I/O
+          - Use Arduino IDE effectively
+          - Read microcontroller datasheets
+        concepts:
+          - ref: architecture
+          - ref: gpio
+          - ref: clock
+          - ref: memory-map
+        resources:
+          - label: SparkFun Arduino Tutorials
+            url: https://learn.sparkfun.com/tutorials/tags/arduino
+          - label: Adafruit Learn Arduino
+            url: https://learn.adafruit.com/series/learn-arduino
+      - id: mcu-peripherals
+        title: Peripherals & Communication
+        description: Microcontrollers talk to sensors and other devices through standardized protocols. I2C for multiple devices on two wires, SPI for speed, UART for simplicity. ADC/DAC bridge analog and digital worlds.
+        prerequisites:
+          - core/mcu-basics/Microcontroller Fundamentals
+        outcomes:
+          - Configure and use UART, SPI, and I2C
+          - Read analog sensors with ADC
+          - Generate analog outputs with PWM
+          - Use timers and interrupts effectively
+        concepts:
+          - ref: uart
+          - ref: spi
+          - ref: i2c
+          - ref: adc-dac
+          - ref: pwm
+          - ref: interrupts
+        resources:
+          - label: SparkFun Serial Communication
+            url: https://learn.sparkfun.com/tutorials/serial-communication/all
+          - label: SparkFun I2C Tutorial
+            url: https://learn.sparkfun.com/tutorials/i2c/all
+      - id: embedded-c
+        title: Embedded C Programming
+        description: C is the lingua franca of embedded systems. Direct hardware access, bit manipulation, memory management — skills that matter when every byte counts and timing is critical.
+        prerequisites:
+          - core/mcu-basics/Microcontroller Fundamentals
+          - C programming basics
+        outcomes:
+          - Write efficient embedded C code
+          - Manipulate registers using bit operations
+          - Understand volatile keyword and memory-mapped I/O
+          - Debug embedded systems effectively
+        optional: true
+        concepts:
+          - ref: bit-manipulation
+          - ref: registers
+          - ref: volatile
+          - ref: memory-mapped-i-o
+        resources:
+          - label: Embedded Systems Programming
+            url: https://www.state-machine.com/quickstart/
+          - label: SparkFun Tutorials
+            url: https://learn.sparkfun.com/tutorials
+  - id: pcb-design
+    title: PCB Design
+    items:
+      - id: pcb-fundamentals
+        title: PCB Design Fundamentals
+        description: "Move from breadboard to real product. PCBs are reliable, reproducible, and professional. Learn the workflow: schematic → layout → fabrication files. KiCad is free and industry-capable."
+        prerequisites:
+          - fundamentals/dc-circuits/DC Circuits
+          - Basic component knowledge
+        outcomes:
+          - Create schematics in KiCad or similar
+          - Lay out simple two-layer boards
+          - Generate Gerber files for fabrication
+          - Understand design rules and clearances
+        concepts:
+          - ref: schematic-capture
+          - ref: layout
+          - ref: gerbers
+          - ref: design-rules
+        resources:
+          - label: KiCad Getting Started
+            url: https://docs.kicad.org/
+          - label: SparkFun PCB Basics
+            url: https://learn.sparkfun.com/tutorials/pcb-basics/all

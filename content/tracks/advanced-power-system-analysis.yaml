@@ -1,0 +1,329 @@
+# EEE Roadmap — Advanced Power System Analysis Track
+# Migrated to concept library format. Concepts live in content/concepts/
+# See CONTRIBUTING.md for the track and concept library formats.
+meta:
+  title: Advanced Power System Analysis
+  description: Eight critical power system analysis domains for engineers using  commercial software (IPSA, ETAP, PowerWorld, PSS/E). Covers fault  calculations, arc flash, protection coordination, stability, motor  starting, harmonics, contingency analysis, and scripting automation.
+  icon: shield-alert
+  featured: false
+  category: specialization
+  order: 25
+sections:
+  - id: fault-calculations
+    title: "SECTION 1: IEC 60909 Fault Calculations"
+    items:
+      - id: iec-60909-methodology
+        title: IEC 60909 Methodology
+        description: The IEC 60909-0:2016 standard for calculating short-circuit  currents in three-phase AC systems. Covers voltage factors,  impedance corrections, and the distinct current quantities  needed for equipment rating and protection coordination.
+        prerequisites:
+          - power-system-fundamentals/per-unit-system/Per-Unit System
+          - power-system-fundamentals/why-fault-analysis/Why Fault Analysis Matters
+        outcomes:
+          - Apply IEC 60909 voltage factors for max/min fault calculations
+          - Calculate initial symmetrical short-circuit current
+          - Determine peak current using kappa factor
+          - Distinguish between IEC and ANSI fault calculation approaches
+        concepts:
+          - ref: voltage-factors-c-factors
+          - ref: initial-symmetrical-short-circuit-current
+          - ref: peak-current-ip
+          - ref: impedance-correction-factors
+          - ref: breaking-and-thermal-currents
+        resources:
+          - label: IEC 60909 Overview — pandapower docs
+            url: https://pandapower.readthedocs.io/en/latest/shortcircuit/currents.html
+          - label: MIT OCW 6.061 - Electric Power Systems
+            url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+      - id: asymmetrical-faults
+        title: Asymmetrical Fault Analysis
+        description: Sequence network connections for unbalanced faults. How positive,  negative, and zero-sequence impedances combine to determine fault  currents for line-to-earth, line-to-line, and double line-to-earth faults.
+        prerequisites:
+          - advanced-power-system-analysis/iec-60909-methodology/IEC 60909 Methodology
+        outcomes:
+          - Connect sequence networks for different fault types
+          - Calculate asymmetrical fault currents
+          - Explain the role of transformer winding connections in zero-sequence paths
+        concepts:
+          - ref: sequence-network-connections
+          - ref: zero-sequence-impedance
+        resources:
+          - label: All About Circuits — Symmetrical Components
+            url: https://www.allaboutcircuits.com/textbook/alternating-current/
+          - label: pandapower — Short Circuit Calculation
+            url: https://pandapower.readthedocs.io/en/stable/shortcircuit/currents.html
+  - id: arc-flash
+    title: "SECTION 2: IEEE 1584 Arc Flash Assessment"
+    items:
+      - id: arc-flash-fundamentals
+        title: Arc Flash Hazard Fundamentals
+        description: IEEE 1584-2018 methodology for calculating incident energy  exposure during electrical work. Covers electrode configurations,  arcing current calculations, and the critical relationship between  arc duration and incident energy.
+        prerequisites:
+          - advanced-power-system-analysis/iec-60909-methodology/IEC 60909 Methodology
+          - power-system-fundamentals/why-fault-analysis/Why Fault Analysis Matters
+        outcomes:
+          - Explain the five electrode configurations and their impact on incident energy
+          - Calculate arcing current from bolted fault current
+          - Describe the relationship between arc duration and incident energy
+          - Apply IEEE 1584-2018 applicability limits
+        concepts:
+          - ref: electrode-configurations
+          - ref: arcing-current-calculation
+          - ref: incident-energy-and-arc-duration
+          - ref: applicability-limits
+        resources: []
+      - id: ppe-and-boundaries
+        title: PPE Categories and Arc Flash Boundaries
+        description: Translating incident energy calculations into practical safety  requirements. NFPA 70E PPE categories, arc flash boundary  determination, and NEC requirements for arc energy reduction.
+        prerequisites:
+          - advanced-power-system-analysis/arc-flash-fundamentals/Arc Flash Hazard Fundamentals
+        outcomes:
+          - Determine PPE category from incident energy
+          - Calculate arc flash boundary distance
+          - Explain NEC 240.87 arc energy reduction requirements
+          - Identify when engineering controls are required over PPE
+        concepts:
+          - ref: arc-flash-boundary-afb
+          - ref: nfpa-70e-ppe-categories
+          - ref: arc-energy-reduction-nec-240-87
+        resources:
+          - label: NFPA 70E Overview — NFPA
+            url: https://www.nfpa.org/codes-and-standards/nfpa-70e-standard-development/70e
+  - id: protection-coordination
+    title: "Section 3: Protection Coordination"
+    items:
+      - id: tcc-and-grading
+        title: Time-Current Curves and Grading Margins
+        description: IEC 60255 and IEEE C37.112 inverse-time relay characteristics, coordination time intervals, and grading methodology for series-connected protective devices.
+        prerequisites:
+          - power-system-fundamentals/protection-coordination/Protection Coordination
+          - power-system-fundamentals/time-current-curves/Time-Current Curves
+        outcomes:
+          - Select appropriate IEC 60255 inverse curve type for an application
+          - Calculate relay operating time from TMS and curve parameters
+          - Determine grading margins for numerical and electromechanical relays
+          - Identify coordination failures on TCC plots
+        concepts:
+          - ref: iec-60255-standard-inverse-curves
+          - ref: coordination-time-interval
+          - ref: selectivity-mechanisms
+        resources:
+          - label: "IEC 60255-151: Measuring relays and protection equipment"
+            url: https://webstore.iec.ch/en/publication/1170
+          - label: "IEEE C37.112: Standard Inverse-Time Characteristic Equations"
+            url: https://standards.ieee.org/ieee/C37.112/10688/
+          - label: GE Multilin - Relay Coordination Fundamentals
+            url: https://www.gegridsolutions.com/multilin/
+      - id: differential-and-distance
+        title: Differential and Distance Protection
+        description: Unit protection using Kirchhoff's Current Law for transformers, busbars, and generators. Impedance-based distance protection with multi-zone reach settings for transmission lines.
+        prerequisites:
+          - power-system-fundamentals/protection-relays/Protection Relay Types
+          - power-system-fundamentals/protection-zones/Protection Zones and Backup
+          - advanced-power-system-analysis/tcc-and-grading/Time-Current Curves and Grading Margins
+        outcomes:
+          - Configure percentage restraint differential relay settings
+          - Explain harmonic restraint for transformer inrush discrimination
+          - Set distance relay zone reaches and timers
+          - Design primary and backup protection using zones 1, 2, and 3
+        concepts:
+          - ref: differential-protection-principles
+          - ref: transformer-differential-settings
+          - ref: distance-protection-zones
+          - ref: distance-relay-characteristics
+        resources:
+          - label: "IEEE C37.113: Guide for Protective Relay Applications to Transmission Lines"
+            url: https://standards.ieee.org/ieee/C37.113/10691/
+          - label: PAC Basics - Distance Protection Tutorial
+            url: https://pacbasics.org/
+  - id: transient-stability
+    title: "Section 4: Transient Stability"
+    items:
+      - id: swing-equation-and-eac
+        title: Swing Equation and Equal Area Criterion
+        description: Rotor dynamics of synchronous machines following large disturbances, the swing equation derivation, equal area criterion for SMIB systems, and critical clearing time determination.
+        prerequisites:
+          - power-system-fundamentals/generators/Synchronous Machine Basics
+          - power-system-fundamentals/generators/Generator Reactances
+        outcomes:
+          - Derive and apply the swing equation for a synchronous machine
+          - Calculate critical clearing angle using the equal area criterion
+          - Determine critical clearing time for protection coordination
+          - Assess stability margins for different fault scenarios
+        concepts:
+          - ref: the-swing-equation
+          - ref: equal-area-criterion
+          - ref: critical-clearing-time
+      - id: excitation-and-pss
+        title: Excitation Systems and Power System Stabilizers
+        description: IEEE Std 421.5 excitation system models, automatic voltage regulator response, and power system stabilizer design for damping electromechanical oscillations.
+        prerequisites:
+          - power-system-fundamentals/generators/Excitation
+          - advanced-power-system-analysis/swing-equation-and-eac/The Swing Equation
+        outcomes:
+          - Identify IEEE 421.5 excitation system model types
+          - Explain how AVR response affects transient stability
+          - Describe PSS operating principle and tuning methodology
+          - Distinguish first-swing stability from damping improvement
+        concepts:
+          - ref: ieee-421-5-excitation-models
+          - ref: power-system-stabilizer
+          - ref: stability-study-methodology
+        resources:
+          - label: "IEEE Std 421.5-2016: Excitation System Models"
+            url: https://standards.ieee.org/ieee/421.5/5765/
+          - label: Kundur - Power System Stability and Control (reference textbook)
+            url: https://www.mheducation.com/
+  - id: motor-starting
+    title: "Section 5: Motor Starting Studies"
+    items:
+      - id: voltage-dip-analysis
+        title: Voltage Dip and Starting Current Analysis
+        description: Locked-rotor current characteristics of induction motors, voltage dip prediction methods, and acceptance criteria for motor starting on utility and generator-supplied systems.
+        prerequisites:
+          - power-system-fundamentals/generators/Generator Reactances
+          - power-system-fundamentals/per-unit/Per-Unit System
+        outcomes:
+          - Calculate voltage dip from motor starting kVA and system short-circuit capacity
+          - Apply NEMA code letter ratings to determine starting kVA
+          - Assess voltage dip impact on contactors, controls, and lighting
+          - Size generators for direct-on-line motor starting
+        concepts:
+          - ref: locked-rotor-current-characteristics
+          - ref: voltage-dip-calculation
+          - ref: sequential-starting-strategy
+      - id: reduced-voltage-starting
+        title: Reduced-Voltage Starting Methods
+        description: Star-delta, autotransformer, soft starter, and variable frequency drive starting methods with comparative analysis of current reduction, torque capability, and application suitability.
+        prerequisites:
+          - advanced-power-system-analysis/voltage-dip-analysis/Locked-Rotor Current Characteristics
+        outcomes:
+          - Compare starting current and torque for each reduced-voltage method
+          - Select appropriate starting method for a given application
+          - Calculate line current reduction for autotransformer starting
+          - Specify soft starter and VFD starting parameters
+        concepts:
+          - ref: star-delta-and-autotransformer-starting
+          - ref: soft-starters-and-vfds
+        resources:
+          - label: "IEEE 3002.7-2018: Motor-Starting Studies"
+            url: https://standards.ieee.org/ieee/3002.7/6027/
+          - label: "IEEE 1453-2022: Voltage Flicker"
+            url: https://standards.ieee.org/ieee/1453/10821/
+          - label: "NEMA MG 1: Motors and Generators"
+            url: https://www.nema.org/standards/view/motors-and-generators
+  - id: harmonic-analysis
+    title: "Section 6: Harmonic Analysis"
+    items:
+      - id: harmonic-sources-and-effects
+        title: Harmonic Sources and Distortion Metrics
+        description: Characteristic harmonics from power electronic converters, THD calculation, IEEE 519 limits, and effects of harmonics on transformers, cables, and rotating machines.
+        prerequisites:
+          - power-system-fundamentals/ac-theory/AC Fundamentals
+        outcomes:
+          - Identify characteristic harmonics of 6-pulse, 12-pulse, and 18-pulse converters
+          - Calculate THD from individual harmonic magnitudes
+          - Apply IEEE 519-2022 voltage and current distortion limits
+          - Assess harmonic heating effects on transformers and cables
+        concepts:
+          - ref: harmonic-sources-and-spectra
+          - ref: thd-calculation-and-ieee-519-limits
+          - ref: harmonic-effects-on-equipment
+      - id: resonance-and-mitigation
+        title: Resonance Analysis and Harmonic Mitigation
+        description: Parallel and series resonance with power factor correction capacitors, frequency scanning analysis, and mitigation strategies including passive filters and active solutions.
+        prerequisites:
+          - advanced-power-system-analysis/harmonic-sources-and-effects/Harmonic Sources and Spectra
+        outcomes:
+          - Calculate parallel resonant frequency for a given system and capacitor bank
+          - Interpret frequency scan plots to identify resonance risks
+          - Design single-tuned passive harmonic filters
+          - Select appropriate mitigation strategy for a given harmonic problem
+        concepts:
+          - ref: resonance-with-capacitor-banks
+          - ref: harmonic-penetration-study-method
+          - ref: mitigation-strategies
+        resources:
+          - label: "IEEE 519-2022: Harmonic Control in Electric Power Systems"
+            url: https://standards.ieee.org/ieee/519/10677/
+          - label: "IEEE 3002.8-2018: Harmonic Study Methodology"
+            url: https://standards.ieee.org/ieee/3002.8/6028/
+          - label: "IEC 61000 Series: EMC Standards"
+            url: https://webstore.iec.ch/en/publication/4133
+  - id: contingency-analysis
+    title: "Section 7: Contingency Analysis"
+    items:
+      - id: n1-security-criteria
+        title: N-1 Security Criteria and Screening Methods
+        description: The N-1 reliability principle, NERC TPL and ENTSO-E planning standards, DC power flow screening using sensitivity factors, and performance index ranking for contingency selection.
+        prerequisites:
+          - power-system-fundamentals/load-flow-analysis/Interpreting Load Flow Results
+        outcomes:
+          - Explain the N-1, N-1-1, and N-2 security criteria
+          - Calculate post-contingency flows using LODF and PTDF factors
+          - Rank contingencies using performance index screening
+          - Distinguish between planning and operational contingency assessment
+        concepts:
+          - ref: n-1-criterion-and-reliability-standards
+          - ref: dc-power-flow-screening
+          - ref: dc-vs-ac-contingency-analysis
+      - id: limits-and-corrective-actions
+        title: System Limits and Corrective Actions
+        description: Thermal ratings for lines and transformers, voltage acceptance criteria, P-V curve analysis for voltage stability, and corrective action mechanisms including remedial action schemes (RAS) and SCOPF.
+        prerequisites:
+          - advanced-power-system-analysis/n1-security-criteria/N-1 Criterion and Reliability Standards
+        outcomes:
+          - Apply normal and emergency thermal ratings for lines and transformers
+          - Interpret P-V curves to assess voltage stability margins
+          - Describe corrective actions for contingency violations
+          - Explain security-constrained optimal power flow (SCOPF)
+        concepts:
+          - ref: thermal-and-voltage-limits
+          - ref: voltage-stability-and-p-v-curves
+          - ref: corrective-actions-and-scopf
+        resources:
+          - label: "NERC TPL-001-5.1: Transmission System Planning"
+            url: https://www.nerc.com/pa/Stand/Reliability%20Standards/TPL-001-5.1.pdf
+          - label: "IEEE 738: Line Thermal Ratings"
+            url: https://standards.ieee.org/ieee/738/11524/
+          - label: "IEEE C57.91: Transformer Loading Guide"
+            url: https://standards.ieee.org/ieee/C57.91/10964/
+  - id: python-automation
+    title: "Section 8: Python Scripting and Automation"
+    items:
+      - id: commercial-software-apis
+        title: Commercial Software Python APIs
+        description: Python integration with PSS/E, PowerWorld, DIgSILENT PowerFactory, and ETAP for automating power system studies including batch simulations and result extraction.
+        prerequisites:
+          - advanced-power-system-analysis/n1-security-criteria/DC Power Flow Screening
+        outcomes:
+          - Initialise and run power flow via PSS/E psspy module
+          - Access PowerWorld through SimAuto/ESA interface
+          - Describe DIgSILENT PowerFactory Python API workflow
+          - Implement the load-modify-solve-extract automation pattern
+        concepts:
+          - ref: pss-e-python-integration
+          - ref: powerworld-and-other-apis
+          - ref: core-automation-pattern
+      - id: automation-workflows
+        title: Study Workflows and Report Generation
+        description: Common automated workflows including batch contingency analysis, Monte Carlo studies, sensitivity sweeps, and automated report generation with pandas and matplotlib.
+        prerequisites:
+          - advanced-power-system-analysis/commercial-software-apis/Core Automation Pattern
+        outcomes:
+          - Implement batch N-1 contingency screening in Python
+          - Design a sensitivity analysis sweep over key parameters
+          - Generate formatted Excel reports from simulation results
+          - Apply error handling and logging to automation scripts
+        concepts:
+          - ref: batch-contingency-analysis
+          - ref: sensitivity-and-monte-carlo-studies
+          - ref: report-generation-and-best-practices
+        resources:
+          - label: pandapower (Open-Source)
+            url: https://www.pandapower.org/
+          - label: ESA - Easy SimAuto for PowerWorld
+            url: https://github.com/mzy2240/ESA
+          - label: PyPSSE from NREL
+            url: https://github.com/NREL/PyPSSE
+          - label: PSS/E Python Community
+            url: https://psspy.org/

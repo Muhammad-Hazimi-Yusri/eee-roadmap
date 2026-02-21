@@ -1,14 +1,14 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.21.16",
+  "version": "0.22.0",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs",
     "postinstall": "node scripts/setup-pdfjs.mjs",
     "build:glossary": "node scripts/build-glossary.mjs",
     "build:search": "node scripts/build-search-index.mjs",
-    "build:data": "node scripts/build-data.mjs && node scripts/build-glossary.mjs && node scripts/build-search-index.mjs && node scripts/build-graph-data.mjs",
+    "build:data": "node scripts/build-concept-index.mjs && node scripts/build-data.mjs && node scripts/build-glossary.mjs && node scripts/build-search-index.mjs && node scripts/build-graph-data.mjs",
     "validate": "node scripts/validate.mjs",
     "dev": "npm run build:data && npm run download:pdfs && astro dev",
     "dev:check": "npm run build:data && npm run validate && npm run test:run && npm run build && npm run check-links",
