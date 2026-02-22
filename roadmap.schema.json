@@ -61,13 +61,35 @@
       "additionalProperties": false
     },
     "concept": {
-      "type": "object",
-      "required": ["name"],
-      "properties": {
-        "name": { "type": "string" },
-        "notes": { "type": "string" }
-      },
-      "additionalProperties": false
+      "oneOf": [
+        {
+          "description": "Inline concept with explicit name and optional notes",
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string" },
+            "notes": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "description": "Library concept reference resolved at build time",
+          "type": "object",
+          "required": ["ref"],
+          "properties": {
+            "ref": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+            "override": {
+              "type": "object",
+              "properties": {
+                "context_note": { "type": "string" },
+                "notes_replace": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "resource": {
       "type": "object",

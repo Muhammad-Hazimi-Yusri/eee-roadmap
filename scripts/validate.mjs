@@ -28,7 +28,7 @@ const legacyFiles = readdirSync(CONTENT_DIR)
   .filter(f => !EXCLUDE.has(f));
 
 // ─── Inline concept domain schema ────────────────────────────────────────────
-// (Phase 4 will extract this to content/concepts/concept.schema.json)
+// Canonical schema lives at content/concepts/concept.schema.json (for editors)
 
 const CONCEPT_DOMAIN_SCHEMA = {
   type: 'object',
@@ -155,8 +155,9 @@ function validate() {
 function validateConceptLibrary() {
   if (!existsSync(CONCEPTS_DIR)) return true;
 
+  const SKIP_CONCEPTS = new Set(['sample.yaml']);
   const domainFiles = readdirSync(CONCEPTS_DIR)
-    .filter(f => f.endsWith('.yaml') && !f.startsWith('_'));
+    .filter(f => f.endsWith('.yaml') && !f.startsWith('_') && !SKIP_CONCEPTS.has(f));
 
   if (domainFiles.length === 0) return true;
 

@@ -15,29 +15,77 @@ export interface Resource {
   url: string;
 }
 
-/** Individual concept within a topic */
+/** Individual concept within a topic (resolved form in built JSON) */
 export interface Concept {
   /** Display name of the concept */
   name: string;
-  /** 
+  /**
    * Markdown explanation (optional).
-   * 
+   *
    * IMPORTANT: When using template literals, avoid leading whitespace on lines.
    * Markdown treats 4+ spaces as code blocks, breaking embeds.
-   * 
+   *
    * @example
    * // ❌ Bad - indented lines become code blocks
    * notes: `
    *   Some text
    *   ![PDF](/file.pdf)
    * `
-   * 
+   *
    * // ✅ Good - no leading whitespace
    * notes: `Some text
-   * 
+   *
    * ![PDF](/file.pdf)
    * `
    */
+  notes?: string;
+}
+
+/**
+ * Library concept reference (YAML source format only).
+ * Resolved to a plain `Concept` at build time — not present in built JSON.
+ *
+ * @example
+ * // content/tracks/my-track.yaml
+ * concepts:
+ *   - ref: ohms-law
+ *   - ref: power-factor
+ *     override:
+ *       context_note: "Extra context appended to library notes."
+ *       # or notes_replace to fully replace library notes
+ */
+export interface ConceptRef {
+  /** Concept ID in the shared library (e.g., "ohms-law") */
+  ref: string;
+  override?: {
+    /** Appended after library notes with a horizontal rule separator */
+    context_note?: string;
+    /** Replaces library notes entirely */
+    notes_replace?: string;
+  };
+}
+
+/**
+ * Union of inline concept or library reference.
+ * Used when parsing YAML source files (e.g. in validate.mjs).
+ * At runtime, `Topic.concepts` is always `Concept[]` (refs resolved by build).
+ */
+export type ConceptEntry = Concept | ConceptRef;
+
+/**
+ * A concept from the shared concept library (`src/data/concept-library.json`).
+ * Used for future client-side concept browsing and custom track integration.
+ */
+export interface LibraryConcept {
+  /** Unique kebab-case ID (e.g., "ohms-law") */
+  id: string;
+  /** Display name (e.g., "Ohm's Law") */
+  name: string;
+  /** Domain grouping (e.g., "circuit-analysis", "power-systems") */
+  domain: string;
+  /** Classification tags */
+  tags?: string[];
+  /** Markdown notes */
   notes?: string;
 }
 

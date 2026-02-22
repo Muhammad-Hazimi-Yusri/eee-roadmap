@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://eee-roadmap.muhammadhazimiyusri.uk/schemas/concept.schema.json",
+  "title": "EEE Concept Domain File",
+  "description": "Schema for concept domain YAML files in content/concepts/",
+  "type": "object",
+  "required": ["_meta", "concepts"],
+  "additionalProperties": false,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["domain"],
+      "additionalProperties": false,
+      "properties": {
+        "domain": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Domain identifier (kebab-case, matches filename)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this domain"
+        }
+      }
+    },
+    "concepts": {
+      "type": "object",
+      "description": "Map of concept ID to concept definition",
+      "additionalProperties": {
+        "$ref": "#/$defs/concept"
+      }
+    }
+  },
+  "$defs": {
+    "concept": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Display name of the concept"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Classification tags for filtering and search"
+        },
+        "prerequisites": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concept IDs this concept depends on (within the library)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Markdown explanation with optional LaTeX ($...$ inline, $$...$$ block)"
+        }
+      }
+    }
+  }
+}

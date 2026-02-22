@@ -1,8 +1,10 @@
 # EEE Roadmap - Sample Template
-# 
+#
 # This is a template for creating your own roadmap track.
-# Copy this file and rename it (e.g., my-track.yaml).
-# 
+# Copy this file to content/tracks/ and rename it (e.g., my-track.yaml).
+# Tracks in content/tracks/ use the concept library (ref: syntax).
+# Tracks in content/ (legacy) use inline concepts — both formats work.
+#
 # NOTE: This file is excluded from the build process.
 
 # Metadata (all fields optional)
@@ -36,6 +38,17 @@ sections:
           - What the learner will be able to do after completing this topic
           - Another measurable learning outcome
         concepts:
+          # ── Option A: Library reference (preferred for content/tracks/) ──
+          # Resolved at build time from content/concepts/<domain>.yaml
+          - ref: ohms-law
+          - ref: power-factor
+            override:
+              context_note: |
+                Track-specific context appended after library notes.
+              # notes_replace: |
+              #   Full replacement of library notes for this track only.
+
+          # ── Option B: Inline concept (legacy, or for truly unique content) ──
           - name: Concept Name
             # Notes are optional. Use | for multi-line markdown:
             notes: |
@@ -59,7 +72,7 @@ sections:
         description: >-
           Example with only required fields.
         concepts:
-          - name: Key Concept
+          - ref: some-library-concept
 
   - id: another-section
     title: Another Section

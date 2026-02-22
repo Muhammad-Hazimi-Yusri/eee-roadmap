@@ -1,0 +1,43 @@
+# EEE Concept Domain - Sample Template
+#
+# This file shows the format for concept domain files in content/concepts/.
+# Each domain file groups related concepts by subject area.
+#
+# Concept IDs (the YAML keys under `concepts:`) are kebab-case and must be
+# unique across ALL domain files — the build will error on duplicates.
+#
+# To add a new domain:
+#   1. Create content/concepts/my-domain.yaml following this format
+#   2. Run `npm run build:data` — auto-discovered!
+#
+# JSON Schema: content/concepts/concept.schema.json
+
+_meta:
+  domain: my-domain                         # Must match filename (without .yaml)
+  description: "A brief description of what this domain covers"
+
+concepts:
+  # ── Concept with full fields ──────────────────────────────────────────────
+  example-concept:
+    name: Example Concept
+    tags: [example, fundamentals]           # Optional: for filtering and search
+    prerequisites: []                       # Optional: other concept IDs this builds on
+    notes: |
+      Markdown explanation with **bold**, *italic*, and inline LaTeX: $V = IR$.
+
+      Block equations need blank lines before and after:
+
+      $$P = \frac{V^2}{R}$$
+
+      Supports embedded PDFs: ![Datasheet](/path/to/file.pdf)
+
+  # ── Concept with notes only ───────────────────────────────────────────────
+  another-concept:
+    name: Another Concept
+    notes: |
+      A shorter explanation. You can reference other concepts by mentioning
+      their name — the glossary auto-linker will pick them up.
+
+  # ── Minimal concept (no notes — displays as a pill only) ─────────────────
+  minimal-concept:
+    name: Minimal Concept

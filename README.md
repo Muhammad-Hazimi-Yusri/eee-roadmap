@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.1-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.0
+Current version is v0.22.1
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -296,24 +296,33 @@ Current version is v0.22.0
 ```
 eee-roadmap/
 ├── content/                       # YAML roadmap data (source of truth)
+│   ├── concepts/                  # Shared concept library (392 concepts, 12 domains)
+│   │   ├── circuit-analysis.yaml  # Domain: circuit analysis laws & theorems
+│   │   ├── power-systems.yaml     # Domain: power systems (193 concepts)
+│   │   ├── ...                    # electromagnetics, electronics, control-systems, etc.
+│   │   ├── concept.schema.json    # JSON Schema for domain files
+│   │   └── sample.yaml            # Template for new domain files
+│   ├── tracks/                    # Track files (ref: concept library)
+│   │   ├── fundamentals.yaml      # Track: Fundamentals
+│   │   ├── core.yaml              # Track: Core
+│   │   ├── advanced.yaml          # Track: Advanced
+│   │   ├── distributed-generation.yaml
+│   │   ├── power-system-fundamentals.yaml
+│   │   └── advanced-power-system-analysis.yaml
 │   ├── _glossary.yaml             # 100+ EEE terms and definitions
-│   ├── fundamentals.yaml          # Track: Fundamentals
-│   ├── core.yaml                  # Track: Core
-│   ├── advanced.yaml              # Track: Advanced
-│   ├── distributed-generation.yaml
-│   ├── power-system-fundamentals.yaml
-│   ├── advanced-power-system-analysis.yaml
 │   └── sample.yaml                # Template for contributors
 ├── public/                        # Static assets (PDFs, PDF.js viewer, robots.txt)
 ├── scripts/
-│   ├── build-data.mjs             # YAML → JSON converter
+│   ├── build-concept-index.mjs    # Concept library → _index.yaml + concept-library.json
+│   ├── build-data.mjs             # YAML → JSON converter (resolves concept refs)
 │   ├── build-glossary.mjs         # Glossary JSON + reverse index
 │   ├── build-graph-data.mjs       # Graph nodes/edges from tracks
-│   ├── build-search-index.mjs     # Fuse.js search index
+│   ├── build-search-index.mjs     # Fuse.js search index (glossary + library + tracks)
 │   ├── bump-version.mjs           # Interactive version updater
 │   ├── download-pdfs.mjs          # External PDF downloader
+│   ├── migrate-to-library.mjs     # One-time migration: extracted concepts to library
 │   ├── setup-pdfjs.mjs            # PDF.js viewer setup
-│   └── validate.mjs               # Schema validation
+│   └── validate.mjs               # Schema validation (tracks + concept library)
 ├── src/
 │   ├── components/
 │   │   ├── ConceptWindows.astro   # Draggable note windows + editor
@@ -327,9 +336,10 @@ eee-roadmap/
 │   │   ├── SearchBar.astro        # Global search (Ctrl+K)
 │   │   ├── TrackGraph.astro       # Per-track mini graph
 │   │   └── ...                    # Hero, Footer, Tracks, CTA, etc.
-│   ├── data/                      # Generated JSON (from content/*.yaml)
+│   ├── data/                      # Generated JSON (auto-generated, do not edit)
 │   │   ├── index.ts               # Data loader (getRoadmap, getAllTracks)
-│   │   └── *.json                 # Auto-generated, do not edit
+│   │   ├── concept-library.json   # All 392 library concepts with domain/tags
+│   │   └── *.json                 # Track JSON files (refs resolved at build time)
 │   ├── layouts/
 │   │   ├── Layout.astro           # Main layout (SEO meta, fonts, conditional KaTeX, skip link)
 │   │   └── PrintLayout.astro      # Minimal layout for print pages (noindex)
@@ -351,7 +361,7 @@ eee-roadmap/
 │   │   ├── global.css             # Design tokens, base styles, components, roadmap styles
 │   │   └── print.css              # Shared print mode styles (official + custom)
 │   ├── types/
-│   │   ├── roadmap.ts             # Core data types
+│   │   ├── roadmap.ts             # Core data types (Concept, ConceptRef, LibraryConcept)
 │   │   └── custom-content.ts      # Custom track types
 │   └── utils/
 │       ├── parseNotes.ts          # Markdown + KaTeX + PDF parser (build-time)
@@ -363,7 +373,8 @@ eee-roadmap/
 │       └── ...                    # url, tools, trail, trackColors, etc.
 ├── tests/
 │   └── integration/               # Playwright tests
-├── .stylelintrc.json                 # Stylelint config (CSS linting)
+├── roadmap.schema.json            # JSON Schema for track YAML files
+├── .stylelintrc.json              # Stylelint config (CSS linting)
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 └── README.md

@@ -18,16 +18,22 @@ npm run dev
 ## Project Structure (Full dir tree in README.md)
 ```
 content/                # Roadmap YAML source files (edit these!)
-├── fundamentals.yaml
-├── core.yaml
-├── advanced.yaml
-├── distributed-generation.yaml
-└── power-system-fundamentals.yaml
+├── concepts/           # Shared concept library (domain-grouped)
+│   ├── circuit-analysis.yaml
+│   ├── power-systems.yaml
+│   └── ...             # 12 domain files total
+├── tracks/             # Track files using ref: syntax (preferred)
+│   ├── fundamentals.yaml
+│   ├── core.yaml
+│   └── ...             # 6 production tracks
+├── _glossary.yaml      # 100+ EEE terms and definitions
+└── sample.yaml         # Template for contributors
 src/
 ├── components/     # Astro components
 ├── data/           # Generated JSON + loader (don't edit JSONs directly)
-│   ├── index.ts    # Dynamic loader
-│   └── sample.json # Example structure
+│   ├── index.ts          # Dynamic loader
+│   ├── concept-library.json  # All library concepts (auto-generated)
+│   └── sample.json       # Example structure
 ├── layouts/        # Page layouts
 ├── pages/          # Route pages
 ├── styles/         # Global CSS
@@ -41,12 +47,12 @@ src/
 
 > **Note:** This is the authoritative reference for YAML format. README.md links here.
 
-Edit roadmap content in `content/*.yaml` files:
+Edit roadmap content in `content/tracks/*.yaml` files:
 - Fix typos or unclear descriptions
 - Add or improve learning resources (ensure links are valid)
 - Suggest new topics or reorganize existing ones
 
-**YAML format example:**
+**Track YAML format (preferred — uses concept library refs):**
 ```yaml
 meta:
   title: Track Title
@@ -70,10 +76,17 @@ sections:
         outcomes:
           - What learners will achieve
         concepts:
-          - name: Concept Name
+          # Reference a concept from the shared library (resolved at build time):
+          - ref: ohms-law
+          - ref: power-factor
+            override:
+              context_note: |
+                Extra track-specific context appended after library notes.
+          # Or inline for truly track-specific content:
+          - name: Inline Concept
             notes: |
               Optional markdown with $LaTeX$ support.
-              
+
               $$E = mc^2$$
         resources:
           - label: Resource Name
@@ -81,11 +94,56 @@ sections:
         optional: false
 ```
 
-See `content/sample.yaml` for the complete template, or `src/data/sample.json` for the JSON equivalent.
+See `content/sample.yaml` for the complete template with all options.
+
+### 2. Concept Library
+
+The shared concept library lives in `content/concepts/` — one YAML file per domain.
+
+**Domain file format (`content/concepts/<domain>.yaml`):**
+```yaml
+_meta:
+  domain: circuit-analysis
+  description: "Laws and techniques for analyzing electrical circuits"
+
+concepts:
+  ohms-law:
+    name: Ohm's Law
+    tags: [dc-circuits, resistance, fundamentals]
+    prerequisites: []                  # other concept IDs this builds on
+    notes: |
+      Fundamental relationship: $V = IR$ where $V$ is voltage (volts),
+      $I$ is current (amperes), and $R$ is resistance (ohms).
+
+      $$V = IR$$
+
+  kirchhoffs-voltage-law:
+    name: Kirchhoff's Voltage Law
+    tags: [dc-circuits, network-analysis]
+    notes: |
+      The sum of all voltages around any closed loop equals zero: $\sum V = 0$.
+```
+
+**Concept ID rules:**
+- Must be kebab-case: `ohms-law`, `power-factor`, `per-unit-system`
+- Must be **unique across all domain files** — the build errors on duplicates
+- Generated from concept name: lowercase, strip apostrophes, replace non-alphanumeric with hyphens
+
+**To add a concept:**
+1. Find the appropriate domain file in `content/concepts/`
+2. Add the concept entry (ID must be unique)
+3. Reference it in a track with `- ref: your-concept-id`
+4. Run `npm run build:data` to rebuild
+
+**To add a new domain:**
+1. Create `content/concepts/my-domain.yaml` following the format above
+2. Run `npm run build:data` — auto-discovered!
+
+See `content/concepts/sample.yaml` for a fully commented example.
 
 ### Adding a New Topic
 
-Add a new item under the appropriate section in `content/*.yaml`:
+Add a new item under the appropriate section in `content/tracks/*.yaml`:
 ```yaml
     - id: your-topic-id
       title: Your Topic Title
@@ -97,7 +155,7 @@ Add a new item under the appropriate section in `content/*.yaml`:
       outcomes:
         - What the learner will be able to do
       concepts:
-        - name: Key Concept
+        - ref: relevant-library-concept
       resources:
         - label: Resource Name
           url: https://example.com
@@ -147,19 +205,19 @@ The build script generates a reverse index showing where each term appears.
 
 ### Adding a New Track
 
-1. Create `content/your-track.yaml`
+1. Create `content/tracks/your-track.yaml`
 2. Add `meta:` block with title, description, and optional fields
-3. Add `sections:` with your content
+3. Add `sections:` with your content (use `- ref:` for library concepts)
 4. Run `npm run dev` — auto-discovered!
 
 No manual route configuration needed — tracks are fully dynamic.
 
-### 2. Bug Fixes
+### 3. Bug Fixes
 - Check [Issues](https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap/issues) for known bugs
 - Test on different browsers/devices
 - Report new bugs with steps to reproduce
 
-### 3. Features
+### 4. Features
 - Check README.md for planned features
 - Discuss major changes in an issue first
 
@@ -302,16 +360,18 @@ For small fixes where a version bump isn't needed, you can ignore the warning �
 ## Testing
 ```bash
 npm run test:run    # Unit tests
-npm run test:e2e    # E2E tests  
+npm run test:e2e    # E2E tests
 npm run test:all    # Both
 ```
 
-Roadmap structure is automatically validated — any YAML file in `content/` will be tested.
+Roadmap structure is automatically validated — any YAML file in `content/tracks/` will be tested.
 
 ## Validation
 
-- JSON Schema available at `roadmap.schema.json` for editor support
+- JSON Schema at `roadmap.schema.json` for track file editor support
+- JSON Schema at `content/concepts/concept.schema.json` for concept domain editor support
 - Run `npm run build:data` to manually rebuild JSON from YAML
+- Run `npm run validate` to check all files against their schemas
 
 ## Pull Request Process
 

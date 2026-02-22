@@ -7,7 +7,13 @@
 
 import type { Roadmap } from './roadmap';
 
-/** Custom concept with pre-parsed HTML (parsed at save time in editor) */
+/**
+ * Custom concept with pre-parsed HTML (parsed at save time in editor).
+ *
+ * Phase 5 (planned, not yet implemented): will also support
+ * `{ ref: string, type: 'official' }` to embed official library concepts
+ * by reference into custom tracks, resolved client-side from concept-library.json.
+ */
 export interface CustomConcept {
   /** Display name of the concept */
   name: string;

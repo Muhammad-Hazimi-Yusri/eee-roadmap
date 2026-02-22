@@ -28,8 +28,9 @@ function buildConceptIndex() {
     return;
   }
 
+  const SKIP = new Set(['sample.yaml']);
   const domainFiles = readdirSync(CONCEPTS_DIR)
-    .filter(f => f.endsWith('.yaml') && !f.startsWith('_'))
+    .filter(f => f.endsWith('.yaml') && !f.startsWith('_') && !SKIP.has(f))
     .sort();
 
   if (domainFiles.length === 0) {
