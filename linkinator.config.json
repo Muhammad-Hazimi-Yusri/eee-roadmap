@@ -7,6 +7,7 @@
     "https://commons.wikimedia.org/*",
     "https://upload.wikimedia.org/*",
     "og-image\\.png",
-    ".*/og-image\\.png"       
+    ".*/og-image\\.png",
+    "dspguide\\.com"
   ]
 }
