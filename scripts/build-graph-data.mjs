@@ -12,7 +12,7 @@ const dataDir = join(__dirname, '../src/data');
 const outFile = join(dataDir, 'graph-data.json');
 
 // Files to skip
-const SKIP_FILES = ['sample.json', 'search-index.json', '_glossary.json', 'graph-data.json', 'pdf-manifest.json'];
+const SKIP_FILES = ['sample.json', 'search-index.json', '_glossary.json', 'graph-data.json', 'pdf-manifest.json', 'concept-library.json'];
 
 function buildGraphData() {
   const files = readdirSync(dataDir).filter(
