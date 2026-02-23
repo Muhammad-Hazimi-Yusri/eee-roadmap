@@ -984,4 +984,24 @@ export function initRoadmapInteractions(): void {
   initSwipeTrail();
   // Load custom concepts after page init
   initCustomConcepts();
+  // Load verifier panels for users with verifier/admin role
+  initVerifierPanels();
+
+  async function initVerifierPanels(): Promise<void> {
+    const { isSupabaseConfigured, supabase } = await import('../lib/supabase');
+    if (!isSupabaseConfigured || !supabase) return;
+    const { currentUserHasRole, fetchTrackVerifications } = await import('./verification');
+    const [isVerifier, isAdmin] = await Promise.all([
+      currentUserHasRole('verifier'),
+      currentUserHasRole('admin'),
+    ]);
+    if (!isVerifier && !isAdmin) return;
+    const track = (window as unknown as { trackSlug?: string }).trackSlug;
+    if (!track) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    const verifierName = session?.user?.email?.split('@')[0] ?? 'Verifier';
+    const rows = await fetchTrackVerifications(track);
+    const { initVerifierPanels: inject } = await import('./verifierPanel');
+    await inject({ trackSlug: track, isAdmin, verifierName, rows });
+  }
 }

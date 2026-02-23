@@ -4,10 +4,54 @@ All notable changes to this project will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-> **Versioning Convention:**  
-> - `vX.Y.0` — Feature milestone  
-> - `vX.Y.Z` — Bug fixes and patches within that milestone  
+> **Versioning Convention:**
+> - `vX.Y.0` — Feature milestone
+> - `vX.Y.Z` — Bug fixes and patches within that milestone
 > - Detailed patch history lives in git commits, not this changelog
+
+---
+
+## [0.22.X] - 2026-02-23
+
+**Content Verification System**
+
+### Added
+- `supabase/schema-verification.sql` — SQL schema for verification system (run in Supabase dashboard)
+  - `public.user_roles` table: `admin` and `verifier` role assignments with `granted_by` audit trail
+  - `public.verifications` table: per-aspect verification rows with soft-delete (`revoked_at`)
+  - Partial unique index (`verifications_active_unique`): enforces one active verification per `(topic_key, aspect)` at a time
+  - `public.has_role()` SECURITY DEFINER function used by RLS policies
+  - RLS: `user_roles` readable/writable by admins only; `verifications` publicly readable (for badges), writable by verifiers/admins, revocable by admins only
+- `src/types/verification.ts` — TypeScript types: `VerificationAspect` (`content | resources | pedagogy`), `UserRole`, `VerificationRow`, `UserRoleRow`, `TopicVerificationStatus`, `SectionVerificationSummary`, `TrackVerificationSummary`
+- `src/utils/verification.ts` — Supabase helpers and pure computation functions
+  - `currentUserHasRole(role)` — role check for the current session user
+  - `fetchTrackVerifications(trackSlug)` — fetches all active verifications for a track (LIKE prefix query)
+  - `buildTopicStatus(topicKey, rows)` — derives per-topic verification status from fetched rows (pure)
+  - `buildSectionSummaries(trackSlug, sections, rows)` — section-level rollup counts (pure)
+  - `buildTrackSummary(trackSlug, sections, rows)` — track-level rollup with `percent` and `is_fully_verified` (pure)
+  - `verifyAspect(topicKey, aspect, verifierName)` — insert a verification row
+  - `revokeVerification(verificationId)` — soft-delete via `revoked_at`
+  - `listAllRoles()`, `grantRole(userId, role)`, `revokeRole(roleRowId)` — admin role management
+- `src/components/VerificationBadges.astro` — client-side badge injection component
+  - Fetches verifications on page load; injects `.verification-badge` into `.node-title` (green ✓ or amber partial)
+  - `title` attribute tooltip: verifier name + date per aspect
+  - Section-level `.section-verification-count` pills on `.section-title`
+  - Track-level `#track-verification-summary` paragraph in track header
+  - `<style is:global>` for all verification UI: badges, section pills, verifier panel, toast notifications
+- `src/utils/verifierPanel.ts` — verifier panel DOM injection
+  - Appended to `.node-content` for users with verifier/admin role (checked on page load)
+  - Three aspect rows: checkbox + label + (if verified) verifier name/date metadata
+  - Confirm dialog before recording a verification; optimistic UI with revert on failure
+  - Admin-only ✕ revoke button per verified aspect
+  - `showToast()` helper for success/error feedback
+- `src/pages/admin.astro` — admin panel (client-side auth guard, same pattern as `profile.astro`)
+  - Role management: table of all role assignments with Revoke button; grant form (UUID + role select)
+  - Verification dashboard: parallel fetch of all tracks, table with coverage bar and percentage
+
+### Changed
+- `src/pages/roadmaps/[slug].astro` — added `<VerificationBadges>` component, `#track-verification-summary` paragraph, extracted `sections` variable to avoid duplicate `getRoadmap()` call
+- `src/utils/roadmapInteractions.ts` — added async `initVerifierPanels()` call after `initCustomConcepts()`; lazily imports `verification.ts` and `verifierPanel.ts` so role checks only happen when Supabase is configured
+- `src/pages/roadmaps/index.astro` — added client-side `initVerificationBadges()` that updates `.box-card__label` on track cards: `⚠ UNVERIFIED` → `X% VERIFIED` (amber) or `✓ VERIFIED` (green); added `.box-card__label--verified-partial` CSS class
 
 ---
 

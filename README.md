@@ -4,12 +4,12 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 
 **[Live Demo →](https://eee-roadmap.muhammadhazimiyusri.uk)**
 
-> ⚠️ **Content Notice:** Roadmap content (descriptions, concepts, resources) is AI-generated and has not been manually verified. Links may be outdated or broken. Use as a learning guide, not authoritative reference. Contributions and corrections welcome! 
+> ⚠️ **Content Notice:** Roadmap content (descriptions, concepts, resources) is AI-generated. Topics marked ✓ have been manually reviewed by a verifier. Unverified content may be inaccurate or contain broken links. Use as a learning guide, not authoritative reference. Contributions and corrections welcome!
 
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.1-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.2-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,14 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.1
+Current version is v0.22.2
+
+### For Verifiers & Admins
+- **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
+- **Verification Badges** — Topics with verified aspects show a green ✓ (all 3) or amber partial badge (1–2) on the track page; section and track summaries cascade automatically
+- **Verifier Panel** — Users with verifier or admin role see a 3-aspect checkbox panel at the bottom of each expanded topic; confirm dialog before recording; toast feedback on success/failure
+- **Admin Panel** — Role management at `/admin`: grant/revoke verifier or admin roles by user UUID; verification dashboard showing coverage per track
+- **Graceful Degradation** — Supabase unavailable or unconfigured? Badges simply don't appear; no errors shown to end users
 
 ### For Learners
 - **Interactive Roadmaps** — Expand/collapse topic nodes with descriptions, prerequisites, and curated resources
@@ -222,18 +229,32 @@ Current version is v0.22.1
 
 ---
 
-### Planned
+<details>
+<summary><strong>v0.22 - Content Verification ✓</strong></summary>
 
-#### v0.22 - Content Verification
+**Goal:** Infrastructure for manually vetting AI-generated content before 1.0.
 
-**Goal:** Manually vet all AI-generated content before 1.0.
-
-- [ ] Review all topic descriptions for accuracy
-- [ ] Verify all external resource links
-- [ ] Add "Verified by" badges with contributor attribution
-- [ ] Verification status indicators (section/track level)
+- [x] `user_roles` + `verifications` tables with RLS (Supabase SQL schema)
+- [x] Three verification aspects per topic: *content*, *resources*, *pedagogy*
+- [x] Partial unique index — one active verification per (topic, aspect) at a time
+- [x] `public.has_role()` SECURITY DEFINER function for RLS policies
+- [x] `src/types/verification.ts` — typed interfaces for all verification data
+- [x] `src/utils/verification.ts` — Supabase helpers + pure status computation (fetch, build summaries, verify, revoke, role management)
+- [x] Verification badges on topic titles: green ✓ (all 3 aspects), amber partial (1–2)
+- [x] Tooltip on badges: verifier name + date per aspect
+- [x] Section-level count pill (e.g. "3/5 verified") on section headers
+- [x] Track-level summary in track page header
+- [x] Track card labels on `/roadmaps/` update from ⚠ UNVERIFIED → X% VERIFIED or ✓ VERIFIED
+- [x] Verifier panel injected into topic nodes for users with verifier/admin role
+- [x] Confirm dialog before verifying; toast on success/failure; optimistic UI with revert on error
+- [x] Admin revoke option in verifier panel (soft delete via `revoked_at`)
+- [x] Admin panel at `/admin`: role grant/revoke + verification coverage dashboard
+- [x] Graceful degradation — Supabase down → no badges, no errors
+</details>
 
 ---
+
+### Planned
 
 ### Known Issues & Polish
 
@@ -311,6 +332,8 @@ eee-roadmap/
 │   │   └── advanced-power-system-analysis.yaml
 │   ├── _glossary.yaml             # 100+ EEE terms and definitions
 │   └── sample.yaml                # Template for contributors
+├── supabase/
+│   └── schema-verification.sql    # SQL to run in Supabase dashboard (user_roles, verifications, RLS)
 ├── public/                        # Static assets (PDFs, PDF.js viewer, robots.txt)
 ├── scripts/
 │   ├── build-concept-index.mjs    # Concept library → _index.yaml + concept-library.json
@@ -325,17 +348,18 @@ eee-roadmap/
 │   └── validate.mjs               # Schema validation (tracks + concept library)
 ├── src/
 │   ├── components/
-│   │   ├── ConceptWindows.astro   # Draggable note windows + editor
-│   │   ├── DemoRoadmap.astro      # Homepage interactive demo
-│   │   ├── GlossaryTooltips.astro # Auto-linked term tooltips
-│   │   ├── Header.astro           # Nav + auth + search
-│   │   ├── PrintRoadmap.astro     # Print mode: checkbox tree, field toggles, 2-column, high contrast, booklet, progress filters, QR display options
-│   │   ├── Roadmap.astro          # Main roadmap renderer
-│   │   ├── RoadmapGraph.astro     # Homepage graph visualization
-│   │   ├── RoadmapSettings.astro  # Settings panel (modes, focus)
-│   │   ├── SearchBar.astro        # Global search (Ctrl+K)
-│   │   ├── TrackGraph.astro       # Per-track mini graph
-│   │   └── ...                    # Hero, Footer, Tracks, CTA, etc.
+│   │   ├── ConceptWindows.astro       # Draggable note windows + editor
+│   │   ├── DemoRoadmap.astro          # Homepage interactive demo
+│   │   ├── GlossaryTooltips.astro     # Auto-linked term tooltips
+│   │   ├── Header.astro               # Nav + auth + search
+│   │   ├── PrintRoadmap.astro         # Print mode: checkbox tree, field toggles, 2-column, high contrast, booklet, progress filters, QR display options
+│   │   ├── Roadmap.astro              # Main roadmap renderer
+│   │   ├── RoadmapGraph.astro         # Homepage graph visualization
+│   │   ├── RoadmapSettings.astro      # Settings panel (modes, focus)
+│   │   ├── SearchBar.astro            # Global search (Ctrl+K)
+│   │   ├── TrackGraph.astro           # Per-track mini graph
+│   │   ├── VerificationBadges.astro   # Client-side verification badge + verifier panel injection
+│   │   └── ...                        # Hero, Footer, Tracks, CTA, etc.
 │   ├── data/                      # Generated JSON (auto-generated, do not edit)
 │   │   ├── index.ts               # Data loader (getRoadmap, getAllTracks)
 │   │   ├── concept-library.json   # All 392 library concepts with domain/tags
@@ -354,6 +378,7 @@ eee-roadmap/
 │   │   │   ├── custom/index.astro # Custom track viewer/editor
 │   │   │   ├── custom/print.astro # Custom track print mode (client-side)
 │   │   │   └── index.astro        # Browse all tracks
+│   │   ├── admin.astro            # Admin panel: role management + verification dashboard
 │   │   ├── glossary.astro
 │   │   ├── profile.astro
 │   │   └── index.astro            # Homepage
@@ -362,13 +387,16 @@ eee-roadmap/
 │   │   └── print.css              # Shared print mode styles (official + custom)
 │   ├── types/
 │   │   ├── roadmap.ts             # Core data types (Concept, ConceptRef, LibraryConcept)
-│   │   └── custom-content.ts      # Custom track types
+│   │   ├── custom-content.ts      # Custom track types
+│   │   └── verification.ts        # Verification types (aspect, role, row, status summaries)
 │   └── utils/
 │       ├── parseNotes.ts          # Markdown + KaTeX + PDF parser (build-time)
 │       ├── parseNotesClient.ts    # Client-side markdown parser
 │       ├── printUtils.ts          # Shared print mode JS (checkboxes, toggles, booklet PDF, progress filters, QR codes, display options)
 │       ├── progress.ts            # Progress tracking (localStorage)
 │       ├── roadmapInteractions.ts # Expand/collapse, concept pills
+│       ├── verification.ts        # Supabase fetch/mutate helpers + pure status computation
+│       ├── verifierPanel.ts       # DOM injection of verifier panel into topic nodes
 │       ├── wrapGlossaryTerms.ts   # Auto-link glossary terms
 │       └── ...                    # url, tools, trail, trackColors, etc.
 ├── tests/

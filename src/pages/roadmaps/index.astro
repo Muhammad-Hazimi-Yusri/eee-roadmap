@@ -668,6 +668,48 @@ function getConceptKeys(slug: string): string[] {
   }
 
   initCustomTracks();
+  initVerificationBadges();
+
+  async function initVerificationBadges() {
+    const { isSupabaseConfigured } = await import('../../lib/supabase');
+    if (!isSupabaseConfigured) return;
+    const { fetchTrackVerifications, buildTrackSummary } = await import('../../utils/verification');
+
+    interface TrackItem { id: string }
+    interface SectionItem { id: string; topics: TrackItem[] }
+
+    await Promise.all(
+      tracksData.map(async track => {
+        let rows;
+        try {
+          rows = await fetchTrackVerifications(track.slug);
+        } catch {
+          return;
+        }
+        if (!rows.length) return;
+
+        // tracksData.sections uses `topics` — adapt to the shape buildTrackSummary expects
+        const sectionsMapped = (track.sections as SectionItem[]).map(s => ({
+          id: s.id,
+          items: s.topics,
+        }));
+        const summary = buildTrackSummary(track.slug, sectionsMapped, rows);
+        if (summary.verified_topics === 0) return;
+
+        const card = document.querySelector<HTMLElement>(`.box-card[data-track="${track.slug}"]`);
+        const labelEl = card?.querySelector<HTMLElement>('.box-card__label');
+        if (!labelEl) return;
+
+        if (summary.is_fully_verified) {
+          labelEl.textContent = '✓ VERIFIED';
+          labelEl.className = 'box-card__label box-card__label--verified';
+        } else {
+          labelEl.textContent = `${summary.percent}% VERIFIED`;
+          labelEl.className = 'box-card__label box-card__label--verified-partial';
+        }
+      })
+    );
+  }
 </script>
 
 <style is:global>
@@ -803,6 +845,12 @@ function getConceptKeys(slug: string): string[] {
     color: #047857;
     background: #d1fae5;
     border-color: #047857;
+  }
+
+  .box-card__label--verified-partial {
+    color: #92400e;
+    background: #fef3c7;
+    border-color: #d97706;
   }
 
   /* Box base shadow on hover/open */

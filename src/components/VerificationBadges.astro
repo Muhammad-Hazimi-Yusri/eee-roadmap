@@ -1,0 +1,329 @@
+---
+// src/components/VerificationBadges.astro
+// Client-side badge injection for verified topics on track pages.
+// No server-rendered HTML — all queries run after page load.
+
+interface Props {
+  trackSlug: string;
+  sectionMeta: { id: string; topicIds: string[] }[];
+}
+
+const { trackSlug, sectionMeta } = Astro.props;
+---
+
+<script define:vars={{ trackSlug, sectionMeta }}>
+  (async () => {
+    const { isSupabaseConfigured } = await import('../lib/supabase');
+    if (!isSupabaseConfigured) return;
+
+    const {
+      fetchTrackVerifications,
+      buildTopicStatus,
+      buildSectionSummaries,
+      buildTrackSummary,
+    } = await import('../utils/verification');
+
+    let rows;
+    try {
+      rows = await fetchTrackVerifications(trackSlug);
+    } catch {
+      return; // Supabase down — show nothing
+    }
+
+    if (!rows.length) return;
+
+    // Convert sectionMeta to the shape buildSectionSummaries expects
+    const sectionsForSummary = sectionMeta.map(s => ({
+      id: s.id,
+      items: s.topicIds.map(id => ({ id })),
+    }));
+
+    // ---- TOPIC BADGES ----
+    document.querySelectorAll('[data-node-id]').forEach(node => {
+      const topicId = node.getAttribute('data-node-id');
+      if (!topicId) return;
+
+      const status = buildTopicStatus(`${trackSlug}/${topicId}`, rows);
+      if (status.verified_aspects.length === 0) return;
+
+      const titleEl = node.querySelector('.node-title');
+      if (!titleEl) return;
+
+      titleEl.querySelector('.verification-badge')?.remove();
+
+      const badge = document.createElement('span');
+      badge.className = status.is_fully_verified
+        ? 'verification-badge verification-badge--full'
+        : 'verification-badge verification-badge--partial';
+
+      const tooltipLines = status.verifications
+        .map(v => {
+          const date = new Date(v.verified_at).toLocaleDateString();
+          return `${v.aspect}: ${v.verifier_name ?? 'Verifier'} (${date})`;
+        })
+        .join('\n');
+
+      badge.setAttribute('title', tooltipLines);
+      badge.setAttribute(
+        'aria-label',
+        status.is_fully_verified
+          ? 'Fully verified'
+          : `${status.verified_aspects.length}/3 aspects verified`
+      );
+      badge.innerHTML = status.is_fully_verified
+        ? '&#10003;'
+        : `${status.verified_aspects.length}/3`;
+
+      titleEl.appendChild(badge);
+    });
+
+    // ---- SECTION SUMMARY PILLS ----
+    const summaries = buildSectionSummaries(trackSlug, sectionsForSummary, rows);
+    summaries.forEach(summary => {
+      if (summary.verified_topics === 0) return;
+
+      const sectionEl = document.getElementById(summary.section_id);
+      const titleEl = sectionEl?.querySelector('.section-title');
+      if (!titleEl) return;
+
+      titleEl.querySelector('.section-verification-count')?.remove();
+
+      const pill = document.createElement('span');
+      pill.className =
+        summary.verified_topics === summary.total_topics
+          ? 'section-verification-count section-verification-count--full'
+          : 'section-verification-count section-verification-count--partial';
+      pill.textContent = `${summary.verified_topics}/${summary.total_topics} verified`;
+      pill.setAttribute(
+        'aria-label',
+        `${summary.verified_topics} of ${summary.total_topics} topics fully verified`
+      );
+      titleEl.appendChild(pill);
+    });
+
+    // ---- TRACK HEADER SUMMARY ----
+    const trackSummary = buildTrackSummary(trackSlug, sectionsForSummary, rows);
+    if (trackSummary.verified_topics > 0) {
+      const summaryEl = document.getElementById('track-verification-summary');
+      if (summaryEl) {
+        summaryEl.textContent = `${trackSummary.verified_topics}/${trackSummary.total_topics} topics community-verified`;
+        summaryEl.hidden = false;
+      }
+    }
+  })();
+</script>
+
+<style is:global>
+  /* ===========================================================
+     VERIFICATION BADGES (on .node-title)
+     =========================================================== */
+  .verification-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+    border: 1px solid;
+    vertical-align: middle;
+    cursor: default;
+    user-select: none;
+  }
+
+  .verification-badge--full {
+    color: #047857;
+    background: #d1fae5;
+    border-color: #047857;
+  }
+
+  .verification-badge--partial {
+    color: #92400e;
+    background: #fef3c7;
+    border-color: #d97706;
+  }
+
+  :root.dark .verification-badge--full {
+    color: #6ee7b7;
+    background: rgb(4 120 87 / 20%);
+    border-color: #6ee7b7;
+  }
+
+  :root.dark .verification-badge--partial {
+    color: #fcd34d;
+    background: rgb(146 64 14 / 20%);
+    border-color: #fcd34d;
+  }
+
+  /* ===========================================================
+     SECTION SUMMARY PILLS (on .section-title)
+     =========================================================== */
+  .section-verification-count {
+    display: inline-block;
+    margin-left: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    border: 1px solid;
+    vertical-align: middle;
+  }
+
+  .section-verification-count--full {
+    color: #047857;
+    background: #d1fae5;
+    border-color: #047857;
+  }
+
+  .section-verification-count--partial {
+    color: #92400e;
+    background: #fef3c7;
+    border-color: #d97706;
+  }
+
+  :root.dark .section-verification-count--full {
+    color: #6ee7b7;
+    background: rgb(4 120 87 / 20%);
+    border-color: #6ee7b7;
+  }
+
+  :root.dark .section-verification-count--partial {
+    color: #fcd34d;
+    background: rgb(146 64 14 / 20%);
+    border-color: #fcd34d;
+  }
+
+  /* ===========================================================
+     VERIFIER PANEL (injected into .node-content by verifierPanel.ts)
+     =========================================================== */
+  .verifier-panel {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--color-border);
+  }
+
+  .verifier-panel__header {
+    margin-bottom: 0.5rem;
+  }
+
+  .verifier-panel__label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted, #6b7280);
+    padding-left: 0.375rem;
+    border-left: 2px solid var(--color-pcb, #2d5016);
+  }
+
+  .verifier-panel__aspects {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .verifier-panel__aspect-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .verifier-panel__checkbox {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--color-pcb, #2d5016);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .verifier-panel__checkbox:disabled {
+    cursor: default;
+  }
+
+  .verifier-panel__checkbox--loading {
+    opacity: 0.5;
+  }
+
+  .verifier-panel__aspect-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .verifier-panel__aspect-meta {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--color-text-muted, #6b7280);
+  }
+
+  .verifier-panel__revoke-btn {
+    margin-left: auto;
+    padding: 0;
+    background: none;
+    border: 1px solid transparent;
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.75rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s;
+    line-height: 1;
+  }
+
+  .verifier-panel__revoke-btn:hover {
+    color: #b91c1c;
+    border-color: #b91c1c;
+  }
+
+  /* ===========================================================
+     TOAST NOTIFICATION
+     =========================================================== */
+  .verification-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 1.5rem;
+    padding: 0.625rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    border: 1px solid;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  .verification-toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .verification-toast--success {
+    background: #d1fae5;
+    border-color: #047857;
+    color: #047857;
+  }
+
+  .verification-toast--error {
+    background: #fee2e2;
+    border-color: #b91c1c;
+    color: #b91c1c;
+  }
+
+  :root.dark .verification-toast--success {
+    background: rgb(4 120 87 / 20%);
+    color: #6ee7b7;
+    border-color: #6ee7b7;
+  }
+
+  :root.dark .verification-toast--error {
+    background: rgb(185 28 28 / 20%);
+    color: #fca5a5;
+    border-color: #fca5a5;
+  }
+</style>

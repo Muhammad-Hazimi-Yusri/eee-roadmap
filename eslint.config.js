@@ -11,6 +11,7 @@ export default [
       'src/data/**',
       '.astro/**',
       'public/pdfjs/**',
+      '.claude/**',
     ],
   },
 

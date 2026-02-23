@@ -1,0 +1,414 @@
+---
+// src/pages/admin.astro
+// Admin panel for role management and verification dashboard.
+// All content rendered client-side after admin role check — same pattern as profile.astro.
+
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getAllTracks, roadmaps } from '../data';
+
+const allTracks = getAllTracks();
+const trackSlugs = allTracks.map(t => t.slug);
+
+// Section metadata for verification dashboard — passed via define:vars to avoid
+// import.meta.glob in browser (it only works at build time).
+const adminSectionMeta: Record<string, { id: string; items: { id: string }[] }[]> = {};
+for (const { slug } of allTracks) {
+  adminSectionMeta[slug] = (roadmaps[slug]?.sections ?? []).map(s => ({
+    id: s.id,
+    items: s.items.map(i => ({ id: i.id })),
+  }));
+}
+---
+
+<Layout title="Admin Panel">
+  <Header />
+  <main id="main-content" class="admin-page">
+    <div class="container py-12">
+
+      <div id="admin-guard">
+        <p class="font-mono text-sm text-muted">Checking permissions…</p>
+      </div>
+
+      <div id="admin-content" hidden>
+
+        <h1 class="text-2xl font-bold mb-8">Admin Panel</h1>
+
+        <!-- Role Management -->
+        <section class="admin-section">
+          <h2 class="admin-section__title">Role Management</h2>
+
+          <div class="admin-grant-form">
+            <input
+              type="text"
+              id="grant-user-id"
+              placeholder="User UUID (from Supabase Auth → Users)"
+              class="admin-input"
+            />
+            <select id="grant-role-select" class="admin-input admin-input--select">
+              <option value="verifier">Verifier</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button id="grant-role-btn" class="btn">Grant Role</button>
+          </div>
+
+          <div id="roles-list" class="admin-table-wrapper">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
+        <!-- Verification Dashboard -->
+        <section class="admin-section">
+          <h2 class="admin-section__title">Verification Dashboard</h2>
+          <div id="verifications-dashboard" class="admin-table-wrapper">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script define:vars={{ trackSlugs, adminSectionMeta }}>
+  window.__adminTrackSlugs = trackSlugs;
+  window.__adminSectionMeta = adminSectionMeta;
+</script>
+
+<script>
+  import { supabase, isSupabaseConfigured } from '../lib/supabase';
+  import {
+    currentUserHasRole,
+    listAllRoles,
+    grantRole,
+    revokeRole,
+    fetchTrackVerifications,
+    buildTrackSummary,
+  } from '../utils/verification';
+
+  const guardEl = document.getElementById('admin-guard')!;
+  const contentEl = document.getElementById('admin-content')!;
+
+  async function init() {
+    if (!isSupabaseConfigured || !supabase) {
+      guardEl.innerHTML = '<p class="font-mono text-sm text-muted">Supabase is not configured.</p>';
+      return;
+    }
+
+    const isAdmin = await currentUserHasRole('admin');
+    if (!isAdmin) {
+      guardEl.innerHTML = '<p class="font-mono text-sm text-muted">Access denied. Admin role required.</p>';
+      return;
+    }
+
+    guardEl.hidden = true;
+    contentEl.hidden = false;
+
+    await Promise.all([renderRoles(), renderVerificationDashboard()]);
+  }
+
+  // ---- Roles Table ----
+
+  async function renderRoles() {
+    const rolesList = document.getElementById('roles-list')!;
+    rolesList.innerHTML = '<p class="font-mono text-xs text-muted">Loading…</p>';
+    const roles = await listAllRoles();
+
+    if (!roles.length) {
+      rolesList.innerHTML = '<p class="font-mono text-xs text-muted">No roles assigned yet.</p>';
+      return;
+    }
+
+    rolesList.innerHTML = `
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Role</th>
+            <th>Granted</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${roles
+            .map(
+              r => `
+            <tr data-role-id="${r.id}">
+              <td class="admin-table__mono" title="${r.user_id}">${r.user_id.slice(0, 8)}…</td>
+              <td><span class="role-badge role-badge--${r.role}">${r.role}</span></td>
+              <td class="admin-table__mono">${new Date(r.granted_at).toLocaleDateString()}</td>
+              <td>
+                <button class="admin-revoke-role-btn" data-role-id="${r.id}">Revoke</button>
+              </td>
+            </tr>
+          `
+            )
+            .join('')}
+        </tbody>
+      </table>
+    `;
+
+    rolesList.querySelectorAll<HTMLButtonElement>('.admin-revoke-role-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const roleId = btn.getAttribute('data-role-id')!;
+        if (!confirm('Revoke this role?')) return;
+        btn.disabled = true;
+        const ok = await revokeRole(roleId);
+        if (ok) {
+          btn.closest('tr')?.remove();
+        } else {
+          btn.disabled = false;
+          alert('Failed to revoke role.');
+        }
+      });
+    });
+  }
+
+  // ---- Grant Role ----
+
+  document.getElementById('grant-role-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('grant-role-btn') as HTMLButtonElement;
+    const userIdInput = document.getElementById('grant-user-id') as HTMLInputElement;
+    const roleSelect = document.getElementById('grant-role-select') as HTMLSelectElement;
+
+    const userId = userIdInput.value.trim();
+    const role = roleSelect.value as 'admin' | 'verifier';
+
+    if (!userId) {
+      alert('Enter a user UUID.');
+      return;
+    }
+
+    btn.disabled = true;
+    const ok = await grantRole(userId, role);
+    btn.disabled = false;
+
+    if (ok) {
+      userIdInput.value = '';
+      await renderRoles();
+    } else {
+      alert('Failed to grant role. The user may already have it, or the UUID is invalid.');
+    }
+  });
+
+  // ---- Verification Dashboard ----
+
+  async function renderVerificationDashboard() {
+    const dashboard = document.getElementById('verifications-dashboard')!;
+    const trackSlugs = (window as any).__adminTrackSlugs as string[];
+    const sectionMeta = (window as any).__adminSectionMeta as Record<
+      string,
+      { id: string; items: { id: string }[] }[]
+    >;
+
+    if (!trackSlugs?.length) {
+      dashboard.innerHTML = '<p class="font-mono text-xs text-muted">No tracks found.</p>';
+      return;
+    }
+
+    dashboard.innerHTML = '<p class="font-mono text-xs text-muted">Loading…</p>';
+
+    const summaries = await Promise.all(
+      trackSlugs.map(async slug => {
+        const rows = await fetchTrackVerifications(slug);
+        return buildTrackSummary(slug, sectionMeta[slug] ?? [], rows);
+      })
+    );
+
+    summaries.sort((a, b) => b.percent - a.percent);
+
+    dashboard.innerHTML = `
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Track</th>
+            <th>Verified Topics</th>
+            <th>Coverage</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${summaries
+            .map(
+              s => `
+            <tr>
+              <td class="admin-table__mono">${s.track_slug}</td>
+              <td class="admin-table__mono">${s.verified_topics} / ${s.total_topics}</td>
+              <td class="admin-table__coverage">
+                <div class="admin-coverage-bar">
+                  <div class="admin-coverage-bar__fill" style="width: ${s.percent}%"></div>
+                </div>
+                <span class="admin-table__mono">${s.percent}%</span>
+              </td>
+            </tr>
+          `
+            )
+            .join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  init();
+</script>
+
+<style is:global>
+  .admin-page {
+    min-height: 60vh;
+  }
+
+  .admin-section {
+    margin-bottom: 3rem;
+  }
+
+  .admin-section__title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted, #6b7280);
+    border-bottom: 1px solid var(--color-border, #d1d5db);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .admin-grant-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .admin-input {
+    padding: 0.375rem 0.625rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--color-bg-grid, #e0e0d8);
+    border: 1px solid var(--color-border, #d1d5db);
+    color: var(--color-text, #1a1a1a);
+    min-width: 0;
+    flex: 1;
+  }
+
+  .admin-input--select {
+    flex: 0 0 auto;
+    cursor: pointer;
+  }
+
+  .admin-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+  }
+
+  .admin-table th {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted, #6b7280);
+    text-align: left;
+    padding: 0.375rem 0.75rem 0.375rem 0;
+    border-bottom: 1px solid var(--color-border, #d1d5db);
+    white-space: nowrap;
+  }
+
+  .admin-table td {
+    padding: 0.5rem 0.75rem 0.5rem 0;
+    border-bottom: 1px solid var(--color-border, #d1d5db);
+    vertical-align: middle;
+  }
+
+  .admin-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .admin-table__mono {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .admin-table__coverage {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: 1px solid;
+  }
+
+  .role-badge--admin {
+    color: #b45309;
+    background: #fef3c7;
+    border-color: #d97706;
+  }
+
+  .role-badge--verifier {
+    color: #047857;
+    background: #d1fae5;
+    border-color: #047857;
+  }
+
+  :root.dark .role-badge--admin {
+    color: #fcd34d;
+    background: rgb(146 64 14 / 20%);
+    border-color: #fcd34d;
+  }
+
+  :root.dark .role-badge--verifier {
+    color: #6ee7b7;
+    background: rgb(4 120 87 / 20%);
+    border-color: #6ee7b7;
+  }
+
+  .admin-revoke-role-btn {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.5rem;
+    background: none;
+    border: 1px solid var(--color-border, #d1d5db);
+    color: var(--color-text-muted, #6b7280);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .admin-revoke-role-btn:hover {
+    color: #b91c1c;
+    border-color: #b91c1c;
+  }
+
+  .admin-revoke-role-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .admin-coverage-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--color-bg-grid, #e0e0d8);
+    border: 1px solid var(--color-border, #d1d5db);
+    flex-shrink: 0;
+  }
+
+  .admin-coverage-bar__fill {
+    height: 100%;
+    background: var(--color-pcb, #2d5016);
+    transition: width 0.3s;
+  }
+</style>
