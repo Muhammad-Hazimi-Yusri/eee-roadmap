@@ -11,6 +11,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.5] - 2026-02-24
+
+**Verification: collapsible verifier panel with per-page toggle**
+
+### Added
+- `src/utils/verifierPanel.ts` — per-page expand/collapse toggle for the verifier panel
+  - `VERIFIER_PANEL_EXPANDED_KEY` (`'verification-panel-expanded'`) stores preference in localStorage
+  - On init, reads saved state and toggles `body.verifier-panels-expanded` class accordingly
+  - Injects a `<button class="verification-panels-toggle">` immediately after `#track-verification-summary` in the track header
+  - Button text: "↓ Show panels" (collapsed) / "↑ Collapse panels" (expanded); updates on click
+- `src/components/VerificationBadges.astro` — CSS rules for panel state
+  - `.verification-panels-toggle` — mono font, border button matching existing verification UI palette
+  - `body:not(.verifier-panels-expanded) .verifier-panel { display: none }` — hides all panels by default
+  - `body.verifier-panels-expanded .verification-status-summary { display: none }` — hides compact summary when panels are expanded (prep for v0.22.7)
+
+---
+
 ## [0.22.3] - 2026-02-24
 
 **Search: fix "undefined → undefined" for library concepts**

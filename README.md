@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.3-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.5-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,12 +30,12 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.3
+Current version is v0.22.5
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
 - **Verification Badges** — Topics with verified aspects show a green ✓ (all 3) or amber partial badge (1–2) on the track page; section and track summaries cascade automatically
-- **Verifier Panel** — Users with verifier or admin role see a 3-aspect checkbox panel at the bottom of each expanded topic; confirm dialog before recording; toast feedback on success/failure
+- **Verifier Panel** — Users with verifier or admin role see a 3-aspect checkbox panel at the bottom of each expanded topic; confirm dialog before recording; toast feedback on success/failure; collapsible via a per-page "↓ Show panels / ↑ Collapse panels" toggle (preference persisted in localStorage)
 - **Admin Panel** — Role management at `/admin`: grant/revoke verifier or admin roles by user UUID; verification dashboard showing coverage per track
 - **Graceful Degradation** — Supabase unavailable or unconfigured? Badges simply don't appear; no errors shown to end users
 

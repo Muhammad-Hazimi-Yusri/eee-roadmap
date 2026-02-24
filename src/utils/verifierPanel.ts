@@ -172,6 +172,8 @@ function wirePanel(
   }
 }
 
+const VERIFIER_PANEL_EXPANDED_KEY = 'verification-panel-expanded';
+
 export async function initVerifierPanels(options: PanelOptions): Promise<void> {
   const { trackSlug, isAdmin, verifierName } = options;
   let currentRows = options.rows;
@@ -199,4 +201,20 @@ export async function initVerifierPanels(options: PanelOptions): Promise<void> {
   }
 
   renderAll();
+
+  // ---- PER-PAGE TOGGLE ----
+  const isExpanded = localStorage.getItem(VERIFIER_PANEL_EXPANDED_KEY) === 'true';
+  document.body.classList.toggle('verifier-panels-expanded', isExpanded);
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'verification-panels-toggle';
+  toggleBtn.textContent = isExpanded ? '↑ Collapse panels' : '↓ Show panels';
+
+  toggleBtn.addEventListener('click', () => {
+    const nowExpanded = document.body.classList.toggle('verifier-panels-expanded');
+    localStorage.setItem(VERIFIER_PANEL_EXPANDED_KEY, String(nowExpanded));
+    toggleBtn.textContent = nowExpanded ? '↑ Collapse panels' : '↓ Show panels';
+  });
+
+  document.getElementById('track-verification-summary')?.insertAdjacentElement('afterend', toggleBtn);
 }
