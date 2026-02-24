@@ -11,6 +11,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.3] - 2026-02-24
+
+**Search: fix "undefined → undefined" for library concepts**
+
+### Fixed
+- `src/components/SearchBar.astro` — concept entries from the concept library (no `path`, `track`, or `topic` fields) were rendering "undefined → undefined" as their breadcrumb and producing broken `href="undefined"` links. Library concepts are silently skipped during result rendering (they are already covered by per-track entries that carry full navigation context). Added a belt-and-suspenders guard on the breadcrumb template to prevent undefined interpolation for any future pathless entries.
+
+---
+
 ## [0.22.X] - 2026-02-23
 
 **Content Verification System**

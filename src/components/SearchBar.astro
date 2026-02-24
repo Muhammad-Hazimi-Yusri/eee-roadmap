@@ -152,6 +152,9 @@
           ${items.slice(0, 5).map(r => {
             const item = r.item;
             
+            // Skip library concepts — they have no path and are duplicated by per-track entries
+            if (type === 'concept' && !item.path) return '';
+
             // Handle glossary type differently
             if (type === 'glossary') {
               const acronyms = item.acronyms?.length 
@@ -173,11 +176,11 @@
               `;
             }
             
-            const breadcrumb = type === 'track' 
-              ? '' 
+            const breadcrumb = type === 'track'
+              ? ''
               : type === 'topic'
                 ? item.track
-                : `${item.track} → ${item.topic}`;
+                : item.track && item.topic ? `${item.track} → ${item.topic}` : '';
             
             // Check which field matched
             const matchedFields = r.matches?.map((m: any) => m.key) || [];
