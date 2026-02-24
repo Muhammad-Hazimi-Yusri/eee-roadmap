@@ -12,30 +12,38 @@ const { trackSlug, sectionMeta } = Astro.props;
 ---
 
 <script define:vars={{ trackSlug, sectionMeta }}>
+  window.__verifyTrackSlug = trackSlug;
+  window.__verifySectionMeta = sectionMeta;
+</script>
+
+<script>
+  import { isSupabaseConfigured } from '../lib/supabase';
+  import {
+    fetchTrackVerifications,
+    buildTopicStatus,
+    buildSectionSummaries,
+    buildTrackSummary,
+  } from '../utils/verification';
+
   (async () => {
-    const { isSupabaseConfigured } = await import('../lib/supabase');
     if (!isSupabaseConfigured) return;
 
-    const {
-      fetchTrackVerifications,
-      buildTopicStatus,
-      buildSectionSummaries,
-      buildTrackSummary,
-    } = await import('../utils/verification');
+    const trackSlug = (window as any).__verifyTrackSlug as string;
+    const sectionMeta = (window as any).__verifySectionMeta as { id: string; topicIds: string[] }[];
+    if (!trackSlug) return;
 
     let rows;
     try {
       rows = await fetchTrackVerifications(trackSlug);
     } catch {
-      return; // Supabase down — show nothing
+      return;
     }
 
     if (!rows.length) return;
 
-    // Convert sectionMeta to the shape buildSectionSummaries expects
-    const sectionsForSummary = sectionMeta.map(s => ({
+    const sectionsForSummary = sectionMeta.map((s: { id: string; topicIds: string[] }) => ({
       id: s.id,
-      items: s.topicIds.map(id => ({ id })),
+      items: s.topicIds.map((id: string) => ({ id })),
     }));
 
     // ---- TOPIC BADGES ----
