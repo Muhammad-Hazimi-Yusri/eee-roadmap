@@ -11,6 +11,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.6] - 2026-02-24
+
+**Verification: show all three aspects with ✓/✗ status in badge tooltip**
+
+### Changed
+- `src/components/VerificationBadges.astro` — badge tooltip now iterates all three aspects in order (`content`, `resources`, `pedagogy`) using `VERIFICATION_ASPECTS` constant
+  - Verified aspect: `✓ <aspect>: <verifier_name> (<date>)`
+  - Unverified aspect: `✗ <aspect>: not yet verified`
+  - Previously only verified aspects were listed; now unverified aspects are visible so anyone hovering can see what's still missing
+
+---
+
 ## [0.22.5] - 2026-02-24
 
 **Verification: collapsible verifier panel with per-page toggle**

@@ -24,6 +24,7 @@ const { trackSlug, sectionMeta } = Astro.props;
     buildSectionSummaries,
     buildTrackSummary,
   } from '../utils/verification';
+  import { VERIFICATION_ASPECTS } from '../types/verification';
 
   (async () => {
     if (!isSupabaseConfigured) return;
@@ -64,12 +65,14 @@ const { trackSlug, sectionMeta } = Astro.props;
         ? 'verification-badge verification-badge--full'
         : 'verification-badge verification-badge--partial';
 
-      const tooltipLines = status.verifications
-        .map(v => {
-          const date = new Date(v.verified_at).toLocaleDateString();
-          return `${v.aspect}: ${v.verifier_name ?? 'Verifier'} (${date})`;
-        })
-        .join('\n');
+      const tooltipLines = VERIFICATION_ASPECTS.map(aspect => {
+          const v = status.verifications.find(r => r.aspect === aspect);
+          if (v) {
+            const date = new Date(v.verified_at).toLocaleDateString();
+            return `✓ ${aspect}: ${v.verifier_name ?? 'Verifier'} (${date})`;
+          }
+          return `✗ ${aspect}: not yet verified`;
+        }).join('\n');
 
       badge.setAttribute('title', tooltipLines);
       badge.setAttribute(
