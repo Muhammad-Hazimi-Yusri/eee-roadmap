@@ -11,6 +11,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.7] - 2026-02-24
+
+**Verification: compact read-only status summary visible to all users**
+
+### Added
+- `src/components/VerificationBadges.astro` — compact `.verification-status-summary` div injected into `.node-content` for any topic with at least one verified aspect
+  - Format: `Verified: Content, Resources · Missing: Pedagogy`
+  - Visible to all users (non-verifiers always see it; verifiers see it in collapsed panel mode)
+  - Hidden when verifier panels are expanded (`body.verifier-panels-expanded .verification-status-summary { display: none }`) to avoid duplication with the full panel
+  - Styled with `.verification-status-summary`: dashed top border, mono font, muted colour — matches existing verification UI palette
+
+---
+
 ## [0.22.6] - 2026-02-24
 
 **Verification: show all three aspects with ✓/✗ status in badge tooltip**

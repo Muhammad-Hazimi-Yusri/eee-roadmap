@@ -88,6 +88,33 @@ const { trackSlug, sectionMeta } = Astro.props;
       titleEl.appendChild(badge);
     });
 
+    // ---- COMPACT STATUS SUMMARY (all users, inside .node-content) ----
+    document.querySelectorAll('[data-node-id]').forEach(node => {
+      const topicId = node.getAttribute('data-node-id');
+      if (!topicId) return;
+
+      const status = buildTopicStatus(`${trackSlug}/${topicId}`, rows);
+      if (status.verified_aspects.length === 0) return;
+
+      const content = node.querySelector('.node-content');
+      if (!content) return;
+
+      content.querySelector('.verification-status-summary')?.remove();
+
+      const summary = document.createElement('div');
+      summary.className = 'verification-status-summary';
+
+      const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+      const verified = VERIFICATION_ASPECTS.filter(a => status.verified_aspects.includes(a));
+      const missing  = VERIFICATION_ASPECTS.filter(a => !status.verified_aspects.includes(a));
+
+      let text = 'Verified: ' + verified.map(cap).join(', ');
+      if (missing.length) text += ' · Missing: ' + missing.map(cap).join(', ');
+
+      summary.textContent = text;
+      content.appendChild(summary);
+    });
+
     // ---- SECTION SUMMARY PILLS ----
     const summaries = buildSectionSummaries(trackSlug, sectionsForSummary, rows);
     summaries.forEach(summary => {
@@ -336,6 +363,19 @@ const { trackSlug, sectionMeta } = Astro.props;
     background: rgb(185 28 28 / 20%);
     color: #fca5a5;
     border-color: #fca5a5;
+  }
+
+  /* ===========================================================
+     COMPACT STATUS SUMMARY (inside .node-content, all users)
+     =========================================================== */
+  .verification-status-summary {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--color-border);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--color-text-muted, #6b7280);
+    letter-spacing: 0.02em;
   }
 
   /* ===========================================================
