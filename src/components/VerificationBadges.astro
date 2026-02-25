@@ -53,7 +53,6 @@ const { trackSlug, sectionMeta } = Astro.props;
       if (!topicId) return;
 
       const status = buildTopicStatus(`${trackSlug}/${topicId}`, rows);
-      if (status.verified_aspects.length === 0) return;
 
       const titleEl = node.querySelector('.node-title');
       if (!titleEl) return;
@@ -61,9 +60,12 @@ const { trackSlug, sectionMeta } = Astro.props;
       titleEl.querySelector('.verification-badge')?.remove();
 
       const badge = document.createElement('span');
+      const count = status.verified_aspects.length;
       badge.className = status.is_fully_verified
         ? 'verification-badge verification-badge--full'
-        : 'verification-badge verification-badge--partial';
+        : count === 0
+          ? 'verification-badge verification-badge--none'
+          : 'verification-badge verification-badge--partial';
 
       const tooltipLines = VERIFICATION_ASPECTS.map(aspect => {
           const v = status.verifications.find(r => r.aspect === aspect);
@@ -79,40 +81,15 @@ const { trackSlug, sectionMeta } = Astro.props;
         'aria-label',
         status.is_fully_verified
           ? 'Fully verified'
-          : `${status.verified_aspects.length}/3 aspects verified`
+          : count === 0
+            ? 'Not yet verified'
+            : `${count}/3 aspects verified`
       );
       badge.innerHTML = status.is_fully_verified
         ? '&#10003;'
-        : `${status.verified_aspects.length}/3`;
+        : `${count}/3`;
 
       titleEl.appendChild(badge);
-    });
-
-    // ---- COMPACT STATUS SUMMARY (all users, inside .node-content) ----
-    document.querySelectorAll('[data-node-id]').forEach(node => {
-      const topicId = node.getAttribute('data-node-id');
-      if (!topicId) return;
-
-      const status = buildTopicStatus(`${trackSlug}/${topicId}`, rows);
-      if (status.verified_aspects.length === 0) return;
-
-      const content = node.querySelector('.node-content');
-      if (!content) return;
-
-      content.querySelector('.verification-status-summary')?.remove();
-
-      const summary = document.createElement('div');
-      summary.className = 'verification-status-summary';
-
-      const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-      const verified = VERIFICATION_ASPECTS.filter(a => status.verified_aspects.includes(a));
-      const missing  = VERIFICATION_ASPECTS.filter(a => !status.verified_aspects.includes(a));
-
-      let text = 'Verified: ' + verified.map(cap).join(', ');
-      if (missing.length) text += ' · Missing: ' + missing.map(cap).join(', ');
-
-      summary.textContent = text;
-      content.appendChild(summary);
     });
 
     // ---- SECTION SUMMARY PILLS ----
@@ -146,6 +123,23 @@ const { trackSlug, sectionMeta } = Astro.props;
       if (summaryEl) {
         summaryEl.textContent = `${trackSummary.verified_topics}/${trackSummary.total_topics} topics community-verified`;
         summaryEl.hidden = false;
+
+        // ---- SHOW/HIDE BADGES TOGGLE ----
+        const BADGES_HIDDEN_KEY = 'verification-badges-hidden';
+        const badgesHidden = localStorage.getItem(BADGES_HIDDEN_KEY) === 'true';
+        document.body.classList.toggle('verification-badges-hidden', badgesHidden);
+
+        const badgesToggleBtn = document.createElement('button');
+        badgesToggleBtn.className = 'verification-panels-toggle';
+        badgesToggleBtn.textContent = badgesHidden ? '◉ Show badges' : '◎ Hide badges';
+
+        badgesToggleBtn.addEventListener('click', () => {
+          const nowHidden = document.body.classList.toggle('verification-badges-hidden');
+          localStorage.setItem(BADGES_HIDDEN_KEY, String(nowHidden));
+          badgesToggleBtn.textContent = nowHidden ? '◉ Show badges' : '◎ Hide badges';
+        });
+
+        summaryEl.insertAdjacentElement('afterend', badgesToggleBtn);
       }
     }
   })();
@@ -182,6 +176,12 @@ const { trackSlug, sectionMeta } = Astro.props;
     border-color: #d97706;
   }
 
+  .verification-badge--none {
+    color: #991b1b;
+    background: #fee2e2;
+    border-color: #b91c1c;
+  }
+
   :root.dark .verification-badge--full {
     color: #6ee7b7;
     background: rgb(4 120 87 / 20%);
@@ -192,6 +192,12 @@ const { trackSlug, sectionMeta } = Astro.props;
     color: #fcd34d;
     background: rgb(146 64 14 / 20%);
     border-color: #fcd34d;
+  }
+
+  :root.dark .verification-badge--none {
+    color: #fca5a5;
+    background: rgb(185 28 28 / 20%);
+    border-color: #fca5a5;
   }
 
   /* ===========================================================
@@ -366,22 +372,16 @@ const { trackSlug, sectionMeta } = Astro.props;
   }
 
   /* ===========================================================
-     COMPACT STATUS SUMMARY (inside .node-content, all users)
-     =========================================================== */
-  .verification-status-summary {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px dashed var(--color-border);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    color: var(--color-text-muted, #6b7280);
-    letter-spacing: 0.02em;
-  }
-
-  /* ===========================================================
      COLLAPSIBLE PANEL STATE
      body.verifier-panels-expanded is toggled by verifierPanel.ts
+     body.verification-badges-hidden is toggled by badges toggle
      =========================================================== */
+
+  /* Hide all verification badges & section pills when toggle is off */
+  body.verification-badges-hidden .verification-badge,
+  body.verification-badges-hidden .section-verification-count {
+    display: none;
+  }
 
   /* Toggle button (injected next to #track-verification-summary) */
   .verification-panels-toggle {
@@ -407,8 +407,4 @@ const { trackSlug, sectionMeta } = Astro.props;
     display: none;
   }
 
-  /* Expanded: hide compact summary (shown by VerificationBadges in Commit 3) */
-  body.verifier-panels-expanded .verification-status-summary {
-    display: none;
-  }
 </style>

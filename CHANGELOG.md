@@ -11,6 +11,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.9] - 2026-02-25
+
+**Verification: remove inline status summary; add 0/3 badge + show/hide toggle**
+
+### Removed
+- **Compact status summary line** (`"Verified: Content · Missing: Resources, Pedagogy"`) no longer injected into topic cards — the badge tooltip already conveys this information on hover, so the line was redundant and wasted card space
+- Associated `.verification-status-summary` CSS and the `body.verifier-panels-expanded` hide rule that suppressed it for verifiers
+
+### Added
+- **Red `0/3` badge** — topics with no verified aspects now receive a red `0/3` badge on their title (same tooltip showing all three aspects as `✗ not yet verified`); badge is hidden when the show/hide toggle is off
+  - New CSS class `.verification-badge--none` (light: `#991b1b`/`#fee2e2`, dark: `#fca5a5`/translucent red)
+- **Show/hide badges toggle** — a "◎ Hide badges / ◉ Show badges" button is injected next to the track-level verification summary (only when at least one topic is verified); preference persisted in `localStorage` under `verification-badges-hidden`; defaults to visible (no behaviour change for existing users)
+  - When hidden: all `.verification-badge` and `.section-verification-count` elements are set to `display: none` via `body.verification-badges-hidden`
+  - The verifier panel toggle (verifier/admin only) continues to appear below this toggle, unaffected
+
+---
+
 ## [0.22.8] - 2026-02-25
 
 **Custom tracks: official concept picker + Phase 5 mixed concept format**

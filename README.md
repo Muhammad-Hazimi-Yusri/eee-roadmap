@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.8-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.9-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,12 +30,11 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.8
+Current version is v0.22.9
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
-- **Verification Badges** — Topics with verified aspects show a green ✓ (all 3) or amber partial badge (1–2) on the track page; section and track summaries cascade automatically; badge tooltip shows ✓/✗ status for all three aspects so anyone hovering can see what's missing
-- **Verification Summary** — Any topic with at least one verified aspect shows a compact "Verified: X · Missing: Y" line inside the expanded topic card, visible to all users
+- **Verification Badges** — Topics show a green ✓ (all 3 aspects), amber partial (1–2), or red `0/3` (unverified) badge on their title; badge tooltip shows ✓/✗ status per aspect; section pills and track-level summary cascade automatically; a "◎ Hide badges / ◉ Show badges" toggle next to the track summary controls badge visibility (preference persisted in localStorage, defaults to visible)
 - **Verifier Panel** — Users with verifier or admin role see a 3-aspect checkbox panel at the bottom of each expanded topic; confirm dialog before recording; toast feedback on success/failure; collapsible via a per-page "↓ Show panels / ↑ Collapse panels" toggle (preference persisted in localStorage)
 - **Admin Panel** — Role management at `/admin`: grant/revoke verifier or admin roles by user UUID; verification dashboard showing coverage per track
 - **Graceful Degradation** — Supabase unavailable or unconfigured? Badges simply don't appear; no errors shown to end users
