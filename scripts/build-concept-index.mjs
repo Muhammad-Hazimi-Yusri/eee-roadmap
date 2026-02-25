@@ -16,11 +16,13 @@ import { fileURLToPath } from 'url';
 import YAML from 'yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT         = join(__dirname, '..');
-const CONCEPTS_DIR = join(ROOT, 'content', 'concepts');
-const DATA_DIR     = join(ROOT, 'src', 'data');
-const INDEX_PATH   = join(CONCEPTS_DIR, '_index.yaml');
-const LIBRARY_PATH = join(DATA_DIR, 'concept-library.json');
+const ROOT            = join(__dirname, '..');
+const CONCEPTS_DIR    = join(ROOT, 'content', 'concepts');
+const DATA_DIR        = join(ROOT, 'src', 'data');
+const PUBLIC_DATA_DIR = join(ROOT, 'public', 'data');
+const INDEX_PATH      = join(CONCEPTS_DIR, '_index.yaml');
+const LIBRARY_PATH    = join(DATA_DIR, 'concept-library.json');
+const PUBLIC_LIBRARY_PATH = join(PUBLIC_DATA_DIR, 'concept-library.json');
 
 function buildConceptIndex() {
   if (!existsSync(CONCEPTS_DIR)) {
@@ -96,14 +98,19 @@ function buildConceptIndex() {
     'utf-8'
   );
 
-  // Write concept-library.json
+  // Write concept-library.json (build-time source)
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
   writeFileSync(LIBRARY_PATH, JSON.stringify(library, null, 2), 'utf-8');
+
+  // Write concept-library.json to public/data/ for client-side fetching
+  if (!existsSync(PUBLIC_DATA_DIR)) mkdirSync(PUBLIC_DATA_DIR, { recursive: true });
+  writeFileSync(PUBLIC_LIBRARY_PATH, JSON.stringify(library, null, 2), 'utf-8');
 
   console.log(`\n✨ Concept index built`);
   console.log(`   ${totalConcepts} concepts across ${domainFiles.length} domains`);
   console.log(`   → content/concepts/_index.yaml`);
-  console.log(`   → src/data/concept-library.json\n`);
+  console.log(`   → src/data/concept-library.json`);
+  console.log(`   → public/data/concept-library.json\n`);
 }
 
 buildConceptIndex();

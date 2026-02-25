@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.7-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.8-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.7
+Current version is v0.22.8
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
@@ -67,6 +67,8 @@ Current version is v0.22.7
 - **Browse All Tracks** — `/roadmaps/` page with category + progress filters and boxed/unboxed view
 - **Custom Tracks** — Create your own learning roadmaps with the built-in editor (requires sign-in)
   - Full track editor: sections, topics, concepts, resources, prerequisites
+  - **Official concept picker** — "Browse Library" button opens a searchable modal to pick from 392 library concepts across 12 domains; concepts added this way resolve their full notes from the library at view-time; picked concepts show a green `L` badge in the editor
+  - Custom inline concepts still supported via text-input (type name + Enter); both formats coexist in the same topic (mixed format, fully backward compatible with existing data)
   - Inline concept notes editor: click a concept pill to edit its markdown content directly in the editor
   - Prerequisite picker with cascading dropdowns (official + custom tracks)
   - Drag-and-drop reordering for sections and topics
@@ -335,9 +337,11 @@ eee-roadmap/
 │   └── sample.yaml                # Template for contributors
 ├── supabase/
 │   └── schema-verification.sql    # SQL to run in Supabase dashboard (user_roles, verifications, RLS)
-├── public/                        # Static assets (PDFs, PDF.js viewer, robots.txt)
+├── public/                        # Static assets served directly
+│   ├── data/                      # Static JSON for client-side fetching (concept-library.json)
+│   └── ...                        # PDFs, PDF.js viewer, robots.txt, og-image
 ├── scripts/
-│   ├── build-concept-index.mjs    # Concept library → _index.yaml + concept-library.json
+│   ├── build-concept-index.mjs    # Concept library → _index.yaml + concept-library.json (src/data/ + public/data/)
 │   ├── build-data.mjs             # YAML → JSON converter (resolves concept refs)
 │   ├── build-glossary.mjs         # Glossary JSON + reverse index
 │   ├── build-graph-data.mjs       # Graph nodes/edges from tracks
@@ -388,7 +392,7 @@ eee-roadmap/
 │   │   └── print.css              # Shared print mode styles (official + custom)
 │   ├── types/
 │   │   ├── roadmap.ts             # Core data types (Concept, ConceptRef, LibraryConcept)
-│   │   ├── custom-content.ts      # Custom track types
+│   │   ├── custom-content.ts      # Custom track types (CustomConcept, OfficialConceptRef, ConceptEntry, …)
 │   │   └── verification.ts        # Verification types (aspect, role, row, status summaries)
 │   └── utils/
 │       ├── parseNotes.ts          # Markdown + KaTeX + PDF parser (build-time)

@@ -11,6 +11,33 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.8] - 2026-02-25
+
+**Custom tracks: official concept picker + Phase 5 mixed concept format**
+
+### Added
+- **Concept picker modal** in the custom track editor — "Browse Library" button opens a searchable modal next to each topic's concept input, with two tabs:
+  - 📚 *Library* — search by name or filter by domain (12 domains, 392 concepts); click any result to add as an official library ref; results capped at 50 for performance
+  - ✏️ *Custom* — type a free-form name to add a fully inline custom concept (existing text-input behaviour preserved)
+- `public/data/concept-library.json` — concept library now served as a static asset at `/data/concept-library.json` (440 KB) for client-side fetching by the picker and ref resolver
+- `scripts/build-concept-index.mjs` — also writes to `public/data/` on every `build:data` run, keeping the static asset in sync automatically with the source YAML
+- New types in `src/types/custom-content.ts`:
+  - `OfficialConceptRef` — `{ type: 'official', ref: string, name: string, notes?: string }` for library-backed concepts
+  - `CustomConceptInline` — `{ type: 'custom', name: string, notes?: string }` for new-style inline concepts
+  - `LegacyConceptEntry` — `{ name, notes?, notesHtml?, isCustom? }` union arm for existing Supabase data (no migration required)
+  - `ConceptEntry` — union of all three, used in custom track topics
+
+### Changed
+- `src/pages/roadmaps/custom/index.astro`:
+  - Editor concept pills for official library concepts now show a green `L` badge and a distinct green border, clearly distinguishing them from inline custom concepts
+  - `buildConceptData()` is now async; loads and caches the library map on first call, resolves `type: 'official'` refs at view-time (user override notes take priority over library notes)
+  - Concept input placeholder updated from `+ Add concept` to `Type name + Enter` to reflect that the library picker is now the primary path for official content
+
+### Backward Compatible
+- All existing custom tracks in Supabase (inline `{ name, notesHtml? }` format) continue to work without any data migration — legacy concepts fall through the `concept.name` branch in the resolver unchanged
+
+---
+
 ## [0.22.7] - 2026-02-24
 
 **Verification: compact read-only status summary visible to all users**

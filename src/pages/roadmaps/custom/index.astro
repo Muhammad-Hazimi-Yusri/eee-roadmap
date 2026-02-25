@@ -90,6 +90,18 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
   let sectionsSortable: Sortable | null = null;
   let topicsSortables: Sortable[] = [];
 
+  // Concept library cache (loaded once on demand)
+  let _conceptLibrary: any[] | null = null;
+  let _conceptLibraryMap: Map<string, any> | null = null;
+
+  async function loadConceptLibrary(): Promise<{ library: any[]; map: Map<string, any> }> {
+    if (_conceptLibrary) return { library: _conceptLibrary, map: _conceptLibraryMap! };
+    const res = await fetch('/data/concept-library.json');
+    _conceptLibrary = await res.json();
+    _conceptLibraryMap = new Map(_conceptLibrary!.map((c: any) => [c.id, c]));
+    return { library: _conceptLibrary!, map: _conceptLibraryMap! };
+  }
+
   function generateSlug(title: string): string {
     return title
       .toLowerCase()
@@ -320,6 +332,155 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
     });
   }
 
+  async function openConceptPickerModal(sectionIndex: number, topicIndex: number, state: any) {
+    let library: any[] = [];
+    try {
+      const result = await loadConceptLibrary();
+      library = result.library;
+    } catch {
+      alert('Could not load concept library. Please check your connection.');
+      return;
+    }
+
+    const domains: string[] = [...new Set<string>(library.map((c: any) => c.domain))].sort();
+
+    const modal = document.createElement('div');
+    modal.className = 'prereq-picker-modal';
+    modal.innerHTML = `
+      <div class="prereq-picker-backdrop"></div>
+      <div class="prereq-picker-content concept-picker-content">
+        <h3 class="prereq-picker-title">Add Concept</h3>
+
+        <div class="concept-picker-tabs">
+          <button class="concept-tab concept-tab--active" data-tab="library">📚 Library</button>
+          <button class="concept-tab" data-tab="custom">✏️ Custom</button>
+        </div>
+
+        <div id="cp-tab-library" class="concept-tab-panel">
+          <div class="concept-picker-search">
+            <input type="text" id="cp-search" class="editor-input" placeholder="Search concepts..." autocomplete="off" />
+            <select id="cp-domain" class="editor-input">
+              <option value="">All domains</option>
+              ${domains.map((d: string) => `<option value="${d}">${d.replace(/-/g, ' ')}</option>`).join('')}
+            </select>
+          </div>
+          <ul id="cp-results" class="concept-results-list"></ul>
+          <div class="prereq-picker-actions">
+            <button type="button" class="btn btn--outline" id="cp-cancel-lib">Cancel</button>
+          </div>
+        </div>
+
+        <div id="cp-tab-custom" class="concept-tab-panel" hidden>
+          <div class="prereq-picker-field">
+            <label class="editor-label">Concept Name</label>
+            <input type="text" id="cp-custom-name" class="editor-input" placeholder="e.g. My Custom Concept" autocomplete="off" />
+          </div>
+          <div class="prereq-picker-actions" style="margin-top:1rem">
+            <button type="button" class="btn btn--outline" id="cp-cancel-custom">Cancel</button>
+            <button type="button" class="btn btn--primary" id="cp-add-custom">Add Custom Concept</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    function closeModal() { modal.remove(); }
+
+    // Backdrop close
+    modal.querySelector('.prereq-picker-backdrop')?.addEventListener('click', closeModal);
+    modal.querySelector('#cp-cancel-lib')?.addEventListener('click', closeModal);
+    modal.querySelector('#cp-cancel-custom')?.addEventListener('click', closeModal);
+
+    // Tab switching
+    modal.querySelectorAll('.concept-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        modal.querySelectorAll('.concept-tab').forEach(t => t.classList.remove('concept-tab--active'));
+        modal.querySelectorAll('.concept-tab-panel').forEach(p => ((p as HTMLElement).hidden = true));
+        tab.classList.add('concept-tab--active');
+        const panelId = `cp-tab-${(tab as HTMLElement).dataset.tab}`;
+        const panel = modal.querySelector(`#${panelId}`) as HTMLElement;
+        if (panel) panel.hidden = false;
+      });
+    });
+
+    // Render results list
+    function renderResults(filtered: any[]) {
+      const list = modal.querySelector('#cp-results') as HTMLUListElement;
+      if (!list) return;
+      if (filtered.length === 0) {
+        list.innerHTML = '<li class="cp-no-results">No concepts found</li>';
+        return;
+      }
+      list.innerHTML = filtered.slice(0, 50).map((c: any) => `
+        <li class="cp-result-item" data-id="${c.id}" data-name="${c.name.replace(/"/g, '&quot;')}">
+          <span class="cp-result-name">${c.name}</span>
+          <span class="cp-result-domain">${c.domain.replace(/-/g, ' ')}</span>
+        </li>
+      `).join('');
+
+      list.querySelectorAll('.cp-result-item').forEach(li => {
+        li.addEventListener('click', () => {
+          const id = (li as HTMLElement).dataset.id!;
+          const name = (li as HTMLElement).dataset.name!;
+          if (!state.sections[sectionIndex].items[topicIndex].concepts) {
+            state.sections[sectionIndex].items[topicIndex].concepts = [];
+          }
+          state.sections[sectionIndex].items[topicIndex].concepts.push({
+            type: 'official',
+            ref: id,
+            name,
+          });
+          closeModal();
+          renderSections(state);
+        });
+      });
+    }
+
+    // Initial render (all concepts)
+    renderResults(library);
+
+    // Search + filter
+    function applyFilter() {
+      const searchEl = modal.querySelector('#cp-search') as HTMLInputElement;
+      const domainEl = modal.querySelector('#cp-domain') as HTMLSelectElement;
+      const query = searchEl.value.trim().toLowerCase();
+      const domain = domainEl.value;
+      const filtered = library.filter((c: any) => {
+        const matchesDomain = !domain || c.domain === domain;
+        const matchesQuery = !query || c.name.toLowerCase().includes(query) || c.id.toLowerCase().includes(query);
+        return matchesDomain && matchesQuery;
+      });
+      renderResults(filtered);
+    }
+
+    modal.querySelector('#cp-search')?.addEventListener('input', applyFilter);
+    modal.querySelector('#cp-domain')?.addEventListener('change', applyFilter);
+
+    // Auto-focus search
+    (modal.querySelector('#cp-search') as HTMLInputElement)?.focus();
+
+    // Add custom concept
+    modal.querySelector('#cp-add-custom')?.addEventListener('click', () => {
+      const nameEl = modal.querySelector('#cp-custom-name') as HTMLInputElement;
+      const name = nameEl.value.trim();
+      if (!name) { nameEl.focus(); return; }
+      if (!state.sections[sectionIndex].items[topicIndex].concepts) {
+        state.sections[sectionIndex].items[topicIndex].concepts = [];
+      }
+      state.sections[sectionIndex].items[topicIndex].concepts.push({ type: 'custom', name });
+      closeModal();
+      renderSections(state);
+    });
+
+    // Allow Enter in custom name field to submit
+    modal.querySelector('#cp-custom-name')?.addEventListener('keydown', (e: Event) => {
+      if ((e as KeyboardEvent).key === 'Enter') {
+        (modal.querySelector('#cp-add-custom') as HTMLButtonElement)?.click();
+      }
+    });
+  }
+
   function handleHashAnchor() {
     const hash = window.location.hash;
     console.log('handleHashAnchor - hash:', hash);
@@ -471,7 +632,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
       // Build conceptData for ConceptWindows (merge conceptNotes from Supabase)
       const conceptNotes = content.conceptNotes || {};
       (window as any).conceptNotes = conceptNotes;
-      buildConceptData(track.sections, slug, conceptNotes);
+      await buildConceptData(track.sections, slug, conceptNotes);
 
       // Initialize interactions for the rendered roadmap
       initRoadmapInteractions();
@@ -491,20 +652,54 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
     }
   }
 
- function buildConceptData(sections: any[], slug: string, conceptNotes: Record<string, string>) {
-    const conceptData: Record<string, Record<string, { notesHtml?: string; isCustom?: boolean }>> = {};
+  async function buildConceptData(sections: any[], slug: string, conceptNotes: Record<string, string>) {
+    const conceptData: Record<string, Record<string, { notesHtml?: string; isCustom?: boolean; isOfficial?: boolean }>> = {};
+
+    // Only load the library if this track has official concept refs
+    const hasOfficialRefs = sections.some((s: any) =>
+      (s.items || []).some((item: any) =>
+        (item?.concepts || []).some((c: any) => c.type === 'official')
+      )
+    );
+
+    let libraryMap: Map<string, any> | null = null;
+    if (hasOfficialRefs) {
+      try {
+        const { map } = await loadConceptLibrary();
+        libraryMap = map;
+      } catch {
+        console.warn('Could not load concept library — official concept refs will be skipped');
+      }
+    }
 
     for (const section of sections) {
       for (const item of (section.items || []).filter((i: any) => i !== null)) {
         if (item.concepts?.length) {
           conceptData[item.id] = {};
           for (const concept of item.concepts) {
-            const noteKey = `${slug}/${item.id}/${concept.name}`;
-            // conceptNotes override track structure notes for custom concepts
-            const rawNotes = conceptNotes[noteKey] || concept.notesHtml || concept.notes || '';
-            conceptData[item.id][concept.name] = {
+            let displayName: string;
+            let rawNotes: string;
+            let isOfficial = false;
+
+            if (concept.type === 'official') {
+              const base = libraryMap?.get(concept.ref);
+              if (!base) continue; // Skip unknown refs gracefully
+              displayName = base.name;
+              isOfficial = true;
+              // User override notes take priority, then fall back to library notes
+              const noteKey = `${slug}/${item.id}/${base.name}`;
+              rawNotes = conceptNotes[noteKey] || concept.notes || base.notes || '';
+            } else {
+              // Legacy inline format ({ name, notes?, notesHtml? }) or { type: 'custom', name, notes? }
+              displayName = concept.name;
+              const noteKey = `${slug}/${item.id}/${concept.name}`;
+              rawNotes = conceptNotes[noteKey] || concept.notesHtml || concept.notes || '';
+            }
+
+            conceptData[item.id][displayName] = {
               notesHtml: rawNotes ? parseNotesClient(rawNotes) : '',
-              isCustom: true,
+              isCustom: !isOfficial,
+              ...(isOfficial && { isOfficial: true }),
             };
           }
         }
@@ -904,7 +1099,8 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
             <span class="editor-hint editor-hint--inline">(click concept to edit notes)</span>
             <div class="editor-concepts-list" id="concepts-${sectionIndex}-${topicIndex}">
               ${(item.concepts || []).map((c: any, conceptIndex: number) => `
-                <span class="editor-concept-pill ${c.notes ? 'has-notes' : ''}" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}" title="Click to edit notes">
+                <span class="editor-concept-pill ${c.notes ? 'has-notes' : ''} ${c.type === 'official' ? 'official-concept' : ''}" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}" title="${c.type === 'official' ? 'Official library concept — click to add override notes' : 'Click to edit notes'}">
+                  ${c.type === 'official' ? '<span class="concept-lib-badge" title="From library">L</span>' : ''}
                   ${c.name}
                   ${c.notes ? '<span class="concept-notes-indicator">\u00b7</span>' : ''}
                   <button type="button" class="remove-concept-btn" data-section="${sectionIndex}" data-topic="${topicIndex}" data-concept="${conceptIndex}">×</button>
@@ -913,10 +1109,11 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
               <input
                 type="text"
                 class="editor-concept-input"
-                placeholder="+ Add concept"
+                placeholder="Type name + Enter"
                 data-section="${sectionIndex}"
                 data-topic="${topicIndex}"
               />
+              <button type="button" class="btn btn--outline btn--sm open-concept-picker" data-section="${sectionIndex}" data-topic="${topicIndex}">Browse Library</button>
             </div>
             <div class="editor-concept-notes-area" id="concept-notes-area-${sectionIndex}-${topicIndex}"></div>
           </div>
@@ -1234,6 +1431,16 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
         const resourceIndex = parseInt(target.dataset.resource!);
         state.sections[sectionIndex].items[topicIndex].resources.splice(resourceIndex, 1);
         renderSections(state);
+      });
+    });
+
+    // Open concept picker (Browse Library)
+    document.querySelectorAll('.open-concept-picker').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const target = e.target as HTMLButtonElement;
+        const sectionIndex = parseInt(target.dataset.section!);
+        const topicIndex = parseInt(target.dataset.topic!);
+        await openConceptPickerModal(sectionIndex, topicIndex, state);
       });
     });
 
@@ -1802,5 +2009,119 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;
+  }
+
+  /* ── Official concept pill badge ───────────────────────────────────────── */
+  .editor-concept-pill.official-concept {
+    border-color: var(--color-pcb, #4a7c59);
+    background: rgb(74 124 89 / 8%);
+  }
+
+  .concept-lib-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    background: var(--color-pcb, #4a7c59);
+    color: #fff;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Concept picker modal ───────────────────────────────────────────────── */
+  .concept-picker-content {
+    max-width: 560px;
+  }
+
+  .concept-picker-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--color-border);
+    margin-bottom: 1rem;
+  }
+
+  .concept-tab {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+
+  .concept-tab--active {
+    color: var(--color-copper);
+    border-bottom-color: var(--color-copper);
+  }
+
+  .concept-tab-panel {
+    min-height: 200px;
+  }
+
+  .concept-picker-search {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .concept-picker-search .editor-input:first-child {
+    flex: 2;
+  }
+
+  .concept-picker-search .editor-input:last-child {
+    flex: 1;
+  }
+
+  .concept-results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+  }
+
+  .cp-result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.8rem;
+  }
+
+  .cp-result-item:last-child {
+    border-bottom: none;
+  }
+
+  .cp-result-item:hover {
+    background: var(--color-bg-grid);
+  }
+
+  .cp-result-name {
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  .cp-result-domain {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-transform: capitalize;
+    white-space: nowrap;
+  }
+
+  .cp-no-results {
+    padding: 1rem;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
   }
 </style>

@@ -9,10 +9,7 @@ import type { Roadmap } from './roadmap';
 
 /**
  * Custom concept with pre-parsed HTML (parsed at save time in editor).
- *
- * Phase 5 (planned, not yet implemented): will also support
- * `{ ref: string, type: 'official' }` to embed official library concepts
- * by reference into custom tracks, resolved client-side from concept-library.json.
+ * Used in CustomConceptsMap (concepts added to official track topics).
  */
 export interface CustomConcept {
   /** Display name of the concept */
@@ -22,6 +19,42 @@ export interface CustomConcept {
   /** Always true for user-created concepts */
   isCustom: true;
 }
+
+// ---------------------------------------------------------------------------
+// Concept entries stored inside custom track topics (sections[].items[].concepts[])
+// ---------------------------------------------------------------------------
+
+/** Reference to an official library concept (resolved client-side from concept-library.json) */
+export interface OfficialConceptRef {
+  type: 'official';
+  /** Concept ID in concept-library.json */
+  ref: string;
+  /** Cached display name (from library at time of picking) */
+  name: string;
+  /** Optional user-written markdown notes (override library notes in the concept window) */
+  notes?: string;
+}
+
+/** Fully inline custom concept created by the user in the editor */
+export interface CustomConceptInline {
+  type: 'custom';
+  name: string;
+  notes?: string;
+}
+
+/**
+ * Legacy inline concept (pre-Phase 5 format — existing Supabase data).
+ * Has name but no `type` field. Treated as custom inline.
+ */
+export interface LegacyConceptEntry {
+  name: string;
+  notes?: string;
+  notesHtml?: string;
+  isCustom?: true;
+}
+
+/** Union of all concept formats stored in custom track topics */
+export type ConceptEntry = OfficialConceptRef | CustomConceptInline | LegacyConceptEntry;
 
 /** Custom concepts keyed by "track-slug/topic-id" */
 export interface CustomConceptsMap {
