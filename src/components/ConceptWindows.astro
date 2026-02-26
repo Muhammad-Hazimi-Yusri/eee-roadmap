@@ -36,6 +36,28 @@
         </svg>
       </button>
       <div class="concept-window-controls">
+        <button class="concept-window-btn concept-window-pin" aria-label="Pin window" title="Pin (lock position)">
+          <svg class="icon-unpin" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 1h2v4l1.5 1.5V8H6.5v3h-1V8H4V6.5L5.5 5V1z"/>
+          </svg>
+          <svg class="icon-pin" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="display:none">
+            <path d="M5 1h2v4l1.5 1.5V8H6.5v3h-1V8H4V6.5L5.5 5V1z"/>
+          </svg>
+        </button>
+        <button class="concept-window-btn concept-window-collapse" aria-label="Collapse" title="Collapse">
+          <svg class="icon-collapse" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 8l4-4 4 4"/>
+          </svg>
+          <svg class="icon-expand" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+            <path d="M2 4l4 4 4-4"/>
+          </svg>
+        </button>
+        <button class="concept-window-btn concept-window-opacity" aria-label="Opacity" title="Adjust transparency">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="1" y="3" width="7" height="7" rx="1" opacity="0.5" fill="currentColor" stroke="none"/>
+            <rect x="4" y="1" width="7" height="7" rx="1" fill="none" stroke="currentColor"/>
+          </svg>
+        </button>
         <button class="concept-window-btn concept-window-minimize" aria-label="Minimize" title="Minimize">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M2 6h8"/>
@@ -55,6 +77,13 @@
             <path d="M2 2l8 8M10 2l-8 8"/>
           </svg>
         </button>
+      </div>
+      <div class="concept-window-opacity-popover" hidden>
+        <label class="opacity-popover-label">
+          <span class="opacity-popover-heading">Opacity</span>
+          <span class="opacity-popover-value">100%</span>
+        </label>
+        <input class="opacity-slider" type="range" min="30" max="100" value="100" aria-label="Window opacity"/>
       </div>
     </div>
     <div class="concept-window-content">
@@ -575,6 +604,85 @@
     cursor: ns-resize;
     user-select: none;
   }
+
+  /* ---- Feature 1: Collapse ---- */
+  .concept-window--collapsed .concept-window-content { display: none; }
+  .concept-window--collapsed .resize-handle { display: none; }
+
+  .concept-window-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ---- Feature 2: Pin ---- */
+  .concept-window--pinned {
+    border-color: #4a90d9;
+  }
+
+  .dark .concept-window--pinned {
+    border-color: #6aaff5;
+  }
+
+  .concept-window--pinned .concept-window-pin {
+    color: #4a90d9;
+  }
+
+  .dark .concept-window--pinned .concept-window-pin {
+    color: #6aaff5;
+  }
+
+  /* ---- Feature 3: Opacity popover ---- */
+  .concept-window-titlebar {
+    position: relative;
+  }
+
+  .concept-window-opacity-popover {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 10;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 140px;
+    pointer-events: auto;
+  }
+
+  .concept-window-opacity-popover[hidden] { display: none; }
+
+  .dark .concept-window-opacity-popover {
+    background: #1a1a1a;
+    border-color: #444;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 50%);
+  }
+
+  .opacity-popover-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    user-select: none;
+  }
+
+  .opacity-popover-heading { text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .opacity-slider { width: 100%; cursor: pointer; accent-color: var(--color-copper); }
+
+  .concept-window-content--frosted {
+    backdrop-filter: blur(2px);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 10%);
+  }
+
+  .dark .concept-window-content--frosted {
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 5%);
+  }
 </style>
 
 <script>
@@ -595,7 +703,11 @@
     zIndex: number;
     isMinimized: boolean;
     isMaximized: boolean;
+    isCollapsed: boolean;        // F1
+    isPinned: boolean;           // F2
+    opacity: number;             // F3 — 0.3–1.0, default 1.0
     preMaximizeState?: WindowState;
+    preCollapseHeight?: number;  // F1 — runtime only, not persisted
   }
 
   const STORAGE_KEY = 'eee-concept-window-states';
@@ -603,6 +715,7 @@
     const trackSlug = (window as any).trackSlug || 'unknown';
     return `eee-open-windows-${trackSlug}`;
   };
+  const GLOBAL_OPACITY_KEY = 'eee-concept-window-global-opacity';
   const CASCADE_OFFSET = 30;
   const BASE_Z_INDEX = 1000;
   const DEFAULT_WIDTH = 500;
@@ -630,7 +743,10 @@
     const windowStates = openWindows.map(w => ({
       id: w.id,
       isMinimized: w.isMinimized,
-      isMaximized: w.isMaximized
+      isMaximized: w.isMaximized,
+      isCollapsed: w.isCollapsed,
+      isPinned: w.isPinned,
+      opacity: w.opacity
     }));
     localStorage.setItem(OPEN_WINDOWS_KEY(), JSON.stringify(windowStates));
   }
@@ -640,6 +756,9 @@
     id: string;
     isMinimized: boolean;
     isMaximized: boolean;
+    isCollapsed: boolean;
+    isPinned: boolean;
+    opacity: number;
   }
 
   function loadOpenWindows(): SavedWindowState[] {
@@ -658,8 +777,18 @@
       const [topicId, conceptName] = saved.id.split(':');
       if (topicId && conceptName) {
         openWindow(topicId, conceptName);
-        
-        // Apply saved state
+        const win = openWindows.find(w => w.id === saved.id);
+        if (!win) return;
+
+        if (saved.isCollapsed) collapseWindow(saved.id);
+        if (saved.isPinned) togglePin(saved.id);
+
+        const savedOpacity = typeof saved.opacity === 'number' ? saved.opacity : 1.0;
+        if (savedOpacity !== 1.0) {
+          win.opacity = savedOpacity;
+          applyWindowOpacity(win, savedOpacity);
+        }
+
         if (saved.isMinimized) {
           minimizeWindow(saved.id);
         } else if (saved.isMaximized) {
@@ -674,6 +803,13 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
     } catch {}
+  }
+
+  function loadGlobalOpacity(): number {
+    try {
+      const v = parseFloat(localStorage.getItem(GLOBAL_OPACITY_KEY) || '1');
+      return isNaN(v) ? 1.0 : Math.max(0.3, Math.min(1.0, v));
+    } catch { return 1.0; }
   }
 
   // Save single window state
@@ -779,10 +915,34 @@
   function bringToFront(windowId: string) {
     const win = openWindows.find(w => w.id === windowId);
     if (!win) return;
-    
+
     highestZIndex++;
     win.zIndex = highestZIndex;
     win.element.style.zIndex = String(highestZIndex);
+  }
+
+  // Sync button disabled states and icon swaps for collapse/pin/maximize
+  function updateWindowButtonStates(win: OpenWindow) {
+    const el = win.element;
+    const collapseBtn = el.querySelector('.concept-window-collapse') as HTMLButtonElement | null;
+    const maximizeBtn = el.querySelector('.concept-window-maximize') as HTMLButtonElement | null;
+    const pinBtn      = el.querySelector('.concept-window-pin')      as HTMLButtonElement | null;
+
+    if (collapseBtn) collapseBtn.disabled = win.isMaximized;
+    if (maximizeBtn) maximizeBtn.disabled = win.isCollapsed;
+
+    if (collapseBtn) {
+      const iconDown = collapseBtn.querySelector('.icon-collapse') as HTMLElement | null;
+      const iconUp   = collapseBtn.querySelector('.icon-expand')   as HTMLElement | null;
+      if (iconDown) iconDown.style.display = win.isCollapsed ? 'none' : '';
+      if (iconUp)   iconUp.style.display   = win.isCollapsed ? ''     : 'none';
+    }
+    if (pinBtn) {
+      const iconUnpinned = pinBtn.querySelector('.icon-unpin') as HTMLElement | null;
+      const iconPinned   = pinBtn.querySelector('.icon-pin')   as HTMLElement | null;
+      if (iconUnpinned) iconUnpinned.style.display = win.isPinned ? 'none' : '';
+      if (iconPinned)   iconPinned.style.display   = win.isPinned ? ''     : 'none';
+    }
   }
 
   // Minimize window
@@ -815,6 +975,8 @@
 
     taskbarItems.appendChild(item);
     updateTaskbar();
+    const winRef = openWindows.find(w => w.id === windowId);
+    if (winRef) updateWindowButtonStates(winRef);
     saveOpenWindows();
   }
 
@@ -826,12 +988,64 @@
     win.isMinimized = false;
     win.element.style.display = 'flex';
     bringToFront(windowId);
+    applyWindowOpacity(win, win.opacity);
 
     // Remove from taskbar
     const taskbarItem = document.querySelector(`.concept-taskbar-item[data-window-id="${windowId}"]`);
     taskbarItem?.remove();
     updateTaskbar();
+    const winRefR = openWindows.find(w => w.id === windowId);
+    if (winRefR) updateWindowButtonStates(winRefR);
     saveOpenWindows();
+  }
+
+  // Collapse window to titlebar only (Feature 1)
+  function collapseWindow(windowId: string) {
+    const win = openWindows.find(w => w.id === windowId);
+    if (!win || win.isCollapsed || win.isMaximized) return;
+    win.preCollapseHeight = win.element.offsetHeight;
+    win.isCollapsed = true;
+    win.element.classList.add('concept-window--collapsed');
+    win.element.style.height = 'auto';
+    updateWindowButtonStates(win);
+    saveOpenWindows();
+  }
+
+  // Expand a collapsed window (Feature 1)
+  function expandWindow(windowId: string) {
+    const win = openWindows.find(w => w.id === windowId);
+    if (!win || !win.isCollapsed) return;
+    win.isCollapsed = false;
+    win.element.classList.remove('concept-window--collapsed');
+    const restored = win.preCollapseHeight ?? DEFAULT_HEIGHT;
+    win.element.style.height = `${Math.min(restored, window.innerHeight - 80)}px`;
+    updateWindowButtonStates(win);
+    saveOpenWindows();
+  }
+
+  // Toggle pin / lock position (Feature 2)
+  function togglePin(windowId: string) {
+    const win = openWindows.find(w => w.id === windowId);
+    if (!win) return;
+    win.isPinned = !win.isPinned;
+    win.element.classList.toggle('concept-window--pinned', win.isPinned);
+    updateWindowButtonStates(win);
+    saveOpenWindows();
+  }
+
+  // Apply opacity to window content (Feature 3)
+  function applyWindowOpacity(win: OpenWindow, opacity: number) {
+    const content = win.element.querySelector('.concept-window-content') as HTMLElement | null;
+    if (!content) return;
+    content.style.opacity = String(opacity);
+    content.classList.toggle('concept-window-content--frosted', opacity < 1.0);
+    if (opacity < 1.0) {
+      win.element.style.boxShadow = `0 2px 4px rgb(0 0 0 / ${Math.round(opacity * 10)}%), 0 4px 20px rgb(0 0 0 / ${Math.round(opacity * 20)}%)`;
+    } else {
+      win.element.style.boxShadow = '';
+    }
+    const label = win.element.querySelector('.opacity-popover-value');
+    if (label) label.textContent = `${Math.round(opacity * 100)}%`;
   }
 
   // Maximize/restore window
@@ -873,6 +1087,7 @@
       win.isMaximized = true;
       win.element.classList.add('concept-window--maximized');
     }
+    updateWindowButtonStates(win);
     saveOpenWindows();
   }
 
@@ -915,7 +1130,7 @@
     const scaleY = viewportH / referenceViewportH;
     
     openWindows.forEach((winData) => {
-      if (winData.isMinimized || winData.isMaximized) return;
+      if (winData.isMinimized || winData.isMaximized || winData.isCollapsed) return;
       
       const win = winData.element;
       
@@ -1040,9 +1255,13 @@
       element: win,
       zIndex: highestZIndex,
       isMinimized: false,
-      isMaximized: false
+      isMaximized: false,
+      isCollapsed: false,
+      isPinned: false,
+      opacity: loadGlobalOpacity()
     };
     openWindows.push(windowData);
+    applyWindowOpacity(windowData, windowData.opacity);
 
     // Set reference viewport on first window open
     if (referenceViewportW === null) {
@@ -1117,9 +1336,57 @@
       toggleMaximize(windowId);
     });
 
-    // Double-click titlebar to maximize
+    // Collapse (Feature 1)
+    const collapseBtn = win.querySelector('.concept-window-collapse');
+    collapseBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const winData = openWindows.find(w => w.id === windowId);
+      if (!winData) return;
+      if (winData.isCollapsed) { expandWindow(windowId); } else { collapseWindow(windowId); }
+    });
+
+    // Pin (Feature 2)
+    const pinBtn = win.querySelector('.concept-window-pin');
+    pinBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePin(windowId);
+    });
+
+    // Opacity toggle (Feature 3)
+    const opacityBtn     = win.querySelector('.concept-window-opacity') as HTMLElement | null;
+    const opacityPopover = win.querySelector('.concept-window-opacity-popover') as HTMLElement | null;
+    const opacitySlider  = win.querySelector('.opacity-slider') as HTMLInputElement | null;
+
+    if (opacitySlider) {
+      const wd = openWindows.find(w => w.id === windowId);
+      opacitySlider.value = String(Math.round((wd?.opacity ?? 1.0) * 100));
+    }
+
+    opacityBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (opacityPopover) opacityPopover.hidden = !opacityPopover.hidden;
+    });
+
+    opacitySlider?.addEventListener('input', () => {
+      const wd = openWindows.find(w => w.id === windowId);
+      if (!wd || !opacitySlider) return;
+      const opacity = Math.max(0.3, Math.min(1.0, parseFloat(opacitySlider.value) / 100));
+      wd.opacity = opacity;
+      applyWindowOpacity(wd, opacity);
+    });
+
+    opacitySlider?.addEventListener('change', () => { saveOpenWindows(); });
+
+    document.addEventListener('mousedown', (e) => {
+      if (!opacityPopover || opacityPopover.hidden) return;
+      if (!win.contains(e.target as Node)) opacityPopover.hidden = true;
+    }, { capture: true });
+
+    // Double-click titlebar to maximize (guard: not when collapsed)
     titlebar?.addEventListener('dblclick', (e) => {
       if (controls?.contains(e.target as Node)) return;
+      const winData = openWindows.find(w => w.id === windowId);
+      if (winData?.isCollapsed) return;
       toggleMaximize(windowId);
     });
 
@@ -1165,7 +1432,7 @@
       if ((e.target as Element)?.closest('.concept-window-edit')) return;
       
       const winData = openWindows.find(w => w.id === windowId);
-      if (winData?.isMaximized) return;
+      if (winData?.isMaximized || winData?.isPinned) return;
 
       isDragging = true;
       dragOffsetX = e.clientX - win.offsetLeft;
@@ -1212,8 +1479,8 @@
       if ((e.target as Element)?.closest('.concept-window-edit')) return;
       
       const winData = openWindows.find(w => w.id === windowId);
-      if (winData?.isMaximized) return;
-    
+      if (winData?.isMaximized || winData?.isPinned) return;
+
       e.preventDefault(); // Prevent page scroll
       const touch = e.touches[0];
       isDragging = true;
@@ -1271,7 +1538,7 @@
 
   function startResize(clientX: number, clientY: number, dir: string) {
     const winData = openWindows.find(w => w.id === windowId);
-    if (winData?.isMaximized) return false;
+    if (winData?.isMaximized || winData?.isPinned) return false;
 
     isResizing = true;
     resizeDir = dir;
@@ -1394,6 +1661,27 @@
       // Grab IDs first, then close
       const idsToClose = openWindows.map(w => w.id);
       idsToClose.forEach(id => closeWindow(id));
+    });
+  }
+
+  // Listen for bulk pin/unpin and global opacity events from RoadmapSettings (Features 2 & 3)
+  function initSettingsEvents() {
+    document.addEventListener('concept-windows-pin-all', () => {
+      openWindows.forEach(w => { if (!w.isPinned) togglePin(w.id); });
+    });
+    document.addEventListener('concept-windows-unpin-all', () => {
+      openWindows.forEach(w => { if (w.isPinned) togglePin(w.id); });
+    });
+    document.addEventListener('concept-windows-global-opacity', (e: Event) => {
+      const opacity = (e as CustomEvent<{ opacity: number }>).detail.opacity;
+      try { localStorage.setItem(GLOBAL_OPACITY_KEY, String(opacity)); } catch {}
+      openWindows.forEach(w => {
+        w.opacity = opacity;
+        applyWindowOpacity(w, opacity);
+        const slider = w.element.querySelector('.opacity-slider') as HTMLInputElement | null;
+        if (slider) slider.value = String(Math.round(opacity * 100));
+      });
+      saveOpenWindows();
     });
   }
 
@@ -1679,6 +1967,7 @@ Supports: **bold**, *italic*, LaTeX: $E = mc^2$`;
   initResizeHandler();
   restoreOpenWindows();
   initTaskbarActions();
+  initSettingsEvents();
 
   // ============================================
   // PDF RESIZER LOGIC

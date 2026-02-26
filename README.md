@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.9-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.10-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.9
+Current version is v0.22.10
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
@@ -48,7 +48,7 @@ Current version is v0.22.9
 - **Two Interaction Modes:**
   - *Simple* — Click (notes), double-click (complete), shift+click (important)
   - *Tools* — Swipe gestures with pen/highlighter/eraser (optimized for tablet/stylus)
-- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs; open windows persist across page refreshes; taskbar for window management; built-in markdown editor for adding personal notes
+- **Concept Windows** — Draggable, resizable note windows with markdown, LaTeX equations, and embedded PDFs; open windows persist across page refreshes; taskbar for window management; built-in markdown editor for adding personal notes; collapse windows to titlebar-only (position/width preserved); pin windows to lock position and prevent accidental dragging; per-window transparency slider (30–100%) with frosted-paper backdrop effect; global transparency control in the settings panel
 - **Custom Concept Notes** — Add personal notes to any concept (official or custom tracks); notes appear above original content with visual distinction; supports full markdown with LaTeX
 - **Add Custom Concepts** — Create your own concept pills on official track topics (signed-in users); concepts sync across devices
 - **Global Search** — Fuzzy search across all tracks, topics, and concept notes (`Ctrl+K`)
@@ -265,7 +265,6 @@ Current version is v0.22.9
 - [ ] iOS Safari: trail persistence in two-finger swipe (tools mode)
 - [ ] Mobile: fullscreen mode bottom bar overlap
 - [ ] PDF.js: open-in-new-tab and fullscreen viewer icons
-- [ ] Concept windows: translucent effect when unfocused
 - [ ] Unboxed view: overlapping card layout for overflow
 - [ ] Refactor: localStorage keys duplicated across files (should use shared constants)
 - [ ] Custom track cards: display Lucide icon from meta (currently hardcoded)

@@ -11,6 +11,63 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.10] - 2026-02-26
+
+**ConceptWindows: collapse to titlebar, pin (lock position), per-window transparency**
+
+### Added
+
+- **Collapse button** (`concept-window-collapse`) — new control that collapses a window to its titlebar only, preserving position and width; content and all resize handles hidden; window height set to `auto`
+  - Chevron-up icon when expanded (click to collapse), chevron-down when collapsed (click to expand) — same dual-SVG swap pattern as maximize/restore
+  - Pre-collapse height stored in memory (`preCollapseHeight`) and restored on expand, clamped to current viewport
+  - `isCollapsed` persisted in `eee-open-windows-{trackSlug}` alongside `isMinimized`/`isMaximized`; restored correctly on page reload
+  - CSS class `.concept-window--collapsed` hides `.concept-window-content` and `.resize-handle`; `<style is:global>` block only (Astro scoping does not apply to template-cloned elements)
+  - Disabled (`.concept-window-btn:disabled` → `opacity: 0.35; pointer-events: none`) when window is maximized; maximize button disabled when window is collapsed
+  - dblclick-to-maximize on titlebar guarded against collapsed state
+  - `revalidateAllWindows()` skips collapsed windows (no positional rescale)
+  - Button order in controls: **pin, collapse, opacity, minimize, maximize, close**
+
+- **Pin button** (`concept-window-pin`) — locks the window position; dragging and resizing are silently blocked while pinned
+  - Outline pushpin SVG when unpinned; filled pushpin when pinned — toggled via `.icon-unpin` / `.icon-pin` display swap
+  - CSS class `.concept-window--pinned`: `border-color: #4a90d9` (light) / `#6aaff5` (dark); pin button inherits tint color
+  - `isPinned` persisted in open-windows storage; restored on page reload
+  - Mouse drag (`mousedown`) and touch drag (`touchstart`) both check `win.isPinned` before activating
+  - `startResize()` returns `false` immediately if `win.isPinned`
+  - **Pin All / Unpin All** buttons added to `RoadmapSettings.astro` as a new "Windows:" setting row; dispatch `concept-windows-pin-all` / `concept-windows-unpin-all` CustomEvents on `document`; `initSettingsEvents()` in ConceptWindows listens and calls `togglePin()` on every open window
+
+- **Opacity button** (`concept-window-opacity`) — small layers SVG in controls; click reveals a compact popover (`concept-window-opacity-popover`) anchored to the titlebar bottom-right (`.concept-window-titlebar` is now `position: relative`)
+  - Popover contains an `<input type="range" min="30" max="100">` and a live percentage label
+  - Slider range: 30–100 (0.3–1.0); never fully invisible
+  - Opacity applied to `.concept-window-content` only — titlebar stays fully opaque for usability
+  - When opacity < 1.0: `.concept-window-content--frosted` adds `backdrop-filter: blur(2px)` and an inset highlight ring; window `box-shadow` reduced proportionally for a "thin paper" feel
+  - When opacity = 1.0: frosted class removed, `box-shadow` reset to CSS default
+  - Popover closes on any `mousedown` outside the window (capture-phase listener)
+  - `opacity` field persisted in open-windows storage; restored on page reload; re-applied after un-minimizing
+  - `applyWindowOpacity()` also syncs the popover value label when called from bulk operations
+  - **Global transparency slider** added to `RoadmapSettings.astro` — "Transparency:" label + range input (30–100) + live percentage display; persists to `eee-concept-window-global-opacity`; dispatches `concept-windows-global-opacity` CustomEvent with `{ opacity }` detail; `initSettingsEvents()` applies to all open windows immediately and syncs per-window sliders; new windows inherit the global default via `loadGlobalOpacity()` at open time
+
+- `updateWindowButtonStates(win)` helper — centralises all button `disabled` toggling and icon-swap logic; called at the end of `collapseWindow`, `expandWindow`, `togglePin`, `toggleMaximize`, `minimizeWindow`, and `restoreWindow` to keep UI in sync with state
+- `initSettingsEvents()` — new init function (called alongside `initTaskbarActions`) that registers all document-level CustomEvent listeners from `RoadmapSettings`
+- `loadGlobalOpacity()` — reads `eee-concept-window-global-opacity` from localStorage, clamped to 0.3–1.0, with NaN/missing fallback to 1.0
+
+### Changed
+- `OpenWindow` interface: added `isCollapsed: boolean`, `isPinned: boolean`, `opacity: number`, `preCollapseHeight?: number`
+- `SavedWindowState` interface: added `isCollapsed`, `isPinned`, `opacity` (all backward-compatible; old data defaults to `false`/`1.0`)
+- `saveOpenWindows()`: persists all three new fields
+- `restoreOpenWindows()`: applies collapse → pin → opacity → minimize/maximize in that order on restore
+- `windowData` initialised with `isCollapsed: false`, `isPinned: false`, `opacity: loadGlobalOpacity()`
+- `setupWindowEvents()`: registers collapse, pin, and opacity button listeners after existing maximize listener; also patches dblclick guard
+- `setupDrag()` mouse + touch: `winData?.isMaximized || winData?.isPinned` guard
+- `startResize()`: `winData?.isMaximized || winData?.isPinned` guard
+- `restoreWindow()`: calls `applyWindowOpacity(win, win.opacity)` after `display: flex` (re-applies opacity lost during `display: none`)
+- `RoadmapSettings.astro`: two new setting rows — "Windows: Pin All / Unpin All" and "Transparency: [slider] [value]"; script wires up CustomEvent dispatch and initialises global slider from localStorage
+
+### localStorage keys
+- `eee-open-windows-{trackSlug}` — existing key, now also stores `isCollapsed`, `isPinned`, `opacity` per window
+- `eee-concept-window-global-opacity` — new; stores global transparency default (0.3–1.0)
+
+---
+
 ## [0.22.9] - 2026-02-25
 
 **Verification: remove inline status summary; add 0/3 badge + show/hide toggle**

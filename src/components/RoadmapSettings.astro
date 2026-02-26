@@ -79,6 +79,21 @@
     <button class="setting-btn" id="collapse-all">Collapse All</button>
   </div>
 
+  <!-- Window pin controls -->
+  <div class="setting-row" id="window-pin-row">
+    <span class="setting-label">Windows:</span>
+    <button class="setting-btn" id="pin-all-windows">Pin All</button>
+    <button class="setting-btn" id="unpin-all-windows">Unpin All</button>
+  </div>
+
+  <!-- Window transparency -->
+  <div class="setting-row">
+    <label class="setting-label" for="global-window-opacity">Transparency:</label>
+    <input type="range" id="global-window-opacity" min="30" max="100" value="100"
+      style="width: 80px; accent-color: var(--color-copper);" />
+    <span id="global-opacity-value" style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted); min-width: 2.5rem;">100%</span>
+  </div>
+
   <!-- Focus View -->
   <div class="setting-row">
     <span class="setting-label">Focus:</span>
@@ -310,7 +325,7 @@
 
   if (touchHint && isTouchDevice) {
     const modeSelect = document.getElementById('interaction-mode') as HTMLSelectElement;
-    
+
     // Initial state
     if (modeSelect?.value === 'tools') {
       touchHint.hidden = false;
@@ -321,4 +336,32 @@
       touchHint.hidden = modeSelect.value !== 'tools';
     });
   }
+
+  // Feature 2: Pin All / Unpin All
+  document.getElementById('pin-all-windows')?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('concept-windows-pin-all'));
+  });
+  document.getElementById('unpin-all-windows')?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('concept-windows-unpin-all'));
+  });
+
+  // Feature 3: Global opacity slider
+  const GLOBAL_OPACITY_KEY = 'eee-concept-window-global-opacity';
+  const globalOpacitySlider = document.getElementById('global-window-opacity') as HTMLInputElement | null;
+  const globalOpacityValueEl = document.getElementById('global-opacity-value');
+
+  if (globalOpacitySlider) {
+    const saved = parseFloat(localStorage.getItem(GLOBAL_OPACITY_KEY) || '1');
+    const pct = isNaN(saved) ? 100 : Math.round(saved * 100);
+    globalOpacitySlider.value = String(pct);
+    if (globalOpacityValueEl) globalOpacityValueEl.textContent = `${pct}%`;
+  }
+
+  globalOpacitySlider?.addEventListener('input', () => {
+    const pct = parseFloat(globalOpacitySlider!.value);
+    const opacity = Math.max(0.3, Math.min(1.0, pct / 100));
+    if (globalOpacityValueEl) globalOpacityValueEl.textContent = `${Math.round(opacity * 100)}%`;
+    localStorage.setItem(GLOBAL_OPACITY_KEY, String(opacity));
+    document.dispatchEvent(new CustomEvent('concept-windows-global-opacity', { detail: { opacity } }));
+  });
 </script>
