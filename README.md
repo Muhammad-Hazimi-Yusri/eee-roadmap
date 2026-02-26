@@ -296,11 +296,56 @@ Current version is v0.22.11
 - AI-generated roadmap remixing
 - Notes parser (upload .md → convert to roadmap format)
 - In-class note-taking mode
-- WebAssembly circuit simulator
+- WebAssembly circuit simulator *(expanded — see [Interactive Learning Modules](#interactive-learning-modules) below)*
 - Freemium tiers (if user growth warrants)
 - Community contributions workflow
 - User feedback system (comments per section)
 - WYSIWYG concept notes editor (Notion-like toolbar with bold, linking, embedding support) to replace the current raw markdown textarea in ConceptWindows
+
+---
+
+### Interactive Learning Modules
+
+> Post-launch. Expands the *WebAssembly circuit simulator* Future Idea into three phases.
+
+#### Phase 1: Circuit Simulator
+
+- [ ] CircuitJS1 iframe embeds for quick demos (50+ pre-built circuits, GPL-2.0, iframe isolation only)
+- [ ] Custom TypeScript MNA solver (`mathjs`) for tight tutorial integration
+- [ ] ngspice-WASM (MIT, via EEcircuit/Wokwi) for SPICE-accurate simulation, lazy-loaded (~20 MB)
+- [ ] SVG schematic renderer with IEEE symbols, oscilloscope, and parameter sliders
+- [ ] WaveDrom (`npm: wavedrom`) for digital timing diagrams
+- [ ] Tutorial stepper: step-by-step walkthroughs with validation and hints
+- [ ] 57 circuit lessons across 7 categories: fundamentals, RC/RL/RLC, diodes, op-amps, transistors, digital, power electronics
+- [ ] Circuit lessons defined as JSON (components, probes, expected values, tutorial steps, Falstad/SPICE strings)
+
+#### Phase 2: PCB Design & Semiconductor Learning
+
+- [ ] KiCanvas (MIT) web component for KiCad file viewing
+- [ ] CircuitVerse (MIT iframe) for digital logic; WaveDrom for timing diagrams
+- [ ] DigitalJS + YoWASP Yosys Verilog playground (~50 MB WASM, lazy-loaded)
+- [ ] Custom SVG: layer stackup visualizer, via type visualizer, DRC rules demo
+- [ ] Custom Canvas trace routing tutorial
+- [ ] Microstrip/stripline impedance calculator (Wheeler/Schneider equations)
+- [ ] Truth table generator
+- [ ] PN junction visualizer: depletion width and carrier concentration vs. bias (custom Canvas/SVG)
+- [ ] Band diagram simulator: 1D Poisson solver (custom Canvas/SVG)
+- [ ] MOSFET cross-section animation with synchronized I-V curves (custom Canvas/SVG)
+- [ ] Carrier drift/diffusion animation (custom Canvas/SVG)
+- [ ] 3D PCB viewer (Three.js + web-gerber) — future
+
+#### Phase 3: Power Systems Analysis
+
+- [ ] TypeScript Newton-Raphson power flow solver (`mathjs`) for educational networks (3–50 buses)
+- [ ] Y-bus builder, Jacobian matrix, and Gauss-Seidel solver for comparison
+- [ ] D3.js single-line diagram renderer with custom SVG power system symbols
+- [ ] Color-coded results: bus voltage heatmap, line loading %, animated flow direction
+- [ ] IEEE test case networks (14-bus, 30-bus) for solver validation
+- [ ] Tutorial lessons: 3-bus radial, IEEE 14-bus, DG integration
+- [ ] FastAPI + pandapower (BSD) backend for larger networks and IEC 60909 short circuit (optional, Docker)
+- [ ] PyPSA (MIT) for OPF and capacity expansion (backend)
+- [ ] Pyodide/JupyterLite embed for interactive Python notebooks (~30–80 MB, dedicated page)
+- [ ] GIS map overlay with Leaflet/MapLibre — future
 
 ---
 
