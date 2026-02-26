@@ -11,6 +11,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.11] - 2026-02-26
+
+**Custom track editor: markdown toolbar + Edit/Preview toggle for inline concept notes**
+
+### Added
+
+- **Markdown toolbar** — 10-button formatting toolbar rendered above the concept notes textarea in the custom track editor; available actions: Bold (`**...**`), Italic (`_..._`), Heading (`## `), Link (`[text](url)`), Image (`![alt](url)`), LaTeX inline (`$...$`), LaTeX block (`\n$$\n...\n$$\n`), Bulleted list (`- `), Inline code (`` `...` ``), Code block (` ```...``` `)
+  - Buttons fire on `mousedown` + `preventDefault()` so textarea focus is never lost
+  - Selected text is wrapped by the prefix/suffix; with no selection a placeholder is inserted and auto-selected for immediate replacement
+  - Heading and bulleted list apply a line-prefix (inserted at the start of the current line rather than at the cursor)
+  - Visual separators (`cnote-tb-sep`) group related buttons: text styling | links/images | math | lists/code
+- **Edit/Preview toggle** — segmented `Edit` / `Preview` button pair in the editor header, right-aligned next to the concept label
+  - **Edit mode** (default): toolbar + textarea visible
+  - **Preview mode**: edit panel hidden; current textarea content rendered as HTML via the existing `parseNotesClient()` utility (full support for markdown, KaTeX math, images, and PDF embeds) into a `.concept-notes-preview-panel.notes-render` div that inherits site-wide notes typography
+  - Switching between modes is instant — no page refresh, no network call
+  - Switching back to Edit always restores the unmodified textarea content
+- `insertMarkdown(ta, action)` helper — cursor-aware insertion logic defined once in the outer `<script>` scope; used by all toolbar button handlers; handles both line-prefix and wrap-style actions via a single lookup map
+
+### Changed
+
+- Editor HTML template refactored: `.concept-notes-header` flex row holds the label (left) and mode toggle (right); textarea wrapped in `.concept-notes-edit-panel` alongside the new toolbar; `.concept-notes-preview-panel` added below as a sibling panel
+- Save button reads `.concept-notes-textarea` value directly — functions correctly regardless of which mode is active when clicked
+
+---
+
 ## [0.22.10] - 2026-02-26
 
 **ConceptWindows: collapse to titlebar, pin (lock position), per-window transparency**

@@ -1342,6 +1342,51 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
       });
     });
 
+    // Helper: insert markdown syntax at cursor / wrap selection
+    function insertMarkdown(ta: HTMLTextAreaElement, action: string) {
+      const s = ta.selectionStart, e = ta.selectionEnd;
+      const sel = ta.value.slice(s, e);
+      const before = ta.value.slice(0, s);
+      const after  = ta.value.slice(e);
+
+      const map: Record<string, [string, string, string, boolean?]> = {
+        'bold':         ['**',      '**',     'bold text'],
+        'italic':       ['_',       '_',      'italic text'],
+        'heading':      ['## ',     '',       'Heading',  true],
+        'link':         ['[',       '](url)', 'link text'],
+        'image':        ['![',      '](url)', 'alt text'],
+        'latex-inline': ['$',       '$',      'x'],
+        'latex-block':  ['\n$$\n',  '\n$$\n', 'equation'],
+        'ul':           ['- ',      '',       'item',     true],
+        'code-inline':  ['`',       '`',      'code'],
+        'code-block':   ['\n```\n', '\n```\n','code'],
+      };
+
+      const def = map[action];
+      if (!def) return;
+      const [pfx, sfx, placeholder, linePrefix] = def;
+
+      let newVal: string, newS: number, newE: number;
+
+      if (linePrefix) {
+        const lineStart = before.lastIndexOf('\n') + 1;
+        const lineHead = ta.value.slice(0, lineStart);
+        const content = sel || placeholder;
+        newVal = lineHead + pfx + ta.value.slice(lineStart, s) + content + sfx + after;
+        newS = lineStart + pfx.length + (s - lineStart);
+        newE = newS + content.length;
+      } else {
+        const content = sel || placeholder;
+        newVal = before + pfx + content + sfx + after;
+        newS = s + pfx.length;
+        newE = newS + content.length;
+      }
+
+      ta.value = newVal;
+      ta.focus();
+      ta.setSelectionRange(newS, newE);
+    }
+
     // Edit concept notes (click pill to toggle inline editor)
     document.querySelectorAll('.editor-concept-pill').forEach(pill => {
       pill.addEventListener('click', (e) => {
@@ -1368,8 +1413,32 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
 
         area.innerHTML = `
           <div class="concept-notes-editor" data-notes-for="${ci}">
-            <label class="concept-notes-label">${concept.name} — notes (markdown)</label>
-            <textarea class="editor-input concept-notes-textarea" placeholder="Enter markdown notes for this concept...">${concept.notes || ''}</textarea>
+            <div class="concept-notes-header">
+              <label class="concept-notes-label">${concept.name} — notes (markdown)</label>
+              <div class="concept-notes-mode-toggle">
+                <button type="button" class="concept-mode-btn active" data-mode="edit">Edit</button>
+                <button type="button" class="concept-mode-btn" data-mode="preview">Preview</button>
+              </div>
+            </div>
+            <div class="concept-notes-edit-panel">
+              <div class="concept-notes-toolbar">
+                <button type="button" class="cnote-tb-btn" data-action="bold" title="Bold"><strong>B</strong></button>
+                <button type="button" class="cnote-tb-btn" data-action="italic" title="Italic"><em>I</em></button>
+                <button type="button" class="cnote-tb-btn" data-action="heading" title="Heading (##)">H#</button>
+                <span class="cnote-tb-sep"></span>
+                <button type="button" class="cnote-tb-btn" data-action="link" title="Link">[L]</button>
+                <button type="button" class="cnote-tb-btn" data-action="image" title="Image">Img</button>
+                <span class="cnote-tb-sep"></span>
+                <button type="button" class="cnote-tb-btn" data-action="latex-inline" title="LaTeX inline">$</button>
+                <button type="button" class="cnote-tb-btn" data-action="latex-block" title="LaTeX block">$$</button>
+                <span class="cnote-tb-sep"></span>
+                <button type="button" class="cnote-tb-btn" data-action="ul" title="Bulleted list">• –</button>
+                <button type="button" class="cnote-tb-btn" data-action="code-inline" title="Inline code">\`c\`</button>
+                <button type="button" class="cnote-tb-btn" data-action="code-block" title="Code block">\`\`\`</button>
+              </div>
+              <textarea class="editor-input concept-notes-textarea" placeholder="Enter markdown notes for this concept...">${concept.notes || ''}</textarea>
+            </div>
+            <div class="concept-notes-preview-panel notes-render" style="display:none;"></div>
             <div class="concept-notes-actions">
               <button type="button" class="btn btn--outline btn--sm concept-notes-save">Save</button>
               <button type="button" class="btn btn--sm concept-notes-cancel">Cancel</button>
@@ -1379,6 +1448,32 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
 
         const textarea = area.querySelector('.concept-notes-textarea') as HTMLTextAreaElement;
         textarea?.focus();
+
+        area.querySelectorAll<HTMLButtonElement>('.cnote-tb-btn').forEach(btn => {
+          btn.addEventListener('mousedown', ev => {
+            ev.preventDefault(); // keep textarea focused
+            insertMarkdown(area.querySelector<HTMLTextAreaElement>('.concept-notes-textarea')!, btn.dataset.action!);
+          });
+        });
+
+        area.querySelectorAll<HTMLButtonElement>('.concept-mode-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const mode = btn.dataset.mode;
+            area.querySelectorAll('.concept-mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const editPanel    = area.querySelector<HTMLElement>('.concept-notes-edit-panel')!;
+            const previewPanel = area.querySelector<HTMLElement>('.concept-notes-preview-panel')!;
+            if (mode === 'preview') {
+              const md = area.querySelector<HTMLTextAreaElement>('.concept-notes-textarea')!.value;
+              previewPanel.innerHTML = parseNotesClient(md);
+              editPanel.style.display    = 'none';
+              previewPanel.style.display = '';
+            } else {
+              editPanel.style.display    = '';
+              previewPanel.style.display = 'none';
+            }
+          });
+        });
 
         area.querySelector('.concept-notes-save')?.addEventListener('click', () => {
           const notes = (area.querySelector('.concept-notes-textarea') as HTMLTextAreaElement).value.trim();
@@ -1792,6 +1887,78 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
+  }
+
+  .concept-notes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .concept-notes-mode-toggle {
+    display: flex;
+  }
+
+  .concept-mode-btn {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--color-copper);
+    background: transparent;
+    color: var(--color-copper);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .concept-mode-btn:first-child { border-radius: 2px 0 0 2px; }
+  .concept-mode-btn:last-child  { border-radius: 0 2px 2px 0; border-left: none; }
+
+  .concept-mode-btn.active {
+    background: var(--color-copper);
+    color: var(--color-bg);
+  }
+
+  .concept-notes-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-copper) 25%, transparent);
+    margin-bottom: 0.25rem;
+  }
+
+  .cnote-tb-btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--color-copper) 40%, transparent);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    line-height: 1.4;
+    transition: background 0.1s, border-color 0.1s;
+  }
+
+  .cnote-tb-btn:hover {
+    background: color-mix(in srgb, var(--color-copper) 15%, transparent);
+    border-color: var(--color-copper);
+  }
+
+  .cnote-tb-sep {
+    width: 1px;
+    background: color-mix(in srgb, var(--color-copper) 30%, transparent);
+    margin: 0.1rem;
+  }
+
+  .concept-notes-preview-panel {
+    min-height: 80px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--color-copper) 25%, transparent);
+    border-radius: 2px;
+    overflow-y: auto;
   }
 
   .btn--sm {

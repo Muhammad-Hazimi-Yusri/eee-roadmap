@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.10-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.11-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.10
+Current version is v0.22.11
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
@@ -68,7 +68,7 @@ Current version is v0.22.10
   - Full track editor: sections, topics, concepts, resources, prerequisites
   - **Official concept picker** — "Browse Library" button opens a searchable modal to pick from 392 library concepts across 12 domains; concepts added this way resolve their full notes from the library at view-time; picked concepts show a green `L` badge in the editor
   - Custom inline concepts still supported via text-input (type name + Enter); both formats coexist in the same topic (mixed format, fully backward compatible with existing data)
-  - Inline concept notes editor: click a concept pill to edit its markdown content directly in the editor
+  - Inline concept notes editor: click a concept pill to edit its markdown notes directly; includes a 10-button markdown formatting toolbar (Bold, Italic, Heading, Link, Image, LaTeX inline/block, Bulleted list, Inline/Block code) and an Edit/Preview toggle that renders the markdown with `parseNotesClient()` (supports KaTeX, images, PDFs) — instant, no page refresh
   - Prerequisite picker with cascading dropdowns (official + custom tracks)
   - Drag-and-drop reordering for sections and topics
   - Collapsible sections/topics for easier organization
