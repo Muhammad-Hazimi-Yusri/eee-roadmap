@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.11-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.12-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.11
+Current version is v0.22.12
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
@@ -256,6 +256,24 @@ Current version is v0.22.11
 
 ---
 
+<details>
+<summary><strong>v0.22.12 - Phase 1 Circuit Simulator (Tier 1 + Tier 2 foundation) ✓</strong></summary>
+
+**Goal:** Launch interactive circuit tutorials with Falstad iframe embed, TypeScript MNA solver, and tutorial stepper.
+
+- [x] `FalstadEmbed.astro` — iframe wrapper for CircuitJS1 hosted at falstad.com; circuit text via `ctz` URL param (URL-encoded at build time); GPL-2.0 isolation: iframe-only, never bundled; configurable height and editable props; attribution footer
+- [x] MNA solver (`src/lib/circuit/mna-solver.ts`) — Modified Nodal Analysis engine using `mathjs` `lusolve`; stamps resistors, voltage/current sources into conductance matrix; supports per-component value overrides for slider-driven re-simulation; `checkExpected()` for probe tolerance checking; 12 unit tests (Ohm's Law, Voltage Divider, Series-Parallel KCL)
+- [x] `TutorialStepper.astro` — prev/next navigation, dot indicators, hint `<details>` reveal per step, completion banner; step persisted to `sessionStorage`; pure vanilla JS
+- [x] Circuit lesson JSON schema (`src/data/circuits/_schema/circuit.schema.json`) — JSON Schema draft-07 validating component types, probes, expected values, tutorial steps
+- [x] 3 fundamentals lessons: `ohms-law.json`, `voltage-divider.json`, `kvl-kcl.json` — each with components, probes, expected values (with tolerances), Falstad circuit string, 4 tutorial steps
+- [x] `/learn/circuits/` lesson browser — auto-discovers lesson files via `import.meta.glob`; groups by category; difficulty badges
+- [x] `/learn/circuits/[category]/[lesson]/` lesson page — Falstad embed + tutorial stepper; two-column layout on wide screens; static paths from JSON at build time
+- [x] `circuits` added to main header nav
+- [x] `mathjs` v15.1.1 dependency (Apache-2.0)
+</details>
+
+---
+
 ### Planned
 
 ### Known Issues & Polish
@@ -310,14 +328,14 @@ Current version is v0.22.11
 
 #### Phase 1: Circuit Simulator
 
-- [ ] CircuitJS1 iframe embeds for quick demos (50+ pre-built circuits, GPL-2.0, iframe isolation only)
-- [ ] Custom TypeScript MNA solver (`mathjs`) for tight tutorial integration
+- [x] CircuitJS1 iframe embeds (`FalstadEmbed.astro`, GPL-2.0, iframe isolation only)
+- [x] Custom TypeScript MNA solver (`mathjs`): stamp-based conductance matrix, LU decomposition, 12 unit tests
 - [ ] ngspice-WASM (MIT, via EEcircuit/Wokwi) for SPICE-accurate simulation, lazy-loaded (~20 MB)
 - [ ] SVG schematic renderer with IEEE symbols, oscilloscope, and parameter sliders
 - [ ] WaveDrom (`npm: wavedrom`) for digital timing diagrams
-- [ ] Tutorial stepper: step-by-step walkthroughs with validation and hints
-- [ ] 57 circuit lessons across 7 categories: fundamentals, RC/RL/RLC, diodes, op-amps, transistors, digital, power electronics
-- [ ] Circuit lessons defined as JSON (components, probes, expected values, tutorial steps, Falstad/SPICE strings)
+- [x] Tutorial stepper: step-by-step walkthroughs with hints, dot indicators, completion state (`TutorialStepper.astro`)
+- [ ] 57 circuit lessons across 7 categories: fundamentals, RC/RL/RLC, diodes, op-amps, transistors, digital, power electronics (3 fundamentals done)
+- [x] Circuit lessons defined as JSON (components, probes, expected values, tutorial steps, Falstad/SPICE strings)
 
 #### Phase 2: PCB Design & Semiconductor Learning
 

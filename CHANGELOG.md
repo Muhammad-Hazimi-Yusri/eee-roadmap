@@ -11,6 +11,42 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.12] - 2026-02-27
+
+**Phase 1 Circuit Simulator — Falstad iframe embed, MNA solver, tutorial stepper, 3 fundamentals lessons**
+
+### Added
+
+- **`FalstadEmbed.astro`** (`src/components/simulators/circuit/`) — iframe wrapper for Falstad's CircuitJS1 hosted at `falstad.com`; circuit text is passed via the `ctz` URL parameter (URL-encoded at build time in Astro frontmatter); GPL-2.0 isolation is maintained by iframe-only usage — the GPL source is never imported or bundled; configurable `height` (default 480 px) and `editable` (default `true`) props; `loading="lazy"` with `sandbox="allow-scripts allow-same-origin allow-popups allow-forms"`; attribution footer linking to falstad.com
+
+- **MNA solver** (`src/lib/circuit/mna-solver.ts`) — Modified Nodal Analysis engine using `mathjs` `lusolve` for LU decomposition; builds a `(n + v) × (n + v)` conductance matrix where `n` = non-ground nodes and `v` = voltage sources; stamps: resistors (conductance ±G at diagonal and off-diagonal), voltage sources (extra branch-current column + KCL/constraint rows), current sources (RHS vector only); accepts a `overrides` map for per-component value substitution (enables slider-driven re-simulation); `checkExpected(result, expected)` helper returns `{ pass, failures }` for probe tolerance checking; `solve()` handles all nodes including multi-ground circuits
+  - 12 unit tests (`mna-solver.test.ts`) covering three circuits: Ohm's Law (I=V/R, ground voltage, override), Voltage Divider (Vout=Vin×R2/(R1+R2), equal divider edge case), Series-Parallel KCL (KCL holds at junction to < 1e-10 error, KVL via expected values)
+
+- **`TutorialStepper.astro`** (`src/components/simulators/circuit/`) — step-by-step walkthrough overlay; step counter (`Step N / total`), instruction paragraph, optional `<details>` hint reveal per step; prev/next buttons, dot-indicator bar (active/visited states), completion banner with restart; current step persisted to `sessionStorage` keyed by `circuit-step-{lessonId}`; 0.2 s fade animation on step transition; fully vanilla JS, no React or Svelte dependency; `<style>` block with design-token CSS matching the global palette
+
+- **Circuit lesson JSON schema** (`src/data/circuits/_schema/circuit.schema.json`) — JSON Schema draft-07; validates `id` (kebab-case), `category` (7-value enum), `difficulty` (3-value enum), `simulator` (3-value enum), `components[]` (typed with `type`, `id`, `nodes`, optional `value`/`unit`), `probes[]`, `expected` map with per-probe `{ value, tolerance, unit }`, `tutorial.steps[]` with `instruction`, optional `hint`, `unlocks`, and `validation` sub-object
+
+- **3 fundamentals lessons** (`src/data/circuits/fundamentals/`):
+  - `ohms-law.json` — 9 V source, 1 kΩ resistor; 4 tutorial steps guiding V=IR with resistance override exercise; Falstad circuit string included
+  - `voltage-divider.json` — 10 V, R1=1 kΩ / R2=2 kΩ; Vout = 6.667 V expected (0.01 V tolerance); 4 steps including equal-divider and R1-change experiments; Falstad string included
+  - `kvl-kcl.json` — 12 V, R1=1 kΩ series, R2=2 kΩ ‖ R3=3 kΩ parallel; V_junction ≈ 6.545 V; 4 steps verifying KVL loop equation and KCL branch currents; Falstad string included
+
+- **`/learn/circuits/` lesson browser** (`src/pages/learn/circuits/index.astro`) — auto-discovers all circuit JSON files via `import.meta.glob('../../data/circuits/**/*.json')`; groups by category; sorts by difficulty within each group; difficulty and "N steps" badges per card; links to individual lesson pages; responsive CSS grid layout
+
+- **`/learn/circuits/[category]/[lesson]/` lesson page** (`src/pages/learn/circuits/[category]/[lesson].astro`) — static paths generated at build time from the same `import.meta.glob`; two-column layout on ≥ 1024 px (simulator left, tutorial + expected-values table right); breadcrumb nav; difficulty + category badges; `← All circuit lessons` footer link
+
+- **`circuits` nav link** added to `Header.astro` `navLinks` array (between `roadmaps` and `demo`)
+
+- **`mathjs` v15.1.1** added as a production dependency (Apache-2.0) for matrix LU decomposition in the MNA solver
+
+### Technical notes
+
+- All new circuit pages pass `tsc --noEmit` (strict mode); 12 new MNA solver unit tests pass; `knip` reports no new unused exports from circuit code; full `astro build` succeeds (29 pages, 4 new circuit routes)
+- `ComponentType` and `ValidationType` union types in `types.ts` are file-private (no `export`) — referenced only by interfaces in the same file
+- Falstad circuit strings are URL-encoded at build time in Astro frontmatter using `encodeURIComponent`; no client-side encoding required
+
+---
+
 ## [0.22.11] - 2026-02-26
 
 **Custom track editor: markdown toolbar + Edit/Preview toggle for inline concept notes**

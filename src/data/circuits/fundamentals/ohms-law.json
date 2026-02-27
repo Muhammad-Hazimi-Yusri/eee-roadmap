@@ -1,0 +1,44 @@
+{
+  "id": "ohms-law",
+  "title": "Ohm's Law",
+  "category": "fundamentals",
+  "difficulty": "beginner",
+  "description": "Explore V = IR. Adjust voltage or resistance and watch current change in real time.",
+  "simulator": "falstad",
+  "components": [
+    { "type": "voltage_source", "id": "V1",  "nodes": ["n1", "gnd"], "value": 9,    "unit": "V" },
+    { "type": "resistor",       "id": "R1",  "nodes": ["n1", "gnd"], "value": 1000, "unit": "Ω" },
+    { "type": "ground",         "id": "GND", "nodes": ["gnd"] }
+  ],
+  "probes": [
+    { "type": "voltage", "node": "n1",  "label": "V" },
+    { "type": "current", "component": "V1", "label": "I" }
+  ],
+  "expected": {
+    "V": { "value": 9,     "tolerance": 0.001,    "unit": "V" },
+    "I": { "value": 0.009, "tolerance": 0.000001, "unit": "A" }
+  },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "This circuit has a 9 V source and a 1 kΩ resistor forming a simple loop. The simulator shows current flowing through the resistor.",
+        "hint": "Current direction follows conventional flow: out of the positive terminal, through the circuit, back to the negative terminal."
+      },
+      {
+        "instruction": "Apply Ohm's Law: I = V / R. With V = 9 V and R = 1 kΩ, calculate the expected current.",
+        "hint": "I = 9 / 1000 = 0.009 A = 9 mA",
+        "validation": { "type": "manual" }
+      },
+      {
+        "instruction": "In the Falstad simulator above, right-click the resistor and set its value to 4.5 kΩ. Observe how the current changes.",
+        "hint": "I = 9 V / 4500 Ω = 2 mA. Doubling resistance halves the current.",
+        "validation": { "type": "manual" }
+      },
+      {
+        "instruction": "Try different values. Notice that current and resistance are inversely proportional when voltage is fixed.",
+        "hint": "This is the essence of Ohm's Law: V = IR is always satisfied in a linear resistive circuit."
+      }
+    ]
+  },
+  "falstadCircuit": "$ 1 0.000005 10.20 56 5 43 5e-11\nv 64 224 64 96 0 0 0 9 0 0 0.5\nr 192 96 192 224 0 1000\nw 64 96 192 96 0\nw 64 224 192 224 0\n"
+}

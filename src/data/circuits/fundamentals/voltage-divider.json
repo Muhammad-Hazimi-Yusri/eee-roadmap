@@ -1,0 +1,47 @@
+{
+  "id": "voltage-divider",
+  "title": "Voltage Divider",
+  "category": "fundamentals",
+  "difficulty": "beginner",
+  "description": "Two resistors divide an input voltage proportionally. The output voltage depends on the ratio of the resistors.",
+  "simulator": "falstad",
+  "components": [
+    { "type": "voltage_source", "id": "V1",  "nodes": ["n1", "gnd"], "value": 10,   "unit": "V" },
+    { "type": "resistor",       "id": "R1",  "nodes": ["n1", "n2"],  "value": 1000, "unit": "Ω" },
+    { "type": "resistor",       "id": "R2",  "nodes": ["n2", "gnd"], "value": 2000, "unit": "Ω" },
+    { "type": "ground",         "id": "GND", "nodes": ["gnd"] }
+  ],
+  "probes": [
+    { "type": "voltage", "node": "n1", "label": "Vin" },
+    { "type": "voltage", "node": "n2", "label": "Vout" }
+  ],
+  "expected": {
+    "Vin":  { "value": 10,    "tolerance": 0.001, "unit": "V" },
+    "Vout": { "value": 6.667, "tolerance": 0.01,  "unit": "V" }
+  },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Observe the voltage divider. The source provides 10 V across two resistors in series: R1 = 1 kΩ and R2 = 2 kΩ.",
+        "hint": "The same current flows through both resistors because they are in series."
+      },
+      {
+        "instruction": "The output voltage (across R2) follows the divider formula: Vout = Vin × R2 / (R1 + R2). Calculate the expected Vout.",
+        "hint": "Vout = 10 × 2000 / (1000 + 2000) = 10 × 2/3 ≈ 6.667 V",
+        "validation": { "type": "probe_check", "probe": "Vout", "expected": 6.667, "tolerance": 0.1 }
+      },
+      {
+        "instruction": "In the Falstad simulator, right-click R2 and change it to 1 kΩ. What does Vout become?",
+        "hint": "Vout = 10 × 1000/2000 = 5 V. Equal resistors split the voltage equally.",
+        "validation": { "type": "manual" }
+      },
+      {
+        "instruction": "Restore R2 to 2 kΩ, then change R1 to 500 Ω. How does this affect Vout?",
+        "hint": "Vout = 10 × 2000/2500 = 8 V. Decreasing R1 raises the output voltage.",
+        "unlocks": ["R1", "R2"],
+        "validation": { "type": "manual" }
+      }
+    ]
+  },
+  "falstadCircuit": "$ 1 0.000005 10.20 56 5 43 5e-11\nv 64 288 64 96 0 0 0 10 0 0 0.5\nr 192 96 192 192 0 1000\nr 192 192 192 288 0 2000\nw 64 96 192 96 0\nw 64 288 192 288 0\n"
+}

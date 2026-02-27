@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "circuit-lesson",
+  "title": "Circuit Lesson",
+  "description": "Schema for EEE Roadmap interactive circuit lesson files.",
+  "type": "object",
+  "required": ["id", "title", "category", "difficulty", "description", "simulator", "components", "probes", "expected", "tutorial"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique kebab-case lesson identifier."
+    },
+    "title": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": ["fundamentals", "rc-rl-rlc", "diodes", "op-amps", "transistors", "digital", "power-electronics"]
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["beginner", "intermediate", "advanced"]
+    },
+    "description": { "type": "string" },
+    "simulator": {
+      "type": "string",
+      "enum": ["falstad", "mna", "ngspice"]
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "id", "nodes"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["resistor", "voltage_source", "current_source", "capacitor", "inductor", "ground", "diode", "wire"]
+          },
+          "id":    { "type": "string" },
+          "nodes": { "type": "array", "items": { "type": "string" } },
+          "value": { "type": "number" },
+          "unit":  { "type": "string" }
+        }
+      }
+    },
+    "probes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "type":      { "type": "string", "enum": ["voltage", "current", "power"] },
+          "node":      { "type": "string" },
+          "component": { "type": "string" },
+          "label":     { "type": "string" }
+        }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value", "tolerance", "unit"],
+        "additionalProperties": false,
+        "properties": {
+          "value":     { "type": "number" },
+          "tolerance": { "type": "number" },
+          "unit":      { "type": "string" }
+        }
+      }
+    },
+    "tutorial": {
+      "type": "object",
+      "required": ["steps"],
+      "additionalProperties": false,
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["instruction"],
+            "additionalProperties": false,
+            "properties": {
+              "instruction": { "type": "string" },
+              "hint":        { "type": "string" },
+              "unlocks":     { "type": "array", "items": { "type": "string" } },
+              "validation": {
+                "type": "object",
+                "required": ["type"],
+                "additionalProperties": false,
+                "properties": {
+                  "type":      { "type": "string", "enum": ["probe_check", "component_changed", "manual"] },
+                  "probe":     { "type": "string" },
+                  "component": { "type": "string" },
+                  "expected":  { "type": "number" },
+                  "tolerance": { "type": "number" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "falstadCircuit": {
+      "type": "string",
+      "description": "Falstad CircuitJS circuit text (GPL-2.0 — iframe embed only)."
+    },
+    "spiceNetlist": {
+      "type": "string",
+      "description": "SPICE netlist for ngspice-WASM simulator."
+    }
+  }
+}

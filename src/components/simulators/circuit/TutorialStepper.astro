@@ -1,0 +1,326 @@
+---
+// src/components/simulators/circuit/TutorialStepper.astro
+//
+// Step-by-step walkthrough overlay for circuit lessons.
+// State (current step) is managed entirely client-side via vanilla JS.
+
+import type { TutorialStep } from '../../../lib/circuit/types';
+
+interface Props {
+  steps: TutorialStep[];
+  /** Lesson ID used as a localStorage key to persist step progress. */
+  lessonId: string;
+}
+
+const { steps, lessonId } = Astro.props;
+---
+
+<div class="stepper" id="circuit-stepper" data-lesson-id={lessonId}>
+  <!-- Step counter -->
+  <div class="stepper__header">
+    <span class="stepper__tag">// tutorial</span>
+    <span class="stepper__counter" id="stepper-counter">Step 1 / {steps.length}</span>
+  </div>
+
+  <!-- Steps (rendered server-side; JS shows only the current one) -->
+  <ol class="stepper__list" id="stepper-list">
+    {steps.map((step, i) => (
+      <li
+        class="stepper__step"
+        id={`step-${i}`}
+        data-index={i}
+        aria-hidden={i !== 0 ? 'true' : undefined}
+      >
+        <p class="stepper__instruction">{step.instruction}</p>
+        {step.hint && (
+          <details class="stepper__hint">
+            <summary>Show hint</summary>
+            <p>{step.hint}</p>
+          </details>
+        )}
+      </li>
+    ))}
+  </ol>
+
+  <!-- Navigation -->
+  <div class="stepper__nav">
+    <button
+      id="stepper-prev"
+      class="stepper__btn stepper__btn--secondary"
+      disabled
+      aria-label="Previous step"
+    >
+      ← Prev
+    </button>
+
+    <div class="stepper__dots" id="stepper-dots" aria-hidden="true">
+      {steps.map((_, i) => (
+        <button
+          class={`stepper__dot${i === 0 ? ' stepper__dot--active' : ''}`}
+          data-step={i}
+          aria-label={`Go to step ${i + 1}`}
+        />
+      ))}
+    </div>
+
+    <button
+      id="stepper-next"
+      class="stepper__btn stepper__btn--primary"
+      aria-label="Next step"
+    >
+      Next →
+    </button>
+  </div>
+
+  <!-- Completion state (hidden until last step is reached) -->
+  <div class="stepper__complete" id="stepper-complete" hidden>
+    <span class="stepper__complete-icon">✓</span>
+    <p>Lesson complete! Well done.</p>
+    <button id="stepper-reset" class="stepper__btn stepper__btn--secondary">
+      Restart
+    </button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const el = document.getElementById('circuit-stepper');
+    if (!el) return;
+
+    const lessonId = el.dataset.lessonId ?? 'circuit';
+    const storageKey = `circuit-step-${lessonId}`;
+
+    const stepItems = Array.from(
+      document.querySelectorAll<HTMLLIElement>('#stepper-list .stepper__step')
+    );
+    const total = stepItems.length;
+    const counter = document.getElementById('stepper-counter');
+    const prevBtn = document.getElementById('stepper-prev') as HTMLButtonElement | null;
+    const nextBtn = document.getElementById('stepper-next') as HTMLButtonElement | null;
+    const resetBtn = document.getElementById('stepper-reset') as HTMLButtonElement | null;
+    const completeEl = document.getElementById('stepper-complete');
+    const dots = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('#stepper-dots .stepper__dot')
+    );
+
+    let current = (() => {
+      try {
+        const saved = sessionStorage.getItem(storageKey);
+        return saved !== null ? Math.min(parseInt(saved, 10), total - 1) : 0;
+      } catch {
+        return 0;
+      }
+    })();
+
+    function show(index: number) {
+      current = Math.max(0, Math.min(index, total - 1));
+
+      // Show/hide steps
+      stepItems.forEach((item, i) => {
+        const active = i === current;
+        item.hidden = !active;
+        item.setAttribute('aria-hidden', active ? 'false' : 'true');
+      });
+
+      // Update dots
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('stepper__dot--active', i === current);
+        dot.classList.toggle('stepper__dot--visited', i < current);
+      });
+
+      // Counter
+      if (counter) counter.textContent = `Step ${current + 1} / ${total}`;
+
+      // Buttons
+      if (prevBtn) prevBtn.disabled = current === 0;
+      if (nextBtn) nextBtn.disabled = current >= total - 1;
+
+      // Completion banner
+      if (completeEl) completeEl.hidden = current < total - 1;
+
+      // Persist
+      try {
+        sessionStorage.setItem(storageKey, String(current));
+      } catch { /* ignore */ }
+    }
+
+    // Initial render
+    show(current);
+
+    // Wire up buttons
+    prevBtn?.addEventListener('click', () => show(current - 1));
+    nextBtn?.addEventListener('click', () => show(current + 1));
+    resetBtn?.addEventListener('click', () => show(0));
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => show(i));
+    });
+  })();
+</script>
+
+<style>
+  .stepper {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    font-family: var(--font-mono);
+    background: var(--color-bg);
+  }
+
+  .stepper__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .stepper__tag {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .stepper__counter {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .stepper__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+    min-height: 5rem;
+  }
+
+  .stepper__step {
+    animation: stepper-fade 0.2s ease;
+  }
+
+  @keyframes stepper-fade {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .stepper__instruction {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--color-text);
+    margin: 0 0 0.75rem;
+  }
+
+  .stepper__hint {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    border-left: 2px solid var(--color-border);
+    padding-left: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .stepper__hint summary {
+    cursor: pointer;
+    user-select: none;
+    color: var(--color-copper);
+  }
+
+  .stepper__hint summary:hover {
+    color: var(--color-copper-light);
+  }
+
+  .stepper__hint p {
+    margin: 0.5rem 0 0;
+    line-height: 1.5;
+  }
+
+  /* Navigation */
+  .stepper__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .stepper__btn {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--color-text);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .stepper__btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .stepper__btn--primary {
+    background: var(--color-text);
+    color: var(--color-bg);
+    border-color: var(--color-text);
+  }
+
+  .stepper__btn--primary:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  .stepper__btn--secondary:hover:not(:disabled) {
+    background: var(--color-bg-grid);
+  }
+
+  /* Dots */
+  .stepper__dots {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .stepper__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .stepper__dot--active {
+    background: var(--color-text);
+    border-color: var(--color-text);
+  }
+
+  .stepper__dot--visited {
+    background: var(--color-border);
+    border-color: var(--color-border);
+  }
+
+  /* Completion banner */
+  .stepper__complete {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-pcb);
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--color-pcb) 10%, transparent);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--color-pcb-light);
+  }
+
+  .stepper__complete-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .stepper__complete p {
+    margin: 0;
+    flex: 1;
+  }
+</style>

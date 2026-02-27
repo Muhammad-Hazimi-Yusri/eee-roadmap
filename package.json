@@ -1,7 +1,7 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.22.11",
+  "version": "0.22.12",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs",
@@ -44,6 +44,7 @@
     "lucide": "^0.562.0",
     "marked": "^17.0.1",
     "marked-katex-extension": "^5.1.6",
+    "mathjs": "^15.1.1",
     "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",
     "sortablejs": "^1.15.6",

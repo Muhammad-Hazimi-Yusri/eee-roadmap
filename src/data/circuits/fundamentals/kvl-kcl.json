@@ -1,0 +1,46 @@
+{
+  "id": "kvl-kcl",
+  "title": "Kirchhoff's Laws",
+  "category": "fundamentals",
+  "difficulty": "beginner",
+  "description": "KVL: voltages around any closed loop sum to zero. KCL: currents into any node sum to zero. This series-parallel circuit demonstrates both.",
+  "simulator": "falstad",
+  "components": [
+    { "type": "voltage_source", "id": "V1",  "nodes": ["n1", "gnd"], "value": 12,   "unit": "V" },
+    { "type": "resistor",       "id": "R1",  "nodes": ["n1", "n2"],  "value": 1000, "unit": "Ω" },
+    { "type": "resistor",       "id": "R2",  "nodes": ["n2", "gnd"], "value": 2000, "unit": "Ω" },
+    { "type": "resistor",       "id": "R3",  "nodes": ["n2", "gnd"], "value": 3000, "unit": "Ω" },
+    { "type": "ground",         "id": "GND", "nodes": ["gnd"] }
+  ],
+  "probes": [
+    { "type": "voltage", "node": "n1", "label": "V_source" },
+    { "type": "voltage", "node": "n2", "label": "V_junction" }
+  ],
+  "expected": {
+    "V_source":    { "value": 12,    "tolerance": 0.001, "unit": "V" },
+    "V_junction":  { "value": 6.545, "tolerance": 0.01,  "unit": "V" }
+  },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "This circuit has a 12 V source, R1 = 1 kΩ in series, and R2 = 2 kΩ in parallel with R3 = 3 kΩ. The parallel combination is the load.",
+        "hint": "R_parallel = (R2 × R3)/(R2 + R3) = (2000 × 3000)/5000 = 1200 Ω"
+      },
+      {
+        "instruction": "Apply KVL to the outer loop: V_source = V_R1 + V_load. The voltage across the parallel combination is V_junction.",
+        "hint": "V_junction = 12 × 1200/(1000+1200) = 12 × 1200/2200 ≈ 6.545 V",
+        "validation": { "type": "probe_check", "probe": "V_junction", "expected": 6.545, "tolerance": 0.1 }
+      },
+      {
+        "instruction": "Apply KCL at node n2 (junction): I_R1 = I_R2 + I_R3. Verify by computing each current from the node voltage.",
+        "hint": "I_R1 = (12 − 6.545)/1000 ≈ 5.45 mA; I_R2 = 6.545/2000 ≈ 3.27 mA; I_R3 = 6.545/3000 ≈ 2.18 mA; 3.27 + 2.18 ≈ 5.45 ✓",
+        "validation": { "type": "manual" }
+      },
+      {
+        "instruction": "KVL check: V_R1 + V_junction = V_source. Confirm: V_R1 = 12 − 6.545 ≈ 5.455 V; 5.455 + 6.545 = 12 V ✓",
+        "hint": "KVL holds for every closed loop in the circuit, regardless of its complexity."
+      }
+    ]
+  },
+  "falstadCircuit": "$ 1 0.000005 10.20 56 5 43 5e-11\nv 64 256 64 96 0 0 0 12 0 0 0.5\nr 64 96 192 96 0 1000\nr 192 96 192 256 0 2000\nr 288 96 288 256 0 3000\nw 192 96 288 96 0\nw 64 256 192 256 0\nw 192 256 288 256 0\n"
+}

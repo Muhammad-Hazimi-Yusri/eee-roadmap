@@ -1,0 +1,253 @@
+---
+// src/pages/learn/circuits/[category]/[lesson].astro
+// Individual circuit lesson page with Falstad embed + tutorial stepper.
+
+import Layout from '../../../../layouts/Layout.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+import FalstadEmbed from '../../../../components/simulators/circuit/FalstadEmbed.astro';
+import TutorialStepper from '../../../../components/simulators/circuit/TutorialStepper.astro';
+import { internalHref } from '../../../../utils/url';
+import type { CircuitLesson } from '../../../../lib/circuit/types';
+
+export async function getStaticPaths() {
+  // Load every circuit lesson JSON at build time (excluding _schema/)
+  const modules = import.meta.glob<CircuitLesson>(
+    '../../../../data/circuits/**/*.json',
+    { eager: true }
+  );
+
+  return Object.entries(modules)
+    .filter(([path]) => !path.includes('/_schema/'))
+    .map(([_path, lesson]) => ({
+      params: {
+        category: lesson.category,
+        lesson:   lesson.id,
+      },
+      props: { lesson },
+    }));
+}
+
+interface Props {
+  lesson: CircuitLesson;
+}
+
+const { lesson } = Astro.props;
+const { category } = Astro.params;
+
+const difficultyLabel: Record<string, string> = {
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
+};
+
+const categoryLabel: Record<string, string> = {
+  'fundamentals':      'Fundamentals',
+  'rc-rl-rlc':         'RC / RL / RLC',
+  'diodes':            'Diodes',
+  'op-amps':           'Op-Amps',
+  'transistors':       'Transistors',
+  'digital':           'Digital Logic',
+  'power-electronics': 'Power Electronics',
+};
+---
+
+<Layout
+  title={lesson.title}
+  description={lesson.description}
+  needsKatex={false}
+>
+  <Header />
+  <main id="main-content">
+    <div class="container py-16">
+
+      <!-- Breadcrumb -->
+      <nav class="lesson-breadcrumb" aria-label="Breadcrumb">
+        <a href={internalHref('learn/circuits')}>Circuit Lessons</a>
+        <span aria-hidden="true"> / </span>
+        <span>{categoryLabel[category ?? ''] ?? category}</span>
+        <span aria-hidden="true"> / </span>
+        <span>{lesson.title}</span>
+      </nav>
+
+      <!-- Header -->
+      <div class="lesson-header">
+        <div class="lesson-header__meta">
+          <span class={`lesson-badge lesson-badge--${lesson.difficulty}`}>
+            {difficultyLabel[lesson.difficulty]}
+          </span>
+          <span class="lesson-badge lesson-badge--category">
+            {categoryLabel[lesson.category] ?? lesson.category}
+          </span>
+        </div>
+        <h1 class="lesson-title">{lesson.title}</h1>
+        <p class="lesson-desc">{lesson.description}</p>
+      </div>
+
+      <!-- Main content: simulator + tutorial side by side on wide screens -->
+      <div class="lesson-layout">
+
+        <!-- Simulator column -->
+        <div class="lesson-simulator">
+          <FalstadEmbed
+            circuitText={lesson.falstadCircuit ?? ''}
+            title={lesson.title}
+            height={440}
+          />
+        </div>
+
+        <!-- Tutorial column -->
+        <div class="lesson-tutorial">
+          <TutorialStepper
+            steps={lesson.tutorial.steps}
+            lessonId={lesson.id}
+          />
+
+          <!-- Expected values reference -->
+          {Object.keys(lesson.expected).length > 0 && (
+            <details class="lesson-expected">
+              <summary>Expected values</summary>
+              <table class="lesson-expected__table">
+                <thead>
+                  <tr><th>Probe</th><th>Value</th><th>Unit</th></tr>
+                </thead>
+                <tbody>
+                  {Object.entries(lesson.expected).map(([label, spec]) => (
+                    <tr>
+                      <td>{label}</td>
+                      <td>{spec.value}</td>
+                      <td>{spec.unit}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          )}
+        </div>
+      </div>
+
+      <!-- Footer navigation -->
+      <div class="lesson-footer-nav">
+        <a href={internalHref('learn/circuits')} class="btn">
+          ← All circuit lessons
+        </a>
+      </div>
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  /* Breadcrumb */
+  .lesson-breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .lesson-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .lesson-breadcrumb a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  /* Header */
+  .lesson-header {
+    margin-bottom: 2rem;
+  }
+
+  .lesson-header__meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .lesson-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  .lesson-badge--beginner     { background: color-mix(in srgb, var(--color-pcb) 15%, transparent); color: var(--color-pcb-light); }
+  .lesson-badge--intermediate { background: color-mix(in srgb, var(--color-copper) 15%, transparent); color: var(--color-copper); }
+  .lesson-badge--advanced     { background: color-mix(in srgb, #a64ca6 15%, transparent); color: #c87dc8; }
+  .lesson-badge--category     { background: var(--color-bg-grid); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+
+  .lesson-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  .lesson-desc {
+    color: var(--color-text-muted);
+    max-width: 56ch;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Two-column layout on wide screens */
+  .lesson-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (width >= 1024px) {
+    .lesson-layout {
+      grid-template-columns: 1fr 420px;
+      align-items: start;
+    }
+  }
+
+  /* Expected values table */
+  .lesson-expected {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    margin-top: 1rem;
+  }
+
+  .lesson-expected summary {
+    cursor: pointer;
+    color: var(--color-text-muted);
+    user-select: none;
+    margin-bottom: 0.5rem;
+  }
+
+  .lesson-expected summary:hover {
+    color: var(--color-text);
+  }
+
+  .lesson-expected__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .lesson-expected__table th,
+  .lesson-expected__table td {
+    padding: 0.3rem 0.6rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .lesson-expected__table th {
+    color: var(--color-text-muted);
+    font-weight: 400;
+  }
+
+  /* Footer nav */
+  .lesson-footer-nav {
+    margin-top: 2.5rem;
+  }
+</style>
