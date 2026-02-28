@@ -1,0 +1,33 @@
+{
+  "id": "via-types",
+  "title": "PCB Via Types",
+  "domain": "pcb",
+  "difficulty": "beginner",
+  "description": "Compare through-hole, blind, buried, and microvia cross-sections. Understand which layers each type connects and when to use them.",
+  "simulator": "via-types",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "A via is a plated hole that connects copper traces on different layers. Look at the four via cross-sections. All use a 4-layer stackup (L1–L4).",
+        "hint": "The orange barrel is electroplated copper deposited inside the drilled hole."
+      },
+      {
+        "instruction": "Through-hole vias drill completely through the board, connecting all layers (L1 to L4). They are the cheapest and most common, but occupy routing space on every layer they pass through.",
+        "hint": "The unused section of the barrel below the last connected layer is called a 'via stub' and can cause signal reflections at high frequencies (>5 GHz)."
+      },
+      {
+        "instruction": "Blind vias start at an outer layer and stop at an inner layer without emerging on the opposite side. They save routing space on layers they don't reach, but cost more to fabricate.",
+        "hint": "Blind vias are common for BGA fan-out where through-hole vias would block routing channels under dense chip packages."
+      },
+      {
+        "instruction": "Buried vias connect only inner layers — they are completely hidden inside the board. Maximum routing density but highest fabrication cost since the board must be drilled in sub-stacks before final lamination.",
+        "hint": "Buried vias are used in high-density interconnect (HDI) designs like smartphones and implantable medical devices."
+      },
+      {
+        "instruction": "Microvias are laser-drilled (≤0.15 mm diameter) blind vias connecting only one adjacent layer pair. They enable sub-0.4 mm BGA pitch routing. Stacked microvias span multiple layers when directly above each other.",
+        "hint": "Laser microvias are defined in IPC-2226 HDI standard. They require a filled and capped process for reliable stacking."
+      }
+    ]
+  }
+}

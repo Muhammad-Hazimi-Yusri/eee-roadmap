@@ -1,0 +1,33 @@
+{
+  "id": "pn-junction",
+  "title": "PN Junction Physics",
+  "domain": "semiconductor",
+  "difficulty": "intermediate",
+  "description": "Explore the abrupt PN junction — built-in potential, depletion region, electric field, and the Shockley I-V relationship.",
+  "simulator": "pn-junction",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "A PN junction forms where p-type silicon (doped with acceptors, Na) meets n-type silicon (doped with donors, Nd). At equilibrium, electrons diffuse from n→p and holes from p→n, leaving behind ionised dopants.",
+        "hint": "The ionised donors (positive) on the n-side and ionised acceptors (negative) on the p-side form the space charge — this is the depletion region."
+      },
+      {
+        "instruction": "The built-in potential Vbi appears in the display. At Na = Nd = 10^16 cm⁻³, Vbi ≈ 0.72 V for silicon. Increase Na or Nd — notice Vbi increases logarithmically.",
+        "hint": "Vbi = (kT/q) ln(Na·Nd / ni²). Higher doping → stronger chemical potential → larger built-in field."
+      },
+      {
+        "instruction": "Apply forward bias (increase Vbias toward +0.6 V). Watch the depletion width W decrease. The E-field panel shows the peak field Emax dropping.",
+        "hint": "Forward bias opposes the built-in field, narrowing the depletion region. At V ≈ Vbi, the junction is fully 'flooded' with carriers."
+      },
+      {
+        "instruction": "Apply reverse bias (Vbias → -1 V). W increases significantly. This is the operating principle of varactor diodes (voltage-controlled capacitors).",
+        "hint": "Cj = ε·A/W. A wider depletion region = smaller junction capacitance. Varactors are used in VCOs and tunable RF filters."
+      },
+      {
+        "instruction": "Look at the I-V curve panel. The current is negligible under reverse bias (≈ -Js) but grows exponentially with forward bias. This is the Shockley diode equation: J = Js(e^(V/Vt) - 1).",
+        "hint": "The 'knee' of the diode I-V curve occurs around 0.6–0.7 V for silicon. Below this, only leakage current flows."
+      }
+    ]
+  }
+}

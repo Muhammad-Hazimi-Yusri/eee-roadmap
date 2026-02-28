@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.12-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.13-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.12
+Current version is v0.22.13
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
@@ -66,7 +66,7 @@ Current version is v0.22.12
 - **Browse All Tracks** — `/roadmaps/` page with category + progress filters and boxed/unboxed view
 - **Custom Tracks** — Create your own learning roadmaps with the built-in editor (requires sign-in)
   - Full track editor: sections, topics, concepts, resources, prerequisites
-  - **Official concept picker** — "Browse Library" button opens a searchable modal to pick from 392 library concepts across 12 domains; concepts added this way resolve their full notes from the library at view-time; picked concepts show a green `L` badge in the editor
+  - **Official concept picker** — "Browse Library" button opens a searchable modal to pick from 427 library concepts across 14 domains; concepts added this way resolve their full notes from the library at view-time; picked concepts show a green `L` badge in the editor
   - Custom inline concepts still supported via text-input (type name + Enter); both formats coexist in the same topic (mixed format, fully backward compatible with existing data)
   - Inline concept notes editor: click a concept pill to edit its markdown notes directly; includes a 10-button markdown formatting toolbar (Bold, Italic, Heading, Link, Image, LaTeX inline/block, Bulleted list, Inline/Block code) and an Edit/Preview toggle that renders the markdown with `parseNotesClient()` (supports KaTeX, images, PDFs) — instant, no page refresh
   - Prerequisite picker with cascading dropdowns (official + custom tracks)
@@ -92,7 +92,8 @@ Current version is v0.22.12
   - Pre-commit hooks for build/validate/lint
 
 ### Technical Highlights
-- **Stack:** Astro, TypeScript, Tailwind CSS
+- **Stack:** Astro, React 19, TypeScript, Tailwind CSS
+- **Interactive Simulators:** React (`@astrojs/react`) for canvas/SVG visualisers; hydration strategies: `client:idle` (calculators), `client:visible` (animations), `client:only="react"` (browser-only APIs)
 - **Search:** Fuse.js fuzzy matching with highlighted snippets
 - **PDFs:** PDF.js for cross-browser viewing, auto-downloaded at build time; pdf-lib for client-side booklet imposition; qrcode for print-mode QR codes
 - **Math:** KaTeX for LaTeX equation rendering (conditionally loaded, non-render-blocking)
@@ -274,6 +275,28 @@ Current version is v0.22.12
 
 ---
 
+<details>
+<summary><strong>v0.22.13 - Phase 2 PCB Design, Digital Electronics & Semiconductor Physics ✓</strong></summary>
+
+**Goal:** Three new interactive learning domains with 12 lessons, 10 React visualiser components, 4 TypeScript library modules, and 35 new concept library entries.
+
+- [x] `@astrojs/react` integration; React 19 + TypeScript; `wavedrom` and `web-gerber` dependencies
+- [x] **Impedance library** — `microstripZ0` (Wheeler 1977) + `striplineZ0` (Schneider) with unit tests (FR4 50 Ω / 75 Ω reference values)
+- [x] **Semiconductor physics library** — `carrier-stats.ts`: intrinsic concentration (Sze), Fermi-Dirac, Caughey-Thomas mobility; `poisson-solver.ts`: 1D FD Poisson via Thomas algorithm with BC unit tests
+- [x] **PCB static components** — `LayerStackupDiagram.astro` (2/4/6/8-layer SVG cross-section, interactive `<select>`), `ViaTypeVisualizer.astro` (4 via types side-by-side), `KiCanvasEmbed.astro` (CDN web component)
+- [x] **PCB React components** — `ImpedanceCalculator.tsx` (linked sliders + Z₀/εr_eff display + mini Z₀-vs-W/H chart), `TraceRoutingDemo.tsx` (canvas tutorial: 45°/differential/return-path), `DRCDemo.tsx` (5 clickable DRC violations), `GerberViewer.tsx` (drag-drop, `web-gerber` SVG render, layer selector)
+- [x] **4 PCB lessons** at `/learn/pcb/`: stackup basics, via types, impedance control, trace routing
+- [x] **Digital static components** — `WaveDromDiagram.astro` (CDN WaveDrom), `CircuitVerseEmbed.astro` (sandboxed iframe)
+- [x] **Digital React components** — `TruthTableGenerator.tsx` (recursive-descent parser for AND/OR/NOT/XOR/NAND/NOR/XNOR + SOP output), `VerilogPlayground.tsx` (Yosys WASM lazy-loaded on button click → DigitalJS simulation)
+- [x] **4 digital lessons** at `/learn/digital/`: timing diagrams (WaveDrom), logic gates, truth tables, Verilog intro
+- [x] **Semiconductor React components** — `PNJunctionViz.tsx` (4-panel SVG: ρ/E/ψ/I-V with Shockley operating point), `MOSFETCrossSectionViz.tsx` (SVG cross-section + Id-Vds curves, region labels), `BandDiagramSim.tsx` (Ec/Ev/Ei/EFn/EFp via Poisson solver, 3 modes), `CarrierAnimation.tsx` (canvas particle system with drift + Einstein relation display)
+- [x] **4 semiconductor lessons** at `/learn/semiconductor/`: PN junction, MOSFET operation, band diagrams, carrier transport
+- [x] **Concept library** — `pcb-design.yaml` (20 concepts) + `semiconductor-physics.yaml` (15 concepts); library grows from 392 → 427 concepts across 14 domains
+- [x] `@yowasp/yosys`, `yosys2digitaljs`, `digitaljs` marked Rollup `external` (lazy WASM, not pre-installed)
+</details>
+
+---
+
 ### Planned
 
 ### Known Issues & Polish
@@ -337,19 +360,19 @@ Current version is v0.22.12
 - [ ] 57 circuit lessons across 7 categories: fundamentals, RC/RL/RLC, diodes, op-amps, transistors, digital, power electronics (3 fundamentals done)
 - [x] Circuit lessons defined as JSON (components, probes, expected values, tutorial steps, Falstad/SPICE strings)
 
-#### Phase 2: PCB Design & Semiconductor Learning
+#### Phase 2: PCB Design & Semiconductor Learning ✓
 
-- [ ] KiCanvas (MIT) web component for KiCad file viewing
-- [ ] CircuitVerse (MIT iframe) for digital logic; WaveDrom for timing diagrams
-- [ ] DigitalJS + YoWASP Yosys Verilog playground (~50 MB WASM, lazy-loaded)
-- [ ] Custom SVG: layer stackup visualizer, via type visualizer, DRC rules demo
-- [ ] Custom Canvas trace routing tutorial
-- [ ] Microstrip/stripline impedance calculator (Wheeler/Schneider equations)
-- [ ] Truth table generator
-- [ ] PN junction visualizer: depletion width and carrier concentration vs. bias (custom Canvas/SVG)
-- [ ] Band diagram simulator: 1D Poisson solver (custom Canvas/SVG)
-- [ ] MOSFET cross-section animation with synchronized I-V curves (custom Canvas/SVG)
-- [ ] Carrier drift/diffusion animation (custom Canvas/SVG)
+- [x] KiCanvas (MIT) web component for KiCad file viewing
+- [x] CircuitVerse (MIT iframe) for digital logic; WaveDrom for timing diagrams
+- [x] DigitalJS + YoWASP Yosys Verilog playground (~50 MB WASM, lazy-loaded)
+- [x] Custom SVG: layer stackup visualizer, via type visualizer, DRC rules demo
+- [x] Custom Canvas trace routing tutorial
+- [x] Microstrip/stripline impedance calculator (Wheeler/Schneider equations)
+- [x] Truth table generator
+- [x] PN junction visualizer: depletion width and carrier concentration vs. bias (custom Canvas/SVG)
+- [x] Band diagram simulator: 1D Poisson solver (custom Canvas/SVG)
+- [x] MOSFET cross-section animation with synchronized I-V curves (custom Canvas/SVG)
+- [x] Carrier drift/diffusion animation (custom Canvas/SVG)
 - [ ] 3D PCB viewer (Three.js + web-gerber) — future
 
 #### Phase 3: Power Systems Analysis
@@ -370,10 +393,15 @@ Current version is v0.22.12
 ## Tech Stack
 
 - [Astro](https://astro.build) — Static site generator
+- [React](https://react.dev) — Interactive visualiser components (`@astrojs/react`, selective hydration)
 - [Tailwind CSS](https://tailwindcss.com) — Utility-first CSS
 - [TypeScript](https://typescriptlang.org) — Type safety
 - [Supabase](https://supabase.com) — Auth & PostgreSQL database
 - [Cytoscape.js](https://js.cytoscape.org) — Graph visualization
+- [WaveDrom](https://wavedrom.com) — Digital timing diagrams (CDN)
+- [KiCanvas](https://kicanvas.org) — KiCad file viewer (CDN web component)
+- [CircuitVerse](https://circuitverse.org) — Digital logic simulation (iframe)
+- [web-gerber](https://www.npmjs.com/package/web-gerber) — Gerber file SVG rendering
 
 ---
 
@@ -381,9 +409,11 @@ Current version is v0.22.12
 ```
 eee-roadmap/
 ├── content/                       # YAML roadmap data (source of truth)
-│   ├── concepts/                  # Shared concept library (392 concepts, 12 domains)
+│   ├── concepts/                  # Shared concept library (427 concepts, 14 domains)
 │   │   ├── circuit-analysis.yaml  # Domain: circuit analysis laws & theorems
 │   │   ├── power-systems.yaml     # Domain: power systems (193 concepts)
+│   │   ├── pcb-design.yaml        # Domain: PCB design (20 concepts)
+│   │   ├── semiconductor-physics.yaml  # Domain: semiconductor physics (15 concepts)
 │   │   ├── ...                    # electromagnetics, electronics, control-systems, etc.
 │   │   ├── concept.schema.json    # JSON Schema for domain files
 │   │   └── sample.yaml            # Template for new domain files
@@ -414,6 +444,28 @@ eee-roadmap/
 │   └── validate.mjs               # Schema validation (tracks + concept library)
 ├── src/
 │   ├── components/
+│   │   ├── simulators/
+│   │   │   ├── circuit/           # Phase 1 circuit simulator components
+│   │   │   │   ├── FalstadEmbed.astro   # CircuitJS1 iframe wrapper
+│   │   │   │   └── TutorialStepper.astro  # Step-by-step walkthrough (vanilla JS)
+│   │   │   ├── pcb/               # Phase 2 PCB design components
+│   │   │   │   ├── LayerStackupDiagram.astro  # SVG PCB cross-section (2/4/6/8 layers)
+│   │   │   │   ├── ViaTypeVisualizer.astro    # 4 via types side-by-side SVG
+│   │   │   │   ├── KiCanvasEmbed.astro        # KiCanvas CDN web component
+│   │   │   │   ├── ImpedanceCalculator.tsx    # Microstrip/stripline Z₀ calculator (client:idle)
+│   │   │   │   ├── TraceRoutingDemo.tsx       # Canvas routing tutorial (client:visible)
+│   │   │   │   ├── DRCDemo.tsx                # DRC violations interactive demo (client:visible)
+│   │   │   │   └── GerberViewer.tsx           # Drag-drop Gerber viewer (client:only="react")
+│   │   │   ├── digital/           # Phase 2 digital electronics components
+│   │   │   │   ├── WaveDromDiagram.astro      # WaveDrom timing diagram (CDN inline script)
+│   │   │   │   ├── CircuitVerseEmbed.astro    # CircuitVerse iframe
+│   │   │   │   ├── TruthTableGenerator.tsx    # Boolean expression evaluator (client:idle)
+│   │   │   │   └── VerilogPlayground.tsx      # Yosys WASM → DigitalJS (client:visible)
+│   │   │   └── semiconductor/     # Phase 2 semiconductor physics components
+│   │   │       ├── PNJunctionViz.tsx          # 4-panel PN junction SVG (client:visible)
+│   │   │       ├── MOSFETCrossSectionViz.tsx  # SVG cross-section + I-V curves (client:visible)
+│   │   │       ├── BandDiagramSim.tsx         # Poisson-based band diagram (client:visible)
+│   │   │       └── CarrierAnimation.tsx       # Canvas carrier drift/diffusion (client:visible)
 │   │   ├── ConceptWindows.astro       # Draggable note windows + editor
 │   │   ├── DemoRoadmap.astro          # Homepage interactive demo
 │   │   ├── GlossaryTooltips.astro     # Auto-linked term tooltips
@@ -427,17 +479,49 @@ eee-roadmap/
 │   │   ├── VerificationBadges.astro   # Client-side verification badge + verifier panel injection
 │   │   └── ...                        # Hero, Footer, Tracks, CTA, etc.
 │   ├── data/                      # Generated JSON (auto-generated, do not edit)
+│   │   ├── circuits/              # Circuit lesson data (Phase 1)
+│   │   │   └── fundamentals/      # ohms-law.json, voltage-divider.json, kvl-kcl.json
+│   │   ├── pcb/                   # PCB lesson data (Phase 2)
+│   │   │   └── *.json             # stackup-basics, via-types, impedance-control, trace-routing
+│   │   ├── digital/               # Digital lesson data (Phase 2)
+│   │   │   └── *.json             # timing-diagrams, logic-gates, truth-tables, verilog-intro
+│   │   ├── semiconductor/         # Semiconductor lesson data (Phase 2)
+│   │   │   └── *.json             # pn-junction, mosfet-operation, band-diagrams, carrier-transport
 │   │   ├── index.ts               # Data loader (getRoadmap, getAllTracks)
-│   │   ├── concept-library.json   # All 392 library concepts with domain/tags
+│   │   ├── concept-library.json   # All 427 library concepts with domain/tags
 │   │   └── *.json                 # Track JSON files (refs resolved at build time)
 │   ├── layouts/
 │   │   ├── Layout.astro           # Main layout (SEO meta, fonts, conditional KaTeX, skip link)
 │   │   └── PrintLayout.astro      # Minimal layout for print pages (noindex)
 │   ├── lib/
+│   │   ├── circuit/               # Phase 1 circuit utilities
+│   │   │   ├── mna-solver.ts      # Modified Nodal Analysis engine (mathjs lusolve)
+│   │   │   └── mna-solver.test.ts # 12 unit tests (Ohm's Law, Voltage Divider, KCL)
+│   │   ├── impedance/             # Phase 2 PCB impedance formulas
+│   │   │   ├── microstrip.ts      # Wheeler (1977) microstrip Z₀
+│   │   │   ├── microstrip.test.ts # FR4 50 Ω / 75 Ω reference tests
+│   │   │   └── stripline.ts       # Schneider stripline Z₀
+│   │   ├── semiconductor/         # Phase 2 semiconductor physics
+│   │   │   ├── carrier-stats.ts   # Intrinsic concentration, Fermi-Dirac, Caughey-Thomas mobility
+│   │   │   ├── poisson-solver.ts  # 1D FD Poisson solver (Thomas algorithm)
+│   │   │   └── poisson-solver.test.ts  # Uniform slab parabola + BC tests
 │   │   ├── supabase.ts            # Supabase client
 │   │   ├── sync.ts                # Cross-device sync utilities
 │   │   └── sync.test.ts           # Sync/auth unit tests (63 tests)
 │   ├── pages/
+│   │   ├── learn/
+│   │   │   ├── circuits/
+│   │   │   │   ├── index.astro    # Circuit lesson browser
+│   │   │   │   └── [category]/[lesson].astro  # Circuit lesson detail page
+│   │   │   ├── pcb/               # Phase 2 PCB lessons
+│   │   │   │   ├── index.astro    # PCB lesson browser (4 lessons)
+│   │   │   │   └── [lesson].astro # PCB lesson detail page
+│   │   │   ├── digital/           # Phase 2 digital lessons
+│   │   │   │   ├── index.astro    # Digital lesson browser (4 lessons)
+│   │   │   │   └── [lesson].astro # Digital lesson detail page
+│   │   │   └── semiconductor/     # Phase 2 semiconductor lessons
+│   │   │       ├── index.astro    # Semiconductor lesson browser (4 lessons)
+│   │   │       └── [lesson].astro # Semiconductor lesson detail page
 │   │   ├── roadmaps/
 │   │   │   ├── [slug].astro       # Track detail page
 │   │   │   ├── print/[slug].astro # Print mode page

@@ -1,0 +1,79 @@
+---
+// src/components/simulators/digital/CircuitVerseEmbed.astro
+// Embeds a CircuitVerse simulation via <iframe>.
+// No client: directive needed — iframe handles its own rendering.
+
+interface Props {
+  /** Full CircuitVerse embed URL (e.g. https://circuitverse.org/simulator/embed/xxx) */
+  embedUrl: string;
+  /** Iframe height in pixels. Default: 600 */
+  height?: number;
+  /** Optional caption shown below the embed. */
+  title?: string;
+}
+
+const { embedUrl, height = 600, title } = Astro.props;
+---
+
+<div class="cv-wrapper">
+  <iframe
+    src={embedUrl}
+    width="100%"
+    height={height}
+    allowfullscreen
+    sandbox="allow-scripts allow-same-origin allow-forms"
+    class="cv-iframe"
+    loading="lazy"
+    title={title ?? 'CircuitVerse simulation'}
+  />
+  {title && (
+    <p class="cv-caption">{title}</p>
+  )}
+  <p class="cv-fallback">
+    Can't see the simulation?
+    <a href={embedUrl} target="_blank" rel="noopener noreferrer">Open in CircuitVerse ↗</a>
+  </p>
+</div>
+
+<style>
+  .cv-wrapper {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--color-bg-grid);
+  }
+
+  .cv-iframe {
+    display: block;
+    border: none;
+    width: 100%;
+  }
+
+  .cv-caption {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--color-border);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .cv-fallback {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    padding: 0.4rem 1rem;
+    margin: 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .cv-fallback a {
+    color: var(--color-copper);
+    text-decoration: none;
+  }
+
+  .cv-fallback a:hover {
+    text-decoration: underline;
+  }
+</style>

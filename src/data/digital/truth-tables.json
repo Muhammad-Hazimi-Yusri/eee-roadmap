@@ -1,0 +1,33 @@
+{
+  "id": "truth-tables",
+  "title": "Truth Tables & Karnaugh Maps",
+  "domain": "digital",
+  "difficulty": "intermediate",
+  "description": "Use the truth table generator to build and simplify Boolean functions. Explore multi-variable expressions and Sum of Products minimisation.",
+  "simulator": "truth-table",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Enter the 4-variable majority function: '(A AND B) OR (A AND C) OR (A AND D) OR (B AND C) OR (B AND D) OR (C AND D)'. Output is 1 when 2 or more of A,B,C,D are 1.",
+        "hint": "A majority gate is used in fault-tolerant systems (triple modular redundancy) and voting circuits."
+      },
+      {
+        "instruction": "Count the rows where OUT = 1. For a 4-input majority function you should have 11 minterms (C(4,2) + C(4,3) + C(4,4) = 6 + 4 + 1 = 11).",
+        "hint": "With 4 variables there are 2^4 = 16 rows total. Out of these, 11 have output 1."
+      },
+      {
+        "instruction": "Now try the XOR chain: 'A XOR B XOR C'. This is a 3-input parity function — output is 1 when an odd number of inputs are high.",
+        "hint": "XOR chains are used in CRC (cyclic redundancy check) circuits and binary adders. The carry-out of a half-adder is A AND B; the sum bit is A XOR B."
+      },
+      {
+        "instruction": "Try 'A XNOR B' (equivalence gate). XNOR is 1 when inputs are EQUAL. This is the complement of XOR.",
+        "hint": "XNOR is used in comparators. A 4-bit equality comparator is built from four XNOR gates ANDed together."
+      },
+      {
+        "instruction": "Enter 'A NAND B'. NAND is functionally complete — any Boolean function can be built using only NAND gates. Verify that output = NOT (A AND B).",
+        "hint": "NAND and NOR are universal gates. CMOS logic naturally inverts, so NAND gates are the most efficient in silicon."
+      }
+    ]
+  }
+}

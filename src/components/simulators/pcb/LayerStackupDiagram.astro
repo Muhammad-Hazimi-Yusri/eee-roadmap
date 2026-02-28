@@ -1,0 +1,184 @@
+---
+// src/components/simulators/pcb/LayerStackupDiagram.astro
+// Static SVG cross-section of a PCB layer stackup.
+// No JS hydration framework — vanilla JS handles layer switching if interactive=true.
+
+interface Props {
+  /** Number of copper layers to display initially. */
+  layers?: 2 | 4 | 6 | 8;
+  /** If true, renders a layer-count selector that swaps between pre-built SVGs. */
+  interactive?: boolean;
+}
+
+const { layers = 4, interactive = false } = Astro.props;
+
+type LayerEntry = { label: string; color: string; height: number; detail?: string };
+
+const configs: Record<number, LayerEntry[]> = {
+  2: [
+    { label: 'Silkscreen', color: '#f5f0e8', height: 8, detail: 'Inkjet/LPI' },
+    { label: 'Soldermask', color: '#2d7a2d', height: 6, detail: '25 µm' },
+    { label: 'Top Copper', color: '#b87333', height: 14, detail: '35 µm (1 oz)' },
+    { label: 'Core (FR4)', color: '#c8aa6e', height: 50, detail: '1.53 mm · εr 4.4' },
+    { label: 'Bottom Copper', color: '#b87333', height: 14, detail: '35 µm (1 oz)' },
+    { label: 'Soldermask', color: '#2d7a2d', height: 6, detail: '25 µm' },
+    { label: 'Silkscreen', color: '#f5f0e8', height: 8, detail: 'Inkjet/LPI' },
+  ],
+  4: [
+    { label: 'Silkscreen', color: '#f5f0e8', height: 8, detail: 'Inkjet/LPI' },
+    { label: 'Soldermask', color: '#2d7a2d', height: 6, detail: '25 µm' },
+    { label: 'L1 — Top Copper', color: '#b87333', height: 14, detail: '35 µm (1 oz)' },
+    { label: 'Prepreg', color: '#d8c98a', height: 22, detail: '0.20 mm · εr 4.2' },
+    { label: 'L2 — GND Plane', color: '#b87333', height: 10, detail: '35 µm (1 oz)' },
+    { label: 'Core (FR4)', color: '#c8aa6e', height: 36, detail: '1.06 mm · εr 4.4' },
+    { label: 'L3 — PWR Plane', color: '#b87333', height: 10, detail: '35 µm (1 oz)' },
+    { label: 'Prepreg', color: '#d8c98a', height: 22, detail: '0.20 mm · εr 4.2' },
+    { label: 'L4 — Bottom Copper', color: '#b87333', height: 14, detail: '35 µm (1 oz)' },
+    { label: 'Soldermask', color: '#2d7a2d', height: 6, detail: '25 µm' },
+    { label: 'Silkscreen', color: '#f5f0e8', height: 8, detail: 'Inkjet/LPI' },
+  ],
+  6: [
+    { label: 'Silkscreen', color: '#f5f0e8', height: 8, detail: 'Inkjet/LPI' },
+    { label: 'Soldermask', color: '#2d7a2d', height: 6, detail: '25 µm' },
+    { label: 'L1 — Top Copper', color: '#b87333', height: 12, detail: '35 µm' },
+    { label: 'Prepreg', color: '#d8c98a', height: 18, detail: '0.18 mm · εr 4.2' },
+    { label: 'L2 — GND', color: '#b87333', height: 8, detail: '17.5 µm (½ oz)' },
+    { label: 'Core', color: '#c8aa6e', height: 22, detail: '0.36 mm · εr 4.4' },
+    { label: 'L3 — Signal', color: '#b87333', height: 8, detail: '17.5 µm (½ oz)' },
+    { label: 'Prepreg', color: '#d8c98a', height: 18, detail: '0.18 mm · εr 4.2' },
+    { label: 'L4 — PWR', color: '#b87333', height: 8, detail: '17.5 µm (½ oz)' },
+    { label: 'Core', color: '#c8aa6e', height: 22, detail: '0.36 mm · εr 4.4' },
+    { label: 'L5 — GND', color: '#b87333', height: 8, detail: '17.5 µm (½ oz)' },
+    { label: 'Prepreg', color: '#d8c98a', height: 18, detail: '0.18 mm · εr 4.2' },
+    { label: 'L6 — Bottom Copper', color: '#b87333', height: 12, detail: '35 µm' },
+    { label: 'Soldermask', color: '#2d7a2d', height: 6, detail: '25 µm' },
+    { label: 'Silkscreen', color: '#f5f0e8', height: 8, detail: 'Inkjet/LPI' },
+  ],
+  8: [
+    { label: 'Silkscreen', color: '#f5f0e8', height: 8, detail: 'Inkjet/LPI' },
+    { label: 'Soldermask', color: '#2d7a2d', height: 6, detail: '25 µm' },
+    { label: 'L1 — Top Copper', color: '#b87333', height: 10, detail: '35 µm' },
+    { label: 'Prepreg', color: '#d8c98a', height: 15, detail: '0.15 mm · εr 4.2' },
+    { label: 'L2 — GND', color: '#b87333', height: 7, detail: '17.5 µm' },
+    { label: 'Core', color: '#c8aa6e', height: 18, detail: '0.25 mm · εr 4.4' },
+    { label: 'L3 — Signal', color: '#b87333', height: 7, detail: '17.5 µm' },
+    { label: 'Prepreg', color: '#d8c98a', height: 15, detail: '0.15 mm · εr 4.2' },
+    { label: 'L4 — PWR', color: '#b87333', height: 7, detail: '17.5 µm' },
+    { label: 'Core', color: '#c8aa6e', height: 18, detail: '0.25 mm · εr 4.4' },
+    { label: 'L5 — Signal', color: '#b87333', height: 7, detail: '17.5 µm' },
+    { label: 'Prepreg', color: '#d8c98a', height: 15, detail: '0.15 mm · εr 4.2' },
+    { label: 'L6 — GND', color: '#b87333', height: 7, detail: '17.5 µm' },
+    { label: 'Core', color: '#c8aa6e', height: 18, detail: '0.25 mm · εr 4.4' },
+    { label: 'L7 — Signal', color: '#b87333', height: 7, detail: '17.5 µm' },
+    { label: 'Prepreg', color: '#d8c98a', height: 15, detail: '0.15 mm · εr 4.2' },
+    { label: 'L8 — Bottom Copper', color: '#b87333', height: 10, detail: '35 µm' },
+    { label: 'Soldermask', color: '#2d7a2d', height: 6, detail: '25 µm' },
+    { label: 'Silkscreen', color: '#f5f0e8', height: 8, detail: 'Inkjet/LPI' },
+  ],
+};
+
+function buildSVG(layerCount: 2 | 4 | 6 | 8): string {
+  const stack = configs[layerCount];
+  const totalH = stack.reduce((sum, l) => sum + l.height, 0);
+  const svgW = 500;
+  const barW = 200;
+  const barX = 40;
+  const pad = 8;
+
+  let y = pad;
+  let rects = '';
+  let labels = '';
+
+  for (const layer of stack) {
+    const cy = y + layer.height / 2;
+    rects += `<rect x="${barX}" y="${y}" width="${barW}" height="${layer.height}" fill="${layer.color}" stroke="#444" stroke-width="0.5"/>`;
+    labels += `<text x="${barX + barW + 12}" y="${cy + 3}" class="ll">${layer.label}</text>`;
+    if (layer.detail) {
+      labels += `<text x="${barX + barW + 12}" y="${cy + 14}" class="ld">${layer.detail}</text>`;
+    }
+    y += layer.height;
+  }
+
+  const svgH = totalH + pad * 2;
+  return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" class="stackup-svg" role="img" aria-label="${layerCount}-layer PCB stackup cross-section">
+  <style>.ll{font:bold 9px monospace;fill:#e0ddd8}.ld{font:9px monospace;fill:#888}</style>
+  ${rects}${labels}
+</svg>`;
+}
+
+const allLayers: Array<2 | 4 | 6 | 8> = [2, 4, 6, 8];
+---
+
+<div class="stackup-wrapper">
+  {interactive && (
+    <div class="stackup-controls">
+      <label class="stackup-lbl" for="stackup-sel">Layer count:</label>
+      <select class="stackup-sel" id="stackup-sel">
+        {allLayers.map(n => (
+          <option value={n} selected={n === layers}>{n}-layer</option>
+        ))}
+      </select>
+    </div>
+  )}
+
+  <div class="stackup-container">
+    {allLayers.map(n => (
+      <div
+        class="stackup-panel"
+        data-layers={n}
+        style={n === layers ? '' : 'display:none'}
+        set:html={buildSVG(n)}
+      />
+    ))}
+  </div>
+</div>
+
+{interactive && (
+  <script is:inline>
+    (function () {
+      const sel = document.getElementById('stackup-sel');
+      if (!sel) return;
+      sel.addEventListener('change', function () {
+        const val = this.value;
+        document.querySelectorAll('.stackup-panel').forEach(function (p) {
+          (p as HTMLElement).style.display = (p as HTMLElement).dataset.layers === val ? '' : 'none';
+        });
+      });
+    })();
+  </script>
+)}
+
+<style>
+  .stackup-wrapper { font-family: var(--font-mono); }
+
+  .stackup-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .stackup-lbl {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .stackup-sel {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--color-bg-grid);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+  }
+
+  .stackup-container { overflow-x: auto; }
+
+  .stackup-container :global(svg) {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+</style>

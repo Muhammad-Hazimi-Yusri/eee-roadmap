@@ -1,0 +1,138 @@
+---
+// src/components/simulators/pcb/ViaTypeVisualizer.astro
+// Static SVG cross-sections of the four PCB via types.
+// Zero JavaScript — pure SVG/HTML.
+
+// SVG dimensions
+const W = 100;  // width per via diagram
+const H = 180;  // total height
+const GAP = 16; // gap between diagrams
+
+// Layer colours matching LayerStackupDiagram
+const COPPER = '#b87333';
+const PREPREG = '#d8c98a';
+const CORE = '#c8aa6e';
+const MASK = '#2d7a2d';
+const VIA_FILL = '#c8a060';
+const VIA_STROKE = '#8a6020';
+
+// Build a 4-layer cross-section background for the given x offset
+function buildBackground(x: number): string {
+  const layers = [
+    { y: 10, h: 8, color: MASK },     // soldermask top
+    { y: 18, h: 12, color: COPPER },  // L1
+    { y: 30, h: 22, color: PREPREG }, // prepreg
+    { y: 52, h: 14, color: COPPER },  // L2
+    { y: 66, h: 42, color: CORE },    // core
+    { y: 108, h: 14, color: COPPER }, // L3
+    { y: 122, h: 22, color: PREPREG }, // prepreg
+    { y: 144, h: 12, color: COPPER }, // L4
+    { y: 156, h: 8, color: MASK },    // soldermask bottom
+  ];
+  return layers
+    .map(l => `<rect x="${x}" y="${l.y}" width="${W}" height="${l.h}" fill="${l.color}" stroke="#333" stroke-width="0.4"/>`)
+    .join('');
+}
+
+// Via barrel helper
+function barrel(x: number, bw: number, y1: number, y2: number): string {
+  const cx = x + W / 2;
+  return `<rect x="${cx - bw / 2}" y="${y1}" width="${bw}" height="${y2 - y1}" fill="${VIA_FILL}" stroke="${VIA_STROKE}" stroke-width="1"/>`;
+}
+
+const diagramX = [0, W + GAP, 2 * (W + GAP), 3 * (W + GAP)].map(v => v + 10);
+
+// Build each via type
+function buildThroughHole(x: number): string {
+  return buildBackground(x) + barrel(x, 14, 10, 164);
+}
+
+function buildBlind(x: number): string {
+  return buildBackground(x) + barrel(x, 14, 10, 66); // top surface to L2
+}
+
+function buildBuried(x: number): string {
+  return buildBackground(x) + barrel(x, 14, 52, 122); // L2 to L3 (inner layers)
+}
+
+function buildMicrovia(x: number): string {
+  return buildBackground(x) + barrel(x, 8, 10, 30); // L1 to L2, small
+}
+
+const viaTypes = [
+  { label: 'Through-Hole', sublabel: 'L1 → L4 (all layers)', build: buildThroughHole },
+  { label: 'Blind', sublabel: 'L1 → L2 (top only)', build: buildBlind },
+  { label: 'Buried', sublabel: 'L2 → L3 (hidden)', build: buildBuried },
+  { label: 'Microvia', sublabel: 'L1 → L2 (laser, ≤0.15mm)', build: buildMicrovia },
+];
+---
+
+<div class="via-wrapper">
+  <svg
+    viewBox={`0 0 ${W * 4 + GAP * 3 + 20} ${H + 40}`}
+    xmlns="http://www.w3.org/2000/svg"
+    class="via-svg"
+    role="img"
+    aria-label="PCB via type cross-sections: through-hole, blind, buried, microvia"
+  >
+    <style>
+      .via-title { font: bold 10px monospace; fill: #e0ddd8; text-anchor: middle; }
+      .via-sub   { font: 8px monospace; fill: #888; text-anchor: middle; }
+    </style>
+
+    {viaTypes.map((vt, i) => {
+      const x = diagramX[i];
+      const cx = x + W / 2;
+      return (
+        <>
+          <g set:html={vt.build(x)} />
+          <text x={cx} y={H + 14} class="via-title">{vt.label}</text>
+          <text x={cx} y={H + 26} class="via-sub">{vt.sublabel}</text>
+        </>
+      );
+    })}
+  </svg>
+
+  <div class="via-legend">
+    <span class="via-legend-item"><span class="swatch" style={`background:${COPPER}`}></span>Copper</span>
+    <span class="via-legend-item"><span class="swatch" style={`background:${PREPREG}`}></span>Prepreg</span>
+    <span class="via-legend-item"><span class="swatch" style={`background:${CORE}`}></span>Core (FR4)</span>
+    <span class="via-legend-item"><span class="swatch" style={`background:${MASK}`}></span>Soldermask</span>
+    <span class="via-legend-item"><span class="swatch" style={`background:${VIA_FILL}`}></span>Via barrel</span>
+  </div>
+</div>
+
+<style>
+  .via-wrapper { font-family: var(--font-mono); }
+
+  .via-svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .via-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin-top: 0.75rem;
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+  }
+
+  .via-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    border: 1px solid #555;
+    flex-shrink: 0;
+  }
+</style>

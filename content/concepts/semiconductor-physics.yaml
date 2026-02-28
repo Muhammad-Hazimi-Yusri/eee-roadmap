@@ -1,0 +1,378 @@
+# EEE Roadmap — Concept Library: semiconductor-physics
+# See CONTRIBUTING.md for the concept file format.
+_meta:
+  domain: semiconductor-physics
+  description: Semiconductor physics, carrier transport, PN junctions, and MOS devices
+
+concepts:
+  intrinsic-semiconductor:
+    name: Intrinsic Semiconductor
+    tags: [semiconductor, band-theory, materials]
+    notes: |
+      An **intrinsic semiconductor** is a pure semiconductor with no intentional dopants.
+      At 0 K it behaves as an insulator; at room temperature thermal energy promotes
+      electrons across the bandgap, generating equal electron–hole pairs.
+
+      **Intrinsic Carrier Concentration** (Sze model, silicon):
+
+      $$n_i = \sqrt{N_C N_V}\, e^{-E_g / 2kT}$$
+
+      At 300 K in silicon: $n_i \approx 1.5 \times 10^{10}\ \text{cm}^{-3}$
+
+      This is tiny compared to the Si atomic density ($5 \times 10^{22}\ \text{cm}^{-3}$),
+      so pure silicon is a very poor conductor at room temperature.
+
+      | Material | $E_g$ (eV) | $n_i$ at 300 K |
+      |---------|-----------|----------------|
+      | Silicon | 1.12 | $1.5 \times 10^{10}$ cm⁻³ |
+      | Germanium | 0.66 | $2.4 \times 10^{13}$ cm⁻³ |
+      | GaAs | 1.42 | $2 \times 10^6$ cm⁻³ |
+
+  semiconductor-doping:
+    name: Semiconductor Doping
+    tags: [semiconductor, doping, materials]
+    prerequisites: [intrinsic-semiconductor]
+    notes: |
+      Doping introduces controlled impurities to dramatically increase conductivity
+      and fix the dominant carrier type.
+
+      **N-type doping** (donors, e.g. Phosphorus in Si):
+      Phosphorus has 5 valence electrons — 4 bond with Si neighbours, the 5th is
+      loosely bound and easily ionises at room temperature, contributing a free electron.
+      $$n \approx N_D,\quad p = n_i^2 / N_D$$
+
+      **P-type doping** (acceptors, e.g. Boron in Si):
+      Boron has 3 valence electrons — leaves a hole in the lattice.
+      $$p \approx N_A,\quad n = n_i^2 / N_A$$
+
+      **Mass Action Law** (always holds at thermal equilibrium):
+      $$n \cdot p = n_i^2$$
+
+      Typical doping levels: $10^{15}$ – $10^{18}$ cm⁻³ (compared to $n_i = 1.5 \times 10^{10}$),
+      so doped semiconductors have carrier concentrations 5–8 orders of magnitude above intrinsic.
+
+  band-theory:
+    name: Band Theory
+    tags: [semiconductor, band-theory, quantum-mechanics]
+    notes: |
+      Band theory explains the electrical properties of solids using quantum mechanics.
+      Electrons in a crystal can only occupy specific energy bands.
+
+      **Energy Bands:**
+      - **Valence band** ($E_v$): Highest fully occupied band at 0 K
+      - **Conduction band** ($E_c$): Lowest empty band at 0 K
+      - **Bandgap** ($E_g = E_c - E_v$): Forbidden energy range
+      - **Fermi level** ($E_F$): Energy at which the probability of electron occupation is 0.5
+
+      **Conductor vs Insulator vs Semiconductor:**
+
+      | Material | $E_g$ |
+      |---------|-------|
+      | Metal (conductor) | 0 (bands overlap) |
+      | Semiconductor | 0.1–2.5 eV |
+      | Insulator | > 5 eV (SiO₂: 9 eV) |
+
+      **Fermi Level Position:**
+      - Intrinsic: $E_F \approx E_i \approx (E_c + E_v)/2$
+      - N-type: $E_F$ moves toward $E_c$
+      - P-type: $E_F$ moves toward $E_v$
+
+  fermi-level:
+    name: Fermi Level & Fermi–Dirac Distribution
+    tags: [semiconductor, band-theory, statistics]
+    prerequisites: [band-theory]
+    notes: |
+      The **Fermi–Dirac distribution** gives the probability that an energy state $E$
+      is occupied by an electron at thermal equilibrium:
+
+      $$f(E) = \frac{1}{1 + e^{(E - E_F)/kT}}$$
+
+      where $E_F$ is the Fermi energy, $k = 1.381 \times 10^{-23}$ J/K, $T$ is temperature.
+
+      **Key Properties:**
+      - At $E = E_F$: $f(E_F) = 0.5$ (50% probability)
+      - At $E \gg E_F$: $f \rightarrow 0$ (empty)
+      - At $E \ll E_F$: $f \rightarrow 1$ (filled)
+      - As $T \rightarrow 0$: Becomes a step function at $E_F$
+
+      **Quasi-Fermi Levels** (under bias or illumination):
+      When a device is out of equilibrium, electrons and holes each have their own
+      quasi-Fermi levels $E_{Fn}$ and $E_{Fp}$, with the separation giving the applied
+      bias: $E_{Fn} - E_{Fp} = qV$.
+
+  carrier-concentration:
+    name: Carrier Concentration
+    tags: [semiconductor, carriers, doping]
+    prerequisites: [fermi-level, semiconductor-doping]
+    notes: |
+      The electron and hole concentrations determine a semiconductor's conductivity.
+
+      **General Expressions:**
+      $$n = N_C\, e^{-(E_c - E_F)/kT}$$
+      $$p = N_V\, e^{-(E_F - E_v)/kT}$$
+
+      where $N_C$, $N_V$ are the effective density of states at $E_c$ and $E_v$.
+      For silicon at 300 K: $N_C = 2.8 \times 10^{19}\ \text{cm}^{-3}$,
+      $N_V = 1.04 \times 10^{19}\ \text{cm}^{-3}$.
+
+      **Temperature Dependence:**
+      $n_i$ doubles roughly every 10°C increase — thermal runaway is a real concern
+      in power semiconductors.
+
+      **Charge Neutrality:**
+      In an extrinsic semiconductor: $N_D^+ + p = N_A^- + n$
+
+  drift-diffusion:
+    name: Drift & Diffusion
+    tags: [semiconductor, carriers, transport]
+    prerequisites: [carrier-concentration]
+    notes: |
+      Carrier transport in semiconductors is governed by two mechanisms:
+
+      **Drift** — carriers moving under an electric field $\mathcal{E}$:
+      $$J_n^\text{drift} = qn\mu_n \mathcal{E}$$
+      $$J_p^\text{drift} = qp\mu_p \mathcal{E}$$
+
+      **Diffusion** — carriers moving from high to low concentration:
+      $$J_n^\text{diff} = qD_n \frac{dn}{dx}$$
+      $$J_p^\text{diff} = -qD_p \frac{dp}{dx}$$
+
+      **Einstein Relation** (links mobility and diffusion coefficient):
+      $$D = \mu \frac{kT}{q} = \mu V_T$$
+
+      where $V_T = kT/q \approx 26\ \text{mV}$ at 300 K (thermal voltage).
+
+      **Total Current Density:**
+      $$J = J_n^\text{drift} + J_n^\text{diff} + J_p^\text{drift} + J_p^\text{diff}$$
+
+  carrier-mobility:
+    name: Carrier Mobility
+    tags: [semiconductor, transport, materials]
+    prerequisites: [drift-diffusion]
+    notes: |
+      Mobility $\mu$ quantifies how easily carriers move through a semiconductor under
+      an applied field, limited by scattering from lattice vibrations and impurities.
+
+      **Silicon at 300 K (undoped):**
+
+      | Carrier | Symbol | Mobility |
+      |---------|--------|---------|
+      | Electrons | $\mu_n$ | 1400 cm²/V·s |
+      | Holes | $\mu_p$ | 450 cm²/V·s |
+
+      Electrons are faster because their effective mass is lower.
+
+      **Doping Dependence** (Sze model):
+      Mobility decreases with doping due to ionised impurity scattering:
+      $$\mu(N) = \mu_\text{min} + \frac{\mu_\text{max} - \mu_\text{min}}{1 + (N/N_\text{ref})^\alpha}$$
+
+      **Temperature Dependence:**
+      $\mu \propto T^{-3/2}$ at high T (lattice scattering dominant)
+
+      **Drift velocity saturation**: At high fields ($> 10^4$ V/cm), velocity saturates at
+      $v_\text{sat} \approx 10^7$ cm/s and becomes field-independent.
+
+  si-pn-junction:
+    name: PN Junction (Semiconductor)
+    tags: [semiconductor, devices, diodes]
+    prerequisites: [semiconductor-doping, drift-diffusion]
+    notes: |
+      A PN junction is formed where p-type and n-type semiconductors meet. At equilibrium,
+      carrier diffusion creates a **depletion region** with a built-in electric field.
+
+      **Built-in Potential:**
+      $$V_{bi} = \frac{kT}{q} \ln\!\left(\frac{N_A N_D}{n_i^2}\right)$$
+
+      For silicon with $N_A = N_D = 10^{16}$ cm⁻³: $V_{bi} \approx 0.7\ \text{V}$
+
+      **Depletion Width** (abrupt junction):
+      $$W = x_p + x_n = \sqrt{\frac{2\varepsilon_s}{q}\left(\frac{N_A + N_D}{N_A N_D}\right)(V_{bi} - V_A)}$$
+
+      $W$ decreases under forward bias ($V_A > 0$) and increases under reverse bias.
+
+      **Shockley Diode Equation:**
+      $$I = I_S\left(e^{V_A/nV_T} - 1\right)$$
+
+      where $I_S$ is the saturation current ($\propto n_i^2 e^{-E_g/kT}$) and $n$ is the
+      ideality factor (1 for ideal, 2 for recombination-dominated current).
+
+  depletion-region:
+    name: Depletion Region
+    tags: [semiconductor, pn-junction, devices]
+    prerequisites: [si-pn-junction]
+    notes: |
+      The depletion region (space charge region) is the region around the PN junction
+      depleted of mobile carriers. It contains fixed ionised donor and acceptor atoms.
+
+      **Electric Field:**
+      The charge density in the depletion region creates an electric field that opposes
+      further diffusion — this establishes equilibrium.
+
+      $$\mathcal{E}(x) = -\frac{dV}{dx}$$
+
+      Peak field at the junction: $\mathcal{E}_\text{max} = \frac{qN_D x_n}{\varepsilon_s} = \frac{qN_A x_p}{\varepsilon_s}$
+
+      **Charge Balance:**
+      $$N_A x_p = N_D x_n$$
+
+      (total negative charge on p-side = total positive charge on n-side)
+
+      **Capacitance:**
+      The depletion region acts as a parallel-plate capacitor:
+      $$C_j = \varepsilon_s A / W \propto (V_{bi} - V_A)^{-1/2}$$
+
+      This **junction capacitance** is exploited in varactor diodes for voltage-controlled tuning.
+
+  built-in-potential:
+    name: Built-in Potential
+    tags: [semiconductor, pn-junction, band-theory]
+    prerequisites: [si-pn-junction, fermi-level]
+    notes: |
+      The built-in potential $V_{bi}$ (or contact potential) is the electrostatic
+      potential difference across the depletion region at zero bias.
+
+      **Physical Origin:**
+      Electrons diffuse from n-side (high $E_F$) to p-side (low $E_F$) until the
+      electric field built up by the exposed charges prevents further net diffusion.
+      At equilibrium, the Fermi level is flat across the junction.
+
+      **Band Diagram at Equilibrium:**
+      $$qV_{bi} = E_{F,n} - E_{F,p} = kT\ln\!\left(\frac{N_A N_D}{n_i^2}\right)$$
+
+      The band bending diagram shows $E_c$, $E_v$, $E_i$ bending by $qV_{bi}$ across
+      the depletion region, with $E_F$ horizontal (constant at equilibrium).
+
+      **Applied Bias Effect:**
+      - Forward bias reduces band bending → $V_{bi} - V_A$
+      - Reverse bias increases band bending → $V_{bi} + |V_R|$
+
+  mosfet-structure:
+    name: MOSFET Structure
+    tags: [semiconductor, mosfet, devices]
+    prerequisites: [si-pn-junction, band-theory]
+    notes: |
+      A Metal-Oxide-Semiconductor Field-Effect Transistor (MOSFET) consists of:
+
+      **Physical Structure (n-channel NMOS):**
+      - **P-type substrate**: bulk silicon
+      - **Source and Drain**: heavily doped n+ regions diffused into p-substrate
+      - **Gate oxide (SiO₂)**: thin dielectric (2–10 nm in modern devices)
+      - **Gate electrode**: originally polysilicon (metal in modern FinFETs)
+
+      **Terminals:**
+
+      | Terminal | Symbol | Function |
+      |---------|--------|---------|
+      | Gate | G | Controls channel (field effect) |
+      | Drain | D | Where current exits (higher V) |
+      | Source | S | Where current enters (lower V) |
+      | Body/Bulk | B | Substrate connection (usually tied to source or gnd) |
+
+      **Threshold Voltage:**
+      $$V_{th} = V_{FB} + 2\phi_F + \frac{Q_{dep}}{C_{ox}}$$
+
+      where $\phi_F = (kT/q)\ln(N_A/n_i)$ is the Fermi potential and
+      $C_{ox} = \varepsilon_{ox}/t_{ox}$ is the gate oxide capacitance per unit area.
+
+  mosfet-iv-characteristics:
+    name: MOSFET Operation (I-V Characteristics)
+    tags: [semiconductor, mosfet, devices]
+    prerequisites: [mosfet-structure, channel-formation]
+    notes: |
+      The NMOS operates in three regions depending on $V_{GS}$ and $V_{DS}$:
+
+      **1. Cutoff** ($V_{GS} < V_{th}$):
+      No channel forms. $I_D \approx 0$ (only leakage current flows).
+
+      **2. Linear (Triode)** ($V_{GS} > V_{th}$, $V_{DS} < V_{GS} - V_{th}$):
+      Channel exists from source to drain.
+      $$I_D = \mu_n C_{ox} \frac{W}{L}\!\left[(V_{GS}-V_{th})V_{DS} - \frac{V_{DS}^2}{2}\right]$$
+
+      At small $V_{DS}$: MOSFET acts as a voltage-controlled resistor
+      $$R_{on} \approx \frac{1}{\mu_n C_{ox}(W/L)(V_{GS}-V_{th})}$$
+
+      **3. Saturation** ($V_{GS} > V_{th}$, $V_{DS} \geq V_{GS} - V_{th}$):
+      Channel pinches off at drain end. $I_D$ is nearly constant (channel-length modulation ignored):
+      $$I_D = \frac{\mu_n C_{ox}}{2}\frac{W}{L}(V_{GS}-V_{th})^2$$
+
+      **Transconductance:**
+      $$g_m = \frac{\partial I_D}{\partial V_{GS}}\bigg|_{V_{DS}=\text{const}} = \mu_n C_{ox}\frac{W}{L}(V_{GS}-V_{th})$$
+
+  channel-formation:
+    name: Channel Formation (Inversion Layer)
+    tags: [semiconductor, mosfet, band-theory]
+    prerequisites: [mosfet-structure, depletion-region]
+    notes: |
+      Applying a positive gate voltage $V_{GS}$ to an NMOS attracts electrons to the
+      silicon surface directly below the gate oxide.
+
+      **Three Stages as $V_{GS}$ increases:**
+
+      1. **Accumulation** ($V_{GS} < 0$): Holes attracted to surface — surface is more p-type.
+      2. **Depletion** ($0 < V_{GS} < V_{th}$): Holes pushed away; depletion region forms.
+         The surface bands bend downward.
+      3. **Inversion** ($V_{GS} > V_{th}$): Electron concentration at surface exceeds hole
+         concentration — a conducting **inversion layer** (channel) forms.
+
+      **Inversion Layer Charge:**
+      $$Q_{inv} = -C_{ox}(V_{GS} - V_{th})\ \ [\text{C/cm}^2]$$
+
+      The inversion layer is extremely thin (1–5 nm), essentially a 2D electron gas.
+      In modern devices it is confined to the first few nm by quantum mechanics.
+
+      **Pinch-off (in Saturation):**
+      At $V_{DS} = V_{DS,sat} = V_{GS} - V_{th}$, the channel charge at the drain end
+      reaches zero. Further increase in $V_{DS}$ causes the channel to "pinch off" —
+      the carriers are swept through the high-field region near the drain.
+
+  pinch-off:
+    name: Pinch-off and Saturation
+    tags: [semiconductor, mosfet, devices]
+    prerequisites: [channel-formation, mosfet-iv-characteristics]
+    notes: |
+      **Pinch-off** occurs when the channel at the drain end is depleted of inversion
+      charge. This happens when $V_{DS} = V_{GS} - V_{th}$.
+
+      Beyond pinch-off (saturation), the drain current becomes nearly independent of
+      $V_{DS}$ because:
+      1. The channel length in the high-field region grows slightly with $V_{DS}$
+         (channel-length modulation, $\lambda$)
+      2. Carriers are swept through the depletion region at their saturation velocity
+
+      **Channel-Length Modulation:**
+      $$I_{D,\text{sat}} = \frac{\mu_n C_{ox}}{2}\frac{W}{L}(V_{GS}-V_{th})^2 (1 + \lambda V_{DS})$$
+
+      $\lambda \approx 0.01$–$0.1\ \text{V}^{-1}$ (smaller $L$ → larger $\lambda$)
+
+      This gives the MOSFET a **finite output impedance** in saturation:
+      $$r_o = \frac{1}{\lambda I_D}$$
+
+  hall-effect:
+    name: Hall Effect
+    tags: [semiconductor, transport, measurement]
+    prerequisites: [drift-diffusion, carrier-mobility]
+    notes: |
+      The Hall effect is the development of a transverse voltage when a current-carrying
+      conductor is placed in a magnetic field.
+
+      **Mechanism:**
+      Charge carriers moving with velocity $v$ in field $B$ experience a Lorentz force:
+      $$F = qv \times B$$
+
+      This deflects carriers toward one edge until the resulting electric field $\mathcal{E}_H$
+      balances the magnetic force.
+
+      **Hall Voltage:**
+      $$V_H = \frac{I B}{q n t}$$
+
+      where $n$ = carrier concentration, $t$ = sample thickness.
+
+      **Hall Coefficient:**
+      $$R_H = \frac{1}{qn}\ (\text{n-type}),\quad R_H = \frac{1}{qp}\ (\text{p-type})$$
+
+      The **sign** of $V_H$ reveals the carrier type (positive for holes, negative for electrons).
+
+      **Applications:**
+      - Hall sensors for contactless current measurement
+      - Semiconductor characterisation (mobility, carrier type, concentration)
+      - Galvanic isolation in power converters

@@ -1,0 +1,37 @@
+{
+  "id": "logic-gates",
+  "title": "Logic Gates & Boolean Algebra",
+  "domain": "digital",
+  "difficulty": "beginner",
+  "description": "Explore logic gates using interactive truth tables. Understand AND, OR, NOT, XOR, NAND, NOR, and XNOR with SOP forms.",
+  "simulator": "truth-table",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "The truth table generator evaluates any Boolean expression. The default expression is 'A AND B OR NOT C'. Try it — you should see 8 rows (2³ combinations).",
+        "hint": "Type any expression using variables A–Z and operators: AND OR NOT XOR NAND NOR XNOR. Parentheses are supported."
+      },
+      {
+        "instruction": "Change the expression to just 'A AND B'. The table has 4 rows. Only the last row (A=1, B=1) gives output 1. This is the AND gate behaviour.",
+        "hint": "AND: output is 1 only when ALL inputs are 1. Used for enabling a signal (both conditions must be true)."
+      },
+      {
+        "instruction": "Try 'A OR B'. Now output is 1 when ANY input is 1. Only A=0, B=0 gives output 0.",
+        "hint": "OR: output is 1 when AT LEAST ONE input is 1. Used for combining independent conditions."
+      },
+      {
+        "instruction": "Try 'NOT A'. Only one variable, two rows. NOT inverts the signal: 0 becomes 1, 1 becomes 0.",
+        "hint": "NOT (inverter) is the simplest gate. It is the fundamental building block — NAND and NOR gates are NOT-AND and NOT-OR."
+      },
+      {
+        "instruction": "Try 'A XOR B'. XOR (exclusive-OR) is 1 when inputs are DIFFERENT. XOR is used in parity checkers, adders, and cryptography.",
+        "hint": "XOR is also called 'odd parity' — it's 1 when an odd number of inputs are 1."
+      },
+      {
+        "instruction": "Try a more complex expression: '(A AND B) OR (NOT A AND C)'. Expand the Sum of Products section at the bottom to see the canonical SOP form.",
+        "hint": "SOP (Sum of Products) is a standard canonical form — each minterm (row where output = 1) becomes an AND term; all terms are OR'd together."
+      }
+    ]
+  }
+}

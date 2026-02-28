@@ -1,0 +1,176 @@
+---
+// src/pages/learn/semiconductor/[lesson].astro — Individual semiconductor lesson page.
+
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import TutorialStepper from '../../../components/simulators/circuit/TutorialStepper.astro';
+import PNJunctionViz from '../../../components/simulators/semiconductor/PNJunctionViz';
+import MOSFETCrossSectionViz from '../../../components/simulators/semiconductor/MOSFETCrossSectionViz';
+import BandDiagramSim from '../../../components/simulators/semiconductor/BandDiagramSim';
+import CarrierAnimation from '../../../components/simulators/semiconductor/CarrierAnimation';
+import { internalHref } from '../../../utils/url';
+import type { LessonBase } from '../../../lib/learn/types';
+
+export async function getStaticPaths() {
+  const modules = import.meta.glob<LessonBase>(
+    '../../../data/semiconductor/*.json',
+    { eager: true }
+  );
+
+  return Object.values(modules).map(lesson => ({
+    params: { lesson: lesson.id },
+    props: { lesson },
+  }));
+}
+
+interface Props {
+  lesson: LessonBase;
+}
+
+const { lesson } = Astro.props;
+---
+
+<Layout
+  title={lesson.title}
+  description={lesson.description}
+  needsKatex={false}
+>
+  <Header />
+  <main id="main-content">
+    <div class="container py-16">
+
+      <!-- Breadcrumb -->
+      <nav class="lesson-breadcrumb" aria-label="Breadcrumb">
+        <a href={internalHref('learn/semiconductor')}>Semiconductor Lessons</a>
+        <span aria-hidden="true"> / </span>
+        <span>{lesson.title}</span>
+      </nav>
+
+      <!-- Header -->
+      <div class="lesson-header">
+        <div class="lesson-header__meta">
+          <span class={`lesson-badge lesson-badge--${lesson.difficulty}`}>
+            {lesson.difficulty}
+          </span>
+          <span class="lesson-badge lesson-badge--domain">Semiconductor Physics</span>
+        </div>
+        <h1 class="lesson-title">{lesson.title}</h1>
+        <p class="lesson-desc">{lesson.description}</p>
+      </div>
+
+      <!-- Main content -->
+      <div class="lesson-layout">
+
+        <!-- Simulator column -->
+        <div class="lesson-simulator">
+          {lesson.simulator === 'pn-junction' && (
+            <PNJunctionViz client:visible />
+          )}
+          {lesson.simulator === 'mosfet' && (
+            <MOSFETCrossSectionViz client:visible />
+          )}
+          {lesson.simulator === 'band-diagram' && (
+            <BandDiagramSim client:visible />
+          )}
+          {lesson.simulator === 'carrier-animation' && (
+            <CarrierAnimation client:visible />
+          )}
+        </div>
+
+        <!-- Tutorial column -->
+        <div class="lesson-tutorial">
+          <TutorialStepper
+            steps={lesson.tutorial.steps}
+            lessonId={lesson.id}
+          />
+        </div>
+
+      </div>
+
+      <!-- Footer nav -->
+      <div class="lesson-footer-nav">
+        <a href={internalHref('learn/semiconductor')} class="btn">
+          ← All semiconductor lessons
+        </a>
+      </div>
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .lesson-breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .lesson-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .lesson-breadcrumb a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .lesson-header {
+    margin-bottom: 2rem;
+  }
+
+  .lesson-header__meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .lesson-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  .lesson-badge--beginner     { background: color-mix(in srgb, var(--color-pcb) 15%, transparent); color: var(--color-pcb-light); }
+  .lesson-badge--intermediate { background: color-mix(in srgb, var(--color-copper) 15%, transparent); color: var(--color-copper); }
+  .lesson-badge--advanced     { background: color-mix(in srgb, #a64ca6 15%, transparent); color: #c87dc8; }
+  .lesson-badge--domain       { background: var(--color-bg-grid); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+
+  .lesson-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  .lesson-desc {
+    color: var(--color-text-muted);
+    max-width: 56ch;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .lesson-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (width >= 1024px) {
+    .lesson-layout {
+      grid-template-columns: 1fr 380px;
+      align-items: start;
+    }
+  }
+
+  .lesson-footer-nav {
+    margin-top: 2.5rem;
+  }
+</style>

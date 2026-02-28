@@ -1,7 +1,7 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.22.12",
+  "version": "0.22.13",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs",
@@ -32,10 +32,13 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@astrojs/react": "^4.4.2",
     "@astrojs/sitemap": "^3.2.1",
     "@astrojs/tailwind": "^5.1.0",
     "@lucide/astro": "^0.562.0",
     "@supabase/supabase-js": "^2.90.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "astro": "^4.16.0",
     "cytoscape": "^3.33.1",
     "cytoscape-dagre": "^2.5.0",
@@ -47,10 +50,14 @@
     "mathjs": "^15.1.1",
     "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "sortablejs": "^1.15.6",
     "tailwindcss": "^3.4.0",
     "tippy.js": "^6.3.7",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wavedrom": "^3.5.0",
+    "web-gerber": "^1.0.1"
   },
   "keywords": [
     "electrical-engineering",

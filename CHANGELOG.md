@@ -11,6 +11,130 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.13] - 2026-02-27
+
+**Phase 2 — PCB Design, Digital Electronics & Semiconductor Physics interactive learning modules**
+
+### Added
+
+#### React integration
+
+- **`@astrojs/react` integration** — first-class React 19 support for interactive visualisers; production dependencies added: `react` ^19.2.4, `react-dom` ^19.2.4, `@types/react` ^19.2.14, `@types/react-dom` ^19.2.3; `wavedrom` ^3.5.0 and `web-gerber` ^1.0.1 also added
+
+#### Library modules (pure TypeScript, no browser deps, unit-tested)
+
+- **`src/lib/impedance/microstrip.ts`** — Wheeler (1977) two-branch microstrip impedance formula; narrow trace branch (`W/H < 1`): `Z0 = (87/√(εr+1.41)) · ln(5.98H / (0.8W+T))`; wide trace branch (`W/H ≥ 1`): `Z0 = (120π/√erEff) / (W/H + 1.393 + 0.667·ln(W/H+1.444))`; effective permittivity: `erEff = (εr+1)/2 + (εr−1)/2·(1+12H/W)^−0.5`; exports `MicrostripParams`, `MicrostripResult` interfaces; returns `null` for non-physical inputs (W, H, T ≤ 0 or εr < 1)
+
+- **`src/lib/impedance/stripline.ts`** — Schneider centered-strip formula: `Z0 = (60/√εr) · ln(4b / (0.67π(0.8W+T)))`; returns `null` for non-physical inputs
+
+- **`src/lib/semiconductor/carrier-stats.ts`** — physical constants (`q`, `k`, `eps0`, `epsSi`); `intrinsicConcentration(T)` using the Sze temperature model (cm⁻³); `fermiDirac(E, Ef, T)` occupation probability; `electronMobility(Nd)` and `holeMobility(Na)` using the Caughey-Thomas ionised-impurity scattering model (cm²/V·s)
+
+- **`src/lib/semiconductor/poisson-solver.ts`** — 1D finite-difference Poisson solver via Thomas algorithm (tridiagonal, no external deps); solves `−ε·d²ψ/dx² = ρ(x)` with Dirichlet BCs; central-difference E-field: `E[i] = −(ψ[i+1]−ψ[i−1])/(2·Δx)`; exports `PoissonParams` and `PoissonResult` interfaces
+
+#### Unit tests
+
+- **`src/lib/impedance/microstrip.test.ts`** — FR4 (εr=4.4) reference cases: W=1.9 mm, H=1.6 mm, T=35 µm → Z₀ ≈ 50 Ω ± 0.5 Ω (PCBWay reference); W=0.5 mm, H=0.8 mm, T=35 µm → Z₀ ≈ 75 Ω ± 1.0 Ω; `null` for negative inputs
+
+- **`src/lib/semiconductor/poisson-solver.test.ts`** — uniform donor slab vs. analytical `(qNd/2ε)x²` parabola (< 1 % error); zero charge density → linear potential; BC correctness (left/right voltage match)
+
+#### PCB Design domain — static Astro components
+
+- **`src/components/simulators/pcb/LayerStackupDiagram.astro`** — inline SVG PCB cross-section; `layers` prop (2/4/6/8); colour-coded layers: copper (orange `#b87333`), prepreg (tan `#d4c5a0`), core (dark tan `#a89060`), silkscreen (white); each layer annotated with name + typical thickness; optional `interactive` prop adds a `<select>` switcher that swaps the SVG via vanilla JS `addEventListener` — no `client:` directive
+
+- **`src/components/simulators/pcb/ViaTypeVisualizer.astro`** — four side-by-side SVG cross-sections: through-hole, blind, buried, microvia; barrel drawn in copper colour; annotated with connected layers and typical use case; zero JS
+
+- **`src/components/simulators/pcb/KiCanvasEmbed.astro`** — `<kicanvas-embed controls>` web component loaded from `kicanvas.org` CDN; optional `src` prop for KiCad file URL; drag-drop instruction text shown when no `src` provided
+
+#### PCB Design domain — React components
+
+- **`src/components/simulators/pcb/ImpedanceCalculator.tsx`** (`client:idle`) — microstrip / stripline mode selector; linked slider + `<input type="number">` for W, H, T, εr; live Z₀ and εr_eff display; out-of-range warning banner; inline SVG mini-chart plotting Z₀ vs W/H with current operating point marked; calls `microstripZ0`/`striplineZ0` from lib; all styles inline (CSS Modules not used)
+
+- **`src/components/simulators/pcb/TraceRoutingDemo.tsx`** (`client:visible`) — canvas tutorial with three mode tabs: "45° Routing", "Differential Pairs", "Return Path"; pre-drawn good/bad patterns per mode; hover tooltips with design annotations; prev/next step navigator
+
+- **`src/components/simulators/pcb/DRCDemo.tsx`** (`client:visible`) — SVG PCB layout with five DRC violations highlighted in red (minimum clearance, trace width, annular ring, soldermask sliver, silkscreen overlap); click a violation → side panel shows rule name, design consequence, and fix recommendation
+
+- **`src/components/simulators/pcb/GerberViewer.tsx`** (`client:only="react"`) — drag-drop zone accepting `.gbr`/`.gtl`/`.gbl`/`.gts`/`.gbs` Gerber files; parses with `web-gerber` → SVG render; layer selector for copper/silkscreen/drill show/hide; pointer-event zoom + pan on canvas
+
+#### PCB Design domain — lesson data and pages
+
+- **4 PCB lesson JSON files** (`src/data/pcb/`):
+  - `stackup-basics.json` (beginner, `layer-stackup`) — 4 tutorial steps through 2/4/6-layer configs
+  - `via-types.json` (beginner, `via-types`) — 4 steps comparing through-hole, blind, buried, and microvia use cases
+  - `impedance-control.json` (intermediate, `impedance`) — 5 steps: trace width effect, εr effect, stripline comparison, tolerance
+  - `trace-routing.json` (intermediate, `trace-routing`) — 5 steps: 45° routing, differential pairs, return paths, DRC violations
+
+- **`/learn/pcb/` lesson browser** (`src/pages/learn/pcb/index.astro`) — `import.meta.glob` auto-discovery; card grid sorted by difficulty; hover border `--color-pcb`
+
+- **`/learn/pcb/[lesson]/` detail page** (`src/pages/learn/pcb/[lesson].astro`) — `getStaticPaths()` from pcb JSON; switches on `lesson.simulator` to mount the correct component; breadcrumb + difficulty badges
+
+#### Digital Electronics domain — static Astro components
+
+- **`src/components/simulators/digital/WaveDromDiagram.astro`** — WaveDrom timing diagram rendered via CDN (`cdnjs.cloudflare.com/wavedrom/3.5.0`); `<script type="WaveDrom">` JSON embed pattern; `WaveDrom.ProcessAll()` called on `DOMContentLoaded`; no `client:` directive; `source` and optional `title` props
+
+- **`src/components/simulators/digital/CircuitVerseEmbed.astro`** — iframe for CircuitVerse digital logic simulations; `sandbox="allow-scripts allow-same-origin allow-forms"`; configurable `embedUrl` and `height` (default 600 px); fallback link for iframe-blocked browsers
+
+#### Digital Electronics domain — React components
+
+- **`src/components/simulators/digital/TruthTableGenerator.tsx`** (`client:idle`) — full recursive-descent boolean expression evaluator; tokeniser + parser supporting `AND OR NOT XOR NAND NOR XNOR` and nested parentheses; evaluates all 2ⁿ input combinations; renders truth table with output=1 rows highlighted; Sum of Products (SOP) expression in collapsible `<details>` element
+
+- **`src/components/simulators/digital/VerilogPlayground.tsx`** (`client:visible`) — Verilog-to-simulation pipeline; default 4-bit ripple adder example in textarea; WASM not loaded at module level; "Load Verilog Playground" button triggers lazy `await Promise.all([import('@yowasp/yosys'), import('yosys2digitaljs'), import('digitaljs')])`; status machine: idle → loading → synthesising → running / error; synthesis errors displayed inline; all three packages marked as Rollup `external` (not pre-installed; loaded on demand)
+
+#### Digital Electronics domain — lesson data and pages
+
+- **4 digital lesson JSON files** (`src/data/digital/`):
+  - `timing-diagrams.json` (beginner, `wavedrom`) — D flip-flop WaveJSON, 5 steps
+  - `logic-gates.json` (beginner, `truth-table`) — AND/OR/NOT/XOR/NAND truth tables, 6 steps
+  - `truth-tables.json` (intermediate, `truth-table`) — majority function, XOR chains, XNOR, NAND, 5 steps
+  - `verilog-intro.json` (intermediate, `verilog`) — 4-bit adder synthesis walkthrough, 5 steps
+
+- **`/learn/digital/` lesson browser** (`src/pages/learn/digital/index.astro`)
+
+- **`/learn/digital/[lesson]/` detail page** (`src/pages/learn/digital/[lesson].astro`)
+
+#### Semiconductor Physics domain — React components
+
+- **`src/components/simulators/semiconductor/PNJunctionViz.tsx`** (`client:visible`) — abrupt PN junction analytical model; sliders: Na (10¹⁴–10¹⁸ cm⁻³), Nd (10¹⁴–10¹⁸), Vbias (−1 to +0.7 V); computed: `Vbi = (kT/q)·ln(Na·Nd/ni²)`, depletion widths `xn`/`xp` adjusted for applied bias, `Emax`, Shockley saturation current density `Js`; four synchronised inline SVG panels: charge density ρ(x), electric field E(x), electrostatic potential ψ(x), I-V curve with live operating-point marker
+
+- **`src/components/simulators/semiconductor/MOSFETCrossSectionViz.tsx`** (`client:visible`) — SVG cross-section: p-substrate, n⁺ source/drain, gate oxide, poly gate; green inversion layer appears when Vgs > Vth (1 V default); depletion boundary (dashed line); pinch-off marker when Vds > Vgs − Vth; region label (CUTOFF / LINEAR / SATURATION) with equations; Id-Vds family of curves for 4 Vgs values; saturation boundary dashed; highlighted operating point
+
+- **`src/components/simulators/semiconductor/BandDiagramSim.tsx`** (`client:visible`) — three modes: PN Junction, MOS Capacitor, MOSFET Channel; bias slider; `solvePoisson1D` from lib computes electrostatic potential profile; SVG renders Ec (blue polyline), Ev (red), Ei (dashed grey), Ef/EFn/EFp (green); quasi-Fermi levels (EFn, EFp) appear and split under non-zero bias
+
+- **`src/components/simulators/semiconductor/CarrierAnimation.tsx`** (`client:visible`) — canvas particle system: 30 carriers (electrons = blue filled ●, holes = red open ○); Brownian random-walk at E=0; net drift velocity added when E-field applied; controls: E-field (V/cm), temperature (K), doping (cm⁻³); transport metrics overlay: μn, μp (Caughey-Thomas), vd = μE, D = μkT/q (Einstein relation); `requestAnimationFrame` loop with `useEffect` cleanup on unmount
+
+#### Semiconductor Physics domain — lesson data and pages
+
+- **4 semiconductor lesson JSON files** (`src/data/semiconductor/`):
+  - `pn-junction.json` (intermediate, `pn-junction`) — 5 steps: equilibrium, forward bias, reverse bias, I-V curve, breakdown
+  - `mosfet-operation.json` (intermediate, `mosfet`) — 5 steps: cutoff, linear, saturation, pinch-off, I-V family
+  - `band-diagrams.json` (advanced, `band-diagram`) — 5 steps: PN junction equilibrium, forward bias quasi-Fermi levels, MOS-cap bending, MOSFET channel
+  - `carrier-transport.json` (intermediate, `carrier-animation`) — 5 steps: thermal diffusion, drift, ionised-impurity scattering, temperature dependence, Einstein relation
+
+- **`/learn/semiconductor/` lesson browser** (`src/pages/learn/semiconductor/index.astro`)
+
+- **`/learn/semiconductor/[lesson]/` detail page** (`src/pages/learn/semiconductor/[lesson].astro`)
+
+#### Concept library additions
+
+- **`content/concepts/pcb-design.yaml`** — 20 new concepts: `trace-routing`, `impedance-control`, `pcb-stackup`, `layer-types`, `via-through-hole`, `via-blind`, `via-buried`, `microvia`, `design-rules`, `drc`, `gerber-format`, `controlled-impedance`, `differential-pairs`, `return-path`, `copper-pours`, `design-for-manufacture`, `pcb-materials`, `surface-finish`, `component-placement`, `signal-integrity`
+
+- **`content/concepts/semiconductor-physics.yaml`** — 15 new concepts: `si-pn-junction`, `depletion-region`, `built-in-potential`, `band-theory`, `fermi-level`, `intrinsic-semiconductor`, `carrier-concentration`, `drift-diffusion`, `mosfet-structure`, `mosfet-iv-characteristics`, `channel-formation`, `pinch-off`, `carrier-mobility`, `hall-effect`, `semiconductor-doping`
+
+### Changed
+
+- **`astro.config.mjs`** — `react()` from `@astrojs/react` added to `integrations` array; `vite.build.rollupOptions.external` set to `['@yowasp/yosys', 'yosys2digitaljs', 'digitaljs']` so Rollup does not fail when the lazy-loaded WASM packages are absent at build time
+
+- **`content/concepts/semiconductor-physics.yaml`** — concept IDs `pn-junction` → `si-pn-junction` and `mosfet-operation` → `mosfet-iv-characteristics` to avoid collision with pre-existing IDs in `electronics.yaml`; all four intra-domain `prerequisites` entries updated (`depletion-region`, `built-in-potential`, `mosfet-structure`, `pinch-off`)
+
+### Technical notes
+
+- All React components use inline styles; Astro scoped CSS does not propagate across the React hydration boundary
+- WaveDrom is loaded from Cloudflare CDN via an inline `<script>`; the `wavedrom` npm package is installed but not bundled
+- `@yowasp/yosys`, `yosys2digitaljs`, `digitaljs` are not pre-installed; build succeeds because they are Rollup-external; VerilogPlayground handles import failures gracefully via try/catch
+- Concept library: 392 → **427 concepts** across 12 → **14 domains**
+- Build: ~45 → **~57 pages**; 12 new interactive lesson routes added (`/learn/pcb/`, `/learn/digital/`, `/learn/semiconductor/`)
+
+---
+
 ## [0.22.12] - 2026-02-27
 
 **Phase 1 Circuit Simulator — Falstad iframe embed, MNA solver, tutorial stepper, 3 fundamentals lessons**

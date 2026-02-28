@@ -1,0 +1,33 @@
+{
+  "id": "band-diagrams",
+  "title": "Semiconductor Band Diagrams",
+  "domain": "semiconductor",
+  "difficulty": "advanced",
+  "description": "Visualise energy band diagrams for PN junctions, MOS capacitors, and MOSFET channels under applied bias using the Poisson equation.",
+  "simulator": "band-diagram",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Select 'PN Junction' mode. The diagram shows the conduction band Ec (blue), valence band Ev (red), intrinsic level Ei (dashed grey), and Fermi level Ef (green).",
+        "hint": "Energy increases upward. Electrons 'fall' toward lower Ec; holes 'rise' toward higher Ev — they behave like bubbles."
+      },
+      {
+        "instruction": "At zero bias (Vbias = 0), the Fermi level is flat — thermal equilibrium. The band bending at the junction shows the built-in potential Vbi as the difference in Ec from p-side to n-side.",
+        "hint": "A flat Fermi level is the hallmark of thermal equilibrium. No net current flows despite the built-in field."
+      },
+      {
+        "instruction": "Apply forward bias (Vbias → +0.5 V). The bands flatten — the barrier is reduced. The two quasi-Fermi levels (EFn, EFp) split; this split equals the applied voltage.",
+        "hint": "Quasi-Fermi levels (EFn for electrons, EFp for holes) represent the non-equilibrium carrier distributions. Current flows when they split."
+      },
+      {
+        "instruction": "Switch to 'MOS Cap.' mode. At Vg = 0, bands are flat. Apply positive Vg — the bands bend downward at the surface (n-type inversion). Apply negative Vg — bands bend up (depletion/accumulation).",
+        "hint": "The MOS capacitor is the basis of the MOSFET gate. Band bending by Vg = 2φF achieves strong inversion."
+      },
+      {
+        "instruction": "Switch to 'MOSFET' mode and vary Vg. The band diagram shows the channel potential along the source-to-drain direction. This potential profile determines where carriers flow.",
+        "hint": "In a real MOSFET, the channel potential varies from 0 at the source to Vds at the drain, causing the varying carrier density that leads to pinch-off in saturation."
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "id": "timing-diagrams",
+  "title": "Digital Timing Diagrams",
+  "domain": "digital",
+  "difficulty": "beginner",
+  "description": "Read and interpret WaveDrom timing diagrams. Understand clock edges, setup/hold times, and signal relationships.",
+  "simulator": "wavedrom",
+  "simulatorProps": {
+    "title": "D Flip-Flop timing",
+    "source": "{signal: [{name:'CLK', wave:'P.......'},{name:'D',   wave:'x.1..0.x'},{name:'Q',   wave:'x...1.0x'},{},  {name:'Setup', wave:'xx.=..xx', data:['tsu']},{name:'Hold',  wave:'xxx=.xxx', data:['th']}]}"
+  },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "A timing diagram shows signal states over time. The horizontal axis is time; each vertical division is one clock period. 'P' in WaveDrom means a periodic clock (high/low squares).",
+        "hint": "CLK is the master clock. All other signals are measured relative to its rising (↑) and falling (↓) edges."
+      },
+      {
+        "instruction": "D is the data input to a flip-flop. 'x' means don't-care / unknown. '1' and '0' are logic levels. Observe how D transitions between these states.",
+        "hint": "In synchronous digital design, D must be stable for a setup time (tsu) before and a hold time (th) after the clock edge."
+      },
+      {
+        "instruction": "Q is the output. Notice that Q only changes after the rising clock edge — the flip-flop samples D at that instant and holds the value until the next edge.",
+        "hint": "This is the core concept of synchronous logic: outputs change only on clock edges, preventing glitches from propagating."
+      },
+      {
+        "instruction": "The 'Setup' row marks the setup window — D must be stable for this duration before the clock edge. Violating setup time causes a metastability failure.",
+        "hint": "Metastability means the flip-flop output is neither 0 nor 1 and can oscillate unpredictably until it resolves."
+      },
+      {
+        "instruction": "The 'Hold' row marks the hold time after the clock edge. D must remain stable for this window as well. Hold violations occur in very fast paths (e.g. zero-delay lines).",
+        "hint": "Setup time limits the maximum clock frequency; hold time is fixed by the circuit and cannot be fixed by slowing the clock."
+      }
+    ]
+  }
+}

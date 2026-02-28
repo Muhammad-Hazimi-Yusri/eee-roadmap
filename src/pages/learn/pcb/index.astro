@@ -1,0 +1,113 @@
+---
+// src/pages/learn/pcb/index.astro — PCB lesson browser
+
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import { internalHref } from '../../../utils/url';
+import type { LessonBase } from '../../../lib/learn/types';
+
+const lessonModules = import.meta.glob<LessonBase>(
+  '../../../data/pcb/*.json',
+  { eager: true }
+);
+
+const lessons = Object.values(lessonModules).sort((a, b) => {
+  const order = { beginner: 0, intermediate: 1, advanced: 2 };
+  return order[a.difficulty] - order[b.difficulty];
+});
+
+const difficultyOrder: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
+---
+
+<Layout
+  title="PCB Design Lessons"
+  description="Interactive PCB design tutorials — layer stackups, via types, impedance control, trace routing, and DRC."
+  needsKatex={false}
+>
+  <Header />
+  <main id="main-content">
+    <div class="container py-16">
+      <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// interactive</p>
+      <h1 class="text-2xl sm:text-3xl mb-2">PCB Design Lessons</h1>
+      <p class="max-w-xl text-muted mb-10">
+        Hands-on PCB design concepts with interactive visualisers — layer stackups, via types,
+        impedance calculators, trace routing best practices, and design rule checking.
+      </p>
+
+      <div class="lesson-grid">
+        {lessons.sort((a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]).map(lesson => (
+          <a
+            href={internalHref(`learn/pcb/${lesson.id}`)}
+            class={`lesson-card lesson-card--${lesson.difficulty}`}
+          >
+            <span class="lesson-card__badge">{lesson.difficulty}</span>
+            <h2 class="lesson-card__title">{lesson.title}</h2>
+            <p class="lesson-card__desc">{lesson.description}</p>
+            <span class="lesson-card__steps">{lesson.tutorial.steps.length} steps</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .lesson-card {
+    display: block;
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+
+  .lesson-card:hover {
+    border-color: var(--color-copper);
+    background: var(--color-bg-grid);
+  }
+
+  .lesson-card__badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 0.6rem;
+  }
+
+  .lesson-card--beginner     .lesson-card__badge { background: color-mix(in srgb, var(--color-pcb) 15%, transparent); color: var(--color-pcb-light); }
+  .lesson-card--intermediate .lesson-card__badge { background: color-mix(in srgb, var(--color-copper) 15%, transparent); color: var(--color-copper); }
+  .lesson-card--advanced     .lesson-card__badge { background: color-mix(in srgb, #a64ca6 15%, transparent); color: #c87dc8; }
+
+  .lesson-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem;
+  }
+
+  .lesson-card__desc {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0 0 0.75rem;
+  }
+
+  .lesson-card__steps {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+</style>

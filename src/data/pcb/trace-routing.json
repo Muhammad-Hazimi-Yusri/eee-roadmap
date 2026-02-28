@@ -1,0 +1,41 @@
+{
+  "id": "trace-routing",
+  "title": "Trace Routing Best Practices",
+  "domain": "pcb",
+  "difficulty": "beginner",
+  "description": "Interactive examples showing 45° routing, differential pair matching, and return path management — the three most impactful PCB layout skills.",
+  "simulator": "trace-routing",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "The demo has three routing topics. Start with '45° Routing'. The first pattern shows why 90° corners are bad — they create sharp acid-traps and increase EMI radiation from the corner region.",
+        "hint": "Modern EDA tools (KiCad, Altium) will flag 90° bends in DRC. Some fab houses explicitly require 45° routing."
+      },
+      {
+        "instruction": "Step 2 compares 45° chamfers vs smooth arc routing. Arcs are slightly better electrically at very high frequencies (>10 GHz) because they minimise impedance discontinuities. Either is acceptable for most designs.",
+        "hint": "KiCad's interactive router automatically creates 45° bends. Enable 'smooth curves' in router settings for arc routing."
+      },
+      {
+        "instruction": "Step 3 shows stub traces. A stub is a dead-end trace segment that was once connected to something now removed. It creates a transmission line resonance. Always clean up stubs with DRC.",
+        "hint": "Backdrilling is used in high-speed designs (>5 Gbps) to remove through-via stubs that would cause resonances."
+      },
+      {
+        "instruction": "Switch to 'Differential Pairs'. Step 1 shows why spacing must be kept consistent. Widening gaps between the two traces breaks the coupling and allows noise to enter differentially, degrading CMRR.",
+        "hint": "USB, HDMI, LVDS, MIPI CSI, and PCIe all use differential pairs. Always route them together, never split to different layers without a via pair."
+      },
+      {
+        "instruction": "Step 2 shows length matching with a meander. At 1 Gbps, even 100 ps of skew (≈ 15 mm length mismatch) can corrupt the differential signal. Add meanders to the shorter trace to equalise lengths.",
+        "hint": "Match lengths within λ/10 of the fastest edge rate. At 1 GHz in FR4, λ ≈ 150 mm, so match within 15 mm."
+      },
+      {
+        "instruction": "Switch to 'Return Path'. Return current is the other half of every signal current loop. At high frequencies it flows directly under the signal trace on the nearest reference plane — this minimises loop inductance.",
+        "hint": "This is why inner planes are always GND/PWR in a 4-layer stackup: they provide return paths for both surface layers."
+      },
+      {
+        "instruction": "The split plane example shows what happens when you route a signal across a gap in the GND plane. The return current must travel all the way around the gap, creating a large EMI-radiating loop. Never route high-speed signals over plane splits.",
+        "hint": "Use stitching capacitors (100 nF) to bridge plane transitions near layer-change vias. Add a GND via close to every signal layer-change via."
+      }
+    ]
+  }
+}

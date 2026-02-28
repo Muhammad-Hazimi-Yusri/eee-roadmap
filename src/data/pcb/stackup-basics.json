@@ -1,0 +1,33 @@
+{
+  "id": "stackup-basics",
+  "title": "PCB Layer Stackups",
+  "domain": "pcb",
+  "difficulty": "beginner",
+  "description": "Explore the cross-section of a PCB. Learn what each layer does and how 2, 4, 6, and 8-layer stackups differ.",
+  "simulator": "layer-stackup",
+  "simulatorProps": { "layers": 4, "interactive": true },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "A PCB is built from alternating layers of copper and dielectric (insulating) material. The diagram shows a cross-section. Select '2-layer' to start with the simplest stackup.",
+        "hint": "The orange layers are copper, the tan layers are the FR4 core and prepreg."
+      },
+      {
+        "instruction": "A 2-layer board has one copper layer on top (components side) and one on the bottom. The FR4 core provides mechanical rigidity. Suitable for simple boards < 50 MHz.",
+        "hint": "2-layer boards are the cheapest option. Most hobby boards (Arduino shields, breakouts) are 2-layer."
+      },
+      {
+        "instruction": "Switch to 4-layer. Notice two inner copper layers: L2 (GND plane) and L3 (PWR plane). These provide a solid return path for signals routed on L1 and L4.",
+        "hint": "Inner planes give controlled impedance and excellent EMI performance. 4-layer is standard for most commercial products."
+      },
+      {
+        "instruction": "The prepreg (partially cured epoxy) is the adhesive that bonds core sub-stacks together during lamination. Its dielectric constant (εr ≈ 4.2) affects trace impedance.",
+        "hint": "Prepreg is lighter tan than the core. It's flexible before curing, rigid afterwards."
+      },
+      {
+        "instruction": "Try 6-layer and 8-layer. As layer count grows, inner signal layers get buried between ground planes, improving signal integrity and EMI shielding.",
+        "hint": "High-density designs (FPGAs, DDR memory, RF) typically need 6–8+ layers."
+      }
+    ]
+  }
+}

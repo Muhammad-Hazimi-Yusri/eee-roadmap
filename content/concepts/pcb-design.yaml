@@ -1,0 +1,415 @@
+# EEE Roadmap — Concept Library: pcb-design
+# See CONTRIBUTING.md for the concept file format.
+_meta:
+  domain: pcb-design
+  description: Printed circuit board design, layout, fabrication, and signal integrity
+
+concepts:
+  pcb-stackup:
+    name: PCB Layer Stackup
+    tags: [pcb, manufacturing, signal-integrity]
+    notes: |
+      A PCB stackup defines the arrangement of copper and dielectric layers.
+      The choice of stackup affects impedance, crosstalk, power delivery, and cost.
+
+      **Common Configurations:**
+
+      | Layers | Typical Use | Core/Prepreg |
+      |--------|------------|--------------|
+      | 2 | Simple hobby, through-hole dominant | 1 core |
+      | 4 | Most consumer electronics | 2 core + 1 prepreg |
+      | 6 | High-speed digital, mixed-signal | 3 core + 2 prepreg |
+      | 8+ | High-density, RF, high-speed | Multiple sub-stacks |
+
+      **Material Properties:**
+
+      - **Core**: Fully cured epoxy-glass laminate (rigid)
+      - **Prepreg**: Pre-impregnated (partially cured) glass-cloth bonding layer
+      - **Copper foil**: $\frac{1}{2}$ oz (17.5 µm), 1 oz (35 µm), or 2 oz (70 µm) typical
+
+      **4-Layer Typical (top → bottom):**
+      1. Top copper (signal/components)
+      2. Inner layer 1 (ground plane)
+      3. Inner layer 2 (power plane)
+      4. Bottom copper (signal)
+
+      Solid reference planes on layers 2 and 3 provide controlled impedance and shield signals.
+
+  layer-types:
+    name: PCB Layer Types
+    tags: [pcb, manufacturing]
+    prerequisites: [pcb-stackup]
+    notes: |
+      PCB layers serve distinct functional roles.
+
+      **Signal layers** carry traces routing data, clocks, and analog signals.
+      **Plane layers** are flooded with copper for power distribution or ground reference.
+
+      | Layer Name | Abbreviation | Purpose |
+      |-----------|-------------|---------|
+      | Top Copper | F.Cu / GTL | Component side routing |
+      | Bottom Copper | B.Cu / GBL | Back-side routing |
+      | Top Silkscreen | F.SilkS | Component labels/outlines |
+      | Bottom Silkscreen | B.SilkS | Back labels |
+      | Top Soldermask | F.Mask | Solder resist (expose pads only) |
+      | Bottom Soldermask | B.Mask | Solder resist |
+      | Top Paste | F.Paste | SMT paste apertures |
+      | Board Edge | Edge.Cuts | PCB outline |
+      | Drill | PTH/NPTH | Drill holes |
+
+  trace-routing:
+    name: Trace Routing
+    tags: [pcb, signal-integrity, layout]
+    prerequisites: [pcb-stackup]
+    notes: |
+      Trace routing is the process of connecting component pads with copper paths.
+
+      **Routing Rules:**
+
+      - **Avoid 90° bends**: Creates acid traps during etching (pre-2000 concern) and increases
+        EMI. Use 45° chamfers or curved (arc) bends.
+      - **Minimum trace width**: Determined by current carrying capacity and manufacturing limits.
+        For signal traces: 0.127 mm (5 mil) typical; power traces: wider to limit resistive drop.
+      - **Return current path**: High-frequency currents follow the path of least inductance —
+        directly beneath the signal trace on the reference plane. Never split a plane under a
+        high-speed signal.
+
+      **Trace Resistance:**
+
+      $$R = \frac{\rho \cdot L}{W \cdot T}$$
+
+      where $\rho_\text{Cu} = 1.72 \times 10^{-8}\ \Omega\text{m}$, $L$ = length, $W$ = width,
+      $T$ = copper thickness.
+
+      **Current Carrying Capacity (IPC-2221):**
+
+      $$I = k \cdot \Delta T^{0.44} \cdot A^{0.725}$$
+
+      where $k$ = 0.048 (external) or 0.024 (internal), $\Delta T$ = temperature rise above
+      ambient (°C), $A$ = cross-sectional area (mil²).
+
+  controlled-impedance:
+    name: Controlled Impedance
+    tags: [pcb, signal-integrity, high-speed]
+    prerequisites: [pcb-stackup, trace-routing]
+    notes: |
+      At high frequencies, traces behave as **transmission lines** with characteristic
+      impedance $Z_0$. Impedance discontinuities cause reflections that corrupt signal integrity.
+
+      **Why It Matters:**
+
+      The electrical length of a trace matters when it is longer than $\lambda/10$ at the
+      signal frequency. At 1 GHz, $\lambda \approx$ 300 mm in free space, so any trace over
+      ~15 mm should be treated as a transmission line.
+
+      **Common Target Impedances:**
+
+      | Standard | Z₀ |
+      |---------|-----|
+      | Single-ended (general) | 50 Ω |
+      | Differential pair | 100 Ω (50 Ω each) |
+      | LVDS | 100 Ω differential |
+      | USB | 90 Ω differential |
+      | DDR memory | 40–60 Ω |
+
+      **Microstrip** (trace on surface, reference plane below):
+
+      $$Z_0 = \frac{87}{\sqrt{\varepsilon_r + 1.41}} \ln\!\left(\frac{5.98H}{0.8W + T}\right)
+      \quad\text{(Wheeler 1977, } W/H < 1\text{)}$$
+
+      **Stripline** (trace embedded between two reference planes):
+
+      $$Z_0 = \frac{60}{\sqrt{\varepsilon_r}} \ln\!\left(\frac{4b}{0.67\pi(0.8W+T)}\right)$$
+
+      where $H$ = dielectric height, $W$ = trace width, $T$ = trace thickness,
+      $b$ = separation between planes.
+
+  differential-pairs:
+    name: Differential Pairs
+    tags: [pcb, signal-integrity, high-speed]
+    prerequisites: [controlled-impedance]
+    notes: |
+      A differential pair carries the same signal on two traces with opposite polarity.
+      The receiver amplifies the **difference** $V_+ - V_-$, rejecting common-mode noise.
+
+      **Routing Rules:**
+      - Keep both traces the **same length** (length-match within 0.1 mm or less for GHz signals)
+      - Keep them **tightly coupled** (spacing ≤ 3× trace width) to maximise noise rejection
+      - Route as a pair — never split them across layers unless absolutely necessary
+      - Maintain consistent spacing — avoid pinching or widening
+
+      **Common-mode rejection** (CMRR) improves when coupling is tight, since both traces
+      pick up the same environmental noise which cancels at the differential receiver.
+
+  via-through-hole:
+    name: Through-Hole Via
+    tags: [pcb, manufacturing, vias]
+    prerequisites: [pcb-stackup]
+    notes: |
+      A through-hole via (PTH — Plated Through Hole) connects all copper layers by drilling
+      completely through the PCB and plating the barrel with copper.
+
+      **Characteristics:**
+      - Connects **all layers** from top to bottom
+      - Minimum drill diameter: 0.2 mm (mechanical); 0.1 mm (laser, rare)
+      - Standard drill: 0.3 mm with 0.6 mm pad
+      - Lowest cost — used in hobby and volume production
+      - **Via stub**: unused portion of barrel below last signal layer acts as a
+        stub resonator that degrades high-frequency performance
+
+      **Parasitic Model:**
+
+      $$L_\text{via} \approx \frac{5.08 \times h}{1000}\!\left[\ln\!\left(\frac{4h}{d}\right)+1\right]\ \text{nH}$$
+
+      where $h$ = via height (mm), $d$ = barrel diameter (mm). A 1.6 mm via ≈ 1 nH.
+
+  via-blind:
+    name: Blind Via
+    tags: [pcb, manufacturing, vias]
+    prerequisites: [via-through-hole]
+    notes: |
+      A blind via starts at an outer layer and terminates at an inner layer, without
+      breaking through to the opposite outer surface.
+
+      **Characteristics:**
+      - Saves board real-estate — does not occupy inner layer routing channels
+      - Connects outer copper layer to one or more adjacent inner layers
+      - More expensive: requires sequential lamination or laser drilling
+      - Typical use: high-density BGA fan-out, mobile/wearable PCBs
+      - IPC naming: $\text{Top} \rightarrow \text{L}_n$ or $\text{Bottom} \rightarrow \text{L}_n$
+
+  via-buried:
+    name: Buried Via
+    tags: [pcb, manufacturing, vias]
+    prerequisites: [via-through-hole]
+    notes: |
+      A buried via connects two or more inner layers without reaching either outer surface.
+
+      **Characteristics:**
+      - Completely hidden inside the board — invisible after lamination
+      - Enables highest routing density (outer layers fully available for signals and pads)
+      - Significantly increases fabrication cost and layer count requirements
+      - Requires board to be drilled and plated in sub-stacks before final lamination
+      - Used in high-density interconnect (HDI) designs: smartphones, tablets, implantables
+
+  microvia:
+    name: Microvia
+    tags: [pcb, manufacturing, vias, hdi]
+    prerequisites: [via-blind]
+    notes: |
+      A microvia is a laser-drilled blind via with a maximum diameter of **0.15 mm**,
+      connecting only adjacent layers (typically L1–L2).
+
+      **Characteristics:**
+      - Drilled with UV laser (CO₂ or UV-YAG) — no mechanical drill
+      - Can be stacked (directly above each other across multiple layers) or staggered
+      - Enables sub-0.4 mm BGA pitches impossible with through-hole vias
+      - Aspect ratio limited to ≤ 1:1 (depth:diameter) for reliable plating
+      - IPC-2226 governs HDI via design
+
+      **Stacking Types:**
+      - **Stacked microvias**: directly on top of each other — lower inductance, risk of
+        reliability if not properly filled and capped
+      - **Staggered microvias**: offset between layers — more reliable under thermal cycling
+
+  return-path:
+    name: Return Current Path
+    tags: [pcb, signal-integrity, emc]
+    prerequisites: [trace-routing, pcb-stackup]
+    notes: |
+      Every signal current has a **return current** that flows back to the source.
+      At DC, return current takes the lowest-resistance path (shortest route).
+      At high frequencies, return current takes the lowest-**inductance** path —
+      which is **directly beneath the signal trace** on the reference plane.
+
+      **Split Plane Problem:**
+
+      If the reference plane has a gap or slot directly beneath a signal trace, the return
+      current is forced to detour around the split, creating a large current loop.
+      A large loop means high inductance and high electromagnetic emissions (EMI).
+
+      $$L_\text{loop} \propto A_\text{loop}$$
+
+      **Rules:**
+      - Never route a high-speed trace over a gap in the reference plane
+      - Place decoupling capacitors close to power pins to provide local return path
+      - Use a stitching via near each signal layer transition to bring the return path along
+
+  pcb-materials:
+    name: PCB Substrate Materials
+    tags: [pcb, manufacturing, materials]
+    notes: |
+      The substrate (dielectric) affects impedance, loss at high frequency, cost, and thermal performance.
+
+      | Material | $\varepsilon_r$ | Loss Tangent | Application |
+      |----------|-----------------|--------------|-------------|
+      | FR4 | 4.2–4.8 | 0.02 | Standard digital, < 1 GHz |
+      | Rogers 4003C | 3.55 | 0.0027 | RF/microwave, < 10 GHz |
+      | Rogers 4350B | 3.66 | 0.0037 | RF/microwave |
+      | PTFE (Teflon) | 2.1 | 0.0002 | High-frequency RF |
+      | Isola 370HR | 3.9–4.2 | 0.025 | High-temp lead-free |
+      | Aluminium-core (IMS) | — | — | LED, power electronics (thermal) |
+
+      **Loss Tangent** ($\tan\delta$) determines dielectric loss. At 10 GHz, FR4 ($\tan\delta = 0.02$)
+      introduces ~1 dB/cm of loss — unacceptable for RF. Rogers materials are chosen precisely
+      because of their low $\tan\delta$.
+
+  surface-finish:
+    name: PCB Surface Finish
+    tags: [pcb, manufacturing, solderability]
+    notes: |
+      Surface finish protects exposed copper pads from oxidation and ensures solderability.
+
+      | Finish | Full Name | Shelf Life | Cost | Notes |
+      |--------|-----------|------------|------|-------|
+      | HASL | Hot Air Solder Level | 12 mo | Lowest | Uneven, not for fine-pitch |
+      | ENIG | Electroless Nickel Immersion Gold | 12 mo | Moderate | Flat, good for BGA |
+      | ENEPIG | Electroless Ni/Pd/Immersion Gold | 12 mo | High | Wire-bondable |
+      | OSP | Organic Solderability Preservative | 6 mo | Lowest | Single-reflow preferred |
+      | Immersion Tin | — | 6 mo | Low | Tin whisker risk |
+      | Immersion Silver | — | 6 mo | Moderate | Tarnish-sensitive |
+
+      **ENIG** is the most common choice for lead-free SMT assembly due to its flat surface
+      (critical for fine-pitch BGAs) and good shelf life.
+
+  drc:
+    name: Design Rule Check (DRC)
+    tags: [pcb, eda, manufacturing]
+    notes: |
+      A Design Rule Check (DRC) is an automated EDA tool pass that verifies the layout
+      complies with fabrication constraints and electrical rules.
+
+      **Common DRC Rules:**
+
+      | Rule | Typical Value | Purpose |
+      |------|--------------|---------|
+      | Min trace width | 0.127 mm (5 mil) | Prevents trace underetch |
+      | Min clearance | 0.127 mm (5 mil) | Prevents solder bridges / shorts |
+      | Min annular ring | 0.1 mm | Ensures via barrel survives drill tolerance |
+      | Soldermask expansion | 0.05 mm | Ensures mask doesn't cover pad edges |
+      | Silkscreen on pad | 0 overlap | Prevents poor soldering |
+      | Copper to board edge | 0.3 mm | Prevents delamination at routing |
+
+      **Electrical DRC** also checks for:
+      - Short circuits (nets that should be distinct but share copper)
+      - Open circuits (expected connections missing from the layout)
+      - Missing vias / copper pours violating connectivity
+
+  gerber-format:
+    name: Gerber File Format
+    tags: [pcb, manufacturing, eda]
+    notes: |
+      Gerber (RS-274X) is the de facto standard file format for PCB fabrication data.
+      Each board layer is described by a separate Gerber file.
+
+      **Typical Gerber Package:**
+
+      | File Extension | Content |
+      |---------------|---------|
+      | `.GTL` / `F.Cu` | Top copper |
+      | `.GBL` / `B.Cu` | Bottom copper |
+      | `.GTS` / `F.Mask` | Top soldermask |
+      | `.GBS` / `B.Mask` | Bottom soldermask |
+      | `.GTO` / `F.SilkS` | Top silkscreen |
+      | `.GBO` / `B.SilkS` | Bottom silkscreen |
+      | `.TXT` / `.DRL` | Drill file (Excellon format) |
+      | `.GKO` / `Edge.Cuts` | Board outline |
+
+      **Modern Standard: Gerber X2 (2014)**
+      Adds embedded attribute metadata (net names, component positions) to enable
+      better fab-house automation and design review.
+
+      KiCad natively exports X2; most fabs accept both RS-274X and X2.
+
+  copper-pours:
+    name: Copper Pours (Fills)
+    tags: [pcb, layout, signal-integrity, thermal]
+    prerequisites: [trace-routing, return-path]
+    notes: |
+      A copper pour fills unused PCB area on a layer with solid copper, typically
+      connected to GND. Also called a **flood fill** or **plane fill**.
+
+      **Benefits:**
+      - Reduces ground impedance → better return paths for signals
+      - Improves EMI shielding
+      - Spreads heat away from hot components
+      - Reduces PCB cost at some fabs (less copper etching needed)
+
+      **Design Considerations:**
+      - Set a **clearance** (0.2–0.5 mm) from all non-connected pads
+      - Avoid **copper islands** (isolated poured copper not connected to any net) —
+        they can act as antennas and worsen EMI
+      - On two-layer boards: pour GND on the bottom layer to provide a pseudo-reference plane
+      - Use **thermal reliefs** on through-hole pads to avoid solder wicking issues during hand soldering
+
+  component-placement:
+    name: Component Placement
+    tags: [pcb, layout, manufacturing]
+    notes: |
+      Component placement determines trace lengths, thermal management, assembly cost,
+      and signal integrity. Layout before routing.
+
+      **Key Principles:**
+
+      1. **Keep decoupling capacitors as close as possible** to the IC power pin.
+         Every millimetre of extra trace adds ~0.5–1 nH of inductance that degrades filtering.
+
+      2. **Group sub-circuits together** (e.g., oscillator circuit near MCU clock pin,
+         antenna matching near RF IC) to keep traces short.
+
+      3. **Thermal management**: Orient heat-generating components to allow airflow,
+         keep them away from temperature-sensitive parts (crystals, precision references).
+
+      4. **Mechanical constraints**: Connectors on board edges, mounting holes clear of
+         copper, components respecting assembly clearances.
+
+      5. **Reference designators**: Visible from top, consistent orientation.
+
+  design-for-manufacture:
+    name: Design for Manufacture (DFM)
+    tags: [pcb, manufacturing, quality]
+    notes: |
+      DFM practices ensure a PCB design can be reliably fabricated and assembled at
+      reasonable yield and cost.
+
+      **Key DFM Rules:**
+      - **Minimum via drill**: 0.3 mm (through-hole), 0.1 mm (laser microvia)
+      - **Fiducial marks**: At least 3 corner fiducials for SMT pick-and-place alignment
+      - **Paste aperture reduction**: 10–20% smaller than pad for fine-pitch components
+      - **Test points**: Expose 1 mm pads for in-circuit test (ICT) probe contact
+      - **Panel design**: V-score or tab-routed panels speed up assembly
+      - **Component-free zone**: 5 mm keepout near board edge for PCB handling
+
+      **Assembly Process (SMT):**
+      1. Solder paste stencil print
+      2. Pick-and-place
+      3. Reflow oven (lead-free: ~260°C peak)
+      4. AOI (Automated Optical Inspection)
+      5. (Optional) X-ray for hidden joints (BGAs)
+      6. Through-hole soldering (wave or selective)
+
+  signal-integrity:
+    name: Signal Integrity (SI)
+    tags: [pcb, signal-integrity, high-speed]
+    prerequisites: [controlled-impedance, return-path, differential-pairs]
+    notes: |
+      Signal Integrity (SI) is the discipline of ensuring digital and analog signals
+      arrive at the receiver with sufficient quality to be correctly interpreted.
+
+      **Key SI Problems:**
+
+      | Problem | Cause | Mitigation |
+      |---------|-------|-----------|
+      | Reflection | Impedance discontinuity | Match trace Z₀, add termination |
+      | Crosstalk | Capacitive/inductive coupling between adjacent traces | Increase spacing (3W rule), reference planes |
+      | Ground bounce | High di/dt through parasitic inductance | Decoupling capacitors, wide power bus |
+      | EMI | Large current loops, unshielded signals | Return paths, shielding, filtering |
+      | Simultaneous switching noise (SSN) | Many outputs switching together | Controlled slew rate, decoupling |
+
+      **3W Rule**: Keep trace-to-trace spacing ≥ 3× trace width to limit crosstalk to
+      below −26 dB (< 5% coupling).
+
+      **Termination Strategies:**
+      - **Series resistor** (near driver): 22–33 Ω absorbs reflected wave at source
+      - **Parallel termination** (at receiver): matches Z₀, but draws DC current
+      - **Thevenin**: Resistor divider termination — used for DDR bus

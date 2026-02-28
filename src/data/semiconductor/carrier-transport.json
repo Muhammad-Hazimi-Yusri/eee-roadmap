@@ -1,0 +1,33 @@
+{
+  "id": "carrier-transport",
+  "title": "Carrier Transport & Mobility",
+  "domain": "semiconductor",
+  "difficulty": "intermediate",
+  "description": "Animate electron and hole motion under electric fields. See drift velocity, diffusion, the Einstein relation, and how doping and temperature affect mobility.",
+  "simulator": "carrier-animation",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "At E = 0 V/cm, both electrons (blue) and holes (red circles) move randomly — this is thermal diffusion. The random walk has no net direction.",
+        "hint": "Thermal energy kT gives each carrier an average kinetic energy of (3/2)kT. The random motion averages out to zero net current."
+      },
+      {
+        "instruction": "Set E = +200 V/cm. Electrons drift left (opposite to E), holes drift right (with E). The arrows on the canvas show the field direction.",
+        "hint": "Drift current density: Jn = q·n·μn·E (electrons), Jp = q·p·μp·E (holes). Both contribute to current in the SAME direction despite carriers moving in opposite directions."
+      },
+      {
+        "instruction": "Observe the mobility values in the metrics panel. At Nd = 10^16 cm⁻³, μn ≈ 1200 cm²/V·s and μp ≈ 450 cm²/V·s. Increase doping to 10^18 cm⁻³ — both mobilities drop due to ionised impurity scattering.",
+        "hint": "Mobility decreases at high doping because more charged impurities scatter the carriers. This is described by the Caughey-Thomas model."
+      },
+      {
+        "instruction": "Increase temperature from 300 K to 450 K. Mobility decreases (lattice scattering dominates at high T). At very low temperatures, mobility would increase (fewer phonons).",
+        "hint": "Phonon scattering: μ ∝ T^(-3/2). Impurity scattering: μ ∝ T^(+3/2). Total mobility is determined by Matthiessen's rule: 1/μ = 1/μphonon + 1/μimpurity."
+      },
+      {
+        "instruction": "The diffusion coefficient D is shown below the mobility. Notice D/μ = kT/q — this is the Einstein relation. At 300 K, D/μ = 0.02585 V (the thermal voltage).",
+        "hint": "The Einstein relation links diffusion to drift — both stem from the same carrier scattering physics. It's fundamental to the design of bipolar transistors and diodes."
+      }
+    ]
+  }
+}

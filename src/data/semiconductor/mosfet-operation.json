@@ -1,0 +1,33 @@
+{
+  "id": "mosfet-operation",
+  "title": "MOSFET Operation",
+  "domain": "semiconductor",
+  "difficulty": "intermediate",
+  "description": "Visualise the MOSFET cross-section and I-V characteristics. Explore cutoff, linear (triode), and saturation regions interactively.",
+  "simulator": "mosfet",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Set Vgs = 0 V. The device is in CUTOFF — no inversion layer forms, no drain current flows. The gate voltage is below the threshold voltage Vth = 1.0 V.",
+        "hint": "The threshold voltage Vth is the minimum gate voltage needed to form a conductive channel between source and drain."
+      },
+      {
+        "instruction": "Increase Vgs above 1.0 V. A thin green inversion layer appears — a channel of electrons induced by the positive gate field. This is the ON state.",
+        "hint": "The inversion layer is a sheet of electrons at the Si/SiO₂ interface. Its conductance is proportional to (Vgs - Vth)."
+      },
+      {
+        "instruction": "With Vgs = 2.0 V, increase Vds from 0 to 3 V. At low Vds, the device is in the LINEAR region — Id increases roughly linearly with Vds.",
+        "hint": "In the linear region: Id ≈ kn·(Vgs-Vth)·Vds for small Vds. The MOSFET behaves like a voltage-controlled resistor."
+      },
+      {
+        "instruction": "Continue increasing Vds past Vgs - Vth (the overdrive voltage). You'll see the channel pinch off near the drain. The device enters SATURATION — Id becomes nearly independent of Vds.",
+        "hint": "Pinch-off occurs when the local gate-to-channel voltage at the drain drops below Vth. Beyond this point, current saturates at Id = (kn/2)(Vgs-Vth)²."
+      },
+      {
+        "instruction": "Examine the family of I-V curves in the lower panel. Each curve corresponds to a different Vgs. The dashed curve is the saturation boundary (Vds = Vgs - Vth). The orange dot is your current operating point.",
+        "hint": "IC designers use these curves to choose the bias point (Vgs, Vds) for a given drain current. The slope in saturation (output resistance) ideally is zero."
+      }
+    ]
+  }
+}

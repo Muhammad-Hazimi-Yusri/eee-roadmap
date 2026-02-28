@@ -1,0 +1,37 @@
+{
+  "id": "drc-rules",
+  "title": "Design Rule Checking (DRC)",
+  "domain": "pcb",
+  "difficulty": "beginner",
+  "description": "Click the violation markers on the PCB layout to learn what each DRC rule catches, why it matters, and how to fix it.",
+  "simulator": "drc",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "DRC (Design Rule Check) is an automated pass that catches layout errors before sending files to the fab house. Click any red or orange (!) marker on the board to inspect that violation.",
+        "hint": "Run DRC in KiCad with Tools > Design Rules Checker, or shortcut D in the PCB editor."
+      },
+      {
+        "instruction": "The 'Min. Clearance Violation' (!) is the most common error. Two copper features are too close together. During etching, copper may bridge across the gap, creating a short circuit.",
+        "hint": "Standard clearance rule: 0.127 mm (5 mil) for most fabs. For high-voltage designs (>150 V), clearances must follow IPC-2221 creepage/clearance tables."
+      },
+      {
+        "instruction": "The 'Min. Trace Width Violation' means a trace is too narrow to be reliably etched. Very thin traces also have higher resistance, limiting the current they can carry.",
+        "hint": "Use the IPC-2221 trace width calculator: for 1A current with 10°C rise, external trace needs ~0.33 mm width in 1oz copper."
+      },
+      {
+        "instruction": "The 'Annular Ring' violation means the copper ring around a drilled hole is too small. If the drill machine mis-locates by its tolerance (±0.05–0.15 mm), it can drill through the ring and break the connection.",
+        "hint": "Standard rule: annular ring ≥ 0.1 mm after drill tolerance. Pad diameter = drill diameter + 0.5 mm is a safe starting point."
+      },
+      {
+        "instruction": "The 'Soldermask Sliver' warning means two soldermask openings are so close that the thin sliver of resist between them may lift during reflow, potentially bridging both pads.",
+        "hint": "Either widen the gap or merge the solder mask openings. Most EDA tools have a 'soldermask sliver' DRC rule you can set in mils."
+      },
+      {
+        "instruction": "The 'Silkscreen on Pad' warning means a text label overlaps a solder pad. Silkscreen ink on a pad contaminates the surface and prevents solder from wetting properly, causing opens or cold joints.",
+        "hint": "Enable 'Silkscreen→Pad' DRC rule and set it to generate errors. Most tools can auto-move or auto-clip silkscreen away from pads."
+      }
+    ]
+  }
+}

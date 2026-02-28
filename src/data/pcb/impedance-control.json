@@ -1,0 +1,33 @@
+{
+  "id": "impedance-control",
+  "title": "Controlled Impedance",
+  "domain": "pcb",
+  "difficulty": "intermediate",
+  "description": "Use the impedance calculator to design 50 Ω microstrip and stripline traces. Understand how trace geometry and dielectric constant affect characteristic impedance.",
+  "simulator": "impedance",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "The calculator shows the microstrip formula. Start by setting εr = 4.4 (standard FR4), H = 1.6 mm (standard board thickness), T = 35 µm (1 oz copper). Adjust W until Z₀ ≈ 50 Ω.",
+        "hint": "For 1.6 mm FR4, a 50 Ω microstrip trace is approximately W = 3.0 mm."
+      },
+      {
+        "instruction": "Notice that increasing W lowers Z₀. This is because a wider trace has more capacitance per unit length to the reference plane, which lowers the characteristic impedance Z₀ = √(L/C).",
+        "hint": "Double the trace width → lower Z₀ by roughly 25–30%. The relationship is logarithmic."
+      },
+      {
+        "instruction": "Increase εr to 10 (ceramic substrate). The Z₀ drops significantly. Higher permittivity increases trace capacitance, reducing impedance. Rogers and ceramic substrates are used at RF to achieve compact trace geometries.",
+        "hint": "εr,eff is less than εr because part of the field is in air above the trace. Stripline fully embeds the trace, so εr,eff ≈ εr."
+      },
+      {
+        "instruction": "Switch to 'stripline' mode. A stripline trace is sandwiched between two reference planes. Its impedance is lower than microstrip for the same W because the field is entirely in the dielectric (no air).",
+        "hint": "Striplines have lower EMI and crosstalk than microstrips since they're shielded on both sides."
+      },
+      {
+        "instruction": "The mini Z₀ vs W chart shows how impedance varies across the width range. The orange dot is your operating point. Use this to quickly choose trace width for common targets: 50 Ω (RF, single-ended), 75 Ω (video), 100 Ω differential.",
+        "hint": "In KiCad, use the Interactive Router > Differential Pair and set the impedance in the constraints manager."
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+---
+// src/components/simulators/pcb/KiCanvasEmbed.astro
+// Wrapper for the KiCanvas web component (https://github.com/theacodes/kicanvas, MIT).
+// Loads KiCanvas from CDN, renders <kicanvas-embed> web component.
+// No client: hydration directive needed — web component handles its own setup.
+
+interface Props {
+  /** GitHub URL or direct file URL to a .kicad_pcb or .kicad_sch file. */
+  src?: string;
+  /** Show layer/component controls. Default true. */
+  controls?: boolean;
+  /** Height of the viewer in pixels. Default 500. */
+  height?: number;
+}
+
+const { src, controls = true, height = 500 } = Astro.props;
+---
+
+<div class="kicanvas-wrapper">
+  {src ? (
+    <kicanvas-embed
+      src={src}
+      controls={controls ? 'full' : 'none'}
+      style={`height: ${height}px; width: 100%; display: block;`}
+    />
+  ) : (
+    <div class="kicanvas-placeholder" style={`height: ${height}px`}>
+      <div class="kicanvas-placeholder__inner">
+        <p class="kicanvas-placeholder__title">KiCanvas PCB Viewer</p>
+        <p class="kicanvas-placeholder__hint">
+          Drag and drop a <code>.kicad_pcb</code> or <code>.kicad_sch</code> file here
+          to view it interactively, or provide a GitHub URL via the <code>src</code> prop.
+        </p>
+        <kicanvas-embed
+          controls={controls ? 'full' : 'none'}
+          style="height: 100%; width: 100%; display: block;"
+        />
+      </div>
+    </div>
+  )}
+</div>
+
+<!-- Load KiCanvas web component from CDN (MIT licence) -->
+<script is:inline type="module" src="https://kicanvas.org/kicanvas/kicanvas.js"></script>
+
+<style>
+  .kicanvas-wrapper {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #1a1a1a;
+  }
+
+  .kicanvas-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-grid);
+  }
+
+  .kicanvas-placeholder__inner {
+    text-align: center;
+    padding: 2rem;
+    max-width: 360px;
+  }
+
+  .kicanvas-placeholder__title {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0 0 0.5rem;
+  }
+
+  .kicanvas-placeholder__hint {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .kicanvas-placeholder__hint code {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--color-bg);
+    padding: 0.1em 0.3em;
+    border-radius: 2px;
+  }
+</style>

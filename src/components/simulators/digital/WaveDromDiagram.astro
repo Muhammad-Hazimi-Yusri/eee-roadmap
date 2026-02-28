@@ -1,0 +1,64 @@
+---
+// src/components/simulators/digital/WaveDromDiagram.astro
+// Renders a WaveDrom timing diagram from a WaveJSON string.
+// Uses WaveDrom's browser bundle via inline script — no SSR issues.
+// No client: directive needed.
+
+interface Props {
+  /** WaveJSON string (must be valid JSON). */
+  source: string;
+  /** Optional caption shown below the diagram. */
+  title?: string;
+}
+
+const { source, title } = Astro.props;
+
+// Unique ID so multiple diagrams on the same page don't clash
+const uid = `wd-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="wavedrom-wrapper">
+  {title && <p class="wavedrom-title">{title}</p>}
+  <div id={uid} class="wavedrom-diagram">
+    <script type="WaveDrom" set:text={source} />
+  </div>
+</div>
+
+<!-- WaveDrom browser bundle — load once per page; re-calls are no-ops -->
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/3.5.0/wavedrom.min.js"></script>
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/3.5.0/skins/default.js"></script>
+<script is:inline>
+  // WaveDrom.ProcessAll renders all <script type="WaveDrom"> blocks on the page.
+  // We defer until DOMContentLoaded to handle Astro's partial hydration ordering.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof WaveDrom !== 'undefined') WaveDrom.ProcessAll();
+    });
+  } else {
+    if (typeof WaveDrom !== 'undefined') WaveDrom.ProcessAll();
+  }
+</script>
+
+<style>
+  .wavedrom-wrapper {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1rem;
+    background: var(--color-bg-grid);
+    overflow-x: auto;
+  }
+
+  .wavedrom-title {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin: 0 0 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .wavedrom-diagram svg {
+    max-width: 100%;
+    height: auto;
+  }
+</style>

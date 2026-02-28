@@ -1,0 +1,111 @@
+---
+// src/pages/learn/digital/index.astro — Digital lesson browser
+
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import { internalHref } from '../../../utils/url';
+import type { LessonBase } from '../../../lib/learn/types';
+
+const lessonModules = import.meta.glob<LessonBase>(
+  '../../../data/digital/*.json',
+  { eager: true }
+);
+
+const difficultyOrder: Record<string, number> = { beginner: 0, intermediate: 1, advanced: 2 };
+
+const lessons = Object.values(lessonModules).sort(
+  (a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
+);
+---
+
+<Layout
+  title="Digital Electronics Lessons"
+  description="Interactive digital electronics tutorials — logic gates, truth tables, timing diagrams, Verilog synthesis, and more."
+  needsKatex={false}
+>
+  <Header />
+  <main id="main-content">
+    <div class="container py-16">
+      <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// interactive</p>
+      <h1 class="text-2xl sm:text-3xl mb-2">Digital Electronics Lessons</h1>
+      <p class="max-w-xl text-muted mb-10">
+        Hands-on digital logic with interactive truth tables, timing diagrams, and
+        live Verilog synthesis — from basic gates to synthesisable HDL.
+      </p>
+
+      <div class="lesson-grid">
+        {lessons.map(lesson => (
+          <a
+            href={internalHref(`learn/digital/${lesson.id}`)}
+            class={`lesson-card lesson-card--${lesson.difficulty}`}
+          >
+            <span class="lesson-card__badge">{lesson.difficulty}</span>
+            <h2 class="lesson-card__title">{lesson.title}</h2>
+            <p class="lesson-card__desc">{lesson.description}</p>
+            <span class="lesson-card__steps">{lesson.tutorial.steps.length} steps</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .lesson-card {
+    display: block;
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .lesson-card:hover {
+    border-color: var(--color-signal);
+    background: var(--color-bg-grid);
+  }
+
+  .lesson-card__badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 0.6rem;
+  }
+
+  .lesson-card--beginner     .lesson-card__badge { background: color-mix(in srgb, var(--color-pcb) 15%, transparent); color: var(--color-pcb-light); }
+  .lesson-card--intermediate .lesson-card__badge { background: color-mix(in srgb, var(--color-copper) 15%, transparent); color: var(--color-copper); }
+  .lesson-card--advanced     .lesson-card__badge { background: color-mix(in srgb, #a64ca6 15%, transparent); color: #c87dc8; }
+
+  .lesson-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem;
+  }
+
+  .lesson-card__desc {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0 0 0.75rem;
+  }
+
+  .lesson-card__steps {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+</style>
