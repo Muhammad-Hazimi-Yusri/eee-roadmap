@@ -1,0 +1,29 @@
+{
+  "id": "algorithm-comparison",
+  "title": "Gauss-Seidel vs Newton-Raphson",
+  "domain": "power-systems",
+  "difficulty": "intermediate",
+  "description": "Compare Gauss-Seidel and Newton-Raphson power flow solvers side-by-side. Understand why NR's quadratic convergence makes it the industry standard despite requiring Jacobian computation at each step.",
+  "simulator": "algorithm-comparison",
+  "simulatorProps": { "networkId": "simple-3bus" },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Click 'Run Both Solvers'. The convergence chart plots mismatch (||ΔP||, ||ΔQ||) against iteration count on a log scale for both Gauss-Seidel (orange) and Newton-Raphson (blue). Observe how many more iterations GS requires than NR.",
+        "hint": "A straight line on a log-scale mismatch chart indicates linear convergence. A curve that bends steeply downward indicates quadratic (or super-linear) convergence."
+      },
+      {
+        "instruction": "Newton-Raphson converges in typically 4–6 iterations. Each iteration solves a full linear system J·Δx = f (expensive). Gauss-Seidel converges in 30–100 iterations for simple networks and may diverge for ill-conditioned networks. Each GS iteration is cheap but many are needed.",
+        "hint": "For n-bus systems, building and factoring the Jacobian costs O(n³). But NR's quadratic convergence means far fewer total iterations — so for large n, NR wins overwhelmingly."
+      },
+      {
+        "instruction": "The convergence rate of NR can be observed on the chart: after the first few 'burn-in' iterations, the mismatch approximately squares each iteration (e.g. 1e-2 → 1e-4 → 1e-8 → 1e-16). This is the hallmark of quadratic convergence.",
+        "hint": "Quadratic convergence means: if ε_k is the error at iteration k, then ε_{k+1} ≈ C·ε_k². Doubling the digits of accuracy each iteration."
+      },
+      {
+        "instruction": "The Fast Decoupled Load Flow (FDLF) is a popular middle ground. It approximates the Jacobian by exploiting the decoupling between P-θ and Q-V in high X/R ratio networks. FDLF is faster per iteration than NR and converges faster than GS. It was the industry standard before NR implementations became efficient.",
+        "hint": "The Fast Decoupled approximation assumes: ∂P/∂|V| ≈ 0 and ∂Q/∂θ ≈ 0. This is accurate for high-voltage transmission networks where X >> R."
+      }
+    ]
+  }
+}

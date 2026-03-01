@@ -1,0 +1,33 @@
+{
+  "id": "per-unit-system",
+  "title": "Per-Unit System",
+  "domain": "power-systems",
+  "difficulty": "beginner",
+  "description": "Master the per-unit (pu) system used throughout power engineering. Convert voltages, currents, impedances, and power between physical SI units and per-unit values on a chosen base.",
+  "simulator": "per-unit",
+  "simulatorProps": {},
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "The per-unit system normalises all electrical quantities to a common base. Choose a system base: S_base (MVA) and V_base (kV). From these two, derive Z_base = V_base² / S_base and I_base = S_base / (√3 · V_base).",
+        "hint": "100 MVA and 132 kV are common system bases in UK transmission networks."
+      },
+      {
+        "instruction": "Select 'Impedance' as the quantity and enter a physical resistance of 15 Ω. Set V_base = 132 kV and S_base = 100 MVA. The calculator will show the per-unit value. Verify: Z_base = 132² / 100 = 174.24 Ω, so Z_pu = 15 / 174.24 ≈ 0.0861 pu.",
+        "hint": "Z_base depends only on the voltage and MVA base — it has nothing to do with the actual impedance being converted."
+      },
+      {
+        "instruction": "Now convert a voltage of 138 kV (line-to-line) on the same 132 kV base. The per-unit value should be 138 / 132 ≈ 1.045 pu. This is a typical generator terminal voltage in the IEEE 14-bus system.",
+        "hint": "A voltage above 1.0 pu means the physical voltage is above nominal — common at generator buses."
+      },
+      {
+        "instruction": "Switch to 'Change of base'. Enter an impedance of 0.1 pu on a 100 MVA, 11 kV base and convert it to a 100 MVA, 132 kV base. The new value = 0.1 × (100/100) × (11/132)² ≈ 0.000694 pu — much smaller on the higher voltage base.",
+        "hint": "Transformers change voltage base. Impedances on the secondary must be converted to the system base before adding to the Y-bus."
+      },
+      {
+        "instruction": "Try a three-phase power of 50 MW + j25 MVAr on a 100 MVA base. P = 50/100 = 0.5 pu, Q = 0.25 pu. The per-unit system makes power balance equations scale-invariant — the same solver works for a 10 MVA distribution network and a 10 GW transmission grid.",
+        "hint": "All power flow solvers — Newton-Raphson, Gauss-Seidel — operate entirely in per-unit."
+      }
+    ]
+  }
+}

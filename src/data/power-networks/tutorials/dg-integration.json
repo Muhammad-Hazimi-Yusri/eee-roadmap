@@ -1,0 +1,54 @@
+{
+  "id": "dg-integration",
+  "name": "5-Bus Network with Rooftop Solar DG",
+  "description": "A 5-bus distribution-like network demonstrating distributed generation (DG) integration. Bus 4 has a rooftop solar PV generator (PV bus). The network shows voltage rise effects and reactive power challenges common in modern distribution systems.",
+  "baseMVA": 10,
+  "buses": [
+    {
+      "id": 1, "name": "Grid Slack",      "type": "slack",
+      "Psch": 0,  "Qsch": 0,  "Vmag": 1.00, "theta": 0,
+      "Qmin": -999, "Qmax": 999, "Gsh": 0, "Bsh": 0,
+      "baseKV": 11, "position": {"x": 80, "y": 200}
+    },
+    {
+      "id": 2, "name": "Feeder Bus A",    "type": "PQ",
+      "Psch": 0,  "Qsch": 0,  "Vmag": 1.0,  "theta": 0,
+      "Qmin": -999, "Qmax": 999, "Gsh": 0, "Bsh": 0,
+      "baseKV": 11, "position": {"x": 230, "y": 120}
+    },
+    {
+      "id": 3, "name": "Feeder Bus B",    "type": "PQ",
+      "Psch": 0,  "Qsch": 0,  "Vmag": 1.0,  "theta": 0,
+      "Qmin": -999, "Qmax": 999, "Gsh": 0, "Bsh": 0,
+      "baseKV": 11, "position": {"x": 230, "y": 280}
+    },
+    {
+      "id": 4, "name": "Solar PV Bus",    "type": "PV",
+      "Psch": 0,  "Qsch": 0,  "Vmag": 1.02, "theta": 0,
+      "Qmin": -0.3, "Qmax": 0.3, "Gsh": 0, "Bsh": 0,
+      "baseKV": 11, "position": {"x": 420, "y": 120}
+    },
+    {
+      "id": 5, "name": "Load Bus",        "type": "PQ",
+      "Psch": 0,  "Qsch": 0,  "Vmag": 1.0,  "theta": 0,
+      "Qmin": -999, "Qmax": 999, "Gsh": 0, "Bsh": 0,
+      "baseKV": 11, "position": {"x": 420, "y": 280}
+    }
+  ],
+  "lines": [
+    { "id": "L1-2", "fromBus": 1, "toBus": 2, "r": 0.05, "x": 0.10, "bCh": 0.001, "ratingMVA": 5 },
+    { "id": "L1-3", "fromBus": 1, "toBus": 3, "r": 0.06, "x": 0.12, "bCh": 0.001, "ratingMVA": 5 },
+    { "id": "L2-4", "fromBus": 2, "toBus": 4, "r": 0.04, "x": 0.08, "bCh": 0.001, "ratingMVA": 3 },
+    { "id": "L3-5", "fromBus": 3, "toBus": 5, "r": 0.04, "x": 0.09, "bCh": 0.001, "ratingMVA": 3 },
+    { "id": "L4-5", "fromBus": 4, "toBus": 5, "r": 0.03, "x": 0.06, "bCh": 0.001, "ratingMVA": 3 }
+  ],
+  "transformers": [],
+  "generators": [
+    { "busId": 4, "P": 2.0, "vmPU": 1.02, "Pmax": 3.0, "Pmin": 0, "Qmax": 0.3, "Qmin": -0.3 }
+  ],
+  "loads": [
+    { "busId": 2, "P": 1.5, "Q": 0.5 },
+    { "busId": 3, "P": 2.0, "Q": 0.8 },
+    { "busId": 5, "P": 3.0, "Q": 1.0 }
+  ]
+}

@@ -1,0 +1,194 @@
+---
+// src/pages/learn/power-systems/playground.astro
+// JupyterLite + Pyodide notebook environment — dedicated page (30-80 MB download).
+// Allows running pandapower directly in the browser for power flow studies.
+
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import { internalHref } from '../../../utils/url';
+---
+
+<Layout
+  title="Power Systems Playground"
+  description="JupyterLite notebook environment for power systems analysis with pandapower running entirely in the browser via Pyodide."
+  needsKatex={false}
+>
+  <Header />
+  <main id="main-content">
+    <div class="container py-10">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href={internalHref('learn/power-systems')}>Power Systems Lessons</a>
+        <span aria-hidden="true"> / </span>
+        <span>Playground</span>
+      </nav>
+
+      <h1 class="title">Power Systems Playground</h1>
+      <p class="desc">
+        A full Jupyter notebook environment running in your browser via
+        <a href="https://jupyterlite.readthedocs.io" target="_blank" rel="noopener noreferrer">JupyterLite</a>
+        and <a href="https://pyodide.org" target="_blank" rel="noopener noreferrer">Pyodide</a>.
+        Install pandapower and run power flow, short circuit, and OPF studies without a server.
+      </p>
+
+      <div class="info-box">
+        <strong>Before loading:</strong>
+        <ul>
+          <li>Initial download is 30–80 MB (WebAssembly Python runtime)</li>
+          <li>Run <code>import micropip; await micropip.install('pandapower')</code> in the first cell</li>
+          <li>No server required — everything runs in your browser tab</li>
+          <li>Results are not saved between sessions unless you download the notebook</li>
+        </ul>
+      </div>
+
+      <div class="iframe-wrapper">
+        <div id="loading-overlay" class="loading-overlay" aria-live="polite">
+          <div class="spinner"></div>
+          <p>Loading JupyterLite (30–80 MB)…</p>
+          <p class="loading-sub">This may take 30–60 seconds on first load.</p>
+        </div>
+        <iframe
+          src="https://jupyterlite.github.io/demo/lab/index.html"
+          title="JupyterLite Power Systems Playground"
+          allow="cross-origin-isolated"
+          loading="lazy"
+          onload="var o=document.getElementById('loading-overlay');if(o)o.remove()"
+          style="width:100%;height:680px;border:1px solid var(--color-border);border-radius:6px;"
+        ></iframe>
+      </div>
+
+      <div class="starter-code">
+        <p class="starter-title">Starter code to paste in a new cell:</p>
+        <pre><code>import micropip
+await micropip.install('pandapower')
+import pandapower as pp
+import pandapower.networks as pn
+
+# Load the IEEE 14-bus test case
+net = pn.case14()
+pp.runpp(net, algorithm='nr')
+
+print(f"Converged: &#123;net.converged&#125;")
+print(net.res_bus[['vm_pu', 'va_degree']].head())
+</code></pre>
+      </div>
+
+      <div class="back-link">
+        <a href={internalHref('learn/power-systems')} class="btn">
+          ← Back to Power Systems Lessons
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover { color: var(--color-text); text-decoration: underline; }
+
+  .title { font-size: 1.75rem; font-weight: 700; margin: 0 0 0.5rem; }
+
+  .desc {
+    color: var(--color-text-muted);
+    max-width: 60ch;
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+  }
+
+  .info-box {
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.875rem 1rem;
+    background: var(--color-bg-grid);
+    font-size: 0.82rem;
+    margin-bottom: 1.5rem;
+    max-width: 60ch;
+  }
+
+  .info-box ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+  }
+
+  .info-box code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: var(--color-bg);
+    padding: 0.05rem 0.3rem;
+    border-radius: 2px;
+    border: 1px solid var(--color-border);
+  }
+
+  .iframe-wrapper {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    gap: 0.5rem;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .loading-sub { font-size: 0.72rem; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .spinner {
+    width: 24px; height: 24px;
+    border: 2px solid var(--color-border);
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .starter-code {
+    margin-bottom: 2rem;
+    max-width: 680px;
+  }
+
+  .starter-title {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .starter-code pre {
+    background: var(--color-bg-grid);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.875rem 1rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--color-text);
+  }
+
+  .back-link { margin-top: 1rem; }
+</style>

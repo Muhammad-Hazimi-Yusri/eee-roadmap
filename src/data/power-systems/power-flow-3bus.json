@@ -1,0 +1,33 @@
+{
+  "id": "power-flow-3bus",
+  "title": "Newton-Raphson Power Flow",
+  "domain": "power-systems",
+  "difficulty": "beginner",
+  "description": "Run a Newton-Raphson power flow on a simple 3-bus network. Observe how voltage magnitudes and angles change as load increases, and understand convergence behaviour.",
+  "simulator": "power-flow",
+  "simulatorProps": { "networkId": "simple-3bus" },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Observe the 3-bus network. Bus 1 is the slack bus (V = 1.05 pu, θ = 0°) — it balances any power mismatch. Bus 2 is a PV generator bus (P = 50 MW, V = 1.04 pu). Bus 3 is the load bus (100 MW + 50 MVAr).",
+        "hint": "The slack bus acts like an infinite busbar. Its voltage is fixed; its active power output adjusts to cover all generation-load-loss imbalances."
+      },
+      {
+        "instruction": "Click 'Run Power Flow'. The Newton-Raphson solver will iterate to convergence. Check the iteration count and maximum mismatch in the status bar. NR typically converges in 3–6 iterations for well-conditioned networks.",
+        "hint": "The solver forms a Jacobian matrix (∂P/∂θ, ∂P/∂V, ∂Q/∂θ, ∂Q/∂V) at each step and solves a linear system to update voltages."
+      },
+      {
+        "instruction": "Click on Bus 3 to open the Bus Inspector. Note its voltage magnitude. Is it above or below 1.0 pu? Voltage drops occur along the line due to line impedance × current. The reactive load (50 MVAr) exacerbates the drop.",
+        "hint": "The voltage magnitude at Bus 3 should be below the source voltages (1.05, 1.04 pu) due to resistive and reactive voltage drop."
+      },
+      {
+        "instruction": "Click on the line L1-2. Check its thermal loading percentage. A high loading means the line is operating close to its thermal limit (200 MVA rating for this line).",
+        "hint": "Line loading = S_flow / S_rating × 100%. Overloaded lines cause thermal damage and can lead to line trips."
+      },
+      {
+        "instruction": "Observe the Voltage Profile chart. All buses should be within the green zone (0.95–1.05 pu). If Bus 3 is in the orange or red zone, the network has a voltage violation that would require corrective action (e.g. reactive compensation or tap-changer adjustment).",
+        "hint": "UK Grid Code requires transmission voltages within ±5% of nominal in normal operating conditions."
+      }
+    ]
+  }
+}

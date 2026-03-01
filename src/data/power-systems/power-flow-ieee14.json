@@ -1,0 +1,33 @@
+{
+  "id": "power-flow-ieee14",
+  "title": "IEEE 14-Bus System Analysis",
+  "domain": "power-systems",
+  "difficulty": "intermediate",
+  "description": "Analyse the standard IEEE 14-bus test case — 5 generators, 11 loads, 17 lines, and 3 off-nominal transformers. This benchmark is used worldwide to validate power flow software. Compare your results against the published MATPOWER reference solution.",
+  "simulator": "power-flow",
+  "simulatorProps": { "networkId": "ieee-14bus" },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "The IEEE 14-bus system represents a portion of the American Electric Power network from February 1962. It has 1 slack bus (Bus 1, 1.06 pu), 4 PV buses (Buses 2, 3, 6, 8), and 9 PQ load buses. Three transformers connect the 132 kV and 11 kV sub-networks.",
+        "hint": "Buses 4–14 at the bottom of the diagram represent the 11 kV distribution sub-network fed through transformers from the 132 kV transmission side."
+      },
+      {
+        "instruction": "Click 'Run Power Flow'. Once converged, click on Bus 2 in the diagram. The inspector should show |V| ≈ 1.045 pu, θ ≈ −4.98°. These match the published MATPOWER results to 3 decimal places — validating that the Newton-Raphson solver is correctly implemented.",
+        "hint": "If Bus 2 shows |V| = 1.045 and θ = −4.98°, the solver is correct. Any significant deviation indicates a Y-bus construction error (often the transformer off-nominal turns ratio)."
+      },
+      {
+        "instruction": "Check Bus 14 — the weakest bus in the system. Its voltage should be ≈ 1.0355 pu. The three transformers (4-7, 4-9, 5-6) with off-nominal turns ratios (0.978, 0.969, 0.932) are the key to getting Bus 14's voltage right. Their tap settings create an asymmetric Y-bus.",
+        "hint": "For off-nominal transformers: Y[tap][tap] += y_t/a², Y[fixed][fixed] += y_t, Y[tap][fixed] = Y[fixed][tap] = -y_t/a. The a² vs a asymmetry is critical."
+      },
+      {
+        "instruction": "Look at the Voltage Profile chart. Bus 8 (PV, 1.09 pu) appears as the highest voltage. This is a synchronous condenser bus — its reactive generation holds the local voltage up and supports the surrounding load buses (9, 10, 11). This illustrates reactive power's effect on voltage profile.",
+        "hint": "Reactive power cannot be transmitted economically over long distances. Local generation (synchronous condensers, shunt capacitors) is essential for voltage support."
+      },
+      {
+        "instruction": "Click on line L1-2 (the main backbone). Note the active power flow and any reactive losses. The total system real power losses are approximately 13.4 MW — about 5% of the 259 MW total load. These losses are paid for by the slack bus generator at Bus 1.",
+        "hint": "System losses ≈ Σ |I_ij|² × r_ij. Minimising losses is one of the objectives in Optimal Power Flow (OPF), which extends this basic power flow calculation."
+      }
+    ]
+  }
+}

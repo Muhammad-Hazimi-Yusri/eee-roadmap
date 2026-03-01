@@ -9,7 +9,7 @@ export interface TutorialStep {
 export interface LessonBase {
   id: string;
   title: string;
-  domain: 'pcb' | 'digital' | 'semiconductor';
+  domain: 'pcb' | 'digital' | 'semiconductor' | 'power-systems';
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   description: string;
   /** Identifies which simulator component to render. */

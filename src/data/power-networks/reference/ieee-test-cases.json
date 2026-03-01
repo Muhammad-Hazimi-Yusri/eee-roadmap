@@ -1,0 +1,24 @@
+{
+  "source": "MATPOWER 7.1 runpf('case14') — published IEEE 14-bus expected results",
+  "ieee14bus": {
+    "buses": [
+      { "id":  1, "Vmag": 1.0600, "theta_deg":   0.000 },
+      { "id":  2, "Vmag": 1.0450, "theta_deg":  -4.983 },
+      { "id":  3, "Vmag": 1.0100, "theta_deg": -12.725 },
+      { "id":  4, "Vmag": 1.0177, "theta_deg": -10.313 },
+      { "id":  5, "Vmag": 1.0195, "theta_deg":  -8.774 },
+      { "id":  6, "Vmag": 1.0700, "theta_deg": -14.221 },
+      { "id":  7, "Vmag": 1.0615, "theta_deg": -13.360 },
+      { "id":  8, "Vmag": 1.0900, "theta_deg": -13.360 },
+      { "id":  9, "Vmag": 1.0559, "theta_deg": -14.939 },
+      { "id": 10, "Vmag": 1.0509, "theta_deg": -15.097 },
+      { "id": 11, "Vmag": 1.0569, "theta_deg": -14.791 },
+      { "id": 12, "Vmag": 1.0552, "theta_deg": -15.076 },
+      { "id": 13, "Vmag": 1.0504, "theta_deg": -15.156 },
+      { "id": 14, "Vmag": 1.0355, "theta_deg": -16.034 }
+    ],
+    "converged": true,
+    "iterations_max": 10,
+    "totalLoss_MW": 13.39
+  }
+}

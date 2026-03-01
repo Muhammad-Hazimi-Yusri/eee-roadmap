@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.13-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.14-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.13
+Current version is v0.22.14
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
@@ -297,6 +297,22 @@ Current version is v0.22.13
 
 ---
 
+<details>
+<summary><strong>v0.22.14 - Phase 3 Power Systems Analysis ✓</strong></summary>
+
+**Goal:** AC power flow solver with Newton-Raphson and Gauss-Seidel, fault analysis, interactive single-line diagram, and 5 power systems lessons — all running in the browser without a backend.
+
+- [x] **Power flow library** (`src/lib/power/`) — `types.ts` (interfaces: Bus, Line, Transformer, Generator, Load, PowerNetwork, PowerFlowResults), `ybus.ts` (pi-model line + off-nominal transformer Y-bus stamping via mathjs), `jacobian.ts` (H/N/M/L sub-matrices in polar form, full `(nNonSlack + nPQ) × (nNonSlack + nPQ)` Jacobian), `newton-raphson.ts` (flat start, `lusolve`, |V|-scaled update, 1e-6 pu tolerance, max 50 iterations, divergence guard), `gauss-seidel.ts` (complex voltage iteration, α=1.6 acceleration, Q-clamped PV buses), `fault-analysis.ts` (Z-bus = Y-bus⁻¹ via `mathjs` `inv`, `I_fault = V₀/Z_kk`, per-bus faulted voltage profile)
+- [x] **63 new unit tests** — `ybus.test.ts` (17: Y-bus construction, transformer tap-side admittance `y_t/a²`, symmetry), `newton-raphson.test.ts` (40: all 14 IEEE 14-bus buses vs MATPOWER case14 to ±0.002 pu / ±0.1°, loss balance), `gauss-seidel.test.ts` (6: convergence, GS iterations > NR, voltage agreement with NR within 0.01 pu); total 284 → **347 tests**
+- [x] **Network data** (`src/data/power-networks/`): `simple-3bus.json` (3-bus hand-calculable), `ieee-14bus.json` (14 buses, 17 lines, 3 off-nominal transformers, 5 generators), `dg-integration.json` (5-bus with solar PV bus), `reference/ieee-test-cases.json` (MATPOWER case14 expected values)
+- [x] **7 React components** (`src/components/simulators/power/`): `PowerFlowSimulator.tsx` (orchestrator, NR/GS dispatch, fault mode), `SingleLineDiagram.tsx` (pure React/SVG: bus bars, generators, loads, transformers, color-coded lines; pointer-event pan/zoom, no D3), `BusInspector.tsx` (click-to-inspect V pu/kV, θ, P, Q), `VoltageProfileChart.tsx` (SVG bar chart with ±5% bands), `LineLoadingOverlay.tsx` (green/orange/red thermal coloring), `ConvergenceChart.tsx` (log-scale mismatch vs iteration, NR vs GS comparison), `PerUnitConverter.tsx` (V/I/Z/S per-unit calculator)
+- [x] **5 lesson pages** at `/learn/power-systems/`: per-unit system, 3-bus power flow, IEEE 14-bus power flow, NR-vs-GS algorithm comparison, 3-phase fault analysis
+- [x] **`/learn/power-systems/playground/`** — JupyterLite + Pyodide iframe for browser-based pandapower (30–80 MB WASM Python runtime, no server required); starter code for IEEE 14-bus `case14()` power flow
+- [x] `'power-systems'` added to domain union in `src/lib/learn/types.ts`; `power systems` nav entry added to `Header.astro`
+</details>
+
+---
+
 ### Planned
 
 ### Known Issues & Polish
@@ -375,17 +391,19 @@ Current version is v0.22.13
 - [x] Carrier drift/diffusion animation (custom Canvas/SVG)
 - [ ] 3D PCB viewer (Three.js + web-gerber) — future
 
-#### Phase 3: Power Systems Analysis
+#### Phase 3: Power Systems Analysis ✓ (core; backend future)
 
-- [ ] TypeScript Newton-Raphson power flow solver (`mathjs`) for educational networks (3–50 buses)
-- [ ] Y-bus builder, Jacobian matrix, and Gauss-Seidel solver for comparison
-- [ ] D3.js single-line diagram renderer with custom SVG power system symbols
-- [ ] Color-coded results: bus voltage heatmap, line loading %, animated flow direction
-- [ ] IEEE test case networks (14-bus, 30-bus) for solver validation
-- [ ] Tutorial lessons: 3-bus radial, IEEE 14-bus, DG integration
+- [x] TypeScript Newton-Raphson power flow solver (`mathjs`) for educational networks (3–50 buses); IEEE 14-bus validated vs MATPOWER case14
+- [x] Y-bus builder (pi-model + off-nominal transformers), Jacobian matrix (polar H/N/M/L), and Gauss-Seidel solver for algorithm comparison
+- [x] Pure React/SVG single-line diagram with pointer-event pan/zoom and power system symbols (no D3 dependency)
+- [x] Color-coded results: bus voltage bar chart with ±5% bands, line loading % overlay (green/orange/red)
+- [x] IEEE 14-bus test case (17 lines, 3 transformers, 5 generators); 63 new unit tests (347 total)
+- [x] 5 tutorial lessons: per-unit system, 3-bus power flow, IEEE 14-bus, NR-vs-GS algorithm comparison, 3-phase fault analysis
+- [x] Pyodide/JupyterLite embed for interactive Python notebooks (~30–80 MB, dedicated `playground` page)
 - [ ] FastAPI + pandapower (BSD) backend for larger networks and IEC 60909 short circuit (optional, Docker)
 - [ ] PyPSA (MIT) for OPF and capacity expansion (backend)
-- [ ] Pyodide/JupyterLite embed for interactive Python notebooks (~30–80 MB, dedicated page)
+- [ ] Animated power flow direction arrows on single-line diagram
+- [ ] 30-bus and larger IEEE test cases
 - [ ] GIS map overlay with Leaflet/MapLibre — future
 
 ---
@@ -461,11 +479,19 @@ eee-roadmap/
 │   │   │   │   ├── CircuitVerseEmbed.astro    # CircuitVerse iframe
 │   │   │   │   ├── TruthTableGenerator.tsx    # Boolean expression evaluator (client:idle)
 │   │   │   │   └── VerilogPlayground.tsx      # Yosys WASM → DigitalJS (client:visible)
-│   │   │   └── semiconductor/     # Phase 2 semiconductor physics components
-│   │   │       ├── PNJunctionViz.tsx          # 4-panel PN junction SVG (client:visible)
-│   │   │       ├── MOSFETCrossSectionViz.tsx  # SVG cross-section + I-V curves (client:visible)
-│   │   │       ├── BandDiagramSim.tsx         # Poisson-based band diagram (client:visible)
-│   │   │       └── CarrierAnimation.tsx       # Canvas carrier drift/diffusion (client:visible)
+│   │   │   ├── semiconductor/     # Phase 2 semiconductor physics components
+│   │   │   │   ├── PNJunctionViz.tsx          # 4-panel PN junction SVG (client:visible)
+│   │   │   │   ├── MOSFETCrossSectionViz.tsx  # SVG cross-section + I-V curves (client:visible)
+│   │   │   │   ├── BandDiagramSim.tsx         # Poisson-based band diagram (client:visible)
+│   │   │   │   └── CarrierAnimation.tsx       # Canvas carrier drift/diffusion (client:visible)
+│   │   │   └── power/             # Phase 3 power systems components
+│   │   │       ├── PowerFlowSimulator.tsx  # Orchestrator: NR/GS dispatch, fault mode (client:visible)
+│   │   │       ├── SingleLineDiagram.tsx   # Pure React/SVG: bus bars, generators, loads, transformers; pan/zoom
+│   │   │       ├── BusInspector.tsx        # Click-to-inspect V/θ/P/Q panel (client:idle)
+│   │   │       ├── VoltageProfileChart.tsx # SVG bar chart with ±5% voltage bands
+│   │   │       ├── LineLoadingOverlay.tsx  # Color overlay by thermal loading % (green/orange/red)
+│   │   │       ├── ConvergenceChart.tsx    # Log-scale mismatch vs iteration (NR vs GS)
+│   │   │       └── PerUnitConverter.tsx    # V/I/Z/S per-unit calculator (client:idle)
 │   │   ├── ConceptWindows.astro       # Draggable note windows + editor
 │   │   ├── DemoRoadmap.astro          # Homepage interactive demo
 │   │   ├── GlossaryTooltips.astro     # Auto-linked term tooltips
@@ -487,6 +513,12 @@ eee-roadmap/
 │   │   │   └── *.json             # timing-diagrams, logic-gates, truth-tables, verilog-intro
 │   │   ├── semiconductor/         # Semiconductor lesson data (Phase 2)
 │   │   │   └── *.json             # pn-junction, mosfet-operation, band-diagrams, carrier-transport
+│   │   ├── power-systems/         # Power systems lesson data (Phase 3)
+│   │   │   └── *.json             # per-unit-system, power-flow-3bus, power-flow-ieee14, algorithm-comparison, fault-analysis
+│   │   ├── power-networks/        # Power network definitions (Phase 3)
+│   │   │   ├── tutorials/         # simple-3bus.json, ieee-14bus.json, dg-integration.json
+│   │   │   ├── reference/         # ieee-test-cases.json (MATPOWER case14 expected values)
+│   │   │   └── _schema/           # network.schema.json
 │   │   ├── index.ts               # Data loader (getRoadmap, getAllTracks)
 │   │   ├── concept-library.json   # All 427 library concepts with domain/tags
 │   │   └── *.json                 # Track JSON files (refs resolved at build time)
@@ -505,6 +537,14 @@ eee-roadmap/
 │   │   │   ├── carrier-stats.ts   # Intrinsic concentration, Fermi-Dirac, Caughey-Thomas mobility
 │   │   │   ├── poisson-solver.ts  # 1D FD Poisson solver (Thomas algorithm)
 │   │   │   └── poisson-solver.test.ts  # Uniform slab parabola + BC tests
+│   │   ├── power/                 # Phase 3 power systems math
+│   │   │   ├── types.ts           # PowerNetwork + result interfaces
+│   │   │   ├── ybus.ts            # Y-bus builder (pi-model lines, off-nominal transformers)
+│   │   │   ├── jacobian.ts        # NR Jacobian sub-matrices H/N/M/L (polar form)
+│   │   │   ├── newton-raphson.ts  # NR solver (lusolve, |V|-scaled update, 1e-6 pu tolerance)
+│   │   │   ├── gauss-seidel.ts    # GS solver (complex voltages, α=1.6 acceleration)
+│   │   │   ├── fault-analysis.ts  # 3-phase fault via Z-bus inverse (mathjs inv)
+│   │   │   └── __tests__/         # ybus.test.ts (17), newton-raphson.test.ts (40), gauss-seidel.test.ts (6)
 │   │   ├── supabase.ts            # Supabase client
 │   │   ├── sync.ts                # Cross-device sync utilities
 │   │   └── sync.test.ts           # Sync/auth unit tests (63 tests)
@@ -519,9 +559,13 @@ eee-roadmap/
 │   │   │   ├── digital/           # Phase 2 digital lessons
 │   │   │   │   ├── index.astro    # Digital lesson browser (4 lessons)
 │   │   │   │   └── [lesson].astro # Digital lesson detail page
-│   │   │   └── semiconductor/     # Phase 2 semiconductor lessons
-│   │   │       ├── index.astro    # Semiconductor lesson browser (4 lessons)
-│   │   │       └── [lesson].astro # Semiconductor lesson detail page
+│   │   │   ├── semiconductor/     # Phase 2 semiconductor lessons
+│   │   │   │   ├── index.astro    # Semiconductor lesson browser (4 lessons)
+│   │   │   │   └── [lesson].astro # Semiconductor lesson detail page
+│   │   │   └── power-systems/     # Phase 3 power systems lessons
+│   │   │       ├── index.astro    # Power systems lesson browser (5 lessons + playground link)
+│   │   │       ├── [lesson].astro # Lesson detail (double import.meta.glob: lesson + network JSON)
+│   │   │       └── playground.astro  # JupyterLite + Pyodide iframe for browser-based pandapower
 │   │   ├── roadmaps/
 │   │   │   ├── [slug].astro       # Track detail page
 │   │   │   ├── print/[slug].astro # Print mode page

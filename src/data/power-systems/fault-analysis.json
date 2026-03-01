@@ -1,0 +1,33 @@
+{
+  "id": "fault-analysis",
+  "title": "3-Phase Fault Analysis",
+  "domain": "power-systems",
+  "difficulty": "advanced",
+  "description": "Calculate fault currents for a balanced three-phase short circuit using the Z-bus (impedance matrix) method. Understand the Thevenin equivalent, driving-point impedance, and how fault current varies with network topology.",
+  "simulator": "fault-analysis",
+  "simulatorProps": { "networkId": "simple-3bus", "faultBus": 3 },
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "The Z-bus method for 3-phase fault analysis: (1) Build Y-bus from network data. (2) Invert to get Z-bus = Y⁻¹. (3) The driving-point impedance Z_kk is the Thevenin impedance seen from bus k. (4) Fault current I_f = V_prefault / Z_kk.",
+        "hint": "The Z_kk diagonal element represents the Thevenin equivalent impedance at bus k — this is what a fault 'sees' looking back into the network."
+      },
+      {
+        "instruction": "Click 'Run Power Flow' first to establish pre-fault voltages. Then click 'Apply Fault at Bus 3'. The simulator calculates Z_33 from the Z-bus and computes I_fault = V0 / Z_33. Observe the fault current in per-unit and in kA.",
+        "hint": "Converting pu fault current to kA: I_base = S_base / (√3 · V_base). For 100 MVA, 132 kV: I_base = 100 / (√3 × 132) = 0.4374 kA."
+      },
+      {
+        "instruction": "Compare fault current at Bus 3 vs Bus 2. The fault at Bus 2 (closer to the generators) will produce a higher fault current. A bus closer to large generation sources has a smaller Thevenin impedance (Z_kk) and therefore a larger fault current.",
+        "hint": "Low Thevenin impedance = strong bus = high fault current. This is why bus-bars near major power stations have the highest fault duty and require the most robust circuit breakers."
+      },
+      {
+        "instruction": "Observe the voltage profile during the fault. Bus 3 voltage collapses to 0 (bolted fault). Voltages at adjacent buses are depressed but non-zero — the voltage depression is larger for buses electrically closer to the fault. This voltage dip can trip protection relays.",
+        "hint": "In practice, protection engineers must ensure that voltage dips do not cause unwanted tripping (mal-operation) of distance relays on healthy circuits."
+      },
+      {
+        "instruction": "For protection coordination: the fault current at Bus 3 must exceed the relay pickup current at Bus 1 and Bus 2 feeders. The fault must be detectable but the relay settings must discriminate between fault and maximum load current. This fault-level calculation is the foundation of every protection study.",
+        "hint": "The minimum fault current (often single-phase-to-earth) sets the relay pickup. The maximum fault current (three-phase bolted) sets the circuit breaker interrupting duty."
+      }
+    ]
+  }
+}

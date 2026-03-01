@@ -11,6 +11,91 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.14] - 2026-02-28
+
+**Phase 3 — Power Systems Analysis interactive learning modules**
+
+### Added
+
+#### Library modules (pure TypeScript, no browser deps, unit-tested)
+
+- **`src/lib/power/types.ts`** — core interfaces: `Bus` (id, name, type ∈ {slack|PV|PQ}, Vmag, theta, Qmin, Qmax, Gsh, Bsh, baseKV, position), `Line` (r, x, bCh, ratingMVA), `Transformer` (turnsRatio, r, x, ratingMVA), `Generator` (P, vmPU, Pmax, Pmin, Qmax, Qmin), `Load` (P, Q), `PowerNetwork` (buses, lines, transformers, generators, loads, baseMVA); result types: `BusResult` (Vmag, theta, Pinj, Qinj), `LineResult` (Pij, Qij, loadingFraction, lossP), `PowerFlowResults` (converged, iterations, maxMismatch, mismatchHistory, buses, lines, totals)
+
+- **`src/lib/power/ybus.ts`** — Y-bus admittance matrix builder using `mathjs` complex arithmetic; pi-model line stamping: `Y[i][i] += (g+jb) + jb_ch/2`, `Y[i][j] -= (g+jb)`, shunt admittance for bus Gsh/Bsh; off-nominal transformer stamping (turns ratio `a`): `Y[i][i] += y_t/a²`, `Y[j][j] += y_t`, `Y[i][j] -= y_t/a` (critical: tap-side self-admittance uses `a²` not `a`); exports `buildYBus` (returns Y matrix, busIndex map, n) and `extractGB` (splits complex Y into real G and imaginary B arrays)
+
+- **`src/lib/power/jacobian.ts`** — Newton-Raphson Jacobian in polar form (Glover-Sarma-Overbye formulation); sub-matrices H = ∂P/∂θ, N = |V|·∂P/∂|V|, M = ∂Q/∂θ, L = |V|·∂Q/∂|V|; diagonal elements: `H[i,i] = −Q_i − B[i,i]|V_i|²`, `N[i,i] = P_i + G[i,i]|V_i|²`, `M[i,i] = P_i − G[i,i]|V_i|²`, `L[i,i] = Q_i − B[i,i]|V_i|²`; off-diagonal: `H[i,j] = |V_i||V_j|(G_ij sinθ_ij − B_ij cosθ_ij)`, `N[i,j] = |V_i||V_j|(G_ij cosθ_ij + B_ij sinθ_ij)`, `M[i,j] = −N[i,j]` (not `−H`), `L[i,j] = H[i,j]` (not `−N`); full Jacobian dimension `(nNonSlack + nPQ) × (nNonSlack + nPQ)`
+
+- **`src/lib/power/newton-raphson.ts`** — full AC power flow via Newton-Raphson; flat start (PQ: |V|=1 pu, θ=0; PV: |V|=setpoint, θ=0; slack: fixed); mismatch vector `[ΔP_nonSlack ; ΔQ_PQ]`; `lusolve` from mathjs for LU decomposition (same pattern as `mna-solver.ts`); state update: `θ_i += Δθ_i`, `|V_i| += |V_i| × Δ(|V|/|V|)_i` (|V|-scaled Jacobian; correction entry is fractional, not direct); convergence: `max(|ΔP|, |ΔQ|) < 1e-6 pu`, max 50 iterations; divergence guard at 1e6; post-processes pi-model line flows, off-nominal transformer flows, bus injections, totals (slack absorbs balance)
+
+- **`src/lib/power/gauss-seidel.ts`** — AC power flow via Gauss-Seidel for teaching comparison (linear vs quadratic convergence); PQ bus update: `V_k^(k+1) = (1/Y_kk) × [S_k*/V_k* − Σ_{j≠k} Y_kj·V_j]` with acceleration factor α=1.6; PV bus: compute Q_k from current voltages, clamp to [Qmin, Qmax], solve angle update, restore |V| to setpoint; tolerance 1e-4, max 200 iterations; complex arithmetic via `mathjs` (`complex`, `add`, `subtract`, `multiply`, `divide`, `abs`); conjugate computed manually as `complex(v.re, −v.im)` (not a named ESM export in mathjs v15)
+
+- **`src/lib/power/fault-analysis.ts`** — 3-phase balanced fault analysis; builds Y-bus via `buildYBus`; `mathjs` `inv` to form Z-bus = Y-bus⁻¹; Thevenin impedance at fault bus k: Z_kk from Z-bus diagonal; fault current: `I_fault = V_prefault / Z_kk` (pu); faulted bus voltages: `V_i^fault = V_i^0 − Z_ik × I_fault`; kA conversion via `baseMVA / (√3 × baseKV)` at fault bus; returns per-bus voltage profile for single-line diagram overlay
+
+#### Unit tests
+
+- **`src/lib/power/__tests__/ybus.test.ts`** — 17 tests: single-line Y-bus from components; off-diagonal symmetry (Y[i][j] = Y[j][i] for lossless lines); diagonal self-admittance accumulation; shunt admittance stamping; off-nominal transformer: verify `Y[i][i]` uses `y_t/a²` not `y_t`; IEEE 14-bus construction (14×14 complex matrix, correct non-zero off-diagonals count)
+
+- **`src/lib/power/__tests__/newton-raphson.test.ts`** — 40 tests: simple 3-bus (converged=true, iterations≤3, power balance); IEEE 14-bus vs MATPOWER case14 published results: all 14 buses validated for |V| (±0.002 pu) and θ (±0.1°), total active loss ≈ 0.134 pu (±0.005), convergence in ≤10 iterations; divergence guard (open-circuit network → no crash)
+
+- **`src/lib/power/__tests__/gauss-seidel.test.ts`** — 6 tests: simple 3-bus converges (converged=true); GS iterations > NR iterations (linear vs quadratic convergence); all bus voltages agree with NR solution to within 0.01 pu; PV bus |V| held to setpoint; Q-clamp enforcement; acceleration factor improves iteration count
+
+#### Network data — `src/data/power-networks/`
+
+- **`tutorials/simple-3bus.json`** — 3-bus network: bus 1 (slack, 1.05 pu), bus 2 (PV, P=40 MW, Vmag=1.0 pu), bus 3 (PQ, P=−100 MW, Q=−50 MVAr); 2 transmission lines; hand-calculable reference case for teaching NR algorithm
+
+- **`tutorials/ieee-14bus.json`** — IEEE 14-bus standard test system: 14 buses, 5 generators (buses 1, 2, 3, 6, 8), 11 loads, 17 transmission lines, 3 off-nominal transformers (4→7 a=0.978, 4→9 a=0.969, 5→6 a=0.932), baseMVA=100; per-unit branch parameters from MATPOWER case14; includes SVG layout positions for single-line diagram rendering
+
+- **`tutorials/dg-integration.json`** — 5-bus distribution network with solar PV integration: bus 1 (HV slack), bus 2 (generation PV bus), bus 3 (PV bus modelling solar inverter at unity power factor), buses 4–5 (PQ loads); demonstrates distributed generation PV bus modelling
+
+- **`reference/ieee-test-cases.json`** — MATPOWER case14 expected power flow results: per-bus |V|, θ, P_inj, Q_inj used as tolerance-checked reference in `newton-raphson.test.ts`
+
+- **`_schema/network.schema.json`** — JSON Schema for `PowerNetwork` interface; validates bus types, line parameters, transformer turns ratio
+
+#### Lesson data — `src/data/power-systems/`
+
+- **5 lesson JSON files**: `per-unit-system.json` (beginner, simulator: `per-unit`), `power-flow-3bus.json` (beginner, simulator: `power-flow`, networkId: `simple-3bus`), `power-flow-ieee14.json` (intermediate, simulator: `power-flow`, networkId: `ieee-14bus`), `algorithm-comparison.json` (intermediate, simulator: `algorithm-comparison`, networkId: `simple-3bus`), `fault-analysis.json` (advanced, simulator: `fault-analysis`, networkId: `simple-3bus`, faultBus: 3)
+
+#### React components — `src/components/simulators/power/`
+
+- **`PowerFlowSimulator.tsx`** (`client:visible`) — orchestrator component; holds network, algorithm (NR/GS), and results state; "Run Power Flow" button dispatches to `solveNewtonRaphson` or `solveGaussSeidel`; composes `SingleLineDiagram` + `LineLoadingOverlay` + `VoltageProfileChart` + `BusInspector`; supports `mode="fault"` prop for fault analysis dispatch via `faultBus`
+
+- **`SingleLineDiagram.tsx`** — pure React/SVG single-line diagram (no D3 dependency); SVG symbols: bus bar (`<rect>` 80×8 px), generator (circle r=16 + "G" text, `#2563eb`), transformer (two overlapping circles ±8 px, `--color-copper`), load (downward triangle, `#dc2626`); pointer-event pan/zoom on SVG viewport; `onClick` bus → `BusInspector` callback; accepts network topology + optional results overlay prop
+
+- **`BusInspector.tsx`** (`client:idle`) — click-to-inspect side panel; displays: V (pu + kV = V_pu × baseKV), θ (degrees), P_inj (MW = P_pu × baseMVA), Q_inj (MVAr); styled with design tokens; closes on Escape key or outside click
+
+- **`VoltageProfileChart.tsx`** — inline SVG bar chart; one bar per bus ordered by bus ID; bar height proportional to |V| pu; ±5% dashed bands at 0.95 and 1.05 pu; bar color: green if within limits, orange if outside; Y-axis 0.80–1.20 pu; X-axis bus ID labels
+
+- **`LineLoadingOverlay.tsx`** — overlays colored stroke on `<line>` elements in `SingleLineDiagram`; color: green < 60% thermal rating, orange 60–90%, red > 90%; loading fraction from `LineResult.loadingFraction`
+
+- **`ConvergenceChart.tsx`** — SVG log-scale mismatch-vs-iteration chart; plots both NR and GS mismatch traces in algorithm-comparison mode; Y-axis: log₁₀(mismatch) 0 to −8; X-axis: iteration count; horizontal dashed line at convergence tolerance; visually shows NR (~5 iterations) vs GS (~80 iterations) convergence speed difference
+
+- **`PerUnitConverter.tsx`** (`client:idle`) — real-time per-unit system calculator; inputs: V_base (kV), S_base (MVA), phase selection (1-phase / 3-phase); computes Z_base = V_base²/S_base, I_base = S_base/(√3·V_base) for 3-phase; inline result display with formula derivation; unit conversion between pu ↔ ohms/amps/volts/VA
+
+#### Astro pages — `src/pages/learn/power-systems/`
+
+- **`index.astro`** — lesson browser; `import.meta.glob` auto-discovery of `src/data/power-systems/*.json`; card grid sorted by difficulty (beginner → intermediate → advanced); hover border `#2563eb` (power blue); difficulty badges; link to `playground` page
+
+- **`[lesson].astro`** — lesson detail page; double `import.meta.glob` in `getStaticPaths()` loads lesson JSON (from `src/data/power-systems/`) and network JSON (from `src/data/power-networks/**/*.json`); matches `lesson.simulatorProps.networkId` to network `id` field; simulator branching: `'power-flow'` → `PowerFlowSimulator`, `'fault-analysis'` → `PowerFlowSimulator mode="fault"`, `'per-unit'` → `PerUnitConverter`, `'algorithm-comparison'` → `ConvergenceChart`; `TutorialStepper.astro` reused from Phase 1
+
+- **`playground.astro`** — JupyterLite + Pyodide browser notebook; `<iframe src="https://jupyterlite.github.io/demo/lab/index.html">` (30–80 MB WebAssembly Python runtime, loads lazily); loading spinner overlay removed on `onload`; starter code snippet for `micropip.install('pandapower')` + IEEE 14-bus power flow run; no server required
+
+### Changed
+
+- **`src/lib/learn/types.ts`** — `'power-systems'` added to domain union type
+
+- **`src/components/Header.astro`** — `{ href: '/learn/power-systems/', label: 'power systems' }` nav entry added after `circuits`
+
+### Technical notes
+
+- No new npm packages required — `mathjs` v15.1.1 (already installed for MNA solver) provides `complex`, `lusolve`, and `inv` for all power flow and fault analysis math
+- `conjugate` is not a named ESM export in mathjs v15; in the Gauss-Seidel solver all conjugates computed manually as `complex(v.re, −v.im)`
+- `{{expr}}` syntax in Astro `<pre><code>` blocks is parsed as an outer `{` template expression plus inner `{expr}` JS object literal (invalid); use HTML entities `&#123;...&#125;` for literal curly braces in pre-formatted code content
+- IEEE 14-bus validation: NR converges in 5–7 iterations; all 14 bus voltages within 0.002 pu and angles within 0.1° of MATPOWER case14 published results; 5 bugs fixed during implementation (M diagonal column index, |V| update not fractional, M/L off-diagonal swapped, `conjugate` import, S_k conjugate sign in GS)
+- Unit tests: 284 → **347** (63 new across 3 test files); build: ~57 → **~64 static pages** (7 new power-systems routes: 1 browser, 5 lessons, 1 playground)
+- Concept library unchanged: **427 concepts** across 14 domains (`power-systems.yaml` pre-existed with 193 concepts; no new concept IDs required for Phase 3 lessons)
+
+---
+
 ## [0.22.13] - 2026-02-27
 
 **Phase 2 — PCB Design, Digital Electronics & Semiconductor Physics interactive learning modules**

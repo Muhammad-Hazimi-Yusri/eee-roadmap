@@ -1,0 +1,66 @@
+{
+  "id": "ieee-14bus",
+  "name": "IEEE 14-Bus Test System",
+  "description": "The standard IEEE 14-bus test case with 5 generators, 11 loads, and 20 branches (17 lines + 3 transformers). A benchmark for validating power flow solvers. Published expected results available in reference/ieee-test-cases.json.",
+  "baseMVA": 100,
+  "buses": [
+    { "id":  1, "name": "Bus 1  (HV Gen)",   "type": "slack", "Psch": 0,    "Qsch": 0,     "Vmag": 1.060, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV": 132, "position": {"x":  80, "y": 200} },
+    { "id":  2, "name": "Bus 2  (Gen PV)",    "type": "PV",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.045, "theta": 0, "Qmin": -0.40, "Qmax": 0.50, "Gsh": 0, "Bsh": 0,    "baseKV": 132, "position": {"x": 230, "y": 120} },
+    { "id":  3, "name": "Bus 3  (Gen PV)",    "type": "PV",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.010, "theta": 0, "Qmin":  0.00, "Qmax": 0.40, "Gsh": 0, "Bsh": 0,    "baseKV": 132, "position": {"x": 420, "y":  60} },
+    { "id":  4, "name": "Bus 4  (Junction)",  "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV": 132, "position": {"x": 380, "y": 200} },
+    { "id":  5, "name": "Bus 5  (Junction)",  "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV": 132, "position": {"x": 230, "y": 280} },
+    { "id":  6, "name": "Bus 6  (Gen PV)",    "type": "PV",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.070, "theta": 0, "Qmin": -0.06, "Qmax": 0.24, "Gsh": 0, "Bsh": 0,    "baseKV":  11, "position": {"x": 420, "y": 360} },
+    { "id":  7, "name": "Bus 7  (Junction)",  "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV":  11, "position": {"x": 540, "y": 280} },
+    { "id":  8, "name": "Bus 8  (Gen PV)",    "type": "PV",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.090, "theta": 0, "Qmin": -0.06, "Qmax": 0.24, "Gsh": 0, "Bsh": 0,    "baseKV":  11, "position": {"x": 650, "y": 200} },
+    { "id":  9, "name": "Bus 9  (Load)",      "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0.19, "baseKV":  11, "position": {"x": 540, "y": 360} },
+    { "id": 10, "name": "Bus 10 (Load)",      "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV":  11, "position": {"x": 600, "y": 420} },
+    { "id": 11, "name": "Bus 11 (Load)",      "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV":  11, "position": {"x": 480, "y": 440} },
+    { "id": 12, "name": "Bus 12 (Load)",      "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV":  11, "position": {"x": 400, "y": 480} },
+    { "id": 13, "name": "Bus 13 (Load)",      "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV":  11, "position": {"x": 450, "y": 460} },
+    { "id": 14, "name": "Bus 14 (Load)",      "type": "PQ",    "Psch": 0,    "Qsch": 0,     "Vmag": 1.000, "theta": 0, "Qmin": -999,  "Qmax": 999,  "Gsh": 0, "Bsh": 0,    "baseKV":  11, "position": {"x": 620, "y": 460} }
+  ],
+  "lines": [
+    { "id": "L1-2",   "fromBus":  1, "toBus":  2, "r": 0.01938, "x": 0.05917, "bCh": 0.0528, "ratingMVA": 9900 },
+    { "id": "L1-5",   "fromBus":  1, "toBus":  5, "r": 0.05403, "x": 0.22304, "bCh": 0.0492, "ratingMVA": 9900 },
+    { "id": "L2-3",   "fromBus":  2, "toBus":  3, "r": 0.04699, "x": 0.19797, "bCh": 0.0438, "ratingMVA": 9900 },
+    { "id": "L2-4",   "fromBus":  2, "toBus":  4, "r": 0.05811, "x": 0.17632, "bCh": 0.0340, "ratingMVA": 9900 },
+    { "id": "L2-5",   "fromBus":  2, "toBus":  5, "r": 0.05695, "x": 0.17388, "bCh": 0.0346, "ratingMVA": 9900 },
+    { "id": "L3-4",   "fromBus":  3, "toBus":  4, "r": 0.06701, "x": 0.17103, "bCh": 0.0128, "ratingMVA": 9900 },
+    { "id": "L4-5",   "fromBus":  4, "toBus":  5, "r": 0.01335, "x": 0.04211, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L6-11",  "fromBus":  6, "toBus": 11, "r": 0.09498, "x": 0.19890, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L6-12",  "fromBus":  6, "toBus": 12, "r": 0.12291, "x": 0.25581, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L6-13",  "fromBus":  6, "toBus": 13, "r": 0.06615, "x": 0.13027, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L7-8",   "fromBus":  7, "toBus":  8, "r": 0.00000, "x": 0.17615, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L7-9",   "fromBus":  7, "toBus":  9, "r": 0.00000, "x": 0.11001, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L9-10",  "fromBus":  9, "toBus": 10, "r": 0.03181, "x": 0.08450, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L9-14",  "fromBus":  9, "toBus": 14, "r": 0.12711, "x": 0.27038, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L10-11", "fromBus": 10, "toBus": 11, "r": 0.08205, "x": 0.19207, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L12-13", "fromBus": 12, "toBus": 13, "r": 0.22092, "x": 0.19988, "bCh": 0.0000, "ratingMVA": 9900 },
+    { "id": "L13-14", "fromBus": 13, "toBus": 14, "r": 0.17093, "x": 0.34802, "bCh": 0.0000, "ratingMVA": 9900 }
+  ],
+  "transformers": [
+    { "id": "T4-7",  "fromBus": 4, "toBus":  7, "r": 0, "x": 0.20912, "turnsRatio": 0.978, "ratingMVA": 9900 },
+    { "id": "T4-9",  "fromBus": 4, "toBus":  9, "r": 0, "x": 0.55618, "turnsRatio": 0.969, "ratingMVA": 9900 },
+    { "id": "T5-6",  "fromBus": 5, "toBus":  6, "r": 0, "x": 0.25202, "turnsRatio": 0.932, "ratingMVA": 9900 }
+  ],
+  "generators": [
+    { "busId": 1, "P":   0,  "vmPU": 1.060, "Pmax": 332.4, "Pmin": 0, "Qmax":  10,  "Qmin":  0   },
+    { "busId": 2, "P":  40,  "vmPU": 1.045, "Pmax": 140,   "Pmin": 0, "Qmax":  50,  "Qmin": -40  },
+    { "busId": 3, "P":   0,  "vmPU": 1.010, "Pmax": 100,   "Pmin": 0, "Qmax":  40,  "Qmin":   0  },
+    { "busId": 6, "P":   0,  "vmPU": 1.070, "Pmax": 100,   "Pmin": 0, "Qmax":  24,  "Qmin":  -6  },
+    { "busId": 8, "P":   0,  "vmPU": 1.090, "Pmax": 100,   "Pmin": 0, "Qmax":  24,  "Qmin":  -6  }
+  ],
+  "loads": [
+    { "busId":  2, "P":  21.7, "Q": 12.7 },
+    { "busId":  3, "P":  94.2, "Q": 19.0 },
+    { "busId":  4, "P":  47.8, "Q":  -3.9 },
+    { "busId":  5, "P":   7.6, "Q":   1.6 },
+    { "busId":  6, "P":  11.2, "Q":   7.5 },
+    { "busId":  9, "P":  29.5, "Q":  16.6 },
+    { "busId": 10, "P":   9.0, "Q":   5.8 },
+    { "busId": 11, "P":   3.5, "Q":   1.8 },
+    { "busId": 12, "P":   6.1, "Q":   1.6 },
+    { "busId": 13, "P":  13.5, "Q":   5.8 },
+    { "busId": 14, "P":  14.9, "Q":   5.0 }
+  ]
+}

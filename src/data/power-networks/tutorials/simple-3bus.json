@@ -1,0 +1,43 @@
+{
+  "id": "simple-3bus",
+  "name": "Simple 3-Bus Radial Network",
+  "description": "A hand-calculable 3-bus network with one slack bus, one PV (generator) bus, and one PQ (load) bus connected by two transmission lines. All values in per-unit on 100 MVA base.",
+  "baseMVA": 100,
+  "buses": [
+    {
+      "id": 1, "name": "Bus 1 (Slack)",  "type": "slack",
+      "Psch": 0.0,  "Qsch": 0.0,  "Vmag": 1.05, "theta": 0,
+      "Qmin": -999, "Qmax": 999,  "Gsh": 0, "Bsh": 0,
+      "baseKV": 132, "position": { "x": 80, "y": 200 }
+    },
+    {
+      "id": 2, "name": "Bus 2 (Gen)",   "type": "PV",
+      "Psch": 0.0,  "Qsch": 0.0,  "Vmag": 1.04, "theta": 0,
+      "Qmin": -0.5, "Qmax": 0.5,  "Gsh": 0, "Bsh": 0,
+      "baseKV": 132, "position": { "x": 300, "y": 200 }
+    },
+    {
+      "id": 3, "name": "Bus 3 (Load)",  "type": "PQ",
+      "Psch": 0.0,  "Qsch": 0.0,  "Vmag": 1.0,  "theta": 0,
+      "Qmin": -999, "Qmax": 999,  "Gsh": 0, "Bsh": 0,
+      "baseKV": 132, "position": { "x": 520, "y": 200 }
+    }
+  ],
+  "lines": [
+    {
+      "id": "L1-2", "fromBus": 1, "toBus": 2,
+      "r": 0.01, "x": 0.05, "bCh": 0.02, "ratingMVA": 200
+    },
+    {
+      "id": "L2-3", "fromBus": 2, "toBus": 3,
+      "r": 0.02, "x": 0.08, "bCh": 0.01, "ratingMVA": 100
+    }
+  ],
+  "transformers": [],
+  "generators": [
+    { "busId": 2, "P": 50, "vmPU": 1.04, "Pmax": 100, "Pmin": 0, "Qmax": 50, "Qmin": -50 }
+  ],
+  "loads": [
+    { "busId": 3, "P": 100, "Q": 50 }
+  ]
+}

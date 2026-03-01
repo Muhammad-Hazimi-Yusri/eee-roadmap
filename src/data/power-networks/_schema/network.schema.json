@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "power-network-schema",
+  "title": "PowerNetwork",
+  "description": "Schema for EEE Roadmap power network data files used by the Phase 3 power flow simulator.",
+  "type": "object",
+  "required": ["id", "name", "description", "baseMVA", "buses", "lines", "transformers", "generators", "loads"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "baseMVA": { "type": "number", "minimum": 0 },
+    "buses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "Psch", "Qsch", "Vmag", "theta", "Qmin", "Qmax", "Gsh", "Bsh", "baseKV", "position"],
+        "properties": {
+          "id": { "type": "integer", "minimum": 1 },
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["slack", "PV", "PQ"] },
+          "Psch": { "type": "number" },
+          "Qsch": { "type": "number" },
+          "Vmag": { "type": "number", "minimum": 0 },
+          "theta": { "type": "number" },
+          "Qmin": { "type": "number" },
+          "Qmax": { "type": "number" },
+          "Gsh": { "type": "number" },
+          "Bsh": { "type": "number" },
+          "baseKV": { "type": "number", "minimum": 0 },
+          "position": {
+            "type": "object",
+            "required": ["x", "y"],
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "fromBus", "toBus", "r", "x", "bCh", "ratingMVA"],
+        "properties": {
+          "id": { "type": "string" },
+          "fromBus": { "type": "integer" },
+          "toBus": { "type": "integer" },
+          "r": { "type": "number", "minimum": 0 },
+          "x": { "type": "number" },
+          "bCh": { "type": "number", "minimum": 0 },
+          "ratingMVA": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "transformers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "fromBus", "toBus", "r", "x", "turnsRatio", "ratingMVA"],
+        "properties": {
+          "id": { "type": "string" },
+          "fromBus": { "type": "integer" },
+          "toBus": { "type": "integer" },
+          "r": { "type": "number", "minimum": 0 },
+          "x": { "type": "number" },
+          "turnsRatio": { "type": "number", "minimum": 0 },
+          "ratingMVA": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "generators": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["busId", "P", "vmPU", "Pmax", "Pmin", "Qmax", "Qmin"],
+        "properties": {
+          "busId": { "type": "integer" },
+          "P": { "type": "number" },
+          "vmPU": { "type": "number" },
+          "Pmax": { "type": "number" },
+          "Pmin": { "type": "number" },
+          "Qmax": { "type": "number" },
+          "Qmin": { "type": "number" }
+        }
+      }
+    },
+    "loads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["busId", "P", "Q"],
+        "properties": {
+          "busId": { "type": "integer" },
+          "P": { "type": "number", "minimum": 0 },
+          "Q": { "type": "number" }
+        }
+      }
+    }
+  }
+}
