@@ -29,5 +29,9 @@
         "hint": "The minimum fault current (often single-phase-to-earth) sets the relay pickup. The maximum fault current (three-phase bolted) sets the circuit breaker interrupting duty."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "fault-level-definition", "trackSlug": "power-system-fundamentals", "topicId": "fault-calculations", "label": "Fault Levels and Short Circuit Calculations" },
+    { "id": "iec-60909-methodology", "trackSlug": "advanced-power-system-analysis", "topicId": "iec-60909-methodology", "label": "IEC 60909 Methodology" }
+  ]
 }

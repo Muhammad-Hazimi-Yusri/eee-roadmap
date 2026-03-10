@@ -94,6 +94,16 @@ sections:
             url: https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/
           - label: All About Circuits
             url: https://www.allaboutcircuits.com/textbook/direct-current/
+        interactive:
+          - type: circuit-sim
+            lesson: circuits/fundamentals/ohms-law
+            label: "Explore Ohm's law →"
+          - type: circuit-sim
+            lesson: circuits/fundamentals/kvl-kcl
+            label: "Try Kirchhoff's laws →"
+          - type: circuit-sim
+            lesson: circuits/fundamentals/voltage-divider
+            label: 'Try the voltage divider →'
       - id: ac-circuits
         title: AC Circuit Analysis
         description: Real-world power is AC. Phasors turn differential equations into algebra, impedance extends Ohm's law to capacitors and inductors. Foundation for power systems and signal processing.
@@ -308,6 +318,13 @@ sections:
             url: https://learn.sparkfun.com/tutorials/diodes
           - label: All About Circuits - Diodes
             url: https://www.allaboutcircuits.com/textbook/semiconductors/chpt-3/introduction-to-diodes-and-rectifiers/
+        interactive:
+          - type: semiconductor-sim
+            lesson: semiconductor/pn-junction
+            label: 'Visualise PN junction →'
+          - type: semiconductor-sim
+            lesson: semiconductor/band-diagrams
+            label: 'Explore band diagrams →'
   - id: measurements-lab
     title: Measurements & Lab
     items:

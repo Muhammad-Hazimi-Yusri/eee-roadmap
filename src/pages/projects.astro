@@ -1,17 +1,16 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import Placeholder from '../components/Placeholder.astro';
+// Redirects to /labs/ — the Projects page has been replaced by Labs.
+const { BASE_URL } = import.meta.env;
+const dest = `${BASE_URL}labs/`;
 ---
 
-<Layout title="Projects">
-  <Header />
-  <main id="main-content">
-    <Placeholder 
-      title="Projects" 
-      description="Hands-on project ideas to practice and apply what you've learned."
-    />
-  </main>
-  <Footer />
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0; url=${dest}`} />
+    <title>Redirecting to Labs…</title>
+  </head>
+  <body>
+    <p>Redirecting to <a href={dest}>Labs</a>…</p>
+  </body>
+</html>

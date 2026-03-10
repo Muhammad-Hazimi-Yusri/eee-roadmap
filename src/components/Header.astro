@@ -5,13 +5,12 @@ import LoginButton from './LoginButton.astro';
 
 const baseUrl = import.meta.env.BASE_URL;
 
-const navLinks = [
-  { href: `${baseUrl}roadmaps/`, label: 'roadmaps' },
-  { href: `${baseUrl}learn/circuits/`, label: 'circuits' },
-  { href: `${baseUrl}learn/power-systems/`, label: 'power systems' },
-  { href: `${baseUrl}#demo`, label: 'demo' },
-  { href: `${baseUrl}#features`, label: 'features' },
-  { href: 'https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap', label: 'github', external: true },
+const labsDomains = [
+  { href: `${baseUrl}labs/#circuits`, label: 'Circuit Simulator' },
+  { href: `${baseUrl}labs/#pcb`, label: 'PCB Design' },
+  { href: `${baseUrl}labs/#digital`, label: 'Digital Electronics' },
+  { href: `${baseUrl}labs/#semiconductor`, label: 'Semiconductor Physics' },
+  { href: `${baseUrl}labs/#power-systems`, label: 'Power Systems' },
 ];
 ---
 
@@ -28,17 +27,26 @@ const navLinks = [
     </a>
 
     <!-- Navigation -->
-    <nav class="flex flex-wrap items-center gap-x-6 gap-y-2" aria-label="Main navigation">
-      {navLinks.map((link) => (
-        <a 
-          href={link.external ? link.href : link.href}
-          class="font-mono text-sm lowercase"
-          target={link.external ? '_blank' : undefined}
-          rel={link.external ? 'noopener noreferrer' : undefined}
-        >
-          {link.label}
+    <nav class="header-nav" aria-label="Main navigation">
+      <a href={`${baseUrl}roadmaps/`} class="header-nav__link">roadmaps</a>
+
+      <div class="header-nav__dropdown">
+        <a href={`${baseUrl}labs/`} class="header-nav__link">
+          labs <span class="header-nav__caret" aria-hidden="true">&#9662;</span>
         </a>
-      ))}
+        <div class="header-nav__menu">
+          {labsDomains.map((d) => (
+            <a href={d.href} class="header-nav__menu-item">{d.label}</a>
+          ))}
+        </div>
+      </div>
+
+      <a
+        href="https://github.com/Muhammad-Hazimi-Yusri/eee-roadmap"
+        class="header-nav__link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >github</a>
     </nav>
     
     <SearchBar />
@@ -91,6 +99,83 @@ const navLinks = [
     .header :global(.search-trigger)::after {
       display: none;
     }
+  }
+
+  /* ── Nav links ── */
+  .header-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .header-nav__link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-transform: lowercase;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .header-nav__link:hover {
+    color: var(--color-copper, #c87533);
+  }
+
+  .header-nav__caret {
+    font-size: 0.6rem;
+    vertical-align: middle;
+    margin-left: 0.15rem;
+  }
+
+  /* ── Dropdown ── */
+  .header-nav__dropdown {
+    position: relative;
+  }
+
+  .header-nav__menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.6rem;
+    min-width: 200px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.35rem 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+  }
+
+  /* Invisible bridge so the cursor can travel from link to menu */
+  .header-nav__menu::before {
+    content: '';
+    position: absolute;
+    top: -0.6rem;
+    left: 0;
+    right: 0;
+    height: 0.6rem;
+  }
+
+  .header-nav__dropdown:hover .header-nav__menu,
+  .header-nav__dropdown:focus-within .header-nav__menu {
+    display: block;
+  }
+
+  .header-nav__menu-item {
+    display: block;
+    padding: 0.45rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .header-nav__menu-item:hover {
+    background: var(--color-bg-grid);
+    color: var(--color-copper, #c87533);
   }
 
   .header-actions {

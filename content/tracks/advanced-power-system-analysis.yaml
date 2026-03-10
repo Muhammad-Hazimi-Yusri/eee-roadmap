@@ -34,6 +34,10 @@ sections:
             url: https://pandapower.readthedocs.io/en/latest/shortcircuit/currents.html
           - label: MIT OCW 6.061 - Electric Power Systems
             url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
+        interactive:
+          type: power-sim
+          lesson: power-systems/fault-analysis
+          label: 'Simulate a 3-phase fault →'
       - id: asymmetrical-faults
         title: Asymmetrical Fault Analysis
         description: Sequence network connections for unbalanced faults. How positive,  negative, and zero-sequence impedances combine to determine fault  currents for line-to-earth, line-to-line, and double line-to-earth faults.

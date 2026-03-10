@@ -29,5 +29,8 @@
         "hint": "NAND and NOR are universal gates. CMOS logic naturally inverts, so NAND gates are the most efficient in silicon."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "truth-tables", "trackSlug": "core", "topicId": "boolean-logic-gates", "label": "Boolean Algebra & Logic Gates" }
+  ]
 }

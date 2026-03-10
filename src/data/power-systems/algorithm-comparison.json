@@ -25,5 +25,8 @@
         "hint": "The Fast Decoupled approximation assumes: ∂P/∂|V| ≈ 0 and ∂Q/∂θ ≈ 0. This is accurate for high-voltage transmission networks where X >> R."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "newton-raphson-method", "trackSlug": "power-system-fundamentals", "topicId": "load-flow-methods", "label": "Newton-Raphson and Gauss-Seidel Methods" }
+  ]
 }

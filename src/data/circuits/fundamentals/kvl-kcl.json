@@ -42,5 +42,8 @@
       }
     ]
   },
-  "falstadCircuit": "$ 1 0.000005 10.20 56 5 43 5e-11\nv 64 256 64 96 0 0 0 12 0 0 0.5\nr 64 96 192 96 0 1000\nr 192 96 192 256 0 2000\nr 288 96 288 256 0 3000\nw 192 96 288 96 0\nw 64 256 192 256 0\nw 192 256 288 256 0\n"
+  "falstadCircuit": "$ 1 0.000005 10.20 56 5 43 5e-11\nv 64 256 64 96 0 0 0 12 0 0 0.5\nr 64 96 192 96 0 1000\nr 192 96 192 256 0 2000\nr 288 96 288 256 0 3000\nw 192 96 288 96 0\nw 64 256 192 256 0\nw 192 256 288 256 0\n",
+  "relatedConcepts": [
+    { "id": "kvl-and-kcl", "trackSlug": "fundamentals", "topicId": "dc-circuits", "label": "DC Circuit Analysis" }
+  ]
 }

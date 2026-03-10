@@ -32,5 +32,8 @@
         "hint": "Setup time limits the maximum clock frequency; hold time is fixed by the circuit and cannot be fixed by slowing the clock."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "flip-flops", "trackSlug": "core", "topicId": "sequential-circuits", "label": "Sequential Circuits" }
+  ]
 }

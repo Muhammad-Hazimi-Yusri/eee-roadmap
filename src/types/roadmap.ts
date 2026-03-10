@@ -118,6 +118,15 @@ export interface Topic {
   resources?: Resource[];
   /** If true, topic is optional/supplementary (styled differently) */
   optional?: boolean;
+  /** Link to a matching interactive lab exercise */
+  interactive?: {
+    /** Simulator category: 'circuit-sim' | 'pcb-viz' | 'digital-sim' | 'semiconductor-viz' | 'power-sim' */
+    type: string;
+    /** Path relative to /learn/, e.g. 'circuits/fundamentals/voltage-divider' */
+    lesson: string;
+    /** Button label (defaults to 'Try it interactively →') */
+    label?: string;
+  };
 }
 
 /** Section grouping related topics (e.g., "Math Foundations", "Circuit Fundamentals") */

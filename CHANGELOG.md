@@ -11,6 +11,29 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.22.15] - 2026-03-10
+
+**UX/Navigation cleanup & two-way roadmap-lab linking**
+
+### Fixed
+
+- **"Lesson complete" banner always visible** — CSS `display: flex` on `.stepper__complete` overrode the HTML `hidden` attribute; added `[hidden]` selector to restore correct behavior (`TutorialStepper.astro`)
+- **PCB layer stackup selector broken** — TypeScript `as HTMLElement` casts in a `<script is:inline>` block are invalid JS; removed casts so the vanilla JS event handler works (`LayerStackupDiagram.astro`)
+
+### Changed
+
+- **Header navigation redesigned** — Replaced 7 nav links (roadmaps, circuits, power systems, labs, demo, features, github) with 3: `roadmaps`, `labs` (with dropdown listing all 5 domains), `github`; dropdown uses pure CSS hover with invisible bridge pseudo-element for reliable mouse tracking
+- **Labs page: removed Phase labels** — Stripped dev-facing "Phase 1/2/3" badges from domain sections; domains now show just the domain name
+- **Consolidated domain index pages** — `/learn/circuits/`, `/learn/pcb/`, `/learn/digital/`, `/learn/semiconductor/`, `/learn/power-systems/` now redirect to `/labs/#section` instead of rendering separate browse pages; `/labs/` is the single entry point for all lessons
+
+### Added
+
+- **Two-way roadmap-lab linking** — All 21 lessons are now reachable from the roadmap AND link back to their roadmap topic
+  - **Roadmap → Lab:** `Roadmap.astro` now supports arrays of `interactive` links per topic; added `interactive` blocks to `fundamentals.yaml` (dc-circuits: 3 circuit lessons, diodes: 2 semiconductor lessons) and `core.yaml` (transistors: 2 semiconductor lessons, boolean-logic-gates: +truth-tables, sequential-circuits: 2 digital lessons, pcb-fundamentals: 5 PCB lessons); all 21 lessons now linked (was 8/21)
+  - **Lab → Roadmap:** Added `relatedConcepts` backlinks to all 21 lesson JSON files; added `relatedConcepts` rendering + CSS to circuits `[lesson].astro` (other 4 domains already had it); added `RelatedConcept` type to `CircuitLesson` interface
+
+---
+
 ## [0.22.14] - 2026-02-28
 
 **Phase 3 — Power Systems Analysis interactive learning modules**

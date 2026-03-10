@@ -144,6 +144,10 @@ sections:
             url: https://openelectrical.org/index.php?title=Per-unit_System
           - label: NPTEL - Per Unit Calculations
             url: https://nptel.ac.in/courses/108105104
+        interactive:
+          type: power-sim
+          lesson: power-systems/per-unit-system
+          label: 'Try the per-unit converter →'
   - id: load-flow-analysis
     title: Load Flow Analysis
     items:
@@ -165,6 +169,10 @@ sections:
             url: https://ocw.mit.edu/courses/6-061-introduction-to-electric-power-systems-spring-2011/
           - label: PowerWorld Simulator (Free 13-bus)
             url: https://www.powerworld.com/products/simulator
+        interactive:
+          type: power-sim
+          lesson: power-systems/power-flow-3bus
+          label: 'Run a 3-bus power flow →'
       - id: load-flow-methods
         title: Newton-Raphson and Gauss-Seidel Methods
         description: The two main iterative algorithms for solving load flow equations.  Gauss-Seidel is simpler but slower; Newton-Raphson is the industry  standard for its speed and robustness.
@@ -185,6 +193,10 @@ sections:
             url: https://nptel.ac.in/courses/108105067
           - label: Pandapower (Python library)
             url: https://www.pandapower.org/
+        interactive:
+          type: power-sim
+          lesson: power-systems/algorithm-comparison
+          label: 'Compare NR vs Gauss-Seidel →'
       - id: interpreting-load-flow
         title: Interpreting Load Flow Results
         description: "How to read and analyze load flow outputs: voltage profiles,  line loadings, losses, and reactive power flows. Identifying  problems and potential solutions."
@@ -205,6 +217,10 @@ sections:
             url: https://sourceforge.net/projects/electricdss/
           - label: MATPOWER (MATLAB)
             url: https://matpower.org/
+        interactive:
+          type: power-sim
+          lesson: power-systems/power-flow-ieee14
+          label: 'Explore IEEE 14-bus results →'
   - id: fault-analysis
     title: Fault Analysis
     items:
@@ -274,6 +290,10 @@ sections:
         resources:
           - label: Arc Advisor - MVA to kA Conversion
             url: https://arcadvisor.com/legacy/mva-ka-conversion
+        interactive:
+          type: power-sim
+          lesson: power-systems/fault-analysis
+          label: 'Simulate a 3-phase fault →'
       - id: why-fault-analysis
         title: Why Fault Analysis Matters
         description: Applications of fault studies in equipment selection, protection  design, safety assessment, and system planning. Understanding  how fault levels impact every aspect of power system design.

@@ -29,5 +29,8 @@
         "hint": "System losses ≈ Σ |I_ij|² × r_ij. Minimising losses is one of the objectives in Optimal Power Flow (OPF), which extends this basic power flow calculation."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "voltage-profile", "trackSlug": "power-system-fundamentals", "topicId": "interpreting-load-flow", "label": "Interpreting Load Flow Results" }
+  ]
 }

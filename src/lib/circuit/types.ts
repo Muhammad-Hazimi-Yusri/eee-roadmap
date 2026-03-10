@@ -60,6 +60,13 @@ export interface TutorialData {
   steps: TutorialStep[];
 }
 
+export interface RelatedConcept {
+  id: string;
+  trackSlug: string;
+  topicId: string;
+  label: string;
+}
+
 export interface CircuitLesson {
   id: string;
   title: string;
@@ -75,6 +82,8 @@ export interface CircuitLesson {
   falstadCircuit?: string;
   /** SPICE netlist (used when simulator='ngspice'). */
   spiceNetlist?: string;
+  /** Links back to related roadmap track topics */
+  relatedConcepts?: RelatedConcept[];
 }
 
 // ─── MNA Solver types ────────────────────────────────────────────────────────

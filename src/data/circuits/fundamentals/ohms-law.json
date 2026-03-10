@@ -40,5 +40,8 @@
       }
     ]
   },
-  "falstadCircuit": "$ 1 0.000005 10.20 56 5 43 5e-11\nv 64 224 64 96 0 0 0 9 0 0 0.5\nr 192 96 192 224 0 1000\nw 64 96 192 96 0\nw 64 224 192 224 0\n"
+  "falstadCircuit": "$ 1 0.000005 10.20 56 5 43 5e-11\nv 64 224 64 96 0 0 0 9 0 0 0.5\nr 192 96 192 224 0 1000\nw 64 96 192 96 0\nw 64 224 192 224 0\n",
+  "relatedConcepts": [
+    { "id": "ohms-law", "trackSlug": "fundamentals", "topicId": "dc-circuits", "label": "DC Circuit Analysis" }
+  ]
 }

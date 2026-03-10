@@ -29,5 +29,8 @@
         "hint": "In a real MOSFET, the channel potential varies from 0 at the source to Vds at the drain, causing the varying carrier density that leads to pinch-off in saturation."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "pn-junction", "trackSlug": "fundamentals", "topicId": "diodes", "label": "Diodes" }
+  ]
 }

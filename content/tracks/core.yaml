@@ -35,6 +35,13 @@ sections:
             url: https://www.allaboutcircuits.com/textbook/semiconductors/chpt-7/insulated-gate-field-effect-transistors-mosfet/
           - label: MIT OCW 6.002
             url: https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/
+        interactive:
+          - type: semiconductor-sim
+            lesson: semiconductor/mosfet-operation
+            label: 'Explore MOSFET operation →'
+          - type: semiconductor-sim
+            lesson: semiconductor/carrier-transport
+            label: 'Visualise carrier transport →'
       - id: op-amps
         title: Operational Amplifiers
         description: The Swiss Army knife of analog design. Two simple rules (virtual short, no input current) let you build amplifiers, filters, comparators, and more. Master the 741 and its modern successors.
@@ -103,6 +110,13 @@ sections:
             url: https://www.nesoacademy.org/ee/05-digital-electronics
           - label: All About Circuits - Boolean
             url: https://www.allaboutcircuits.com/textbook/digital/chpt-7/introduction-boolean-algebra/
+        interactive:
+          - type: digital-sim
+            lesson: digital/logic-gates
+            label: 'Explore logic gates →'
+          - type: digital-sim
+            lesson: digital/truth-tables
+            label: 'Generate truth tables →'
       - id: combinational-circuits
         title: Combinational Circuits
         description: Outputs depend only on current inputs — no memory. Multiplexers route signals, decoders select devices, adders do arithmetic. These blocks combine to build ALUs and more.
@@ -209,6 +223,13 @@ sections:
             url: https://www.nesoacademy.org/ee/05-digital-electronics
           - label: Ben Eater - 8-bit Computer
             url: https://eater.net/
+        interactive:
+          - type: digital-sim
+            lesson: digital/timing-diagrams
+            label: 'View timing diagrams →'
+          - type: digital-sim
+            lesson: digital/verilog-intro
+            label: 'Try Verilog synthesis →'
   - id: signals-systems
     title: Signals & Systems
     items:
@@ -424,3 +445,19 @@ sections:
             url: https://docs.kicad.org/
           - label: SparkFun PCB Basics
             url: https://learn.sparkfun.com/tutorials/pcb-basics/all
+        interactive:
+          - type: pcb-sim
+            lesson: pcb/stackup-basics
+            label: 'Explore layer stackups →'
+          - type: pcb-sim
+            lesson: pcb/via-types
+            label: 'Compare via types →'
+          - type: pcb-sim
+            lesson: pcb/impedance-control
+            label: 'Calculate impedance →'
+          - type: pcb-sim
+            lesson: pcb/trace-routing
+            label: 'Try trace routing →'
+          - type: pcb-sim
+            lesson: pcb/drc-rules
+            label: 'Check DRC rules →'

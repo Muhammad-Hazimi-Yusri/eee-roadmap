@@ -314,6 +314,10 @@ const { steps, lessonId } = Astro.props;
     color: var(--color-pcb-light);
   }
 
+  .stepper__complete[hidden] {
+    display: none;
+  }
+
   .stepper__complete-icon {
     font-size: 1.1rem;
     flex-shrink: 0;

@@ -1,0 +1,278 @@
+---
+// src/pages/labs/index.astro — Interactive Labs browse page.
+// Groups all lesson exercises by domain.
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { internalHref } from '../../utils/url';
+
+// Circuit lessons (Phase 1) — custom schema with `category` field
+interface CircuitLesson {
+  id: string;
+  title: string;
+  category: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  description: string;
+  tutorial: { steps: unknown[] };
+}
+
+// LessonBase lessons (Phases 2 & 3) — unified schema with `domain` field
+interface StandardLesson {
+  id: string;
+  title: string;
+  domain: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  description: string;
+  tutorial: { steps: unknown[] };
+}
+
+const circuitRaw = import.meta.glob<CircuitLesson>('../../data/circuits/**/*.json', { eager: true });
+const pcbRaw     = import.meta.glob<StandardLesson>('../../data/pcb/*.json', { eager: true });
+const digitalRaw = import.meta.glob<StandardLesson>('../../data/digital/*.json', { eager: true });
+const semiRaw    = import.meta.glob<StandardLesson>('../../data/semiconductor/*.json', { eager: true });
+const powerRaw   = import.meta.glob<StandardLesson>('../../data/power-systems/*.json', { eager: true });
+
+// Filter schema file from circuits
+const circuitLessons = Object.entries(circuitRaw)
+  .filter(([path]) => !path.includes('/_schema/'))
+  .map(([, lesson]) => lesson)
+  .sort((a, b) => {
+    const order = { beginner: 0, intermediate: 1, advanced: 2 } as const;
+    return order[a.difficulty] - order[b.difficulty];
+  });
+
+const diffOrder = { beginner: 0, intermediate: 1, advanced: 2 } as const;
+const sort = (arr: StandardLesson[]) =>
+  arr.sort((a, b) => diffOrder[a.difficulty] - diffOrder[b.difficulty]);
+
+const pcbLessons   = sort(Object.values(pcbRaw));
+const digitalLessons = sort(Object.values(digitalRaw));
+const semiLessons  = sort(Object.values(semiRaw));
+const powerLessons = sort(Object.values(powerRaw));
+
+const domainGroups = [
+  {
+    id: 'circuits',
+    label: 'Circuit Simulator',
+    description: 'Browser-based SPICE-style simulator (Falstad embed + MNA solver). Build and probe circuits in real time.',
+    lessons: circuitLessons.map(l => ({
+      id: l.id,
+      title: l.title,
+      difficulty: l.difficulty,
+      description: l.description,
+      steps: l.tutorial.steps.length,
+      href: internalHref(`learn/circuits/${l.category}/${l.id}`),
+    })),
+  },
+  {
+    id: 'pcb',
+    label: 'PCB Design',
+    description: 'Interactive PCB layer stackups, impedance calculators, trace routing, DRC, and Gerber viewing.',
+    lessons: pcbLessons.map(l => ({
+      id: l.id,
+      title: l.title,
+      difficulty: l.difficulty,
+      description: l.description,
+      steps: l.tutorial.steps.length,
+      href: internalHref(`learn/pcb/${l.id}`),
+    })),
+  },
+  {
+    id: 'digital',
+    label: 'Digital Electronics',
+    description: 'WaveDrom timing diagrams, truth table generator, CircuitVerse logic simulation, and Yosys/DigitalJS Verilog synthesis.',
+    lessons: digitalLessons.map(l => ({
+      id: l.id,
+      title: l.title,
+      difficulty: l.difficulty,
+      description: l.description,
+      steps: l.tutorial.steps.length,
+      href: internalHref(`learn/digital/${l.id}`),
+    })),
+  },
+  {
+    id: 'semiconductor',
+    label: 'Semiconductor Physics',
+    description: 'PN junction physics, MOSFET characteristics, band diagrams with Poisson solver, and carrier drift/diffusion animation.',
+    lessons: semiLessons.map(l => ({
+      id: l.id,
+      title: l.title,
+      difficulty: l.difficulty,
+      description: l.description,
+      steps: l.tutorial.steps.length,
+      href: internalHref(`learn/semiconductor/${l.id}`),
+    })),
+  },
+  {
+    id: 'power-systems',
+    label: 'Power Systems',
+    description: 'Newton-Raphson & Gauss-Seidel power flow, per-unit converter, IEEE 14-bus validation, and fault analysis.',
+    lessons: powerLessons.map(l => ({
+      id: l.id,
+      title: l.title,
+      difficulty: l.difficulty,
+      description: l.description,
+      steps: l.tutorial.steps.length,
+      href: internalHref(`learn/power-systems/${l.id}`),
+    })),
+  },
+];
+
+const totalLessons = domainGroups.reduce((n, g) => n + g.lessons.length, 0);
+---
+
+<Layout title="Interactive Labs" description="Hands-on interactive labs for electrical and electronic engineering — circuit simulators, PCB tools, digital logic, semiconductor physics, and power systems.">
+  <Header />
+  <main id="main-content">
+    <div class="container py-12">
+
+      <!-- Page header -->
+      <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// interactive labs</p>
+      <h1 class="page-title">Labs</h1>
+      <p class="page-desc">
+        {totalLessons} interactive exercises across 5 domains. Each lab pairs a live simulator with a
+        step-by-step tutorial — no install required.
+      </p>
+
+      <!-- Domain sections -->
+      {domainGroups.map(group => (
+        <section class="domain-section" id={group.id}>
+          <div class="domain-header">
+            <div class="domain-header__left">
+              <h2 class="domain-title">{group.label}</h2>
+            </div>
+            <p class="domain-desc">{group.description}</p>
+          </div>
+
+          <div class="lesson-grid">
+            {group.lessons.map(lesson => (
+              <a
+                href={lesson.href}
+                class={`lesson-card lesson-card--${lesson.difficulty}`}
+              >
+                <span class="lesson-card__badge">{lesson.difficulty}</span>
+                <h3 class="lesson-card__title">{lesson.title}</h3>
+                <p class="lesson-card__desc">{lesson.description}</p>
+                <span class="lesson-card__meta">{lesson.steps} steps &nbsp;·&nbsp; open lab →</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .page-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  .page-desc {
+    max-width: 52ch;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 3rem;
+  }
+
+  /* ── Domain section ── */
+  .domain-section {
+    margin-bottom: 3.5rem;
+  }
+
+  .domain-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .domain-header__left {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .domain-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .domain-desc {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    max-width: 64ch;
+    margin: 0;
+  }
+
+  /* ── Lesson grid ── */
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1rem;
+  }
+
+  .lesson-card {
+    display: block;
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .lesson-card:hover {
+    border-color: var(--color-copper, #c87533);
+    background: var(--color-bg-grid);
+  }
+
+  /* ── Difficulty badge ── */
+  .lesson-card__badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 0.6rem;
+  }
+
+  .lesson-card--beginner     .lesson-card__badge { background: color-mix(in srgb, var(--color-pcb) 15%, transparent); color: var(--color-pcb-light); }
+  .lesson-card--intermediate .lesson-card__badge { background: color-mix(in srgb, var(--color-copper) 15%, transparent); color: var(--color-copper); }
+  .lesson-card--advanced     .lesson-card__badge { background: color-mix(in srgb, #2563eb 15%, transparent); color: #60a5fa; }
+
+  .lesson-card__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem;
+    line-height: 1.3;
+  }
+
+  .lesson-card__desc {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0 0 0.75rem;
+  }
+
+  .lesson-card__meta {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+
+  .lesson-card:hover .lesson-card__meta {
+    color: var(--color-copper, #c87533);
+  }
+</style>

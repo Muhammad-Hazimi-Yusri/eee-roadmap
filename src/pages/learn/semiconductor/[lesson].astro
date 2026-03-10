@@ -88,6 +88,21 @@ const { lesson } = Astro.props;
 
       </div>
 
+      <!-- Related roadmap topics -->
+      {lesson.relatedConcepts && lesson.relatedConcepts.length > 0 && (
+        <div class="related-concepts">
+          <span class="related-concepts__label">Related roadmap topics:</span>
+          {lesson.relatedConcepts.map(rc => (
+            <a
+              href={internalHref(`roadmaps/${rc.trackSlug}#${rc.topicId}`)}
+              class="related-concepts__link"
+            >
+              {rc.label}
+            </a>
+          ))}
+        </div>
+      )}
+
       <!-- Footer nav -->
       <div class="lesson-footer-nav">
         <a href={internalHref('learn/semiconductor')} class="btn">
@@ -168,6 +183,40 @@ const { lesson } = Astro.props;
       grid-template-columns: 1fr 380px;
       align-items: start;
     }
+  }
+
+  .related-concepts {
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .related-concepts__label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+  }
+
+  .related-concepts__link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--color-copper, #c87533);
+    border-radius: 3px;
+    color: var(--color-copper, #c87533);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .related-concepts__link:hover {
+    background: var(--color-copper, #c87533);
+    color: #fff;
   }
 
   .lesson-footer-nav {

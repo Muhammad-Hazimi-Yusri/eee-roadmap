@@ -29,5 +29,8 @@
         "hint": "UK Grid Code requires transmission voltages within ±5% of nominal in normal operating conditions."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "bus-types", "trackSlug": "power-system-fundamentals", "topicId": "load-flow-fundamentals", "label": "What is Load Flow Analysis" }
+  ]
 }

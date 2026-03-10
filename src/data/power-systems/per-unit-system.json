@@ -29,5 +29,8 @@
         "hint": "All power flow solvers — Newton-Raphson, Gauss-Seidel — operate entirely in per-unit."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "per-unit-basics", "trackSlug": "power-system-fundamentals", "topicId": "per-unit-system", "label": "Per-Unit System" }
+  ]
 }

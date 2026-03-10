@@ -29,5 +29,8 @@
         "hint": "Laser microvias are defined in IPC-2226 HDI standard. They require a filled and capped process for reliable stacking."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "layout", "trackSlug": "core", "topicId": "pcb-fundamentals", "label": "PCB Design Fundamentals" }
+  ]
 }

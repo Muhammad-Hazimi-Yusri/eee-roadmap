@@ -37,5 +37,8 @@
         "hint": "Use stitching capacitors (100 nF) to bridge plane transitions near layer-change vias. Add a GND via close to every signal layer-change via."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "layout", "trackSlug": "core", "topicId": "pcb-fundamentals", "label": "PCB Design Fundamentals" }
+  ]
 }

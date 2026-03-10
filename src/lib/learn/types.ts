@@ -6,6 +6,17 @@ export interface TutorialStep {
   hint?: string;
 }
 
+export interface RelatedConcept {
+  /** Concept ID in the shared library (e.g. 'per-unit-system') */
+  id: string;
+  /** Track slug to link back to (e.g. 'power-system-fundamentals') */
+  trackSlug: string;
+  /** Topic ID within the track (e.g. 'per-unit-system') */
+  topicId: string;
+  /** Display label for the link */
+  label: string;
+}
+
 export interface LessonBase {
   id: string;
   title: string;
@@ -19,4 +30,6 @@ export interface LessonBase {
   tutorial: {
     steps: TutorialStep[];
   };
+  /** Links back to related roadmap track topics */
+  relatedConcepts?: RelatedConcept[];
 }

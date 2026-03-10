@@ -29,5 +29,8 @@
         "hint": "High-density designs (FPGAs, DDR memory, RF) typically need 6–8+ layers."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "layout", "trackSlug": "core", "topicId": "pcb-fundamentals", "label": "PCB Design Fundamentals" }
+  ]
 }

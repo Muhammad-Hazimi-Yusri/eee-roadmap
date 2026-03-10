@@ -29,5 +29,8 @@
         "hint": "Sequential logic (flip-flops, registers) uses 'always @(posedge clk)' blocks. Combinational logic uses 'assign' or 'always @(*)'."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "state-machines", "trackSlug": "core", "topicId": "sequential-circuits", "label": "Sequential Circuits" }
+  ]
 }

@@ -141,7 +141,7 @@ const allLayers: Array<2 | 4 | 6 | 8> = [2, 4, 6, 8];
       sel.addEventListener('change', function () {
         const val = this.value;
         document.querySelectorAll('.stackup-panel').forEach(function (p) {
-          (p as HTMLElement).style.display = (p as HTMLElement).dataset.layers === val ? '' : 'none';
+          p.style.display = p.dataset.layers === val ? '' : 'none';
         });
       });
     })();

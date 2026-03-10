@@ -29,5 +29,8 @@
         "hint": "The Einstein relation links diffusion to drift — both stem from the same carrier scattering physics. It's fundamental to the design of bipolar transistors and diodes."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "mosfet-operation", "trackSlug": "core", "topicId": "transistors", "label": "Transistors (BJT & MOSFET)" }
+  ]
 }

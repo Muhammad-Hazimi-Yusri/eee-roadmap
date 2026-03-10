@@ -33,5 +33,8 @@
         "hint": "SOP (Sum of Products) is a standard canonical form — each minterm (row where output = 1) becomes an AND term; all terms are OR'd together."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "truth-tables", "trackSlug": "core", "topicId": "boolean-logic-gates", "label": "Boolean Algebra & Logic Gates" }
+  ]
 }

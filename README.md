@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.14-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.15-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.14
+Current version is v0.22.15
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
@@ -308,7 +308,22 @@ Current version is v0.22.14
 - [x] **7 React components** (`src/components/simulators/power/`): `PowerFlowSimulator.tsx` (orchestrator, NR/GS dispatch, fault mode), `SingleLineDiagram.tsx` (pure React/SVG: bus bars, generators, loads, transformers, color-coded lines; pointer-event pan/zoom, no D3), `BusInspector.tsx` (click-to-inspect V pu/kV, θ, P, Q), `VoltageProfileChart.tsx` (SVG bar chart with ±5% bands), `LineLoadingOverlay.tsx` (green/orange/red thermal coloring), `ConvergenceChart.tsx` (log-scale mismatch vs iteration, NR vs GS comparison), `PerUnitConverter.tsx` (V/I/Z/S per-unit calculator)
 - [x] **5 lesson pages** at `/learn/power-systems/`: per-unit system, 3-bus power flow, IEEE 14-bus power flow, NR-vs-GS algorithm comparison, 3-phase fault analysis
 - [x] **`/learn/power-systems/playground/`** — JupyterLite + Pyodide iframe for browser-based pandapower (30–80 MB WASM Python runtime, no server required); starter code for IEEE 14-bus `case14()` power flow
-- [x] `'power-systems'` added to domain union in `src/lib/learn/types.ts`; `power systems` nav entry added to `Header.astro`
+- [x] `'power-systems'` added to domain union in `src/lib/learn/types.ts`
+</details>
+
+---
+
+<details>
+<summary><strong>v0.22.15 - UX/Navigation Cleanup & Two-Way Linking ✓</strong></summary>
+
+**Goal:** Fix broken UI components, consolidate navigation around a single Labs entry point, and wire two-way links between all 21 labs and their roadmap topics.
+
+- [x] **Bug fix:** "Lesson complete" banner always visible (CSS `display: flex` overriding `hidden` attribute)
+- [x] **Bug fix:** PCB layer stackup selector not switching (TypeScript casts in `<script is:inline>`)
+- [x] **Navigation redesign:** Header reduced from 7 links to 3 (`roadmaps`, `labs` with dropdown, `github`); removed orphaned `#demo`/`#features` anchors
+- [x] **Labs as single entry:** `/learn/{domain}/` index pages now redirect to `/labs/#{domain}`; removed dev-facing "Phase 1/2/3" labels
+- [x] **Roadmap → Lab links:** `Roadmap.astro` supports array `interactive` blocks; added CTA buttons linking all 21 lessons from their matching roadmap topics (was 8/21)
+- [x] **Lab → Roadmap links:** Added `relatedConcepts` backlinks to all 21 lesson JSON files; "Related roadmap topics" links rendered on every lesson page
 </details>
 
 ---
@@ -551,19 +566,19 @@ eee-roadmap/
 │   ├── pages/
 │   │   ├── learn/
 │   │   │   ├── circuits/
-│   │   │   │   ├── index.astro    # Circuit lesson browser
+│   │   │   │   ├── index.astro    # Redirect → /labs/#circuits
 │   │   │   │   └── [category]/[lesson].astro  # Circuit lesson detail page
-│   │   │   ├── pcb/               # Phase 2 PCB lessons
-│   │   │   │   ├── index.astro    # PCB lesson browser (4 lessons)
+│   │   │   ├── pcb/
+│   │   │   │   ├── index.astro    # Redirect → /labs/#pcb
 │   │   │   │   └── [lesson].astro # PCB lesson detail page
-│   │   │   ├── digital/           # Phase 2 digital lessons
-│   │   │   │   ├── index.astro    # Digital lesson browser (4 lessons)
+│   │   │   ├── digital/
+│   │   │   │   ├── index.astro    # Redirect → /labs/#digital
 │   │   │   │   └── [lesson].astro # Digital lesson detail page
-│   │   │   ├── semiconductor/     # Phase 2 semiconductor lessons
-│   │   │   │   ├── index.astro    # Semiconductor lesson browser (4 lessons)
+│   │   │   ├── semiconductor/
+│   │   │   │   ├── index.astro    # Redirect → /labs/#semiconductor
 │   │   │   │   └── [lesson].astro # Semiconductor lesson detail page
-│   │   │   └── power-systems/     # Phase 3 power systems lessons
-│   │   │       ├── index.astro    # Power systems lesson browser (5 lessons + playground link)
+│   │   │   └── power-systems/
+│   │   │       ├── index.astro    # Redirect → /labs/#power-systems
 │   │   │       ├── [lesson].astro # Lesson detail (double import.meta.glob: lesson + network JSON)
 │   │   │       └── playground.astro  # JupyterLite + Pyodide iframe for browser-based pandapower
 │   │   ├── roadmaps/

@@ -29,5 +29,8 @@
         "hint": "The 'knee' of the diode I-V curve occurs around 0.6–0.7 V for silicon. Below this, only leakage current flows."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "pn-junction", "trackSlug": "fundamentals", "topicId": "diodes", "label": "Diodes" }
+  ]
 }

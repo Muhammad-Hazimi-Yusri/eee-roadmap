@@ -29,5 +29,8 @@
         "hint": "In KiCad, use the Interactive Router > Differential Pair and set the impedance in the constraints manager."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "design-rules", "trackSlug": "core", "topicId": "pcb-fundamentals", "label": "PCB Design Fundamentals" }
+  ]
 }

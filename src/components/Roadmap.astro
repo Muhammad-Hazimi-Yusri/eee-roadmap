@@ -120,6 +120,18 @@ for (const section of sections) {
                 ))}
               </div>
               )}
+              {item.interactive && (
+                <div class="node-interactive">
+                  {(Array.isArray(item.interactive) ? item.interactive : [item.interactive]).map((ia) => (
+                    <a
+                      href={internalHref(`learn/${ia.lesson}`)}
+                      class="interactive-cta"
+                    >
+                      {ia.label ?? 'Try it interactively →'}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -132,3 +144,31 @@ for (const section of sections) {
   import { initRoadmapInteractions } from '../utils/roadmapInteractions';
   initRoadmapInteractions();
 </script>
+
+<style>
+  .node-interactive {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .interactive-cta {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.7rem;
+    border: 1.5px solid var(--color-copper, #c87533);
+    color: var(--color-copper, #c87533);
+    border-radius: 3px;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .interactive-cta:hover {
+    background: var(--color-copper, #c87533);
+    color: #fff;
+  }
+</style>

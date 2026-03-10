@@ -29,5 +29,8 @@
         "hint": "IC designers use these curves to choose the bias point (Vgs, Vds) for a given drain current. The slope in saturation (output resistance) ideally is zero."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "mosfet-operation", "trackSlug": "core", "topicId": "transistors", "label": "Transistors (BJT & MOSFET)" }
+  ]
 }

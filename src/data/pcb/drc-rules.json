@@ -33,5 +33,8 @@
         "hint": "Enable 'Silkscreen→Pad' DRC rule and set it to generate errors. Most tools can auto-move or auto-clip silkscreen away from pads."
       }
     ]
-  }
+  },
+  "relatedConcepts": [
+    { "id": "design-rules", "trackSlug": "core", "topicId": "pcb-fundamentals", "label": "PCB Design Fundamentals" }
+  ]
 }

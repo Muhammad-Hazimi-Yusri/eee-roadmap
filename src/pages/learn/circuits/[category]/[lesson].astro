@@ -126,10 +126,25 @@ const categoryLabel: Record<string, string> = {
         </div>
       </div>
 
+      <!-- Related roadmap topics -->
+      {lesson.relatedConcepts && lesson.relatedConcepts.length > 0 && (
+        <div class="related-concepts">
+          <span class="related-concepts__label">Related roadmap topics:</span>
+          {lesson.relatedConcepts.map(rc => (
+            <a
+              href={internalHref(`roadmaps/${rc.trackSlug}#${rc.topicId}`)}
+              class="related-concepts__link"
+            >
+              {rc.label}
+            </a>
+          ))}
+        </div>
+      )}
+
       <!-- Footer navigation -->
       <div class="lesson-footer-nav">
-        <a href={internalHref('learn/circuits')} class="btn">
-          ← All circuit lessons
+        <a href={internalHref('labs')} class="btn">
+          ← All labs
         </a>
       </div>
 
@@ -244,6 +259,38 @@ const categoryLabel: Record<string, string> = {
   .lesson-expected__table th {
     color: var(--color-text-muted);
     font-weight: 400;
+  }
+
+  /* Related concepts */
+  .related-concepts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .related-concepts__label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+  }
+
+  .related-concepts__link {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-copper, #c87533);
+    text-decoration: none;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+  }
+
+  .related-concepts__link:hover {
+    background: var(--color-bg-grid);
+    border-color: var(--color-copper, #c87533);
   }
 
   /* Footer nav */
