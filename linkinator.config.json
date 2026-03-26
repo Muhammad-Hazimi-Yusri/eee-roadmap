@@ -8,6 +8,8 @@
     "https://upload.wikimedia.org/*",
     "og-image\\.png",
     ".*/og-image\\.png",
-    "dspguide\\.com"
+    "dspguide\\.com",
+    "https://eee-roadmap.muhammadhazimiyusri.uk/*",
+    "https://www.nema.org/*"
   ]
 }
