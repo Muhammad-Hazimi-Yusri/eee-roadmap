@@ -26,10 +26,10 @@ if (!existsSync(TEMP_ZIP)) {
   process.exit(1);
 }
 
-// Extract - Windows tar supports zip, Linux/macOS use unzip
+// Extract - PowerShell on Windows, unzip on Linux/macOS
 await mkdir(PDFJS_DIR, { recursive: true });
 if (isWindows) {
-  execSync(`tar -xf "${TEMP_ZIP}" -C "${PDFJS_DIR}"`, { stdio: 'inherit' });
+  execSync(`powershell -Command "Expand-Archive -Path '${TEMP_ZIP}' -DestinationPath '${PDFJS_DIR}' -Force"`, { stdio: 'inherit' });
 } else {
   execSync(`unzip -q "${TEMP_ZIP}" -d "${PDFJS_DIR}"`, { stdio: 'inherit' });
 }
