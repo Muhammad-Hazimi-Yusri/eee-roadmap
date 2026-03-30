@@ -23,6 +23,9 @@ lerna-debug.log*
 .env.production.local
 .env.local
 
+# Local machine overrides (not for version control)
+.npmrc
+
 # Astro-specific (if configured differently from default 'dist')
 public/ # Only if used as build output, not for static assets
 
@@ -41,6 +44,7 @@ public/pdfjs/
 public/pdfs/
 public/pdf-manifest.json
 src/data/pdf-manifest.json
+public/data/
 
 # Generated data files (built from YAML sources)
 src/data/*.json
