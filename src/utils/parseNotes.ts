@@ -1,7 +1,7 @@
 import { marked } from 'marked';
-import markedKatex from 'marked-katex-extension';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import { preprocessMath } from './preprocessMath';
 
 // Load PDF manifest at build time
 function loadPdfManifest(): Record<string, string> {
@@ -22,8 +22,6 @@ const pdfManifest = loadPdfManifest();
 function resolvePdfUrl(url: string): string {
   return pdfManifest[url] || url;
 }
-
-marked.use(markedKatex({ throwOnError: false }));
 
 // Configure marked with custom image renderer
 marked.use({
@@ -65,6 +63,10 @@ import { wrapTermsInHtml } from './wrapGlossaryTerms';
  * - ![alt](image.jpg) → lazy-loaded <img>
  */
 export function parseNotes(markdown: string): string {
-  const html = marked.parse(markdown, { async: false }) as string;
+  // Pre-render LaTeX math to HTML before marked touches it. This avoids the
+  // strict delimiter-boundary rules of marked-katex-extension which break
+  // patterns like `($\phi$)` and `$$x=1$$ (note)` on a single line.
+  const withMath = preprocessMath(markdown);
+  const html = marked.parse(withMath, { async: false }) as string;
   return wrapTermsInHtml(html);
 }

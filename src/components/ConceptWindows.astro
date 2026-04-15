@@ -683,6 +683,158 @@
   .dark .concept-window-content--frosted {
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 5%);
   }
+
+  /* Interactive widgets embedded in concept notes */
+  :global(.pf-slider-widget) {
+    display: block;
+    margin: 1rem 0;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg-subtle, rgb(0 0 0 / 2%));
+    font-size: 0.85rem;
+  }
+
+  :global(.dark .pf-slider-widget) {
+    background: rgb(255 255 255 / 2%);
+  }
+
+  :global(.pf-slider__header) {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  :global(.pf-slider__hint) {
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  :global(.pf-slider__controls) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-bottom: 0.6rem;
+  }
+
+  :global(.pf-slider__label) {
+    display: grid;
+    grid-template-columns: 3rem 1fr 3rem;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  :global(.pf-slider__range) {
+    width: 100%;
+    accent-color: var(--color-copper, #b87333);
+    cursor: pointer;
+  }
+
+  :global(.pf-slider__angle-readout) {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  :global(.pf-slider__mode) {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  :global(.pf-slider__mode-btn) {
+    flex: 1;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.78rem;
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+
+  :global(.pf-slider__mode-btn:hover) {
+    border-color: var(--color-copper, #b87333);
+  }
+
+  :global(.pf-slider__mode-btn[aria-pressed="true"]) {
+    background: var(--color-copper, #b87333);
+    color: #fff;
+    border-color: var(--color-copper, #b87333);
+  }
+
+  :global(.pf-slider__mode-sub) {
+    font-size: 0.68rem;
+    opacity: 0.75;
+    display: block;
+    font-weight: normal;
+  }
+
+  :global(.pf-slider__readouts) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+  }
+
+  :global(.pf-slider__readout) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.35rem 0.4rem;
+    border-radius: 4px;
+    background: rgb(0 0 0 / 4%);
+    text-align: center;
+  }
+
+  :global(.dark .pf-slider__readout) {
+    background: rgb(255 255 255 / 4%);
+  }
+
+  :global(.pf-slider__readout-label) {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+  }
+
+  :global(.pf-slider__readout-value) {
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global(.pf-slider__diagrams) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  :global(.pf-slider__svg) {
+    width: 100%;
+    height: auto;
+    max-height: 160px;
+    color: var(--color-text);
+  }
+
+  :global(.pf-slider__explanation) {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--color-text-muted);
+  }
+
+  /* Block math wrapper injected by preprocessMath so KaTeX displays aren't
+     trapped inside a surrounding <p>. */
+  :global(.concept-window-notes .math-block) {
+    margin: 0.6rem 0;
+    overflow-x: auto;
+  }
 </style>
 
 <script>
@@ -1883,6 +2035,18 @@ Supports: **bold**, *italic*, LaTeX: $E = mc^2$`;
         </div>
       `;
     }
+    mountConceptWidgets(bodyEl);
+  }
+
+  // Lazy-import widget mounter so it only loads when concept notes are rendered.
+  async function mountConceptWidgets(bodyEl: Element) {
+    if (!bodyEl.querySelector('[data-widget]')) return;
+    try {
+      const { mountWidgetsIn } = await import('../scripts/interactiveWidgets');
+      mountWidgetsIn(bodyEl);
+    } catch (err) {
+      console.error('Failed to load interactive widgets:', err);
+    }
   }
 
   // Load user notes and render window content
@@ -1908,12 +2072,13 @@ Supports: **bold**, *italic*, LaTeX: $E = mc^2$`;
       await renderWindowBodyWithUserNotes(bodyEl, originalHtml, userMarkdown);
     } else if (originalHtml) {
       bodyEl.innerHTML = `<div class="concept-window-notes">${originalHtml}</div>`;
+      mountConceptWidgets(bodyEl);
     } else {
       const isCustomTrack = (window as any).isCustomTrack || false;
       const conceptData = (window as any).conceptData || {};
       const concept = conceptData[topicId]?.[conceptName] || {};
       const isCustomConcept = isCustomTrack || concept.isCustom || false;
-      
+
       if (isCustomConcept) {
         bodyEl.innerHTML = `
           <div class="concept-window-placeholder">
@@ -1946,10 +2111,12 @@ Supports: **bold**, *italic*, LaTeX: $E = mc^2$`;
       } else {
         bodyEl.innerHTML = `<div class="concept-window-notes"><div class="concept-notes-user">${userHtml}</div></div>`;
       }
+      mountConceptWidgets(bodyEl);
     } catch (err) {
       console.error('Failed to parse user notes:', err);
       if (originalHtml) {
         bodyEl.innerHTML = `<div class="concept-window-notes">${originalHtml}</div>`;
+        mountConceptWidgets(bodyEl);
       }
     }
   }
