@@ -1879,6 +1879,13 @@ concepts:
       - **PF = 1.0** (unity): Pure resistive, V and I in phase
       - **PF = 0**: Pure reactive, no real power transferred
       - **Typical industrial:** 0.7 - 0.9 lagging
+
+      **Intuition:** drag the angle slider below to see how the power
+      triangle ($P$, $Q$, $S$) and the V/I phasors move as $\cos\phi$
+      changes. Toggle between **lagging** (inductive — current lags
+      voltage) and **leading** (capacitive — current leads voltage).
+
+      <div data-widget="power-factor-slider" data-initial-angle-deg="30" data-initial-mode="lagging"></div>
   power-system-stabilizer:
     name: Power System Stabilizer
     notes: |

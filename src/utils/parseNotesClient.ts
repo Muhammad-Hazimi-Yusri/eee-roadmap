@@ -3,10 +3,7 @@
 // (Separate from parseNotes.ts which uses Node.js fs/path)
 
 import { marked } from 'marked';
-import markedKatex from 'marked-katex-extension';
-
-// Configure marked with KaTeX support
-marked.use(markedKatex({ throwOnError: false }));
+import { preprocessMath } from './preprocessMath';
 
 // Configure custom image renderer (same as build-time, minus PDF manifest)
 marked.use({
@@ -44,5 +41,6 @@ marked.use({
  * Supports LaTeX via KaTeX, images, and PDF embeds.
  */
 export function parseNotesClient(markdown: string): string {
-  return marked.parse(markdown, { async: false }) as string;
+  const withMath = preprocessMath(markdown);
+  return marked.parse(withMath, { async: false }) as string;
 }

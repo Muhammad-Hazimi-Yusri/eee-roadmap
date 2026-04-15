@@ -150,10 +150,9 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
   import { loadCustomContent } from '../../../lib/sync';
   import { initPrintCheckboxes, initFieldToggles, initHighContrastToggle, initSectionBreaksToggle, initLayoutMode, initProgressFilters, initPdfQrCodes, initResourceQrCodes, initQrDisplayOptions } from '../../../utils/printUtils';
   import { marked } from 'marked';
-  import markedKatex from 'marked-katex-extension';
+  import { preprocessMath } from '../../../utils/preprocessMath';
 
   // Configure marked for client-side parsing (no fs-dependent PDF manifest)
-  marked.use(markedKatex({ throwOnError: false }));
   marked.use({
     renderer: {
       image({ href, title, text }: { href: string; title: string | null; text: string }) {
@@ -174,7 +173,7 @@ import PrintLayout from '../../../layouts/PrintLayout.astro';
   }
 
   function parseNotesClient(markdown: string): string {
-    return marked.parse(markdown, { async: false }) as string;
+    return marked.parse(preprocessMath(markdown), { async: false }) as string;
   }
 
   async function init() {
