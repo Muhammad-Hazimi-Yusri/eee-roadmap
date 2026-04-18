@@ -108,4 +108,29 @@ test.describe('Interactive state accessibility', () => {
     await expect(panel).toBeVisible();
     await checkA11y(page);
   });
+
+  test('open concept window has no a11y violations', async ({ page }) => {
+    await page.goto('/roadmaps/fundamentals/');
+    await page.waitForSelector('body[data-js-ready="true"]');
+    const btn = page.locator('#dc-circuits .node-button');
+    if ((await btn.getAttribute('aria-expanded')) !== 'true') await btn.click();
+    await page.waitForSelector('#dc-circuits .node-content:not([hidden])');
+    const conceptName = await page
+      .locator('#dc-circuits .concept-pill')
+      .first()
+      .getAttribute('data-concept');
+    if (!conceptName) test.skip(true, 'No concept pill available to open a window');
+    await page.evaluate(
+      ({ t, c }: { t: string; c: string }) =>
+        (window as unknown as { conceptModal?: { open: (t: string, c: string) => void } })
+          .conceptModal?.open(t, c),
+      { t: 'dc-circuits', c: conceptName! },
+    );
+    await page.locator('.concept-window').first().waitFor({ state: 'visible' });
+    const results = await new AxeBuilder({ page })
+      .include('.concept-window')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
 });
