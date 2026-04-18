@@ -1,5 +1,8 @@
 {
   "recurse": true,
+  "retryErrors": true,
+  "retryErrorsCount": 3,
+  "retryErrorsJitter": 2000,
   "skip": [
     "https://www.electronics-tutorials.ws/*",
     "https://energysavingtrust.org.uk/advice/solar-panels/*",
@@ -10,6 +13,7 @@
     ".*/og-image\\.png",
     "dspguide\\.com",
     "https://eee-roadmap.muhammadhazimiyusri.uk/*",
-    "https://www.nema.org/*"
+    "https://www.nema.org/*",
+    "https://www.falstad.com/*"
   ]
 }
