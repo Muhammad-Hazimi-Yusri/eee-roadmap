@@ -940,9 +940,15 @@
   // Restore previously open windows
   function restoreOpenWindows() {
     const savedWindows = loadOpenWindows();
+    const allData = (window as any).conceptData || {};
     savedWindows.forEach(saved => {
       const [topicId, conceptName] = saved.id.split(':');
       if (topicId && conceptName) {
+        // Drop entries whose topic/concept no longer exists in the current roadmap data.
+        if (!allData[topicId] || !allData[topicId][conceptName]) {
+          console.warn(`[concept-windows] dropping unknown window id "${saved.id}" from storage`);
+          return;
+        }
         openWindow(topicId, conceptName);
         const win = openWindows.find(w => w.id === saved.id);
         if (!win) {
