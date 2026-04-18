@@ -139,56 +139,6 @@ const clientData = {
           'border-color': 'data(color)',
         },
       },
-      // Important: glow effect using underlay
-      {
-        selector: 'node[type="topic"][hasImportant]',
-        style: {
-          'border-width': 3,
-          'border-color': isDark ? '#facc15' : '#eab308',
-          'underlay-color': isDark ? '#facc15' : '#eab308',
-          'underlay-padding': 6,
-          'underlay-opacity': 0.4,
-        },
-      },
-      // Both completed and important
-      {
-        selector: 'node[type="topic"][allComplete][hasImportant]',
-        style: {
-          'background-color': isDark ? '#1e293b' : '#ffffff',
-          'border-width': 4,
-          'border-color': isDark ? '#facc15' : '#eab308',
-          'underlay-color': isDark ? '#facc15' : '#eab308',
-          'underlay-padding': 6,
-          'underlay-opacity': 0.4,
-        },
-      },{
-        selector: 'node[type="topic"]',
-        style: {
-          'background-color': 'data(color)',
-          'label': 'data(label)',
-          'font-size': '9px',
-          'text-valign': 'bottom',
-          'text-halign': 'center',
-          'text-margin-y': 5,
-          'width': 22,
-          'height': 22,
-          'text-wrap': 'ellipsis',
-          'text-max-width': '70px',
-          'color': isDark ? '#e2e8f0' : '#1f2937',
-          'text-background-color': isDark ? '#1e293b' : '#ffffff',
-          'text-background-opacity': 0.85,
-          'text-background-padding': '2px',
-        },
-      },
-      // Completed: inner ring style
-      {
-        selector: 'node[type="topic"][allComplete]',
-        style: {
-          'background-color': isDark ? '#0f172a' : '#ffffff',
-          'border-width': 4,
-          'border-color': 'data(color)',
-        },
-      },
       // Important: glow effect
       {
         selector: 'node[type="topic"][hasImportant]',
