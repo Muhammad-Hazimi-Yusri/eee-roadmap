@@ -526,67 +526,69 @@
     background: transparent;
   }
 
+  /* Handles stay inside window bounds so they can't intercept pointer events
+     on stacked sibling windows. */
   .resize-handle-n {
-    top: -4px;
+    top: 0;
     left: 8px;
     right: 8px;
-    height: 8px;
+    height: 6px;
     cursor: n-resize;
   }
 
   .resize-handle-e {
     top: 8px;
-    right: -4px;
+    right: 0;
     bottom: 8px;
-    width: 8px;
+    width: 6px;
     cursor: e-resize;
   }
 
   .resize-handle-s {
-    bottom: -4px;
+    bottom: 0;
     left: 8px;
     right: 8px;
-    height: 8px;
+    height: 6px;
     cursor: s-resize;
   }
 
   .resize-handle-w {
     top: 8px;
-    left: -4px;
+    left: 0;
     bottom: 8px;
-    width: 8px;
+    width: 6px;
     cursor: w-resize;
   }
 
   .resize-handle-ne {
-    top: -4px;
-    right: -4px;
-    width: 12px;
-    height: 12px;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
     cursor: ne-resize;
   }
 
   .resize-handle-se {
-    bottom: -4px;
-    right: -4px;
-    width: 12px;
-    height: 12px;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
     cursor: se-resize;
   }
 
   .resize-handle-sw {
-    bottom: -4px;
-    left: -4px;
-    width: 12px;
-    height: 12px;
+    bottom: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
     cursor: sw-resize;
   }
 
   .resize-handle-nw {
-    top: -4px;
-    left: -4px;
-    width: 12px;
-    height: 12px;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
     cursor: nw-resize;
   }
 
@@ -940,19 +942,13 @@
   // Restore previously open windows
   function restoreOpenWindows() {
     const savedWindows = loadOpenWindows();
-    const allData = (window as any).conceptData || {};
     savedWindows.forEach(saved => {
       const [topicId, conceptName] = saved.id.split(':');
       if (topicId && conceptName) {
-        // Drop entries whose topic/concept no longer exists in the current roadmap data.
-        if (!allData[topicId] || !allData[topicId][conceptName]) {
-          console.warn(`[concept-windows] dropping unknown window id "${saved.id}" from storage`);
-          return;
-        }
         openWindow(topicId, conceptName);
         const win = openWindows.find(w => w.id === saved.id);
         if (!win) {
-          console.warn(`[concept-windows] could not restore ${saved.id} — dropping from storage`);
+          // openWindow refused (unknown id) — skip silently; post-loop save purges it.
           return;
         }
 
@@ -1364,6 +1360,10 @@
     // Get concept data
     const allData = (window as any).conceptData || {};
     const topicData = allData[topicId] || {};
+    if (!topicData[conceptName]) {
+      console.warn(`[concept-windows] refusing to open unknown ${topicId}:${conceptName}`);
+      return;
+    }
     const concept: ConceptData = topicData[conceptName] || {};
 
     // Clone template
@@ -1455,7 +1455,18 @@
 
     // Trigger tooltip init for glossary terms
     document.dispatchEvent(new CustomEvent('concept-window-opened'));
-    
+
+    // Tippy instances attached to glossary links inside this window register
+    // document-level outside-click listeners that survive DOM removal; destroy
+    // them on close so they don't leak.
+    windowData.cleanup = windowData.cleanup || [];
+    windowData.cleanup.push(() => {
+      win.querySelectorAll('.glossary-link').forEach(link => {
+        const inst = (link as unknown as { _tippy?: { destroy: () => void } })._tippy;
+        if (inst) { try { inst.destroy(); } catch {} }
+      });
+    });
+
     // Update taskbar and persist
     updateTaskbar();
     

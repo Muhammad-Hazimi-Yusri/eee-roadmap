@@ -8,6 +8,11 @@ type Fixtures = {
   openConceptWindow: (topicId?: string) => Promise<Locator>;
 };
 
+type ProbeWindow = {
+  __docListenerCount: number;
+  __docListenerTypes: Record<string, number>;
+};
+
 const KNOWN_BENIGN = [
   /favicon/i,
   /Failed to load resource.*\.pdf/i,
@@ -21,16 +26,22 @@ export const test = base.extend<Fixtures>({
   listenerProbe: [
     async ({ page }, use) => {
       await page.addInitScript(() => {
-        const w = window as unknown as { __docListenerCount: number };
+        const w = window as unknown as {
+          __docListenerCount: number;
+          __docListenerTypes: Record<string, number>;
+        };
         w.__docListenerCount = 0;
+        w.__docListenerTypes = {};
         const origAdd = document.addEventListener.bind(document);
         const origRm = document.removeEventListener.bind(document);
         document.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject, opts?: AddEventListenerOptions | boolean) => {
           w.__docListenerCount++;
+          w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) + 1;
           return origAdd(type, listener, opts);
         }) as typeof document.addEventListener;
         document.removeEventListener = ((type: string, listener: EventListenerOrEventListenerObject, opts?: EventListenerOptions | boolean) => {
           w.__docListenerCount--;
+          w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) - 1;
           return origRm(type, listener, opts);
         }) as typeof document.removeEventListener;
       });
@@ -103,7 +114,13 @@ export const test = base.extend<Fixtures>({
 
 export async function docListenerCount(page: Page): Promise<number> {
   return page.evaluate(
-    () => (window as unknown as { __docListenerCount: number }).__docListenerCount ?? 0,
+    () => (window as unknown as ProbeWindow).__docListenerCount ?? 0,
+  );
+}
+
+export async function docListenerTypes(page: Page): Promise<Record<string, number>> {
+  return page.evaluate(
+    () => ({ ...((window as unknown as ProbeWindow).__docListenerTypes ?? {}) }),
   );
 }
 
