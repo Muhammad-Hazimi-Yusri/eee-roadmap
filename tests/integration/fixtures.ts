@@ -48,21 +48,29 @@ export const test = base.extend<Fixtures>({
         };
         const origAdd = document.addEventListener.bind(document);
         const origRm = document.removeEventListener.bind(document);
+        // Astro's dev toolbar (loaded via `npm run dev`) registers astro:*
+        // document listeners asynchronously after page load. They're framework
+        // infrastructure, unrelated to app-level leaks; ignore them.
+        const isFrameworkEvent = (type: string) => type.startsWith('astro:');
         document.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject, opts?: AddEventListenerOptions | boolean) => {
-          const set = bucket(type, captureOf(opts));
-          if (!set.has(listener)) {
-            set.add(listener);
-            w.__docListenerCount++;
-            w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) + 1;
+          if (!isFrameworkEvent(type)) {
+            const set = bucket(type, captureOf(opts));
+            if (!set.has(listener)) {
+              set.add(listener);
+              w.__docListenerCount++;
+              w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) + 1;
+            }
           }
           return origAdd(type, listener, opts);
         }) as typeof document.addEventListener;
         document.removeEventListener = ((type: string, listener: EventListenerOrEventListenerObject, opts?: EventListenerOptions | boolean) => {
-          const set = bucket(type, captureOf(opts));
-          if (set.has(listener)) {
-            set.delete(listener);
-            w.__docListenerCount--;
-            w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) - 1;
+          if (!isFrameworkEvent(type)) {
+            const set = bucket(type, captureOf(opts));
+            if (set.has(listener)) {
+              set.delete(listener);
+              w.__docListenerCount--;
+              w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) - 1;
+            }
           }
           return origRm(type, listener, opts);
         }) as typeof document.removeEventListener;
@@ -158,10 +166,17 @@ export async function seedStorage(
 }
 
 export async function clearStorage(page: Page): Promise<void> {
+  // addInitScript runs before EVERY navigation, including page.reload(). Tests
+  // that reload to verify state survives must keep their localStorage between
+  // initial goto and reload — so clear only on the first navigation, gated by
+  // a cookie marker (cookies survive navigations; sessionStorage does not,
+  // because the script itself clears it).
   await page.addInitScript(() => {
     try {
+      if (document.cookie.includes('__eee-test-cleared=1')) return;
       localStorage.clear();
       sessionStorage.clear();
+      document.cookie = '__eee-test-cleared=1; path=/';
     } catch {
       /* ignore */
     }
