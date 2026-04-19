@@ -26,22 +26,44 @@ export const test = base.extend<Fixtures>({
   listenerProbe: [
     async ({ page }, use) => {
       await page.addInitScript(() => {
+        // Dedupe by (type, listener-ref, capture) to mirror what the browser
+        // actually stores — a second addEventListener with the same tuple is a
+        // no-op at the platform level. Counting raw calls produces false
+        // positives from libraries (e.g. Tippy) that re-bind idempotent
+        // listeners on every instance.
         const w = window as unknown as {
           __docListenerCount: number;
           __docListenerTypes: Record<string, number>;
         };
         w.__docListenerCount = 0;
         w.__docListenerTypes = {};
+        const registered = new Map<string, Set<EventListenerOrEventListenerObject>>();
+        const captureOf = (opts?: AddEventListenerOptions | EventListenerOptions | boolean) =>
+          typeof opts === 'boolean' ? opts : !!opts?.capture;
+        const bucket = (type: string, capture: boolean) => {
+          const key = `${type}|${capture ? 'c' : ''}`;
+          let set = registered.get(key);
+          if (!set) { set = new Set(); registered.set(key, set); }
+          return set;
+        };
         const origAdd = document.addEventListener.bind(document);
         const origRm = document.removeEventListener.bind(document);
         document.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject, opts?: AddEventListenerOptions | boolean) => {
-          w.__docListenerCount++;
-          w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) + 1;
+          const set = bucket(type, captureOf(opts));
+          if (!set.has(listener)) {
+            set.add(listener);
+            w.__docListenerCount++;
+            w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) + 1;
+          }
           return origAdd(type, listener, opts);
         }) as typeof document.addEventListener;
         document.removeEventListener = ((type: string, listener: EventListenerOrEventListenerObject, opts?: EventListenerOptions | boolean) => {
-          w.__docListenerCount--;
-          w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) - 1;
+          const set = bucket(type, captureOf(opts));
+          if (set.has(listener)) {
+            set.delete(listener);
+            w.__docListenerCount--;
+            w.__docListenerTypes[type] = (w.__docListenerTypes[type] ?? 0) - 1;
+          }
           return origRm(type, listener, opts);
         }) as typeof document.removeEventListener;
       });

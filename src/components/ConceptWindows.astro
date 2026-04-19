@@ -942,30 +942,43 @@
   // Restore previously open windows
   function restoreOpenWindows() {
     const savedWindows = loadOpenWindows();
+    if (savedWindows.length === 0) return;
+
+    // conceptData is set by Roadmap.astro's inline `define:vars` script. When
+    // Astro bundles multiple <script> modules, their execution order relative
+    // to the inline script can race on reload; defer until conceptData is
+    // populated for the current track before touching storage.
+    const allData = (window as any).conceptData;
+    if (!allData || Object.keys(allData).length === 0) {
+      queueMicrotask(restoreOpenWindows);
+      return;
+    }
+
     savedWindows.forEach(saved => {
       const [topicId, conceptName] = saved.id.split(':');
-      if (topicId && conceptName) {
-        openWindow(topicId, conceptName);
-        const win = openWindows.find(w => w.id === saved.id);
-        if (!win) {
-          // openWindow refused (unknown id) — skip silently; post-loop save purges it.
-          return;
-        }
+      if (!topicId || !conceptName) return;
+      // Drop entries whose topic/concept no longer exists in the current data.
+      if (!allData[topicId] || !allData[topicId][conceptName]) {
+        console.warn(`[concept-windows] dropping unknown window id "${saved.id}" from storage`);
+        return;
+      }
+      openWindow(topicId, conceptName);
+      const win = openWindows.find(w => w.id === saved.id);
+      if (!win) return;
 
-        if (saved.isCollapsed) collapseWindow(saved.id);
-        if (saved.isPinned) togglePin(saved.id);
+      if (saved.isCollapsed) collapseWindow(saved.id);
+      if (saved.isPinned) togglePin(saved.id);
 
-        const savedOpacity = typeof saved.opacity === 'number' ? saved.opacity : 1.0;
-        if (savedOpacity !== 1.0) {
-          win.opacity = savedOpacity;
-          applyWindowOpacity(win, savedOpacity);
-        }
+      const savedOpacity = typeof saved.opacity === 'number' ? saved.opacity : 1.0;
+      if (savedOpacity !== 1.0) {
+        win.opacity = savedOpacity;
+        applyWindowOpacity(win, savedOpacity);
+      }
 
-        if (saved.isMinimized) {
-          minimizeWindow(saved.id);
-        } else if (saved.isMaximized) {
-          toggleMaximize(saved.id);
-        }
+      if (saved.isMinimized) {
+        minimizeWindow(saved.id);
+      } else if (saved.isMaximized) {
+        toggleMaximize(saved.id);
       }
     });
     // Re-persist so any corrupted / unresolvable ids get purged from storage.
@@ -1360,10 +1373,6 @@
     // Get concept data
     const allData = (window as any).conceptData || {};
     const topicData = allData[topicId] || {};
-    if (!topicData[conceptName]) {
-      console.warn(`[concept-windows] refusing to open unknown ${topicId}:${conceptName}`);
-      return;
-    }
     const concept: ConceptData = topicData[conceptName] || {};
 
     // Clone template
