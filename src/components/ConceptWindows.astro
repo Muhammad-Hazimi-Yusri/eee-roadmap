@@ -526,67 +526,69 @@
     background: transparent;
   }
 
+  /* Handles stay inside window bounds so they can't intercept pointer events
+     on stacked sibling windows. */
   .resize-handle-n {
-    top: -4px;
+    top: 0;
     left: 8px;
     right: 8px;
-    height: 8px;
+    height: 6px;
     cursor: n-resize;
   }
 
   .resize-handle-e {
     top: 8px;
-    right: -4px;
+    right: 0;
     bottom: 8px;
-    width: 8px;
+    width: 6px;
     cursor: e-resize;
   }
 
   .resize-handle-s {
-    bottom: -4px;
+    bottom: 0;
     left: 8px;
     right: 8px;
-    height: 8px;
+    height: 6px;
     cursor: s-resize;
   }
 
   .resize-handle-w {
     top: 8px;
-    left: -4px;
+    left: 0;
     bottom: 8px;
-    width: 8px;
+    width: 6px;
     cursor: w-resize;
   }
 
   .resize-handle-ne {
-    top: -4px;
-    right: -4px;
-    width: 12px;
-    height: 12px;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
     cursor: ne-resize;
   }
 
   .resize-handle-se {
-    bottom: -4px;
-    right: -4px;
-    width: 12px;
-    height: 12px;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
     cursor: se-resize;
   }
 
   .resize-handle-sw {
-    bottom: -4px;
-    left: -4px;
-    width: 12px;
-    height: 12px;
+    bottom: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
     cursor: sw-resize;
   }
 
   .resize-handle-nw {
-    top: -4px;
-    left: -4px;
-    width: 12px;
-    height: 12px;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
     cursor: nw-resize;
   }
 
@@ -860,6 +862,21 @@
     opacity: number;             // F3 — 0.3–1.0, default 1.0
     preMaximizeState?: WindowState;
     preCollapseHeight?: number;  // F1 — runtime only, not persisted
+    cleanup?: Array<() => void>; // document-level listener removers, invoked on close
+  }
+
+  // Register a document listener and remember how to remove it when the window closes.
+  function trackDocListener<K extends keyof DocumentEventMap>(
+    winData: OpenWindow | undefined,
+    type: K,
+    listener: (e: DocumentEventMap[K]) => void,
+    opts?: AddEventListenerOptions | boolean,
+  ): void {
+    document.addEventListener(type, listener as EventListener, opts);
+    if (winData) {
+      winData.cleanup = winData.cleanup || [];
+      winData.cleanup.push(() => document.removeEventListener(type, listener as EventListener, opts));
+    }
   }
 
   const STORAGE_KEY = 'eee-concept-window-states';
@@ -925,29 +942,47 @@
   // Restore previously open windows
   function restoreOpenWindows() {
     const savedWindows = loadOpenWindows();
+    if (savedWindows.length === 0) return;
+
+    // conceptData is set by Roadmap.astro's inline `define:vars` script. When
+    // Astro bundles multiple <script> modules, their execution order relative
+    // to the inline script can race on reload; defer until conceptData is
+    // populated for the current track before touching storage.
+    const allData = (window as any).conceptData;
+    if (!allData || Object.keys(allData).length === 0) {
+      queueMicrotask(restoreOpenWindows);
+      return;
+    }
+
     savedWindows.forEach(saved => {
       const [topicId, conceptName] = saved.id.split(':');
-      if (topicId && conceptName) {
-        openWindow(topicId, conceptName);
-        const win = openWindows.find(w => w.id === saved.id);
-        if (!win) return;
+      if (!topicId || !conceptName) return;
+      // Drop entries whose topic/concept no longer exists in the current data.
+      if (!allData[topicId] || !allData[topicId][conceptName]) {
+        console.warn(`[concept-windows] dropping unknown window id "${saved.id}" from storage`);
+        return;
+      }
+      openWindow(topicId, conceptName);
+      const win = openWindows.find(w => w.id === saved.id);
+      if (!win) return;
 
-        if (saved.isCollapsed) collapseWindow(saved.id);
-        if (saved.isPinned) togglePin(saved.id);
+      if (saved.isCollapsed) collapseWindow(saved.id);
+      if (saved.isPinned) togglePin(saved.id);
 
-        const savedOpacity = typeof saved.opacity === 'number' ? saved.opacity : 1.0;
-        if (savedOpacity !== 1.0) {
-          win.opacity = savedOpacity;
-          applyWindowOpacity(win, savedOpacity);
-        }
+      const savedOpacity = typeof saved.opacity === 'number' ? saved.opacity : 1.0;
+      if (savedOpacity !== 1.0) {
+        win.opacity = savedOpacity;
+        applyWindowOpacity(win, savedOpacity);
+      }
 
-        if (saved.isMinimized) {
-          minimizeWindow(saved.id);
-        } else if (saved.isMaximized) {
-          toggleMaximize(saved.id);
-        }
+      if (saved.isMinimized) {
+        minimizeWindow(saved.id);
+      } else if (saved.isMaximized) {
+        toggleMaximize(saved.id);
       }
     });
+    // Re-persist so any corrupted / unresolvable ids get purged from storage.
+    saveOpenWindows();
   }
 
   // Save states to localStorage
@@ -1429,7 +1464,18 @@
 
     // Trigger tooltip init for glossary terms
     document.dispatchEvent(new CustomEvent('concept-window-opened'));
-    
+
+    // Tippy instances attached to glossary links inside this window register
+    // document-level outside-click listeners that survive DOM removal; destroy
+    // them on close so they don't leak.
+    windowData.cleanup = windowData.cleanup || [];
+    windowData.cleanup.push(() => {
+      win.querySelectorAll('.glossary-link').forEach(link => {
+        const inst = (link as unknown as { _tippy?: { destroy: () => void } })._tippy;
+        if (inst) { try { inst.destroy(); } catch {} }
+      });
+    });
+
     // Update taskbar and persist
     updateTaskbar();
     
@@ -1443,6 +1489,8 @@
     if (index === -1) return;
 
     const win = openWindows[index];
+    win.cleanup?.forEach(fn => { try { fn(); } catch {} });
+    win.cleanup = [];
     win.element.remove();
     openWindows.splice(index, 1);
 
@@ -1529,7 +1577,7 @@
 
     opacitySlider?.addEventListener('change', () => { saveOpenWindows(); });
 
-    document.addEventListener('mousedown', (e) => {
+    trackDocListener(openWindows.find(w => w.id === windowId), 'mousedown', (e) => {
       if (!opacityPopover || opacityPopover.hidden) return;
       if (!win.contains(e.target as Node)) opacityPopover.hidden = true;
     }, { capture: true });
@@ -1575,6 +1623,7 @@
 
   // Drag functionality
   function setupDrag(win: HTMLElement, windowId: string, titlebar: HTMLElement | null, controls: Element | null) {
+    const winData = openWindows.find(w => w.id === windowId);
     let isDragging = false;
     let dragOffsetX = 0;
     let dragOffsetY = 0;
@@ -1582,8 +1631,7 @@
     titlebar?.addEventListener('mousedown', (e) => {
       if (controls?.contains(e.target as Node)) return;
       if ((e.target as Element)?.closest('.concept-window-edit')) return;
-      
-      const winData = openWindows.find(w => w.id === windowId);
+
       if (winData?.isMaximized || winData?.isPinned) return;
 
       isDragging = true;
@@ -1592,8 +1640,10 @@
       bringToFront(windowId);
     });
 
-    document.addEventListener('mousemove', (e) => {
+    trackDocListener(winData, 'mousemove', (e) => {
       if (!isDragging) return;
+      // Abort if the window was pinned during the drag.
+      if (winData?.isPinned) { isDragging = false; return; }
 
       const x = e.clientX - dragOffsetX;
       const y = e.clientY - dragOffsetY;
@@ -1605,7 +1655,7 @@
       win.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
     });
 
-    document.addEventListener('mouseup', () => {
+    trackDocListener(winData, 'mouseup', () => {
       if (isDragging) {
         isDragging = false;
         // Save normalized to reference viewport
@@ -1629,8 +1679,7 @@
     titlebar?.addEventListener('touchstart', (e) => {
       if (controls?.contains(e.target as Node)) return;
       if ((e.target as Element)?.closest('.concept-window-edit')) return;
-      
-      const winData = openWindows.find(w => w.id === windowId);
+
       if (winData?.isMaximized || winData?.isPinned) return;
 
       e.preventDefault(); // Prevent page scroll
@@ -1641,8 +1690,9 @@
       bringToFront(windowId);
     }, { passive: false }); // Note: passive: false to allow preventDefault
 
-    document.addEventListener('touchmove', (e) => {
+    trackDocListener(winData, 'touchmove', (e) => {
       if (!isDragging) return;
+      if (winData?.isPinned) { isDragging = false; return; }
 
       const touch = e.touches[0];
       const x = touch.clientX - dragOffsetX;
@@ -1655,7 +1705,7 @@
       win.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
     }, { passive: true });
 
-    document.addEventListener('touchend', () => {
+    trackDocListener(winData, 'touchend', () => {
       if (isDragging) {
         isDragging = false;
         // Save normalized to reference viewport
@@ -1782,18 +1832,19 @@
       }, { passive: false });
     });
   
-    document.addEventListener('mousemove', (e) => doResize(e.clientX, e.clientY));
-    document.addEventListener('mouseup', endResize);
-  
-    document.addEventListener('touchmove', (e) => {
+    const resizeWinData = openWindows.find(w => w.id === windowId);
+    trackDocListener(resizeWinData, 'mousemove', (e) => doResize(e.clientX, e.clientY));
+    trackDocListener(resizeWinData, 'mouseup', endResize);
+
+    trackDocListener(resizeWinData, 'touchmove', (e) => {
       if (!isResizing) return;
       e.preventDefault();
       const touch = e.touches[0];
       doResize(touch.clientX, touch.clientY);
     }, { passive: false });
-  
-    document.addEventListener('touchend', endResize);
-    document.addEventListener('touchcancel', endResize);
+
+    trackDocListener(resizeWinData, 'touchend', endResize);
+    trackDocListener(resizeWinData, 'touchcancel', endResize);
   }
 
   // Taskbar action buttons

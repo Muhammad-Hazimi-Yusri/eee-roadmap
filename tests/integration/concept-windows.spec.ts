@@ -1,4 +1,11 @@
-import { test, expect, docListenerCount, seedStorage, clearStorage } from './fixtures';
+import {
+  test,
+  expect,
+  docListenerCount,
+  docListenerTypes,
+  seedStorage,
+  clearStorage,
+} from './fixtures';
 
 const FUNDAMENTALS = '/roadmaps/fundamentals/';
 
@@ -257,6 +264,7 @@ test.describe('Concept windows — hygiene', () => {
     await page.waitForSelector('body[data-js-ready="true"]');
 
     const baseline = await docListenerCount(page);
+    const baselineTypes = await docListenerTypes(page);
 
     for (let i = 0; i < 5; i++) {
       const win = await openConceptWindow();
@@ -265,11 +273,18 @@ test.describe('Concept windows — hygiene', () => {
     }
 
     const finalCount = await docListenerCount(page);
+    const finalTypes = await docListenerTypes(page);
     const perCycle = (finalCount - baseline) / 5;
+    const delta: Record<string, number> = {};
+    for (const [type, count] of Object.entries(finalTypes)) {
+      const grew = count - (baselineTypes[type] ?? 0);
+      if (grew !== 0) delta[type] = grew;
+    }
     expect(
       perCycle,
       `document listeners grew by ${finalCount - baseline} across 5 open/close cycles ` +
-        `(${perCycle} per window) — these must be removed on close`,
+        `(${perCycle} per window) — these must be removed on close. ` +
+        `Per-type delta: ${JSON.stringify(delta)}`,
     ).toBeLessThan(2);
   });
 });
