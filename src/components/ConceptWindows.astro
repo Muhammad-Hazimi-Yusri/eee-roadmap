@@ -206,6 +206,7 @@
   .concept-window {
     --win-bg-alpha: 1;
     --win-bg-rgb: 255 255 255;
+
     position: absolute;
     width: 500px;
     height: 400px;
@@ -224,7 +225,6 @@
 
   .concept-window--translucent {
     backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
     border-color: rgb(255 255 255 / 30%);
     box-shadow:
       0 1px 0 rgb(255 255 255 / 40%) inset,
@@ -251,6 +251,7 @@
 
   .dark .concept-window {
     --win-bg-rgb: 26 26 26;
+
     border-color: #333;
     box-shadow:
       0 4px 6px rgb(0 0 0 / 30%),

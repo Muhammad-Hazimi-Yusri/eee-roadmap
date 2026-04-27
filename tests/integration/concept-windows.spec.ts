@@ -122,7 +122,7 @@ test.describe('Concept windows — opacity slider', () => {
     await expect(label).toHaveText(/^Opacity:/);
   });
 
-  test('global slider at 50 applies 0.5 opacity to window content', async ({
+  test('global slider at 50 applies 0.5 background alpha to window', async ({
     page,
     openConceptWindow,
   }) => {
@@ -136,9 +136,11 @@ test.describe('Concept windows — opacity slider', () => {
     await slider.fill('50');
     await slider.dispatchEvent('input');
 
-    const content = win.locator('.concept-window-content');
-    const opacity = await content.evaluate((el) => window.getComputedStyle(el).opacity);
-    expect(parseFloat(opacity)).toBeCloseTo(0.5, 1);
+    const alpha = await win.evaluate((el) =>
+      getComputedStyle(el).getPropertyValue('--win-bg-alpha').trim(),
+    );
+    expect(parseFloat(alpha)).toBeCloseTo(0.5, 1);
+    await expect(win).toHaveClass(/concept-window--translucent/);
   });
 
   test('per-window slider updates only that window', async ({ page, openConceptWindow }) => {
@@ -155,16 +157,15 @@ test.describe('Concept windows — opacity slider', () => {
     await sliderA.fill('60');
     await sliderA.dispatchEvent('input');
 
-    const opacityA = await winA
-      .locator('.concept-window-content')
-      .evaluate((el) => window.getComputedStyle(el).opacity);
-    const opacityB = await windows
+    const alphaA = await winA.evaluate((el) =>
+      getComputedStyle(el).getPropertyValue('--win-bg-alpha').trim(),
+    );
+    const alphaB = await windows
       .nth(1)
-      .locator('.concept-window-content')
-      .evaluate((el) => window.getComputedStyle(el).opacity);
+      .evaluate((el) => getComputedStyle(el).getPropertyValue('--win-bg-alpha').trim());
 
-    expect(parseFloat(opacityA)).toBeCloseTo(0.6, 1);
-    expect(parseFloat(opacityB)).toBeCloseTo(1.0, 1);
+    expect(parseFloat(alphaA)).toBeCloseTo(0.6, 1);
+    expect(parseFloat(alphaB)).toBeCloseTo(1.0, 1);
   });
 
   test('opacity persists across reload', async ({ page, openConceptWindow }) => {
@@ -183,10 +184,10 @@ test.describe('Concept windows — opacity slider', () => {
     const restored = page.locator(`.concept-window[data-window-id="${winId}"]`);
     await expect(restored).toBeVisible();
 
-    const opacity = await restored
-      .locator('.concept-window-content')
-      .evaluate((el) => window.getComputedStyle(el).opacity);
-    expect(parseFloat(opacity)).toBeCloseTo(0.4, 1);
+    const alpha = await restored.evaluate((el) =>
+      getComputedStyle(el).getPropertyValue('--win-bg-alpha').trim(),
+    );
+    expect(parseFloat(alpha)).toBeCloseTo(0.4, 1);
   });
 
   test('opacity popover closes when clicking outside the window', async ({
