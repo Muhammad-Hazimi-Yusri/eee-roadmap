@@ -110,8 +110,11 @@
 
 <style is:global>
   .concept-windows-container {
-    position: fixed;
-    inset: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
     pointer-events: none;
     z-index: 1000;
   }
@@ -233,6 +236,7 @@
   }
 
   .concept-window--maximized {
+    position: fixed !important;
     width: 100vw !important;
     height: 100vh !important;
     top: 0 !important;
@@ -646,8 +650,9 @@
     pointer-events: none;
   }
 
-  /* ---- Feature 2: Pin ---- */
+  /* ---- Feature 2: Pin (viewport-fixed pinboard) ---- */
   .concept-window--pinned {
+    position: fixed;
     border-color: #4a90d9;
   }
 
@@ -1068,20 +1073,23 @@
       height = Math.min(DEFAULT_HEIGHT, viewportH - 100);
     }
     
-    // If saved position exists, validate it's still on screen
+    // If saved position exists, validate it. Saved coords for an unpinned
+    // window are document-relative (can exceed viewport height); only clamp
+    // dimensions and x to keep the window minimally usable.
     const saved = loadStates()[windowId];
     if (saved) {
       const validW = Math.min(saved.width, viewportW - 16);
       const validH = Math.min(saved.height, viewportH - 80);
       const validX = Math.max(0, Math.min(saved.x, viewportW - validW - 8));
-      const validY = Math.max(0, Math.min(saved.y, viewportH - validH - 60));
+      const validY = Math.max(0, saved.y);
       return { x: validX, y: validY, width: validW, height: validH };
     }
-    
-    // Position: center on mobile, cascade on desktop
+
+    // New windows are unpinned (document-anchored), so offset cascade
+    // by current scroll so the window appears in the user's viewport.
     let x: number;
     let y: number;
-    
+
     if (isMobile) {
       // Center horizontally
       x = Math.max(8, (viewportW - width) / 2);
@@ -1094,6 +1102,9 @@
       x = Math.min(50 + (cascadeCount * CASCADE_OFFSET), maxCascadeX);
       y = Math.min(50 + (cascadeCount * CASCADE_OFFSET), maxCascadeY);
     }
+
+    x += window.scrollX;
+    y += window.scrollY;
     
     cascadeCount++;
     if (cascadeCount > 10) {
@@ -1242,8 +1253,25 @@
   function togglePin(windowId: string) {
     const win = openWindows.find(w => w.id === windowId);
     if (!win) return;
+
+    // Capture the window's current viewport position so the visual position
+    // is preserved across the position-mode switch (absolute<->fixed).
+    const rect = win.element.getBoundingClientRect();
+
     win.isPinned = !win.isPinned;
     win.element.classList.toggle('concept-window--pinned', win.isPinned);
+
+    if (win.isPinned) {
+      // absolute (document coords) -> fixed (viewport coords)
+      win.element.style.left = `${rect.left}px`;
+      win.element.style.top = `${rect.top}px`;
+    } else {
+      // fixed (viewport coords) -> absolute (document coords)
+      win.element.style.left = `${rect.left + window.scrollX}px`;
+      win.element.style.top = `${rect.top + window.scrollY}px`;
+    }
+    saveWindowState(windowId, getWindowState(win.element));
+
     updateWindowButtonStates(win);
     saveOpenWindows();
   }
@@ -1273,16 +1301,20 @@
         // Clamp size to current viewport
         const viewportW = window.innerWidth;
         const viewportH = window.innerHeight;
-        
+
         const width = Math.min(win.preMaximizeState.width, viewportW - 16);
         const height = Math.min(win.preMaximizeState.height, viewportH - 80);
-        
-        // Clamp position to keep window on screen
-        const maxX = viewportW - width - 8;
-        const maxY = viewportH - height - 60;
-        
-        const x = Math.max(0, Math.min(win.preMaximizeState.x, maxX));
-        const y = Math.max(0, Math.min(win.preMaximizeState.y, maxY));
+
+        // Pinned windows use viewport coords; unpinned use document coords.
+        // Offset clamp range by current scroll so a saved doc position
+        // isn't pulled to the top of the document on unpin.
+        const baseX = win.isPinned ? 0 : window.scrollX;
+        const baseY = win.isPinned ? 0 : window.scrollY;
+        const maxX = baseX + viewportW - width - 8;
+        const maxY = baseY + viewportH - height - 60;
+
+        const x = Math.max(baseX, Math.min(win.preMaximizeState.x, maxX));
+        const y = Math.max(baseY, Math.min(win.preMaximizeState.y, maxY));
         
         win.element.style.left = `${x}px`;
         win.element.style.top = `${y}px`;
@@ -1363,13 +1395,15 @@
       
       width = Math.max(minW, Math.min(width, maxW));
       height = Math.max(minH, Math.min(height, maxH));
-      
-      // Clamp position to keep window on screen
-      const maxX = viewportW - width - 8;
-      const maxY = viewportH - height - 60;
-      
-      x = Math.max(0, Math.min(x, maxX));
-      y = Math.max(0, Math.min(y, maxY));
+
+      // Pinned windows use viewport coords; unpinned use document coords.
+      const baseX = winData.isPinned ? 0 : window.scrollX;
+      const baseY = winData.isPinned ? 0 : window.scrollY;
+      const maxX = baseX + viewportW - width - 8;
+      const maxY = baseY + viewportH - height - 60;
+
+      x = Math.max(baseX, Math.min(x, maxX));
+      y = Math.max(baseY, Math.min(y, maxY));
       
       // Apply new position and size
       win.style.left = `${x}px`;
@@ -1672,11 +1706,15 @@
       const x = e.clientX - dragOffsetX;
       const y = e.clientY - dragOffsetY;
 
-      const maxX = window.innerWidth - win.offsetWidth;
-      const maxY = window.innerHeight - win.offsetHeight;
+      // Unpinned windows live in document coords; clamp to current viewport
+      // expressed in document space so they don't fly off-screen on scrolled pages.
+      const minX = window.scrollX;
+      const minY = window.scrollY;
+      const maxX = window.scrollX + window.innerWidth - win.offsetWidth;
+      const maxY = window.scrollY + window.innerHeight - win.offsetHeight;
 
-      win.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
-      win.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+      win.style.left = `${Math.max(minX, Math.min(x, maxX))}px`;
+      win.style.top = `${Math.max(minY, Math.min(y, maxY))}px`;
     });
 
     trackDocListener(winData, 'mouseup', () => {
@@ -1722,11 +1760,13 @@
       const x = touch.clientX - dragOffsetX;
       const y = touch.clientY - dragOffsetY;
 
-      const maxX = window.innerWidth - win.offsetWidth;
-      const maxY = window.innerHeight - win.offsetHeight;
+      const minX = window.scrollX;
+      const minY = window.scrollY;
+      const maxX = window.scrollX + window.innerWidth - win.offsetWidth;
+      const maxY = window.scrollY + window.innerHeight - win.offsetHeight;
 
-      win.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
-      win.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+      win.style.left = `${Math.max(minX, Math.min(x, maxX))}px`;
+      win.style.top = `${Math.max(minY, Math.min(y, maxY))}px`;
     }, { passive: true });
 
     trackDocListener(winData, 'touchend', () => {
@@ -1808,14 +1848,17 @@
       newHeight = h;
     }
 
-    // Constrain to viewport
-    const maxW = window.innerWidth - newLeft - 10;
-    const maxH = window.innerHeight - newTop - 10;
-    
+    // Constrain to viewport. Resize is blocked when pinned, so newLeft/newTop
+    // are document coords (unpinned). Subtract scroll to constrain in viewport.
+    const visibleLeft = newLeft - window.scrollX;
+    const visibleTop = newTop - window.scrollY;
+    const maxW = window.innerWidth - visibleLeft - 10;
+    const maxH = window.innerHeight - visibleTop - 10;
+
     win.style.width = `${Math.min(newWidth, maxW)}px`;
     win.style.height = `${Math.min(newHeight, maxH)}px`;
-    win.style.left = `${Math.max(0, newLeft)}px`;
-    win.style.top = `${Math.max(0, newTop)}px`;
+    win.style.left = `${Math.max(window.scrollX, newLeft)}px`;
+    win.style.top = `${Math.max(window.scrollY, newTop)}px`;
   }
 
   function endResize() {
