@@ -227,7 +227,7 @@
   }
 
   .concept-window--translucent {
-    backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(8px) saturate(140%);
     border-color: rgb(255 255 255 / 30%);
     box-shadow:
       0 1px 0 rgb(255 255 255 / 40%) inset,
@@ -1643,6 +1643,7 @@
     // Double-click titlebar to maximize (guard: not when collapsed)
     titlebar?.addEventListener('dblclick', (e) => {
       if (controls?.contains(e.target as Node)) return;
+      if ((e.target as Element)?.closest('.concept-window-opacity-popover')) return;
       const winData = openWindows.find(w => w.id === windowId);
       if (winData?.isCollapsed) return;
       toggleMaximize(windowId);
@@ -1689,6 +1690,7 @@
     titlebar?.addEventListener('mousedown', (e) => {
       if (controls?.contains(e.target as Node)) return;
       if ((e.target as Element)?.closest('.concept-window-edit')) return;
+      if ((e.target as Element)?.closest('.concept-window-opacity-popover')) return;
 
       if (winData?.isMaximized || winData?.isPinned) return;
 
@@ -1741,6 +1743,7 @@
     titlebar?.addEventListener('touchstart', (e) => {
       if (controls?.contains(e.target as Node)) return;
       if ((e.target as Element)?.closest('.concept-window-edit')) return;
+      if ((e.target as Element)?.closest('.concept-window-opacity-popover')) return;
 
       if (winData?.isMaximized || winData?.isPinned) return;
 
