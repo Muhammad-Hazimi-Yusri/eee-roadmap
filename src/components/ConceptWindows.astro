@@ -209,6 +209,7 @@
   .concept-window {
     --win-bg-alpha: 1;
     --win-bg-rgb: 255 255 255;
+    --win-inactive-opacity: 1;
 
     position: absolute;
     width: 500px;
@@ -224,6 +225,14 @@
     pointer-events: auto;
     border: 1px solid #d0d0d0;
     touch-action: none;
+    opacity: 1;
+    transition: opacity 0.18s ease;
+  }
+
+  /* Focus-aware fade: inactive windows fade to user-set opacity (text + bg).
+     Hover or focus restores full opacity so users can read without clicking. */
+  .concept-window--inactive:not(:hover, :focus-within) {
+    opacity: var(--win-inactive-opacity);
   }
 
   .concept-window--translucent {
@@ -926,6 +935,9 @@
   const openWindows: OpenWindow[] = [];
   let highestZIndex = BASE_Z_INDEX;
   let cascadeCount = 0;
+  // ID of the most-recently-focused window, or null if none. Active window
+  // renders at full opacity; others fade to their --win-inactive-opacity.
+  let activeWindowId: string | null = null;
   // Reference viewport (set once at first window open, used for proportional scaling)
   let referenceViewportW: number | null = null;
   let referenceViewportH: number | null = null;
@@ -1145,6 +1157,17 @@
     highestZIndex++;
     win.zIndex = highestZIndex;
     win.element.style.zIndex = String(highestZIndex);
+    setActiveWindow(windowId);
+  }
+
+  // Mark one window as active (full opacity); fade the rest to their inactive opacity.
+  // Pass null to deactivate all (e.g., when active window closes).
+  function setActiveWindow(windowId: string | null) {
+    if (activeWindowId === windowId) return;
+    activeWindowId = windowId;
+    for (const w of openWindows) {
+      w.element.classList.toggle('concept-window--inactive', w.id !== windowId);
+    }
   }
 
   // Sync button disabled states and icon swaps for collapse/pin/maximize
@@ -1178,6 +1201,14 @@
 
     win.isMinimized = true;
     win.element.style.display = 'none';
+
+    // Promote next-highest non-minimized window if we just minimized the active one
+    if (activeWindowId === windowId) {
+      const next = openWindows
+        .filter(w => !w.isMinimized && w.id !== windowId)
+        .reduce<OpenWindow | null>((top, w) => (!top || w.zIndex > top.zIndex ? w : top), null);
+      setActiveWindow(next ? next.id : null);
+    }
 
     // Add to taskbar
     const taskbarItems = document.getElementById('concept-taskbar-items');
@@ -1276,12 +1307,16 @@
     saveOpenWindows();
   }
 
-  // Apply opacity to window background as a glass/frosted effect (Feature 3)
+  // Apply opacity to window background (frosted-glass effect) and to the
+  // whole window when inactive — so text fades alongside background, letting
+  // overlapping windows be read through. Active window stays at full opacity;
+  // see .concept-window--inactive rule in CSS.
   function applyWindowOpacity(win: OpenWindow, opacity: number) {
     const content = win.element.querySelector('.concept-window-content') as HTMLElement | null;
     // Clean up any legacy inline opacity from earlier versions
     if (content) content.style.opacity = '';
     win.element.style.setProperty('--win-bg-alpha', String(opacity));
+    win.element.style.setProperty('--win-inactive-opacity', String(opacity));
     win.element.classList.toggle('concept-window--translucent', opacity < 1.0);
     const label = win.element.querySelector('.opacity-popover-value');
     if (label) label.textContent = `${Math.round(opacity * 100)}%`;
@@ -1507,6 +1542,7 @@
     };
     openWindows.push(windowData);
     applyWindowOpacity(windowData, windowData.opacity);
+    setActiveWindow(windowId);
 
     // Set reference viewport on first window open
     if (referenceViewportW === null) {
@@ -1556,6 +1592,15 @@
     const taskbarItem = document.querySelector(`.concept-taskbar-item[data-window-id="${windowId}"]`);
     taskbarItem?.remove();
     updateTaskbar();
+
+    // If we just closed the active window, promote the topmost remaining
+    // (non-minimized) window so something stays solid instead of all fading.
+    if (activeWindowId === windowId) {
+      const next = openWindows
+        .filter(w => !w.isMinimized)
+        .reduce<OpenWindow | null>((top, w) => (!top || w.zIndex > top.zIndex ? w : top), null);
+      setActiveWindow(next ? next.id : null);
+    }
 
     // Persist open windows list
     saveOpenWindows();
