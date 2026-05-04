@@ -87,6 +87,7 @@ for (const { slug } of allTracks) {
     fetchTrackVerifications,
     buildTrackSummary,
   } from '../utils/verification';
+  import { showToast } from '../utils/toast';
 
   const guardEl = document.getElementById('admin-guard')!;
   const contentEl = document.getElementById('admin-content')!;
@@ -160,7 +161,7 @@ for (const { slug } of allTracks) {
           btn.closest('tr')?.remove();
         } else {
           btn.disabled = false;
-          alert('Failed to revoke role.');
+          showToast('Failed to revoke role.', 'error');
         }
       });
     });
@@ -177,7 +178,7 @@ for (const { slug } of allTracks) {
     const role = roleSelect.value as 'admin' | 'verifier';
 
     if (!userId) {
-      alert('Enter a user UUID.');
+      showToast('Enter a user UUID.', 'error');
       return;
     }
 
@@ -189,7 +190,7 @@ for (const { slug } of allTracks) {
       userIdInput.value = '';
       await renderRoles();
     } else {
-      alert('Failed to grant role. The user may already have it, or the UUID is invalid.');
+      showToast('Failed to grant role. The user may already have it, or the UUID is invalid.', 'error');
     }
   });
 

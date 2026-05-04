@@ -325,53 +325,6 @@ const { trackSlug, sectionMeta } = Astro.props;
   }
 
   /* ===========================================================
-     TOAST NOTIFICATION
-     =========================================================== */
-  .verification-toast {
-    position: fixed;
-    bottom: 2rem;
-    right: 1.5rem;
-    padding: 0.625rem 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    border: 1px solid;
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.2s, transform 0.2s;
-    z-index: 9999;
-    pointer-events: none;
-  }
-
-  .verification-toast--visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .verification-toast--success {
-    background: #d1fae5;
-    border-color: #047857;
-    color: #047857;
-  }
-
-  .verification-toast--error {
-    background: #fee2e2;
-    border-color: #b91c1c;
-    color: #b91c1c;
-  }
-
-  :root.dark .verification-toast--success {
-    background: rgb(4 120 87 / 20%);
-    color: #6ee7b7;
-    border-color: #6ee7b7;
-  }
-
-  :root.dark .verification-toast--error {
-    background: rgb(185 28 28 / 20%);
-    color: #fca5a5;
-    border-color: #fca5a5;
-  }
-
-  /* ===========================================================
      COLLAPSIBLE PANEL STATE
      body.verifier-panels-expanded is toggled by verifierPanel.ts
      body.verification-badges-hidden is toggled by badges toggle

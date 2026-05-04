@@ -81,6 +81,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
   import { renderRoadmapHtml } from '../../../utils/renderRoadmap';
   import { initRoadmapInteractions } from '../../../utils/roadmapInteractions';
   import { parseNotesClient } from '../../../utils/parseNotesClient';
+  import { showToast } from '../../../utils/toast';
   import Sortable from 'sortablejs';
 
   // Track collapsed state
@@ -338,7 +339,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
       const result = await loadConceptLibrary();
       library = result.library;
     } catch {
-      alert('Could not load concept library. Please check your connection.');
+      showToast('Could not load concept library. Please check your connection.', 'error');
       return;
     }
 
@@ -524,7 +525,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
       sessionStorage.removeItem('eee-import-track'); // Clear after reading
       
       if (!importData) {
-        alert('No import data found. Please try importing again.');
+        showToast('No import data found. Please try importing again.', 'error');
         window.location.href = '/roadmaps/';
         return;
       }
@@ -541,7 +542,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
         initEditor(track, null, true); // true = isImport
       } catch (err) {
         console.error('Failed to parse import data:', err);
-        alert('Failed to load import data.');
+        showToast('Failed to load import data.', 'error');
         window.location.href = '/roadmaps/';
       }
       return;
@@ -619,7 +620,7 @@ const officialTracksData = getAllTracks().map(({ slug, meta }) => ({
           if (success) {
             window.location.href = '/roadmaps/';
           } else {
-            alert('Failed to delete track. Are you signed in?');
+            showToast('Failed to delete track. Are you signed in?', 'error');
           }
         });
       }
@@ -765,20 +766,20 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
     const handleSave = async () => {
       // Validate required fields
       if (!editorState.meta.title.trim()) {
-        alert('Title is required');
+        showToast('Title is required', 'error');
         return;
       }
       if (!editorState.meta.description.trim()) {
-        alert('Description is required');
+        showToast('Description is required', 'error');
         return;
       }
 
       // Generate slug from title
       const newSlug = generateSlug(editorState.meta.title);
-      
+
       // Validate slug
       if (!newSlug) {
-        alert('Could not generate a valid slug from title');
+        showToast('Could not generate a valid slug from title', 'error');
         return;
       }
 
@@ -789,7 +790,7 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
         // Check for duplicate (different track with same slug)
         const existingTrack = content.tracks[newSlug];
         if (existingTrack && newSlug !== slug) {
-          alert(`A track with this title already exists: "${existingTrack.meta.title}"`);
+          showToast(`A track with this title already exists: "${existingTrack.meta.title}"`, 'error');
           return;
         }
         
@@ -830,11 +831,11 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
           // Redirect to view mode
           window.location.href = `/roadmaps/custom/?track=${newSlug}`;
         } else {
-          alert('Failed to save. Are you signed in?');
+          showToast('Failed to save. Are you signed in?', 'error');
         }
       } catch (err) {
         console.error('Save error:', err);
-        alert('Error saving track. Please try again.');
+        showToast('Error saving track. Please try again.', 'error');
       }
     };
     document.getElementById('save-track-btn')?.addEventListener('click', handleSave);
@@ -1505,7 +1506,7 @@ function initEditor(track: any, slug?: string | null, isImport: boolean = false)
         const url = urlInput?.value.trim();
         
         if (!label || !url) {
-          alert('Both label and URL are required');
+          showToast('Both label and URL are required', 'error');
           return;
         }
         
