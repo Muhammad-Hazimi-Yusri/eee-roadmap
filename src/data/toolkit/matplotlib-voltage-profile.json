@@ -1,0 +1,23 @@
+{
+  "id": "matplotlib-voltage-profile",
+  "title": "Voltage Profile Plot (matplotlib)",
+  "category": "plotting",
+  "language": "python",
+  "difficulty": "beginner",
+  "description": "Bar chart of bus voltages with G-Code statutory limit bands shaded. Drop-in for a load-flow report figure. Reads a CSV like the one exported from the power-flow lab.",
+  "tags": ["matplotlib", "load-flow", "report-figure"],
+  "deps": ["matplotlib", "pandas"],
+  "blocks": [
+    { "type": "prose", "text": "Reads `bus-results.csv` (one row per bus, columns: BusID, BusName, Vmag_pu, …) and produces the standard report figure. The 0.95–1.05 pu band is shaded green; the ±10% statutory limits are drawn as dashed orange lines." },
+    {
+      "type": "code", "language": "python", "filename": "voltage_profile.py",
+      "text": "import pandas as pd\nimport matplotlib.pyplot as plt\n\ndf = pd.read_csv('bus-results.csv')\n\nfig, ax = plt.subplots(figsize=(8, 4))\n\n# Limit bands\nax.axhspan(0.95, 1.05, color='#22c55e', alpha=0.10, label='Normal (0.95–1.05 pu)')\nax.axhline(0.95, color='#f97316', linestyle='--', linewidth=0.8)\nax.axhline(1.05, color='#f97316', linestyle='--', linewidth=0.8)\nax.axhline(0.90, color='#ef4444', linestyle=':',  linewidth=0.8)\nax.axhline(1.10, color='#ef4444', linestyle=':',  linewidth=0.8)\n\n# Colour bars by voltage status\ndef colour(v):\n    if v < 0.90 or v > 1.10: return '#ef4444'\n    if v < 0.95 or v > 1.05: return '#f97316'\n    return '#2563eb'\n\nax.bar(df['BusID'], df['Vmag_pu'],\n       color=[colour(v) for v in df['Vmag_pu']],\n       edgecolor='black', linewidth=0.4)\n\n# 1.0 pu reference\nax.axhline(1.00, color='gray', linestyle='-',  linewidth=0.6)\n\nax.set_ylim(0.85, 1.15)\nax.set_xlabel('Bus number')\nax.set_ylabel('Voltage magnitude (pu)')\nax.set_title('Bus voltage profile — base case')\nax.legend(loc='lower right', fontsize=8)\nax.grid(axis='y', alpha=0.25)\n\nplt.tight_layout()\nplt.savefig('voltage-profile.png', dpi=200, bbox_inches='tight')\nplt.savefig('voltage-profile.pdf')   # vector for Word reports\nplt.show()"
+    },
+    { "type": "note", "kind": "tip", "text": "Save BOTH a PNG (for slides / quick previews) and a PDF (vector — embeds cleanly in Word and stays sharp at any zoom). Set DPI ≥ 200 for raster outputs that need to print." },
+    { "type": "prose", "text": "If you have multiple study cases (base, peak, summer-min, etc.) iterate the same plot with `subplots(nrows=4, sharey=True)` and pass the case name as title — the four-panel layout is the standard report appendix figure." },
+    { "type": "note", "kind": "gotcha", "text": "matplotlib will silently fall back to a default font if 'Inter' or 'IBM Plex' isn't installed. Use `plt.rcParams['font.family'] = 'DejaVu Sans'` explicitly to make outputs reproducible across machines." }
+  ],
+  "relatedLabs": [
+    { "id": "power-flow-3bus", "label": "Newton-Raphson Power Flow" }
+  ]
+}

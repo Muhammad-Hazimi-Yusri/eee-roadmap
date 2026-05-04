@@ -1,0 +1,43 @@
+{
+  "id": "protection-coordination",
+  "title": "Protection Coordination (IEC Inverse-Time)",
+  "domain": "power-systems",
+  "difficulty": "advanced",
+  "description": "Plot two IEC 60255 inverse-time overcurrent relays on the same time-current diagram, slide the fault current cursor, and watch the grading margin go green or red. The minimum workflow for any feeder protection setting calculation.",
+  "simulator": "protection",
+  "simulatorProps": {},
+  "equations": [
+    { "label": "IEC 60255-151 inverse-time", "tex": "t_{op} = \\text{TMS}\\cdot\\dfrac{k}{(I/I_s)^{\\alpha} - 1}" },
+    { "label": "Standard Inverse",   "tex": "k = 0.14,\\;\\alpha = 0.02" },
+    { "label": "Very Inverse",       "tex": "k = 13.5,\\;\\alpha = 1.0" },
+    { "label": "Extremely Inverse",  "tex": "k = 80.0,\\;\\alpha = 2.0" },
+    { "label": "Discrimination", "tex": "t_{up}(I) - t_{down}(I) \\ge \\Delta t_{grade}" }
+  ],
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Both relays are 'Standard Inverse' by default with R1 (downstream) faster than R2 (upstream). Slide the fault-current bar across the range and watch the grading margin readout. With 0.3 s grading required (the typical UK distribution value), there's a wide range over which discrimination holds.",
+        "hint": "Standard Inverse is the IEC default. North American IEEE C37.112 'Moderately Inverse' is a different equation — don't mix the two on a single feeder."
+      },
+      {
+        "instruction": "Drop R1's TMS to 0.05 (its minimum). At a 3000 A fault, R1 trips fast and R2 is now well-graded. But at low fault currents (just above pickup), the relays both flatten and discrimination weakens. This is why grading is hardest at the minimum fault current, not the maximum.",
+        "hint": "Always check discrimination at the MINIMUM fault current the downstream relay will see — that's where curves are flattest and margins shrink."
+      },
+      {
+        "instruction": "Switch R1 to 'Extremely Inverse' (EI). The curve is much steeper — fast at high currents, very slow at low currents. EI is the natural choice for transformer protection or feeders with motor inrush, but it's harder to grade against an SI upstream because the curves cross.",
+        "hint": "Mixing curve classes is a common mistake. If R1 = EI and R2 = SI, grading might hold at the published fault current but fail elsewhere — slide the cursor to confirm."
+      },
+      {
+        "instruction": "Set R1 pickup to 250 A and R2 pickup to 300 A — too close together. The two pickup points sit on top of each other and at low fault currents R1 may not even reach its operating region. In practice you want a pickup ratio of at least 1.5–2× between successive relays.",
+        "hint": "Pickup is set above maximum load current with margin (typical 1.3 × full-load), and below minimum fault current. R1's pickup setting cascades into R2's allowable minimum."
+      },
+      {
+        "instruction": "Once you have a working coordination, hit 'Curves CSV' to export the time-current pairs for both relays. Drop this into Excel to overlay onto a CB clearing time and a damage curve — that's the typical report figure for a protection coordination study.",
+        "hint": "You'll also want to plot transformer damage curves (ANSI C57.109) and conductor I²t curves on the same axes. Same log-log time-current grid as this lab."
+      }
+    ]
+  },
+  "relatedConcepts": [
+    { "id": "protection-coordination", "trackSlug": "advanced-power-system-analysis", "topicId": "protection-coordination", "label": "Protection Coordination" }
+  ]
+}

@@ -1,0 +1,221 @@
+---
+// src/pages/toolkit/index.astro — Power Systems Consulting Toolkit landing.
+// Recipes (copy-paste snippets) for plotting, Excel/Word automation, and VBA.
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { internalHref } from '../../utils/url';
+import type { Recipe, RecipeCategory } from '../../lib/toolkit/types';
+
+const recipeRaw = import.meta.glob<Recipe>('../../data/toolkit/*.json', { eager: true });
+const recipes = Object.values(recipeRaw);
+
+const categories: { id: RecipeCategory; label: string; description: string }[] = [
+  {
+    id: 'plotting',
+    label: 'Plotting',
+    description: 'Matplotlib/seaborn recipes for the figures that appear in every load-flow, fault, harmonic, or stability report.',
+  },
+  {
+    id: 'excel',
+    label: 'Excel automation',
+    description: 'openpyxl / xlwings snippets for writing study results into formatted, formula-driven workbooks.',
+  },
+  {
+    id: 'word',
+    label: 'Word automation',
+    description: 'python-docx templates that turn a results dict into a fully-formatted study report.',
+  },
+  {
+    id: 'vba',
+    label: 'VBA macros',
+    description: 'Excel VBA snippets for the daily grunt work — formatting tables, importing CSVs, batch operations.',
+  },
+  {
+    id: 'workflow',
+    label: 'Workflow',
+    description: 'End-to-end pipelines combining solver → CSV → plot → report.',
+  },
+];
+
+const grouped = categories.map(c => ({
+  ...c,
+  recipes: recipes.filter(r => r.category === c.id),
+}));
+
+const totalRecipes = recipes.length;
+---
+
+<Layout
+  title="Consulting Toolkit"
+  description="Copy-paste recipes for power-systems consulting work — plotting, Excel/Word automation, VBA. Designed for the day-to-day tasks an EE consultant does outside the simulator."
+>
+  <Header />
+  <main id="main-content">
+    <div class="container py-12">
+
+      <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// consulting toolkit</p>
+      <h1 class="page-title">Toolkit</h1>
+      <p class="page-desc">
+        {totalRecipes} copy-paste recipes for the work that doesn't happen inside a simulator —
+        plotting, Excel/Word report generation, and VBA macros. Pairs with the
+        <a href={internalHref('labs')}>interactive labs</a>: labs build intuition, recipes
+        ship the deliverable.
+      </p>
+
+      {grouped.map(group => (
+        group.recipes.length > 0 && (
+          <section class="domain-section" id={group.id}>
+            <div class="domain-header">
+              <h2 class="domain-title">{group.label}</h2>
+              <p class="domain-desc">{group.description}</p>
+            </div>
+
+            <div class="recipe-grid">
+              {group.recipes.map(r => (
+                <a
+                  href={internalHref(`toolkit/${r.id}`)}
+                  class={`recipe-card recipe-card--${r.difficulty}`}
+                >
+                  <div class="recipe-card__head">
+                    <span class="recipe-card__lang">{r.language}</span>
+                    <span class="recipe-card__badge">{r.difficulty}</span>
+                  </div>
+                  <h3 class="recipe-card__title">{r.title}</h3>
+                  <p class="recipe-card__desc">{r.description}</p>
+                  <div class="recipe-card__tags">
+                    {r.tags.slice(0, 4).map(t => (<span class="recipe-card__tag">{t}</span>))}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      ))}
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .page-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  .page-desc {
+    max-width: 60ch;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 3rem;
+  }
+
+  .page-desc a {
+    color: var(--color-copper, #c87533);
+    text-decoration: none;
+  }
+
+  .page-desc a:hover {
+    text-decoration: underline;
+  }
+
+  .domain-section { margin-bottom: 3.5rem; }
+
+  .domain-header {
+    display: flex; flex-direction: column; gap: 0.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .domain-title {
+    font-size: 1.1rem; font-weight: 700; margin: 0;
+  }
+
+  .domain-desc {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    max-width: 64ch;
+    margin: 0;
+  }
+
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1rem;
+  }
+
+  .recipe-card {
+    display: block;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .recipe-card:hover {
+    border-color: var(--color-copper, #c87533);
+    background: var(--color-bg-grid);
+  }
+
+  .recipe-card__head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.55rem;
+  }
+
+  .recipe-card__lang {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-copper, #c87533);
+  }
+
+  .recipe-card__badge {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.12rem 0.45rem;
+    border-radius: 2px;
+  }
+
+  .recipe-card--beginner     .recipe-card__badge { background: color-mix(in srgb, var(--color-pcb) 15%, transparent); color: var(--color-pcb-light); }
+  .recipe-card--intermediate .recipe-card__badge { background: color-mix(in srgb, var(--color-copper) 15%, transparent); color: var(--color-copper); }
+  .recipe-card--advanced     .recipe-card__badge { background: color-mix(in srgb, #2563eb 15%, transparent); color: #60a5fa; }
+
+  .recipe-card__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem;
+    line-height: 1.3;
+  }
+
+  .recipe-card__desc {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0 0 0.7rem;
+  }
+
+  .recipe-card__tags {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+
+  .recipe-card__tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--color-text-muted);
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+  }
+</style>

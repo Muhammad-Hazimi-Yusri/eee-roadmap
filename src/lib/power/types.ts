@@ -142,14 +142,38 @@ export interface PowerFlowResults {
   totalLossP: number;
 }
 
+export type FaultType = '3-phase' | 'L-G' | 'L-L' | 'L-L-G';
+
+export interface FaultPhaseCurrent {
+  /** Per-phase fault current in pu. */
+  pu: number;
+  /** Per-phase fault current in kA. */
+  kA: number;
+}
+
 export interface FaultResult {
   faultBusId: number;
+  /** Type of fault simulated. */
+  faultType: FaultType;
   /** Pre-fault voltage at the fault bus, pu. */
   Vprefault: number;
-  /** Thevenin impedance magnitude at the fault bus, pu. */
+  /** Positive-sequence Thevenin impedance magnitude at the fault bus, pu. */
   ZtheveninMag: number;
-  /** Fault current magnitude, pu. */
+  Z1mag: number;
+  Z2mag: number;
+  Z0mag: number;
+  /** Fault impedance magnitude (bolted = 0), pu. */
+  ZfMag: number;
+  /** Phase-A fault current. */
+  Ia: FaultPhaseCurrent;
+  /** Phase-B fault current. */
+  Ib: FaultPhaseCurrent;
+  /** Phase-C fault current. */
+  Ic: FaultPhaseCurrent;
+  /** Maximum phase current — used to size circuit-breaker interrupting duty. */
+  Imax: FaultPhaseCurrent;
+  /** Backward-compatible: equal to Imax.pu. */
   IfaultPU: number;
-  /** Fault current in kA (uses bus baseKV and network baseMVA). */
+  /** Backward-compatible: equal to Imax.kA. */
   IfaultKA: number;
 }

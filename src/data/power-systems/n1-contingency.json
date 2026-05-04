@@ -1,0 +1,40 @@
+{
+  "id": "n1-contingency",
+  "title": "N-1 Contingency Screening",
+  "domain": "power-systems",
+  "difficulty": "intermediate",
+  "description": "Single-element outage screening on the IEEE 14-bus test system. Trip a line or transformer and re-solve the power flow — find the post-contingency overloads and voltage violations that would drive remedial actions in a real connection study.",
+  "simulator": "contingency",
+  "simulatorProps": { "networkId": "ieee-14bus" },
+  "equations": [
+    { "label": "Loading metric", "tex": "L_{ij} = \\dfrac{|S_{ij}|}{S_{ij,\\text{rating}}} \\times 100\\%" },
+    { "label": "Post-contingency criterion", "tex": "L_{ij}^{(N{-}1)} \\le 1.0,\\quad 0.95 \\le |V_i| \\le 1.05" }
+  ],
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Run the base case (no outage). Note the loading on each line and the bus voltages. You should see all lines well within their 9900 MVA rating (the IEEE 14 case is unstressed by default) and all bus voltages within ±10%.",
+        "hint": "In a real consulting study you'd re-rate lines to realistic limits (e.g. 100–250 MVA at 132 kV) before running contingencies — the unrealistically high IEEE rating means everything 'passes' even with outages."
+      },
+      {
+        "instruction": "Pick line L1-2 from the Outage dropdown and re-run. This trips the strongest tie between the slack bus and the rest of the network. The remaining infeed must redistribute through L1-5. Note the line loadings rise.",
+        "hint": "N-1 = the system must remain stable for the loss of any one element. This is the cornerstone of UK Grid Code SQSS criterion."
+      },
+      {
+        "instruction": "Try transformer T4-7. Now Bus 7 is fed only via T4-9 → Bus 9 → Bus 7 (a longer electrical path). Watch Bus 7 and Bus 9 voltages drop. If they fall below 0.95 pu the contingency is a voltage-violation case.",
+        "hint": "Voltage violations are remedied with reactive compensation (capacitor banks, SVC) or tap-changer adjustments — both visible as design recommendations in connection studies."
+      },
+      {
+        "instruction": "Try L7-9. This isolates the radial 11 kV section (buses 9–14). The power flow may diverge — that signals an island, which in real life would mean a load shed scheme is needed.",
+        "hint": "If the solver doesn't converge, the network has split into electrical islands or has insufficient reactive support. Both are 'fail' cases for N-1."
+      },
+      {
+        "instruction": "Use the Line CSV button to export branch loadings, then sort by loading % in Excel. The highest-loaded lines under each contingency define your worst-case branch ratings — this table is what you'd hand to a client as the 'post-contingency loading study'.",
+        "hint": "A full N-1 sweep iterates this for every branch and ranks the worst contingencies by overload severity. The result tells you which reinforcements are required."
+      }
+    ]
+  },
+  "relatedConcepts": [
+    { "id": "contingency-analysis", "trackSlug": "power-system-fundamentals", "topicId": "load-flow-fundamentals", "label": "What is Load Flow Analysis" }
+  ]
+}
