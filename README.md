@@ -9,7 +9,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 ---
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
-[![Version](https://img.shields.io/badge/version-0.22.18-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-0.22.19-blue.svg)]()
 [![Status](https://img.shields.io/badge/status-In%20Development-yellow.svg)]()
 
 <details>
@@ -30,7 +30,7 @@ An interactive roadmap for learning Electrical & Electronic Engineering.
 </details>
 
 ## Current Features
-Current version is v0.22.18
+Current version is v0.22.19
 
 ### For Verifiers & Admins
 - **Content Verification** — Trusted users can verify topic quality across three aspects: *content* (accuracy), *resources* (links valid/relevant), and *pedagogy* (outcomes, prereqs, ordering)
@@ -341,7 +341,7 @@ Current version is v0.22.18
 - [ ] Refactor: localStorage keys duplicated across files (should use shared constants)
 - [ ] Custom track cards: display Lucide icon from meta (currently hardcoded)
 - [ ] Custom tracks: integrate with category filters on /roadmaps/ page
-- [ ] Replace browser alerts with custom toast notifications (editor validation)
+- [x] Replace browser alerts with custom toast notifications (editor validation)
 - [ ] Visual regression tests (when UI stabilizes)
 
 ---

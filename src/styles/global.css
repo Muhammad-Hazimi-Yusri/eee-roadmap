@@ -805,3 +805,58 @@
   .drag-handle:active {
     cursor: grabbing;
   }
+
+  /* ===========================================================
+     APP TOAST (shared across editor, concept windows, verifier)
+     Class names mirror src/utils/toast.ts
+     =========================================================== */
+  .app-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 1.5rem;
+    padding: 0.625rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    border: 1px solid;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 9999;
+    pointer-events: none;
+    max-width: min(420px, calc(100vw - 3rem));
+  }
+
+  .app-toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .app-toast--success {
+    background: #d1fae5;
+    border-color: #047857;
+    color: #047857;
+  }
+
+  .app-toast--error {
+    background: #fee2e2;
+    border-color: #b91c1c;
+    color: #b91c1c;
+  }
+
+  .app-toast--info {
+    background: var(--color-bg);
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+
+  :root.dark .app-toast--success {
+    background: rgb(4 120 87 / 20%);
+    color: #6ee7b7;
+    border-color: #6ee7b7;
+  }
+
+  :root.dark .app-toast--error {
+    background: rgb(185 28 28 / 20%);
+    color: #fca5a5;
+    border-color: #fca5a5;
+  }

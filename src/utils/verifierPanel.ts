@@ -8,6 +8,7 @@ import {
   fetchTrackVerifications,
   buildTopicStatus,
 } from './verification';
+import { showToast } from './toast';
 import { VERIFICATION_ASPECTS, type VerificationAspect, type VerificationRow } from '../types/verification';
 
 interface PanelOptions {
@@ -15,24 +16,6 @@ interface PanelOptions {
   isAdmin: boolean;
   verifierName: string;
   rows: VerificationRow[];
-}
-
-function showToast(message: string, type: 'success' | 'error'): void {
-  document.getElementById('verification-toast')?.remove();
-
-  const toast = document.createElement('div');
-  toast.id = 'verification-toast';
-  toast.className = `verification-toast verification-toast--${type}`;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-
-  requestAnimationFrame(() => {
-    toast.classList.add('verification-toast--visible');
-    setTimeout(() => {
-      toast.classList.remove('verification-toast--visible');
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  });
 }
 
 function buildPanel(

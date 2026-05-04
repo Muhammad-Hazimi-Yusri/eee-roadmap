@@ -2106,6 +2106,7 @@ Supports: **bold**, *italic*, LaTeX: $E = mc^2$`;
     try {
       const { loadCustomContent, saveCustomContent } = await import('../lib/sync');
       const { parseNotesClient } = await import('../utils/parseNotesClient');
+      const { showToast } = await import('../utils/toast');
       
       // Load existing content
       const content = await loadCustomContent();
@@ -2126,7 +2127,7 @@ Supports: **bold**, *italic*, LaTeX: $E = mc^2$`;
       const success = await saveCustomContent(content);
       
       if (!success) {
-        alert('Failed to save. Are you signed in?');
+        showToast('Failed to save. Are you signed in?', 'error');
         if (saveBtn) {
           saveBtn.disabled = false;
           saveBtn.textContent = 'Save';
@@ -2179,7 +2180,8 @@ Supports: **bold**, *italic*, LaTeX: $E = mc^2$`;
       
     } catch (err) {
       console.error('Failed to save concept notes:', err);
-      alert('Failed to save notes.');
+      const { showToast } = await import('../utils/toast');
+      showToast('Failed to save notes.', 'error');
       if (saveBtn) {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save';

@@ -2,6 +2,7 @@
 
 import type { CustomConcept } from '../types/custom-content';
 import { loadCustomContent } from '../lib/sync';
+import { showToast } from './toast';
 
 /**
  * Injects custom concepts into existing topics on the current roadmap page.
@@ -151,7 +152,7 @@ function openAddConceptModal(trackSlug: string, topicId: string): void {
       // Check for duplicate
       const exists = content.concepts[key].some(c => c.name === name);
       if (exists) {
-        alert('A concept with this name already exists in this topic.');
+        showToast('A concept with this name already exists in this topic.', 'error');
         saveBtn!.textContent = 'Add';
         (saveBtn as HTMLButtonElement).disabled = false;
         return;
@@ -171,13 +172,13 @@ function openAddConceptModal(trackSlug: string, topicId: string): void {
         // Reload to show new concept
         window.location.reload();
       } else {
-        alert('Failed to save. Are you signed in?');
+        showToast('Failed to save. Are you signed in?', 'error');
         saveBtn!.textContent = 'Add';
         (saveBtn as HTMLButtonElement).disabled = false;
       }
     } catch (err) {
       console.error('Failed to add concept:', err);
-      alert('Failed to add concept.');
+      showToast('Failed to add concept.', 'error');
       saveBtn!.textContent = 'Add';
       (saveBtn as HTMLButtonElement).disabled = false;
     }
@@ -279,7 +280,7 @@ export async function injectCustomTracks(): Promise<void> {
       if (success) {
         card.remove();
       } else {
-        alert('Failed to delete track. Are you signed in?');
+        showToast('Failed to delete track. Are you signed in?', 'error');
       }
     });
 
@@ -305,12 +306,12 @@ function openImportDialog(): void {
       
       // Validate structure
       if (!data.meta || !data.sections) {
-        alert('Invalid track file. Must contain "meta" and "sections".');
+        showToast('Invalid track file. Must contain "meta" and "sections".', 'error');
         return;
       }
-      
+
       if (!data.meta.title) {
-        alert('Invalid track file. Missing "meta.title".');
+        showToast('Invalid track file. Missing "meta.title".', 'error');
         return;
       }
       
@@ -322,7 +323,7 @@ function openImportDialog(): void {
       
     } catch (err) {
       console.error('Failed to parse import file:', err);
-      alert('Failed to parse file. Make sure it\'s valid JSON.');
+      showToast('Failed to parse file. Make sure it\'s valid JSON.', 'error');
     }
   });
   
