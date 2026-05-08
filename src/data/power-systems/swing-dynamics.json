@@ -1,0 +1,44 @@
+{
+  "id": "swing-dynamics",
+  "title": "Transient Stability — Swing Equation",
+  "domain": "power-systems",
+  "difficulty": "advanced",
+  "description": "Single-machine-infinite-bus (SMIB) transient stability with a 3-phase line fault. Slide the inertia, mechanical power, and clearing time and watch the rotor angle trajectory either return to a new equilibrium or run away. The equal-area criterion visualised on the P-δ curve gives the intuition.",
+  "simulator": "swing-dynamics",
+  "simulatorProps": {},
+  "equations": [
+    { "label": "Swing equation",
+      "tex": "\\dfrac{2H}{\\omega_0}\\,\\dfrac{d^2\\delta}{dt^2} = P_m - P_e - D\\dfrac{d\\delta}{dt}" },
+    { "label": "Power-angle relationship",
+      "tex": "P_e(\\delta) = \\dfrac{E\\,V}{X}\\sin\\delta" },
+    { "label": "Equal-area criterion (CCA)",
+      "tex": "\\cos\\delta_c = \\dfrac{P_m}{P_{e,\\max}}(\\delta_{\\max} - \\delta_0) + \\cos\\delta_{\\max}" }
+  ],
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Run the default case: H = 4 s, Pm = 0.7 pu, fault from 0.10 s to 0.25 s. The rotor angle swings out during the fault, then oscillates and settles around the new (post-fault) equilibrium because the post-fault topology is weaker. The system is STABLE.",
+        "hint": "Equilibrium shifts because the post-fault X is larger (a line was tripped). Pm is unchanged so δ must rise to maintain Pm = Pe."
+      },
+      {
+        "instruction": "Push the clearing time to 0.40 s and re-run. The rotor angle now keeps growing past 180° — first-swing instability. The fault was on for too long; the machine accelerated past the unstable equilibrium and the deceleration area can't catch up. This is what 'critical clearing time' bounds.",
+        "hint": "Equal-area criterion: the kinetic energy gained during the fault must be returned during the post-fault deceleration. If the available deceleration area (between Pm and Pe(δ)) is too small, the machine slips a pole."
+      },
+      {
+        "instruction": "Bring clearing back to 0.20 s but drop H to 1.5 s (a small machine, or a converter-interfaced source acting like one). With less inertia, the angle accelerates faster during the fault. The system that was stable at H = 4 may now go unstable.",
+        "hint": "Inertia is becoming scarce on systems with high renewables penetration — synthetic inertia from wind/PV converters and grid-forming converters are the modern responses."
+      },
+      {
+        "instruction": "Reset, then increase D (damping) from 0 to 3. The post-fault oscillations damp out far faster. Damping comes physically from amortisseur windings and PSS (power system stabilizers). Without it, even a stable case rings on for many seconds.",
+        "hint": "PSS = Power System Stabilizer, an additional control loop that injects a damping signal into the AVR. Standard kit on transmission-connected synchronous machines."
+      },
+      {
+        "instruction": "Push Pm up to 0.95 pu (heavy loading). The pre-fault δ₀ is now near 70°, leaving very little deceleration area on the post-fault P-δ curve. Even short faults can de-stabilise a heavily-loaded machine — this is the operating-point dependence of stability.",
+        "hint": "This is also why operators de-load critical machines when storms or system disturbances are forecast — they're trading economic dispatch for stability margin."
+      }
+    ]
+  },
+  "relatedConcepts": [
+    { "id": "swing-equation", "trackSlug": "advanced-power-system-analysis", "topicId": "transient-stability", "label": "Transient Stability" }
+  ]
+}

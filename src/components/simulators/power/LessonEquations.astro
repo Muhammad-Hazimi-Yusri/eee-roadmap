@@ -1,0 +1,76 @@
+---
+// LessonEquations.astro
+// Renders a list of KaTeX equations alongside the simulator.
+// Uses server-side KaTeX for static, no-JS rendering.
+
+import katex from 'katex';
+
+interface Eqn { label?: string; tex: string }
+interface Props { equations: Eqn[] }
+
+const { equations } = Astro.props as Props;
+
+function render(tex: string, displayMode = true): string {
+  try {
+    return katex.renderToString(tex, {
+      throwOnError: false,
+      displayMode,
+      output: 'html',
+    });
+  } catch {
+    return `<code>${tex}</code>`;
+  }
+}
+---
+
+<aside class="lesson-equations">
+  <p class="lesson-equations__title">// key equations</p>
+  {equations.map(eq => (
+    <div class="lesson-equations__item">
+      {eq.label && <p class="lesson-equations__label">{eq.label}</p>}
+      <div class="lesson-equations__tex" set:html={render(eq.tex)} />
+    </div>
+  ))}
+</aside>
+
+<style>
+  .lesson-equations {
+    margin-top: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    background: var(--color-bg);
+    font-family: var(--font-mono);
+  }
+
+  .lesson-equations__title {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.75rem;
+  }
+
+  .lesson-equations__item + .lesson-equations__item {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px dashed var(--color-border);
+  }
+
+  .lesson-equations__label {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin: 0 0 0.4rem;
+  }
+
+  .lesson-equations__tex {
+    overflow-x: auto;
+    font-size: 0.95rem;
+    color: var(--color-text);
+  }
+
+  /* Make KaTeX inherit dark/light theme */
+  :global(.lesson-equations .katex) {
+    color: var(--color-text);
+  }
+</style>

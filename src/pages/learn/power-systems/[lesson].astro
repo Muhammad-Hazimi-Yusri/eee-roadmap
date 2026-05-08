@@ -8,17 +8,25 @@ import TutorialStepper from '../../../components/simulators/circuit/TutorialStep
 import PowerFlowSimulator from '../../../components/simulators/power/PowerFlowSimulator';
 import ConvergenceChart from '../../../components/simulators/power/ConvergenceChart';
 import PerUnitConverter from '../../../components/simulators/power/PerUnitConverter';
+import HarmonicsAnalyzer from '../../../components/simulators/power/HarmonicsAnalyzer';
+import ProtectionCoordination from '../../../components/simulators/power/ProtectionCoordination';
+import SwingDynamics from '../../../components/simulators/power/SwingDynamics';
+import LessonEquations from '../../../components/simulators/power/LessonEquations.astro';
 import { internalHref } from '../../../utils/url';
 import type { LessonBase } from '../../../lib/learn/types';
 import type { PowerNetwork } from '../../../lib/power/types';
 
+interface PowerLesson extends LessonBase {
+  /** Optional KaTeX equations rendered next to the simulator. */
+  equations?: { label?: string; tex: string }[];
+}
+
 export async function getStaticPaths() {
-  const lessonModules = import.meta.glob<LessonBase>(
+  const lessonModules = import.meta.glob<PowerLesson>(
     '../../../data/power-systems/*.json',
     { eager: true }
   );
 
-  // Load all network JSON files eagerly at build time
   const networkModules = import.meta.glob<PowerNetwork>(
     '../../../data/power-networks/**/*.json',
     { eager: true }
@@ -28,7 +36,6 @@ export async function getStaticPaths() {
     const sp = lesson.simulatorProps as Record<string, unknown>;
     const networkId = sp['networkId'] as string | undefined;
 
-    // Match network by its id field (not filename)
     const network = networkId
       ? (Object.values(networkModules).find((n: unknown) => (n as PowerNetwork).id === networkId) as PowerNetwork | undefined)
       : undefined;
@@ -41,32 +48,41 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  lesson: LessonBase;
+  lesson: PowerLesson;
   network: PowerNetwork | null;
 }
 
 const { lesson, network } = Astro.props;
 const sp = lesson.simulatorProps as Record<string, unknown>;
 const faultBus = sp['faultBus'] as number | undefined;
+
+// Simulators that require a network — surface a friendly error if missing.
+const networkSimulators = ['power-flow', 'fault-analysis', 'algorithm-comparison', 'contingency'];
+const needsNetwork = networkSimulators.includes(lesson.simulator);
+const networkMissing = needsNetwork && !network;
+
+const knownSimulators = [
+  'power-flow', 'fault-analysis', 'algorithm-comparison', 'contingency',
+  'per-unit', 'harmonics', 'protection', 'swing-dynamics',
+];
+const unknownSimulator = !knownSimulators.includes(lesson.simulator);
 ---
 
 <Layout
   title={lesson.title}
   description={lesson.description}
-  needsKatex={false}
+  needsKatex={true}
 >
   <Header />
   <main id="main-content">
     <div class="container py-16">
 
-      <!-- Breadcrumb -->
       <nav class="lesson-breadcrumb" aria-label="Breadcrumb">
         <a href={internalHref('learn/power-systems')}>Power Systems Lessons</a>
         <span aria-hidden="true"> / </span>
         <span>{lesson.title}</span>
       </nav>
 
-      <!-- Header -->
       <div class="lesson-header">
         <div class="lesson-header__meta">
           <span class={`lesson-badge lesson-badge--${lesson.difficulty}`}>
@@ -78,15 +94,24 @@ const faultBus = sp['faultBus'] as number | undefined;
         <p class="lesson-desc">{lesson.description}</p>
       </div>
 
-      <!-- Main content -->
       <div class="lesson-layout">
 
-        <!-- Simulator column -->
         <div class="lesson-simulator">
-          {lesson.simulator === 'power-flow' && network && (
+          {networkMissing && (
+            <div class="simulator-error">
+              <strong>Network not found.</strong>
+              <p>
+                This lesson references network id <code>{sp['networkId']}</code>,
+                but no matching network JSON was found in
+                <code>src/data/power-networks/</code>.
+              </p>
+            </div>
+          )}
+
+          {!networkMissing && lesson.simulator === 'power-flow' && network && (
             <PowerFlowSimulator network={network} client:visible />
           )}
-          {lesson.simulator === 'fault-analysis' && network && (
+          {!networkMissing && lesson.simulator === 'fault-analysis' && network && (
             <PowerFlowSimulator
               network={network}
               mode="fault"
@@ -94,30 +119,48 @@ const faultBus = sp['faultBus'] as number | undefined;
               client:visible
             />
           )}
-          {lesson.simulator === 'algorithm-comparison' && network && (
+          {!networkMissing && lesson.simulator === 'contingency' && network && (
+            <PowerFlowSimulator
+              network={network}
+              mode="contingency"
+              client:visible
+            />
+          )}
+          {!networkMissing && lesson.simulator === 'algorithm-comparison' && network && (
             <ConvergenceChart network={network} client:visible />
           )}
           {lesson.simulator === 'per-unit' && (
             <PerUnitConverter client:idle />
           )}
-          {!['power-flow','fault-analysis','algorithm-comparison','per-unit'].includes(lesson.simulator) && (
-            <div class="simulator-placeholder">
-              <span>Simulator: <code>{lesson.simulator}</code></span>
+          {lesson.simulator === 'harmonics' && (
+            <HarmonicsAnalyzer client:visible />
+          )}
+          {lesson.simulator === 'protection' && (
+            <ProtectionCoordination client:visible />
+          )}
+          {lesson.simulator === 'swing-dynamics' && (
+            <SwingDynamics client:visible />
+          )}
+          {unknownSimulator && (
+            <div class="simulator-error">
+              <strong>Unknown simulator type:</strong> <code>{lesson.simulator}</code>
+              <p>This lesson is misconfigured. Add the simulator to the lesson page or fix <code>{lesson.id}.json</code>.</p>
             </div>
           )}
         </div>
 
-        <!-- Tutorial column -->
         <div class="lesson-tutorial">
           <TutorialStepper
             steps={lesson.tutorial.steps}
             lessonId={lesson.id}
           />
+          {lesson.equations && lesson.equations.length > 0 && (
+            <LessonEquations equations={lesson.equations} />
+          )}
         </div>
 
       </div>
 
-      <!-- Related roadmap topics -->
       {lesson.relatedConcepts && lesson.relatedConcepts.length > 0 && (
         <div class="related-concepts">
           <span class="related-concepts__label">Related roadmap topics:</span>
@@ -132,7 +175,6 @@ const faultBus = sp['faultBus'] as number | undefined;
         </div>
       )}
 
-      <!-- Footer nav -->
       <div class="lesson-footer-nav">
         <a href={internalHref('learn/power-systems')} class="btn">
           ← All power systems lessons
@@ -252,13 +294,32 @@ const faultBus = sp['faultBus'] as number | undefined;
     margin-top: 2.5rem;
   }
 
-  .simulator-placeholder {
-    padding: 2rem;
-    border: 1px dashed var(--color-border);
-    border-radius: 4px;
-    color: var(--color-text-muted);
+  .simulator-error {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid #ef4444;
+    border-radius: 6px;
+    background: rgb(239 68 68 / 6%);
     font-family: var(--font-mono);
-    font-size: 0.82rem;
-    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-text);
+  }
+
+  .simulator-error strong {
+    color: #ef4444;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .simulator-error p {
+    color: var(--color-text-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .simulator-error code {
+    background: var(--color-bg-grid);
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    font-size: 0.78rem;
   }
 </style>

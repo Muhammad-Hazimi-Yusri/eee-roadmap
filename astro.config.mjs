@@ -26,4 +26,11 @@ export default defineConfig({
   prefetch: {
     defaultStrategy: 'viewport',
   },
+  redirects: {
+    '/learn/circuits':       '/labs/#circuits',
+    '/learn/pcb':            '/labs/#pcb',
+    '/learn/digital':        '/labs/#digital',
+    '/learn/semiconductor':  '/labs/#semiconductor',
+    '/learn/power-systems':  '/labs/#power-systems',
+  },
 });

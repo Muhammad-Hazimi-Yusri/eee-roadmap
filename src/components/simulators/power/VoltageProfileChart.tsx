@@ -1,5 +1,5 @@
-// VoltageProfileChart.tsx — SVG bar chart showing per-bus voltage magnitudes.
-// No chart library — pure React SVG.
+// VoltageProfileChart.tsx — SVG bar chart with hover tooltips.
+import { useState } from 'react';
 import type { BusResult, Bus } from '../../../lib/power/types.js';
 
 interface Props {
@@ -26,7 +26,15 @@ function voltColor(v: number): string {
   return '#22c55e';
 }
 
-export default function VoltageProfileChart({ buses, results, baseMVA: _baseMVA }: Props) {
+interface HoverState {
+  busId: number;
+  x: number;
+  y: number;
+}
+
+export default function VoltageProfileChart({ buses, results, baseMVA }: Props) {
+  const [hover, setHover] = useState<HoverState | null>(null);
+
   if (!results.length) return null;
 
   const plotW = CHART_W - PAD_LEFT - PAD_RIGHT;
@@ -40,17 +48,17 @@ export default function VoltageProfileChart({ buses, results, baseMVA: _baseMVA 
   const xForIdx = (i: number) =>
     PAD_LEFT + (i + 0.5) * (plotW / n);
 
-  // Y-axis ticks
   const ticks = [0.90, 0.95, 1.00, 1.05, 1.10];
-
-  // Limit lines
   const yLo = yScale(LIM_LO);
   const yHi = yScale(LIM_HI);
 
+  const hoveredResult = hover ? results.find(r => r.busId === hover.busId) : null;
+  const hoveredBus    = hover ? buses.find(b => b.id === hover.busId) : null;
+
   return (
-    <div style={{ fontFamily: 'var(--font-mono)' }}>
+    <div style={{ fontFamily: 'var(--font-mono)', position: 'relative' }}>
       <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: 4 }}>
-        Voltage Profile (pu)
+        Voltage Profile (pu) — hover bars for detail
       </div>
       <svg
         width={CHART_W}
@@ -58,7 +66,6 @@ export default function VoltageProfileChart({ buses, results, baseMVA: _baseMVA 
         style={{ display: 'block', maxWidth: '100%', overflow: 'visible' }}
         viewBox={`0 0 ${CHART_W} ${CHART_H}`}
       >
-        {/* Limit bands */}
         <rect
           x={PAD_LEFT} y={PAD_TOP}
           width={plotW} height={Math.max(0, yLo - PAD_TOP)}
@@ -70,7 +77,6 @@ export default function VoltageProfileChart({ buses, results, baseMVA: _baseMVA 
           fill="#f9731620" stroke="none"
         />
 
-        {/* Limit lines */}
         <line x1={PAD_LEFT} x2={PAD_LEFT + plotW} y1={yLo} y2={yLo}
           stroke="#f97316" strokeWidth={1} strokeDasharray="4 2" />
         <line x1={PAD_LEFT} x2={PAD_LEFT + plotW} y1={yHi} y2={yHi}
@@ -80,7 +86,6 @@ export default function VoltageProfileChart({ buses, results, baseMVA: _baseMVA 
         <text x={PAD_LEFT + plotW + 2} y={yHi + 4} fontSize={8}
           fill="#f97316">1.05</text>
 
-        {/* Y-axis ticks and labels */}
         {ticks.map(v => {
           const y = yScale(v);
           return (
@@ -95,40 +100,49 @@ export default function VoltageProfileChart({ buses, results, baseMVA: _baseMVA 
           );
         })}
 
-        {/* Axes */}
         <line x1={PAD_LEFT} x2={PAD_LEFT} y1={PAD_TOP} y2={PAD_TOP + plotH}
           stroke="var(--color-border)" strokeWidth={1} />
         <line x1={PAD_LEFT} x2={PAD_LEFT + plotW} y1={PAD_TOP + plotH} y2={PAD_TOP + plotH}
           stroke="var(--color-border)" strokeWidth={1} />
 
-        {/* Bars */}
         {results.map((r, i) => {
           const cx = xForIdx(i);
           const barTop = yScale(Math.max(VMIN, Math.min(VMAX, r.Vmag)));
-          const barBot = yScale(1.0); // reference at 1.0 pu
+          const barBot = yScale(1.0);
           const barH = Math.abs(barBot - barTop);
           const color = voltColor(r.Vmag);
-          const busName = buses.find(b => b.id === r.busId)?.name ?? `Bus ${r.busId}`;
+          const isHover = hover?.busId === r.busId;
 
           return (
-            <g key={r.busId}>
+            <g
+              key={r.busId}
+              onMouseEnter={() => setHover({ busId: r.busId, x: cx, y: barTop })}
+              onMouseLeave={() => setHover(null)}
+              style={{ cursor: 'pointer' }}
+            >
               <rect
                 x={cx - barW / 2}
                 y={r.Vmag >= 1.0 ? barTop : barBot}
                 width={barW}
                 height={Math.max(1, barH)}
                 fill={color}
-                fillOpacity={0.8}
+                fillOpacity={isHover ? 1 : 0.8}
                 rx={2}
-              >
-                <title>{busName}: {r.Vmag.toFixed(4)} pu</title>
-              </rect>
-              {/* Bus ID label */}
+                stroke={isHover ? '#fff' : 'none'}
+                strokeWidth={isHover ? 1.5 : 0}
+              />
+              {/* Wider invisible hit target */}
+              <rect
+                x={cx - plotW / n / 2}
+                y={PAD_TOP}
+                width={plotW / n}
+                height={plotH}
+                fill="transparent"
+              />
               <text x={cx} y={PAD_TOP + plotH + 14} textAnchor="middle"
                 fontSize={8} fill="var(--color-text-muted)">
                 {r.busId}
               </text>
-              {/* Value label on bar */}
               {barW > 14 && (
                 <text
                   x={cx}
@@ -144,18 +158,52 @@ export default function VoltageProfileChart({ buses, results, baseMVA: _baseMVA 
           );
         })}
 
-        {/* 1.0 pu reference line */}
         <line x1={PAD_LEFT} x2={PAD_LEFT + plotW} y1={yScale(1.0)} y2={yScale(1.0)}
           stroke="var(--color-text-muted)" strokeWidth={1} strokeDasharray="2 2" />
         <text x={PAD_LEFT - 6} y={yScale(1.0) + 4} textAnchor="end"
           fontSize={9} fontWeight="600" fill="var(--color-text-muted)">1.00</text>
 
-        {/* X-axis label */}
         <text x={PAD_LEFT + plotW / 2} y={CHART_H} textAnchor="middle"
           fontSize={9} fill="var(--color-text-muted)">Bus number</text>
       </svg>
 
-      {/* Legend */}
+      {/* Floating tooltip */}
+      {hover && hoveredResult && hoveredBus && (
+        <div
+          role="tooltip"
+          style={{
+            position: 'absolute',
+            left: `min(${(hover.x / CHART_W) * 100}%, calc(100% - 180px))`,
+            top: `${(hover.y / CHART_H) * 100}%`,
+            transform: 'translate(-50%, calc(-100% - 8px))',
+            background: 'var(--color-bg)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 4,
+            padding: '6px 10px',
+            fontSize: '0.72rem',
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            zIndex: 5,
+          }}
+        >
+          <div style={{ fontWeight: 600, marginBottom: 3 }}>
+            {hoveredBus.name} <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>
+              ({hoveredBus.type})
+            </span>
+          </div>
+          <div style={{ color: voltColor(hoveredResult.Vmag) }}>
+            |V| = {hoveredResult.Vmag.toFixed(4)} pu  ({(hoveredResult.Vmag * hoveredBus.baseKV).toFixed(2)} kV)
+          </div>
+          <div style={{ color: 'var(--color-text-muted)' }}>
+            θ = {(hoveredResult.theta * 180 / Math.PI).toFixed(2)}°
+          </div>
+          <div style={{ color: 'var(--color-text-muted)' }}>
+            P = {(hoveredResult.Pinj * baseMVA).toFixed(1)} MW · Q = {(hoveredResult.Qinj * baseMVA).toFixed(1)} MVAr
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', gap: 12, fontSize: '0.7rem', color: 'var(--color-text-muted)', marginTop: 4 }}>
         <span><span style={{ color: '#22c55e' }}>■</span> Normal (0.95–1.05 pu)</span>
         <span><span style={{ color: '#f97316' }}>■</span> Warning (±10%)</span>

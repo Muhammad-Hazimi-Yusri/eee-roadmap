@@ -1,0 +1,254 @@
+---
+// src/pages/toolkit/[recipe].astro — individual recipe page.
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import RecipeCodeBlock from '../../components/toolkit/RecipeCodeBlock.astro';
+import { internalHref } from '../../utils/url';
+import type { Recipe } from '../../lib/toolkit/types';
+
+export async function getStaticPaths() {
+  const modules = import.meta.glob<Recipe>('../../data/toolkit/*.json', { eager: true });
+  return Object.values(modules).map(r => ({
+    params: { recipe: r.id },
+    props: { recipe: r },
+  }));
+}
+
+interface Props { recipe: Recipe }
+const { recipe } = Astro.props;
+---
+
+<Layout title={recipe.title} description={recipe.description}>
+  <Header />
+  <main id="main-content">
+    <div class="container py-16">
+
+      <nav class="lesson-breadcrumb" aria-label="Breadcrumb">
+        <a href={internalHref('toolkit')}>Toolkit</a>
+        <span aria-hidden="true"> / </span>
+        <span>{recipe.title}</span>
+      </nav>
+
+      <div class="recipe-header">
+        <div class="recipe-header__meta">
+          <span class={`badge badge--${recipe.difficulty}`}>{recipe.difficulty}</span>
+          <span class="badge badge--lang">{recipe.language}</span>
+          <span class="badge badge--cat">{recipe.category}</span>
+        </div>
+        <h1 class="recipe-title">{recipe.title}</h1>
+        <p class="recipe-desc">{recipe.description}</p>
+      </div>
+
+      {recipe.deps && recipe.deps.length > 0 && (
+        <div class="recipe-deps">
+          <span class="recipe-deps__label">deps:</span>
+          {recipe.deps.map(d => (<code class="recipe-deps__pkg">{d}</code>))}
+        </div>
+      )}
+
+      <article class="recipe-body">
+        {recipe.blocks.map(block => {
+          if (block.type === 'prose') {
+            return <p class="recipe-prose">{block.text}</p>;
+          }
+          if (block.type === 'note') {
+            const kind = block.kind ?? 'tip';
+            return (
+              <aside class={`recipe-note recipe-note--${kind}`}>
+                <span class="recipe-note__label">{kind}</span>
+                <span>{block.text}</span>
+              </aside>
+            );
+          }
+          // code
+          return <RecipeCodeBlock language={block.language} filename={block.filename} text={block.text} />;
+        })}
+      </article>
+
+      {recipe.relatedLabs && recipe.relatedLabs.length > 0 && (
+        <div class="related-concepts">
+          <span class="related-concepts__label">Related labs:</span>
+          {recipe.relatedLabs.map(rl => (
+            <a href={internalHref(`learn/power-systems/${rl.id}`)} class="related-concepts__link">
+              {rl.label}
+            </a>
+          ))}
+        </div>
+      )}
+
+      <div class="recipe-footer-nav">
+        <a href={internalHref('toolkit')} class="btn">← All toolkit recipes</a>
+      </div>
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .lesson-breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .lesson-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .lesson-breadcrumb a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .recipe-header { margin-bottom: 2rem; }
+
+  .recipe-header__meta {
+    display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+  }
+  .badge--beginner     { background: color-mix(in srgb, var(--color-pcb) 15%, transparent); color: var(--color-pcb-light); }
+  .badge--intermediate { background: color-mix(in srgb, var(--color-copper) 15%, transparent); color: var(--color-copper); }
+  .badge--advanced     { background: color-mix(in srgb, #2563eb 15%, transparent); color: #60a5fa; }
+  .badge--lang         { background: var(--color-bg-grid); color: var(--color-copper, #c87533); border: 1px solid var(--color-border); }
+  .badge--cat          { background: var(--color-bg-grid); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+
+  .recipe-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  .recipe-desc {
+    color: var(--color-text-muted);
+    max-width: 64ch;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .recipe-deps {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .recipe-deps__label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+  }
+
+  .recipe-deps__pkg {
+    background: var(--color-bg-grid);
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    color: var(--color-text);
+    font-size: 0.78rem;
+  }
+
+  .recipe-body {
+    max-width: 80ch;
+    line-height: 1.65;
+  }
+
+  .recipe-prose {
+    font-size: 0.92rem;
+    color: var(--color-text);
+    margin: 0 0 1rem;
+  }
+
+  .recipe-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    border-radius: 4px;
+    border-left: 3px solid;
+    margin: 0.75rem 0 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+
+  .recipe-note__label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+    margin-top: 0.18rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: 2px;
+  }
+
+  .recipe-note--tip {
+    background: rgb(34 197 94 / 6%);
+    border-color: #22c55e;
+  }
+
+  .recipe-note--tip .recipe-note__label {
+    background: rgb(34 197 94 / 18%); color: #22c55e;
+  }
+
+  .recipe-note--warn {
+    background: rgb(249 115 22 / 6%);
+    border-color: #f97316;
+  }
+
+  .recipe-note--warn .recipe-note__label {
+    background: rgb(249 115 22 / 18%); color: #f97316;
+  }
+
+  .recipe-note--gotcha {
+    background: rgb(239 68 68 / 5%);
+    border-color: #ef4444;
+  }
+
+  .recipe-note--gotcha .recipe-note__label {
+    background: rgb(239 68 68 / 16%); color: #ef4444;
+  }
+
+  .related-concepts {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+  }
+
+  .related-concepts__label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+  }
+
+  .related-concepts__link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--color-copper, #c87533);
+    border-radius: 3px;
+    color: var(--color-copper, #c87533);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .related-concepts__link:hover {
+    background: var(--color-copper, #c87533);
+    color: #fff;
+  }
+
+  .recipe-footer-nav { margin-top: 2.5rem; }
+</style>

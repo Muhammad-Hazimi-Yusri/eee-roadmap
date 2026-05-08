@@ -1,32 +1,38 @@
 {
   "id": "fault-analysis",
-  "title": "3-Phase Fault Analysis",
+  "title": "Short-Circuit Fault Analysis",
   "domain": "power-systems",
   "difficulty": "advanced",
-  "description": "Calculate fault currents for a balanced three-phase short circuit using the Z-bus (impedance matrix) method. Understand the Thevenin equivalent, driving-point impedance, and how fault current varies with network topology.",
+  "description": "Calculate fault currents for the four main fault types — 3-phase, line-to-ground, line-to-line, and double line-to-ground — using the Z-bus / symmetrical-component method. Vary the fault impedance and Z₀/Z₁ ratio and watch the fault duty change.",
   "simulator": "fault-analysis",
   "simulatorProps": { "networkId": "simple-3bus", "faultBus": 3 },
+  "equations": [
+    { "label": "3-phase bolted",  "tex": "I_f = \\dfrac{V_0}{Z_1 + Z_f}" },
+    { "label": "Line-to-ground",  "tex": "I_a = \\dfrac{3\\,V_0}{Z_1 + Z_2 + Z_0 + 3 Z_f}" },
+    { "label": "Line-to-line",    "tex": "|I_b| = |I_c| = \\dfrac{\\sqrt{3}\\,V_0}{Z_1 + Z_2 + Z_f}" },
+    { "label": "Per-unit → kA", "tex": "I_{base} = \\dfrac{S_{base}}{\\sqrt{3}\\,V_{base}}" }
+  ],
   "tutorial": {
     "steps": [
       {
-        "instruction": "The Z-bus method for 3-phase fault analysis: (1) Build Y-bus from network data. (2) Invert to get Z-bus = Y⁻¹. (3) The driving-point impedance Z_kk is the Thevenin impedance seen from bus k. (4) Fault current I_f = V_prefault / Z_kk.",
-        "hint": "The Z_kk diagonal element represents the Thevenin equivalent impedance at bus k — this is what a fault 'sees' looking back into the network."
+        "instruction": "Run the simulator with the default 3-phase fault at Bus 3. The Z-bus method works in three steps: (1) build Y-bus, (2) Z-bus = Y⁻¹, (3) the diagonal Z_kk is the Thevenin (positive-sequence) impedance at bus k. Fault current is V₀ / Z_kk.",
+        "hint": "The Z_kk diagonal element represents the Thevenin equivalent impedance at bus k — what a fault 'sees' looking back into the network."
       },
       {
-        "instruction": "Click 'Run Power Flow' first to establish pre-fault voltages. Then click 'Apply Fault at Bus 3'. The simulator calculates Z_33 from the Z-bus and computes I_fault = V0 / Z_33. Observe the fault current in per-unit and in kA.",
-        "hint": "Converting pu fault current to kA: I_base = S_base / (√3 · V_base). For 100 MVA, 132 kV: I_base = 100 / (√3 × 132) = 0.4374 kA."
+        "instruction": "Switch the Type dropdown to 'Line-to-Ground (L-G)'. Compare the fault current to the 3-phase value. With Z₀/Z₁ ≈ 3 (typical), the L-G fault is often the highest-current fault on a transmission system. This sets the maximum interrupting duty for breakers.",
+        "hint": "I_a = 3V₀ / (Z₁ + Z₂ + Z₀ + 3Z_f). Raising the Z₀/Z₁ ratio reduces L-G fault current (a high-impedance neutral grounding does the same in practice)."
       },
       {
-        "instruction": "Compare fault current at Bus 3 vs Bus 2. The fault at Bus 2 (closer to the generators) will produce a higher fault current. A bus closer to large generation sources has a smaller Thevenin impedance (Z_kk) and therefore a larger fault current.",
-        "hint": "Low Thevenin impedance = strong bus = high fault current. This is why bus-bars near major power stations have the highest fault duty and require the most robust circuit breakers."
+        "instruction": "Switch to 'Line-to-Line (L-L)'. The L-L fault current is √3·V₀ / (Z₁ + Z₂) ≈ 0.87 of the 3-phase magnitude (since Z₂ ≈ Z₁). L-L faults are typically the lowest-magnitude phase fault but still need to be detectable by protection.",
+        "hint": "Phase A carries no fault current; the current circulates between phases B and C with magnitude √3·|I_a1|."
       },
       {
-        "instruction": "Observe the voltage profile during the fault. Bus 3 voltage collapses to 0 (bolted fault). Voltages at adjacent buses are depressed but non-zero — the voltage depression is larger for buses electrically closer to the fault. This voltage dip can trip protection relays.",
-        "hint": "In practice, protection engineers must ensure that voltage dips do not cause unwanted tripping (mal-operation) of distance relays on healthy circuits."
+        "instruction": "Increase Zf (arc resistance) to 0.05 pu. All four fault types reduce in magnitude. In real life, low-current arcing faults are harder to detect — this is why distance protection has 'reach' settings and why fault-passage indicators matter on rural networks.",
+        "hint": "Field studies show typical arc resistance of 1–10 Ω. On 132 kV with 100 MVA base, 1 Ω ≈ 0.0058 pu."
       },
       {
-        "instruction": "For protection coordination: the fault current at Bus 3 must exceed the relay pickup current at Bus 1 and Bus 2 feeders. The fault must be detectable but the relay settings must discriminate between fault and maximum load current. This fault-level calculation is the foundation of every protection study.",
-        "hint": "The minimum fault current (often single-phase-to-earth) sets the relay pickup. The maximum fault current (three-phase bolted) sets the circuit breaker interrupting duty."
+        "instruction": "Switch to Bus 2 and re-run. Bus 2 (closer to generation) has lower Thevenin impedance and therefore higher fault current. Use the 'Bus CSV' button to download the result for your study log. This is the same workflow you'd use to populate a fault-level table in IEC 60909.",
+        "hint": "Low Thevenin Z₁ = 'strong bus' = high fault current. Substations near major power stations have the highest fault duty and need the most robust circuit-breakers."
       }
     ]
   },

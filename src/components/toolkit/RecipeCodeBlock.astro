@@ -1,0 +1,116 @@
+---
+// RecipeCodeBlock.astro
+// Renders a code block with optional filename header and a copy button.
+// Pure HTML/CSS + a tiny client-side script for the copy action.
+
+interface Props {
+  language: string;
+  filename?: string;
+  text: string;
+}
+
+const { language, filename, text } = Astro.props;
+
+// Stable id for the copy script
+const blockId = `code-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<figure class="code-block">
+  <div class="code-block__head">
+    <span class="code-block__filename">
+      {filename ? filename : `${language} snippet`}
+    </span>
+    <button
+      class="code-block__copy"
+      data-target={blockId}
+      aria-label="Copy code to clipboard"
+    >Copy</button>
+  </div>
+  <pre class={`code-block__pre lang-${language}`}><code id={blockId}>{text}</code></pre>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.code-block__copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.dataset.target;
+      if (!targetId) return;
+      const code = document.getElementById(targetId)?.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(code);
+        const original = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        btn.classList.add('code-block__copy--ok');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('code-block__copy--ok');
+        }, 1400);
+      } catch {
+        btn.textContent = 'Copy failed';
+      }
+    });
+  });
+</script>
+
+<style>
+  .code-block {
+    margin: 1rem 0 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--color-bg-grid);
+  }
+
+  .code-block__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.75rem;
+    background: color-mix(in srgb, var(--color-text) 4%, transparent);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .code-block__filename {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+  }
+
+  .code-block__copy {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 0.15rem 0.55rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .code-block__copy:hover {
+    color: var(--color-copper, #c87533);
+    border-color: var(--color-copper, #c87533);
+  }
+
+  .code-block__copy--ok {
+    color: #22c55e;
+    border-color: #22c55e;
+  }
+
+  .code-block__pre {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    white-space: pre;
+  }
+
+  .code-block__pre code {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+  }
+</style>

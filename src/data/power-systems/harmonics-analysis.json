@@ -1,0 +1,43 @@
+{
+  "id": "harmonics-analysis",
+  "title": "Harmonic Analysis & G5/5 Compliance",
+  "domain": "power-systems",
+  "difficulty": "intermediate",
+  "description": "Synthesise a distorted waveform from individual harmonic components, run an FFT, and check the spectrum against ENA EREC G5/5 voltage planning limits — the standard a UK harmonic distortion study has to demonstrate compliance with.",
+  "simulator": "harmonics",
+  "simulatorProps": {},
+  "equations": [
+    { "label": "Total harmonic distortion (voltage)",
+      "tex": "\\text{THD}_v = \\dfrac{\\sqrt{\\sum_{h=2}^{H} V_h^2}}{V_1}\\times 100\\%" },
+    { "label": "Fourier reconstruction",
+      "tex": "v(t) = \\sum_{h=1}^{H} V_h \\cos(h\\,\\omega_0 t + \\varphi_h)" },
+    { "label": "G5/5 EHV total limit", "tex": "\\text{THD}_v \\le 3.0\\%" }
+  ],
+  "tutorial": {
+    "steps": [
+      {
+        "instruction": "Start with the 'Pure 50 Hz sinusoid' preset. The waveform is clean, the spectrum is empty above the fundamental, and THD = 0%. This is the goal of every PCC: deliver close-to-sinusoidal voltage to other connected customers.",
+        "hint": "PCC = Point of Common Coupling. The harmonic limits in G5/5 apply at the PCC, not deep inside the customer's installation."
+      },
+      {
+        "instruction": "Switch to '6-pulse VFD'. This is the canonical spectrum from a 6-pulse variable-speed drive — 5th, 7th, 11th, 13th, with magnitudes ≈ 1/h. Watch the waveform develop notches and shoulders, and the THD jumps to ~25%. Several individual harmonics already breach the orange G5/5 markers.",
+        "hint": "Real 6-pulse drive harmonics = 6k ± 1 (5, 7, 11, 13, 17, 19, ...). The 1/h amplitude rule is an idealised lower bound — actual drives can be worse, especially on partial load."
+      },
+      {
+        "instruction": "Manually pull h5 down to 2% and h7 to 1.5%. Most other orders also need attenuation. This is what a 5/7 harmonic filter (or a 12-pulse rectifier replacing the 6-pulse) physically does to your spectrum. Note how rapidly the THD falls when the dominant harmonics are dealt with first.",
+        "hint": "5th-harmonic filters are typically tuned slightly below 5·50 = 250 Hz (e.g. 245 Hz) so they don't shift into a parallel resonance under detuning."
+      },
+      {
+        "instruction": "Try the 'Square wave' preset. Odd-only harmonics with amplitudes 1/h give the classic square wave reconstruction. THD = 48.3% (the well-known theoretical value). This is what a switching-mode load looks like if it has zero filtering.",
+        "hint": "Even harmonics are absent because the waveform has half-wave symmetry: f(t + T/2) = −f(t). Real loads with DC offset (like single-phase rectifiers) do introduce even harmonics."
+      },
+      {
+        "instruction": "Use the Spectrum CSV button to download a per-harmonic table including the G5/5 limit and pass/fail flag. This is the table you'd paste into a connection-study Word report under 'Harmonic compliance assessment'.",
+        "hint": "Real studies also need background distortion levels (typically ~1.5% THDv before your customer connects) and an emission allocation per IEC 61000-3-6. This lab covers Stage 1 / Stage 2 only."
+      }
+    ]
+  },
+  "relatedConcepts": [
+    { "id": "harmonics", "trackSlug": "advanced-power-system-analysis", "topicId": "harmonics-analysis", "label": "Harmonic Analysis" }
+  ]
+}
