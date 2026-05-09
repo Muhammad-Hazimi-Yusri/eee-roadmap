@@ -6,12 +6,46 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import ToolDropzone from '../ToolDropzone';
 import OutputPanel, { type ToolOutput } from '../OutputPanel';
+import ExampleLoader from '../ExampleLoader';
 
 interface ParsedTable {
   headers: string[];
   rows: Record<string, unknown>[];
   errors: string[];
 }
+
+const EXAMPLES: { label: string; description: string; filename: string; csv: string }[] = [
+  {
+    label: 'PowerFactory bus dump',
+    description: 'Wide solver export with blank trailing rows — the classic case this tool was built for.',
+    filename: 'powerfactory-buses.csv',
+    csv: `BusID,Bus_Name,Voltage_pu,Voltage_kV,Angle_deg,P_load_MW,Q_load_MVAr,P_gen_MW,Q_gen_MVAr
+1,GSP_132,1.024500,135.234,0.000,0.000,0.000,80.000,15.234
+2,Anvil_132,1.011200,133.479,-2.341,0.000,0.000,0.000,0.000
+3,Anvil_33,0.992100,32.739,-3.875,55.000,12.500,0.000,0.000
+4,WTG1_33,0.985200,32.512,-4.213,0.000,0.000,30.000,5.872
+5,WTG2_33,0.984100,32.475,-4.298,0.000,0.000,30.000,5.812
+,,,,,,,,
+6,Beacon_132,1.005400,132.713,-1.892,0.000,0.000,0.000,0.000
+7,Beacon_33,0.978500,32.291,-3.124,42.000,9.800,0.000,0.000
+,,,,,,,,
+,,,,,,,,`,
+  },
+  {
+    label: 'Line flows',
+    description: 'Branch results with three numeric columns and a couple of blank separator rows.',
+    filename: 'line-flows.csv',
+    csv: `From,To,Circuit,P_MW,Q_MVAr,Loading_pct
+GSP,Anvil,1,80.234,15.871,42.500
+GSP,Beacon,1,42.119,9.231,28.300
+Anvil,WTG1,1,-30.012,-5.892,18.700
+Anvil,WTG2,1,-30.008,-5.871,18.700
+,,,,,
+Beacon,T1_LV,1,42.000,9.800,67.200
+Beacon,T2_LV,1,0.000,0.000,0.000
+,,,,,`,
+  },
+];
 
 export default function PFCsvCleaner() {
   const [files, setFiles] = useState<Record<string, File | undefined>>({});
@@ -40,6 +74,14 @@ export default function PFCsvCleaner() {
     });
     setIncludeColumns(Object.fromEntries(headers.map(h => [h, true])));
   }, [file]);
+
+  const loadExample = useCallback((ex: typeof EXAMPLES[number]) => {
+    const f = new File([ex.csv], ex.filename, { type: 'text/csv' });
+    setFiles({ csv: f });
+    setParsed(null);
+    setOutputs([]);
+    setError(null);
+  }, []);
 
   const cleanedRows = useMemo(() => {
     if (!parsed) return [];
@@ -93,6 +135,14 @@ export default function PFCsvCleaner() {
 
   return (
     <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>
+      <ExampleLoader
+        examples={EXAMPLES.map(ex => ({
+          label: ex.label,
+          description: ex.description,
+          onLoad: () => loadExample(ex),
+        }))}
+      />
+
       <ToolDropzone
         slots={[{
           name: 'csv', accept: '.csv,text/csv', required: true,

@@ -8,8 +8,59 @@ import {
 } from '../../../lib/power/harmonics';
 import ToolDropzone from '../ToolDropzone';
 import OutputPanel, { type ToolOutput } from '../OutputPanel';
+import ExampleLoader from '../ExampleLoader';
 
 const FUNDAMENTAL_HZ = 50;
+
+interface HarmonicExample {
+  label: string;
+  description: string;
+  filename: string;
+  /** Harmonic content as { order: amplitude_pu_of_fundamental }. Order 1 implied 1.0. */
+  harmonics: Record<number, number>;
+}
+
+const EXAMPLES: HarmonicExample[] = [
+  {
+    label: 'Clean 50 Hz sine',
+    description: 'Pure fundamental — THD ≈ 0%, every harmonic bar should be near zero.',
+    filename: 'clean-sine.csv',
+    harmonics: {},
+  },
+  {
+    label: 'Compliant: 5th + 7th',
+    description: 'Mild distortion — 5th and 7th below G5/5 limits, all bars stay blue.',
+    filename: 'compliant-spectrum.csv',
+    harmonics: { 5: 0.018, 7: 0.012, 11: 0.008, 13: 0.006 },
+  },
+  {
+    label: 'Breach: 6-pulse rectifier',
+    description: '5th and 7th well above G5/5 limits — bars turn red, THD breaches 3%.',
+    filename: 'rectifier-distortion.csv',
+    harmonics: { 5: 0.045, 7: 0.030, 11: 0.020, 13: 0.014, 17: 0.010, 19: 0.008 },
+  },
+];
+
+/** Generate a 4-cycle 50 Hz waveform (256 samples → fs = 12 800 Hz) with the
+ *  given harmonic content, returned as a Time,Voltage CSV. */
+function buildWaveformCsv(harmonics: Record<number, number>): string {
+  const cycles = 4;
+  const samplesPerCycle = 256;
+  const N = cycles * samplesPerCycle;
+  const T = cycles / FUNDAMENTAL_HZ; // total duration, seconds
+  const dt = T / N;
+  const lines: string[] = ['Time_s,Voltage_pu'];
+  for (let i = 0; i < N; i++) {
+    const t = i * dt;
+    let v = Math.sin(2 * Math.PI * FUNDAMENTAL_HZ * t);
+    for (const [orderStr, amp] of Object.entries(harmonics)) {
+      const order = Number(orderStr);
+      v += amp * Math.sin(2 * Math.PI * FUNDAMENTAL_HZ * order * t);
+    }
+    lines.push(`${t.toFixed(7)},${v.toFixed(6)}`);
+  }
+  return lines.join('\n');
+}
 
 interface ParsedSamples {
   samples: number[];
@@ -27,6 +78,18 @@ export default function HarmonicFFT() {
   const [outputs, setOutputs] = useState<ToolOutput[]>([]);
 
   const file = files['waveform'];
+
+  const loadExample = useCallback((ex: HarmonicExample) => {
+    const csv = buildWaveformCsv(ex.harmonics);
+    const f = new File([csv], ex.filename, { type: 'text/csv' });
+    setFiles({ waveform: f });
+    setRawRows(null);
+    setColumns([]);
+    setValueColumn('');
+    setTimeColumn('');
+    setOutputs([]);
+    setError(null);
+  }, []);
 
   const parseFile = useCallback(async () => {
     if (!file) return;
@@ -103,6 +166,14 @@ export default function HarmonicFFT() {
 
   return (
     <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>
+      <ExampleLoader
+        examples={EXAMPLES.map(ex => ({
+          label: ex.label,
+          description: ex.description,
+          onLoad: () => loadExample(ex),
+        }))}
+      />
+
       <ToolDropzone
         slots={[{
           name: 'waveform', accept: '.csv', required: true,

@@ -5,8 +5,61 @@ import { useCallback, useState } from 'react';
 import Papa from 'papaparse';
 import ToolDropzone from '../ToolDropzone';
 import OutputPanel, { type ToolOutput } from '../OutputPanel';
+import ExampleLoader from '../ExampleLoader';
 
 interface MappingRow { original: string; anonymised: string }
+
+interface AnonymiserExample {
+  label: string;
+  description: string;
+  filename: string;
+  mime: string;
+  prefix: string;
+  includeFields: string;
+  text: string;
+}
+
+const EXAMPLES: AnonymiserExample[] = [
+  {
+    label: 'Power-network JSON',
+    description: 'Nested JSON with busName/station fields — every name becomes B01, B02, …',
+    filename: 'anvil-network.json',
+    mime: 'application/json',
+    prefix: 'B',
+    includeFields: 'name, busName, BusName, station, site, busbar',
+    text: `{
+  "network": "Anvil Wind Farm 132 kV",
+  "buses": [
+    { "id": 1, "busName": "Anvil GSP",       "voltage_kV": 132, "station": "Manchester East" },
+    { "id": 2, "busName": "Anvil PCC",       "voltage_kV": 132, "station": "Anvil Site" },
+    { "id": 3, "busName": "Anvil 33kV Ring", "voltage_kV":  33, "station": "Anvil Site" },
+    { "id": 4, "busName": "WTG-1",           "voltage_kV":  33, "station": "Anvil Site" },
+    { "id": 5, "busName": "WTG-2",           "voltage_kV":  33, "station": "Anvil Site" }
+  ],
+  "lines": [
+    { "from": "Anvil GSP", "to": "Anvil PCC",      "circuit": 1 },
+    { "from": "Anvil PCC", "to": "Anvil 33kV Ring", "circuit": 1 },
+    { "from": "Anvil 33kV Ring", "to": "WTG-1",     "circuit": 1 },
+    { "from": "Anvil 33kV Ring", "to": "WTG-2",     "circuit": 1 }
+  ]
+}`,
+  },
+  {
+    label: 'Bus list CSV',
+    description: 'Wide CSV with a BusName column — every value gets remapped to S01, S02, …',
+    filename: 'beacon-buses.csv',
+    mime: 'text/csv',
+    prefix: 'S',
+    includeFields: 'BusName, station',
+    text: `BusName,station,voltage_kV,Vmag_pu
+Beacon GSP,Beacon Substation,132,1.012
+Beacon 33,Beacon Substation,33,0.985
+Beacon BESS,Beacon Site,33,0.974
+Customer A,Customer A Site,33,0.992
+Customer B,Customer B Site,33,0.988
+Customer C,Customer C Site,11,1.001`,
+  },
+];
 
 export default function NetworkAnonymiser() {
   const [files, setFiles] = useState<Record<string, File | undefined>>({});
@@ -16,6 +69,15 @@ export default function NetworkAnonymiser() {
   const [outputs, setOutputs] = useState<ToolOutput[]>([]);
 
   const file = files['source'];
+
+  const loadExample = useCallback((ex: AnonymiserExample) => {
+    const f = new File([ex.text], ex.filename, { type: ex.mime });
+    setFiles({ source: f });
+    setPrefix(ex.prefix);
+    setIncludeFields(ex.includeFields);
+    setOutputs([]);
+    setError(null);
+  }, []);
 
   const run = useCallback(async () => {
     if (!file) return;
@@ -103,6 +165,14 @@ export default function NetworkAnonymiser() {
 
   return (
     <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>
+      <ExampleLoader
+        examples={EXAMPLES.map(ex => ({
+          label: ex.label,
+          description: ex.description,
+          onLoad: () => loadExample(ex),
+        }))}
+      />
+
       <ToolDropzone
         slots={[{
           name: 'source', accept: '.json,.csv', required: true,

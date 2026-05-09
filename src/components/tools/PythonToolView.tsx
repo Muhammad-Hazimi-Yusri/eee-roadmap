@@ -1,7 +1,7 @@
 // PythonToolView.tsx — runs a PythonTool: dropzone + params + Pyodide runner + outputs.
 
 import { useEffect, useState, useCallback } from 'react';
-import type { PythonTool } from '../../lib/tools/types';
+import type { PythonTool, PythonToolExample } from '../../lib/tools/types';
 import {
   runPythonTool, subscribeStatus,
   type PyodideStatus,
@@ -9,6 +9,7 @@ import {
 import ToolDropzone from './ToolDropzone';
 import ParamForm from './ParamForm';
 import OutputPanel, { type ToolOutput } from './OutputPanel';
+import ExampleLoader from './ExampleLoader';
 
 interface Props {
   tool: PythonTool;
@@ -32,6 +33,18 @@ export default function PythonToolView({ tool }: Props) {
   useEffect(() => {
     subscribeStatus(setPyStatus);
     return () => subscribeStatus(null);
+  }, []);
+
+  const loadExample = useCallback((ex: PythonToolExample) => {
+    const next: Record<string, File | undefined> = {};
+    for (const [name, content] of Object.entries(ex.files)) {
+      next[name] = new File([content], name, { type: 'text/plain' });
+    }
+    setFiles(next);
+    if (ex.params) setParams(p => ({ ...p, ...ex.params }));
+    setOutputs([]);
+    setStdout('');
+    setRunState({ kind: 'idle' });
   }, []);
 
   const requiredOk = tool.inputs.every(i => !i.required || files[i.name]);
@@ -76,6 +89,16 @@ export default function PythonToolView({ tool }: Props) {
 
   return (
     <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>
+      {tool.examples && tool.examples.length > 0 && (
+        <ExampleLoader
+          examples={tool.examples.map(ex => ({
+            label: ex.label,
+            description: ex.description,
+            onLoad: () => loadExample(ex),
+          }))}
+        />
+      )}
+
       <ToolDropzone
         slots={tool.inputs.map(i => ({
           name: i.name, accept: i.accept, required: i.required, description: i.description,

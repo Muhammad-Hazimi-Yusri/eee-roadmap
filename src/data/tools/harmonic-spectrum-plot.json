@@ -20,6 +20,22 @@
     { "name": "harmonic-spectrum.pdf", "mime": "application/pdf", "description": "Vector figure for Word reports." }
   ],
   "script": "import pandas as pd\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\ndf = pd.read_csv('/input/spectrum.csv')\ndf = df[df['Order'].apply(lambda x: str(x).isdigit())].copy()\ndf['Order']           = df['Order'].astype(int)\ndf['Magnitude_pct']   = df['Magnitude_pct'].astype(float)\ndf['G5_5_Limit_pct']  = pd.to_numeric(df['G5_5_Limit_pct'], errors='coerce')\ndf = df[df['Order'] >= 2]\n\nfig, ax = plt.subplots(figsize=(9, 4))\n\nbar_colors = ['#ef4444' if (l == l) and m > l else '#2563eb'\n              for m, l in zip(df['Magnitude_pct'], df['G5_5_Limit_pct'])]\nax.bar(df['Order'], df['Magnitude_pct'], color=bar_colors, edgecolor='black', linewidth=0.4)\n\nfor _, row in df.dropna(subset=['G5_5_Limit_pct']).iterrows():\n    ax.hlines(row['G5_5_Limit_pct'],\n              row['Order'] - 0.45, row['Order'] + 0.45,\n              colors='#f97316', linestyles='--', linewidth=1.5)\n\nax.set_xticks(df['Order'])\nax.set_xlabel('Harmonic order')\nax.set_ylabel('Magnitude (% of fundamental)')\nax.set_title('Voltage harmonic spectrum vs ENA G5/5 EHV planning levels')\nax.grid(axis='y', alpha=0.25)\nax.margins(x=0.02)\n\nplt.tight_layout()\nplt.savefig('/output/harmonic-spectrum.pdf')\nplt.savefig('/output/harmonic-spectrum.png', dpi=200)\nprint('Wrote PNG + PDF for', len(df), 'harmonics')\n",
+  "examples": [
+    {
+      "label": "Compliant spectrum",
+      "description": "All harmonics under the G5/5 EHV planning levels — every bar is blue.",
+      "files": {
+        "spectrum.csv": "Order,Frequency_Hz,Magnitude_pct,G5_5_Limit_pct,Status\n1,50,100.000,,fundamental\n2,100,0.450,1.4,within limit\n3,150,1.200,2.0,within limit\n4,200,0.180,0.8,within limit\n5,250,1.800,2.0,within limit\n6,300,0.120,0.4,within limit\n7,350,1.350,2.0,within limit\n8,400,0.090,0.4,within limit\n9,450,0.420,1.0,within limit\n10,500,0.080,0.4,within limit\n11,550,0.950,1.5,within limit\n12,600,0.070,0.2,within limit\n13,650,0.880,1.5,within limit\n14,700,0.060,0.2,within limit\n15,750,0.180,0.3,within limit\n17,850,0.520,1.0,within limit\n19,950,0.480,1.0,within limit\n21,1050,0.110,0.2,within limit\n23,1150,0.380,0.7,within limit\n25,1250,0.340,0.7,within limit\n\nTHD_pct,3.21\nTHD_limit_G5_5_pct,3.0"
+      }
+    },
+    {
+      "label": "Breach: 5th & 7th over limit",
+      "description": "Heavy 6-pulse rectifier signature — 5th and 7th harmonics exceed the limit, bars turn red.",
+      "files": {
+        "spectrum.csv": "Order,Frequency_Hz,Magnitude_pct,G5_5_Limit_pct,Status\n1,50,100.000,,fundamental\n2,100,0.500,1.4,within limit\n3,150,1.500,2.0,within limit\n5,250,3.200,2.0,EXCEEDS\n7,350,2.600,2.0,EXCEEDS\n9,450,0.450,1.0,within limit\n11,550,1.700,1.5,EXCEEDS\n13,650,1.350,1.5,within limit\n15,750,0.220,0.3,within limit\n17,850,0.830,1.0,within limit\n19,950,0.610,1.0,within limit\n21,1050,0.150,0.2,within limit\n23,1150,0.420,0.7,within limit\n25,1250,0.310,0.7,within limit\n\nTHD_pct,5.40\nTHD_limit_G5_5_pct,3.0"
+      }
+    }
+  ],
   "relatedLabs": [
     { "id": "harmonics-analysis", "label": "Harmonic Analysis & G5/5 Compliance" }
   ]

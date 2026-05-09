@@ -68,6 +68,17 @@ export type ToolParam =
   | { kind: 'text';   name: string; label: string; default: string }
   | { kind: 'select'; name: string; label: string; default: string; options: { value: string; label: string }[] };
 
+export interface PythonToolExample {
+  /** Short label shown on the load button. */
+  label: string;
+  /** Optional tooltip describing the example. */
+  description?: string;
+  /** Inline file contents per input slot name (matches `ToolFileInput.name`). */
+  files: Record<string, string>;
+  /** Optional param overrides applied alongside the file contents. */
+  params?: Record<string, string | number>;
+}
+
 export interface PythonTool extends ToolBase {
   runtime: 'python';
   /** Pyodide / micropip packages required (e.g. ['matplotlib', 'pandas']). */
@@ -79,6 +90,8 @@ export interface PythonTool extends ToolBase {
   params?: ToolParam[];
   /** The Python script. Runs after inputs are written to /input/<name>. */
   script: string;
+  /** Optional pre-baked sample inputs surfaced as "load example" buttons. */
+  examples?: PythonToolExample[];
 }
 
 // ── Snippet-runtime tools (view-only) ─────────────────────────────────────────

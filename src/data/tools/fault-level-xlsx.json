@@ -29,6 +29,32 @@
     }
   ],
   "script": "import json\nfrom openpyxl import Workbook\nfrom openpyxl.styles import Font, PatternFill, Alignment, Border, Side\nfrom openpyxl.formatting.rule import CellIsRule\nfrom openpyxl.utils import get_column_letter\n\nFAULT_TYPES = ['3-phase', 'L-G', 'L-L', 'L-L-G']\nbreaker_kA = float(params['breaker_kA'])\n\nwith open('/input/fault-results.json') as f:\n    results = json.load(f)\n\nwb = Workbook()\nwb.remove(wb.active)\n\nthin = Side(style='thin', color='AAAAAA')\nborder = Border(left=thin, right=thin, top=thin, bottom=thin)\nheader_fill = PatternFill('solid', fgColor='1F2937')\nheader_font = Font(bold=True, color='FFFFFF')\nbreach_fill = PatternFill('solid', fgColor='FECACA')\n\nfor ft in FAULT_TYPES:\n    ws = wb.create_sheet(title=ft)\n    ws.append(['Bus', 'Voltage (kV)', f'I_fault {ft} (kA)', 'Breaker (kA)', 'Margin (%)'])\n    for cell in ws[1]:\n        cell.fill = header_fill\n        cell.font = header_font\n        cell.alignment = Alignment(horizontal='center')\n    for r in results:\n        ifault = r.get(ft, 0.0)\n        margin = (1 - ifault / breaker_kA) * 100 if breaker_kA else 0.0\n        ws.append([r['bus'], r['voltage_kV'], ifault, breaker_kA, round(margin, 1)])\n    rng = f'C2:C{len(results) + 1}'\n    ws.conditional_formatting.add(rng,\n        CellIsRule(operator='greaterThan', formula=[str(breaker_kA)], fill=breach_fill))\n    for col in range(1, ws.max_column + 1):\n        for row in range(1, ws.max_row + 1):\n            ws.cell(row=row, column=col).border = border\n        max_len = max(len(str(ws.cell(row=r, column=col).value or ''))\n                      for r in range(1, ws.max_row + 1))\n        ws.column_dimensions[get_column_letter(col)].width = max_len + 4\n\nsummary = wb.create_sheet(title='Summary', index=0)\nsummary.append(['Bus', 'Max I_fault (kA)', 'Breaker margin (%)'])\nfor cell in summary[1]:\n    cell.fill = header_fill\n    cell.font = header_font\nfor row, r in enumerate(results, start=2):\n    max_kA = max((r.get(ft, 0.0) for ft in FAULT_TYPES), default=0.0)\n    margin = (1 - max_kA / breaker_kA) * 100 if breaker_kA else 0.0\n    summary.cell(row=row, column=1, value=r['bus'])\n    summary.cell(row=row, column=2, value=round(max_kA, 3))\n    summary.cell(row=row, column=3, value=round(margin, 1))\n\nwb.save('/output/fault-level-study.xlsx')\nprint('Wrote fault-level-study.xlsx for', len(results), 'buses (breaker', breaker_kA, 'kA)')\n",
+  "examples": [
+    {
+      "label": "3-bus base case",
+      "description": "Three buses (132 kV and 33 kV), all within a 31.5 kA breaker rating.",
+      "files": {
+        "fault-results.json": "[\n  {\"bus\": \"A1\", \"voltage_kV\": 132, \"3-phase\": 28.4, \"L-G\": 30.1, \"L-L\": 24.6, \"L-L-G\": 31.8},\n  {\"bus\": \"A2\", \"voltage_kV\": 132, \"3-phase\": 22.1, \"L-G\": 24.3, \"L-L\": 19.1, \"L-L-G\": 25.2},\n  {\"bus\": \"B1\", \"voltage_kV\":  33, \"3-phase\":  9.4, \"L-G\": 10.2, \"L-L\":  8.1, \"L-L-G\": 10.7}\n]"
+      },
+      "params": { "breaker_kA": 31.5 }
+    },
+    {
+      "label": "Breach: A1 exceeds breaker",
+      "description": "Same network, but breaker is downsized to 25 kA so the A1 bus shows red conditional formatting.",
+      "files": {
+        "fault-results.json": "[\n  {\"bus\": \"A1\", \"voltage_kV\": 132, \"3-phase\": 28.4, \"L-G\": 30.1, \"L-L\": 24.6, \"L-L-G\": 31.8},\n  {\"bus\": \"A2\", \"voltage_kV\": 132, \"3-phase\": 22.1, \"L-G\": 24.3, \"L-L\": 19.1, \"L-L-G\": 25.2},\n  {\"bus\": \"B1\", \"voltage_kV\":  33, \"3-phase\":  9.4, \"L-G\": 10.2, \"L-L\":  8.1, \"L-L-G\": 10.7}\n]"
+      },
+      "params": { "breaker_kA": 25 }
+    },
+    {
+      "label": "Larger 6-bus network",
+      "description": "Mixed 132 / 33 / 11 kV system showing how the workbook scales beyond a handful of buses.",
+      "files": {
+        "fault-results.json": "[\n  {\"bus\": \"GSP-1\",  \"voltage_kV\": 132, \"3-phase\": 30.5, \"L-G\": 32.2, \"L-L\": 26.4, \"L-L-G\": 33.0},\n  {\"bus\": \"GSP-2\",  \"voltage_kV\": 132, \"3-phase\": 27.8, \"L-G\": 29.4, \"L-L\": 24.1, \"L-L-G\": 30.2},\n  {\"bus\": \"BSP-A\",  \"voltage_kV\":  33, \"3-phase\": 12.2, \"L-G\": 13.0, \"L-L\": 10.5, \"L-L-G\": 13.4},\n  {\"bus\": \"BSP-B\",  \"voltage_kV\":  33, \"3-phase\": 10.7, \"L-G\": 11.5, \"L-L\":  9.3, \"L-L-G\": 11.8},\n  {\"bus\": \"PRY-1\",  \"voltage_kV\":  11, \"3-phase\":  6.4, \"L-G\":  6.8, \"L-L\":  5.6, \"L-L-G\":  7.0},\n  {\"bus\": \"PRY-2\",  \"voltage_kV\":  11, \"3-phase\":  5.9, \"L-G\":  6.3, \"L-L\":  5.1, \"L-L-G\":  6.5}\n]"
+      },
+      "params": { "breaker_kA": 31.5 }
+    }
+  ],
   "blocks": [
     { "type": "prose", "text": "Sample input — paste this into a JSON file to try the tool:" },
     {
