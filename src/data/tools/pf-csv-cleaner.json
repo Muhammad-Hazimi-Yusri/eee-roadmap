@@ -1,0 +1,17 @@
+{
+  "id": "pf-csv-cleaner",
+  "title": "PowerFactory / Solver CSV Cleaner",
+  "category": "data",
+  "difficulty": "beginner",
+  "runtime": "js",
+  "componentKey": "pf-csv-cleaner",
+  "description": "Upload a solver-output CSV (PowerFactory, PSS/E, Python script). Drop blank rows, choose which columns to keep, set decimal precision, and download a clean XLSX (with column widths and number formats) or a clean CSV.",
+  "tags": ["csv", "xlsx", "powerfactory", "report"],
+  "blocks": [
+    { "type": "prose", "text": "Designed for the typical workflow: solver dumps a wide CSV with many columns and blank trailing rows; you only want a handful of those columns in the report appendix. This skips the paste-special / text-to-columns / format-cells dance." },
+    { "type": "note", "kind": "tip", "text": "All processing is local — files never leave your browser. Safe for client-confidential data." }
+  ],
+  "relatedLabs": [
+    { "id": "power-flow-3bus", "label": "Newton-Raphson Power Flow" }
+  ]
+}

@@ -1,0 +1,91 @@
+---
+// SnippetView.astro — view-only copy-paste recipe (used for VBA / shell snippets).
+import RecipeCodeBlock from '../toolkit/RecipeCodeBlock.astro';
+import type { SnippetTool, ToolBlock } from '../../lib/tools/types';
+
+interface Props { tool: SnippetTool }
+const { tool } = Astro.props as Props;
+
+const blocks: ToolBlock[] = tool.blocks ?? [];
+---
+
+<article class="snippet-body">
+  {blocks.map(block => {
+    if (block.type === 'prose') {
+      return <p class="snippet-prose">{block.text}</p>;
+    }
+    if (block.type === 'note') {
+      const kind = block.kind ?? 'tip';
+      return (
+        <aside class={`snippet-note snippet-note--${kind}`}>
+          <span class="snippet-note__label">{kind}</span>
+          <span>{block.text}</span>
+        </aside>
+      );
+    }
+    return <RecipeCodeBlock language={block.language} filename={block.filename} text={block.text} />;
+  })}
+</article>
+
+<style>
+  .snippet-body {
+    max-width: 80ch;
+    line-height: 1.65;
+  }
+
+  .snippet-prose {
+    font-size: 0.92rem;
+    color: var(--color-text);
+    margin: 0 0 1rem;
+  }
+
+  .snippet-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    border-radius: 4px;
+    border-left: 3px solid;
+    margin: 0.75rem 0 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+
+  .snippet-note__label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+    margin-top: 0.18rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: 2px;
+  }
+
+  .snippet-note--tip {
+    background: rgb(34 197 94 / 6%);
+    border-color: #22c55e;
+  }
+
+  .snippet-note--tip .snippet-note__label {
+    background: rgb(34 197 94 / 18%); color: #22c55e;
+  }
+
+  .snippet-note--warn {
+    background: rgb(249 115 22 / 6%);
+    border-color: #f97316;
+  }
+
+  .snippet-note--warn .snippet-note__label {
+    background: rgb(249 115 22 / 18%); color: #f97316;
+  }
+
+  .snippet-note--gotcha {
+    background: rgb(239 68 68 / 5%);
+    border-color: #ef4444;
+  }
+
+  .snippet-note--gotcha .snippet-note__label {
+    background: rgb(239 68 68 / 16%); color: #ef4444;
+  }
+</style>

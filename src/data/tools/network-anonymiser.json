@@ -1,0 +1,15 @@
+{
+  "id": "network-anonymiser",
+  "title": "Network Anonymiser",
+  "category": "data",
+  "difficulty": "beginner",
+  "runtime": "js",
+  "componentKey": "network-anonymiser",
+  "description": "Upload a power-network JSON or CSV. Replaces bus / station / site names with deterministic codes (B01, B02, …) so the data can be shared with vendors, students, or in published material. Outputs the anonymised file plus a mapping table for de-anonymisation.",
+  "tags": ["anonymise", "data", "sharing", "confidentiality"],
+  "blocks": [
+    { "type": "prose", "text": "All processing is in your browser — neither the original data nor the mapping ever leaves your machine. Keep the mapping table somewhere you can find it later if you need to relate a published result back to the original site." },
+    { "type": "note", "kind": "tip", "text": "Set the prefix to something short and stable (e.g. site code letters). The same input value always maps to the same code within a single run." },
+    { "type": "note", "kind": "warn", "text": "The tool only renames declared fields — it doesn't search for site names embedded in free-text fields like description or comments. Sweep those manually before sharing." }
+  ]
+}
