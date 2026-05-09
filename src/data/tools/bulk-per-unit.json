@@ -1,0 +1,17 @@
+{
+  "id": "bulk-per-unit",
+  "title": "Bulk Per-Unit Converter",
+  "category": "data",
+  "difficulty": "beginner",
+  "runtime": "js",
+  "componentKey": "bulk-per-unit",
+  "description": "Paste or upload a list of values, choose direction (physical → pu or pu → physical), pick the quantity (V, I, Z, S), and set the system base. Downloads a CSV with one converted value per row.",
+  "tags": ["per-unit", "conversion", "csv"],
+  "blocks": [
+    { "type": "prose", "text": "Pairs with the per-unit lab — once you've understood the conversion logic, this is the bulk version for the data you actually have." },
+    { "type": "note", "kind": "gotcha", "text": "All values in the list are converted with the SAME quantity and base. If you've got mixed quantities in one CSV, run the tool once per quantity and concatenate the outputs." }
+  ],
+  "relatedLabs": [
+    { "id": "per-unit-system", "label": "The Per-Unit System" }
+  ]
+}

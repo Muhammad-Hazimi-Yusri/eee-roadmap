@@ -1,0 +1,18 @@
+{
+  "id": "harmonic-fft",
+  "title": "Time-Series → Harmonic Spectrum (FFT)",
+  "category": "harmonics",
+  "difficulty": "intermediate",
+  "runtime": "js",
+  "componentKey": "harmonic-fft",
+  "description": "Upload a measured or simulated waveform (CSV with time + voltage/current columns), run an FFT in the browser, and see the per-order spectrum compared to ENA G5/5 EHV planning levels. Heavier-duty cousin of the harmonics lab — works on real data.",
+  "tags": ["harmonics", "fft", "g5-5", "compliance"],
+  "blocks": [
+    { "type": "prose", "text": "Expected CSV format: a header row, one column with time (seconds), one column with the value (volts / amps / pu). The tool auto-picks the first two numeric columns and you can override. The FFT assumes the file contains a whole number of fundamental cycles — round-clip your data first if it doesn't." },
+    { "type": "note", "kind": "tip", "text": "If your sample contains 4 cycles and the time column starts at 0, leave 'cycles' as auto. For a measured waveform from a power-quality recorder, 10 cycles is a good target window." },
+    { "type": "note", "kind": "warn", "text": "FFT bin alignment: if the captured window isn't an integer number of cycles, leakage will smear energy into adjacent bins and inflate the THD. For best results, capture a multiple of 20 ms (50 Hz) or 16.67 ms (60 Hz)." }
+  ],
+  "relatedLabs": [
+    { "id": "harmonics-analysis", "label": "Harmonic Analysis & G5/5 Compliance" }
+  ]
+}

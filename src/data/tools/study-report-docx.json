@@ -1,0 +1,38 @@
+{
+  "id": "study-report-docx",
+  "title": "Connection Study Report (python-docx)",
+  "category": "reporting",
+  "difficulty": "intermediate",
+  "runtime": "python",
+  "description": "Upload a results.json (project metadata, bus voltages, fault results, conclusions) and get a fully-formatted Word .docx with cover page, executive summary, voltage profile + fault-level tables, and conclusions section. Saves about an hour per study and prevents copy-paste errors.",
+  "tags": ["python-docx", "word", "report", "automation"],
+  "packages": ["python-docx"],
+  "inputs": [
+    {
+      "name": "results.json",
+      "accept": ".json",
+      "required": true,
+      "description": "Project, executive_summary, network_description, assumptions[], bus_results[], fault_results[], conclusions[]."
+    }
+  ],
+  "outputs": [
+    {
+      "name": "connection-study.docx",
+      "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "description": "Word document — open in Word and press F9 to refresh fields if you add a TOC."
+    }
+  ],
+  "script": "import json\nfrom docx import Document\nfrom docx.shared import Pt, RGBColor\nfrom docx.enum.text import WD_ALIGN_PARAGRAPH\n\nwith open('/input/results.json') as f:\n    data = json.load(f)\n\ndoc = Document()\nstyle = doc.styles['Normal']\nstyle.font.name = 'Calibri'\nstyle.font.size = Pt(11)\n\ntitle = doc.add_paragraph()\ntitle.alignment = WD_ALIGN_PARAGRAPH.CENTER\nrun = title.add_run(data.get('project', 'Project'))\nrun.bold = True\nrun.font.size = Pt(28)\nrun.font.color.rgb = RGBColor(0x1F, 0x29, 0x37)\n\nsubtitle = doc.add_paragraph()\nsubtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER\nsubtitle.add_run(f\"Connection Study \\u2014 {data.get('report_type', 'Load-flow & fault')}\\n\\n\")\nsubtitle.add_run(f\"Client: {data.get('client', '')}\\n\")\nsubtitle.add_run(f\"Project ref: {data.get('project_ref', '')}\\n\")\nsubtitle.add_run(f\"Date: {data.get('date', '')}\")\n\ndoc.add_page_break()\n\ndoc.add_heading('1.  Executive Summary', level=1)\ndoc.add_paragraph(data.get('executive_summary', ''))\n\ndoc.add_heading('2.  Network and Modelling Assumptions', level=1)\ndoc.add_paragraph(data.get('network_description', ''))\ndoc.add_heading('Key assumptions', level=2)\nfor a in data.get('assumptions', []):\n    doc.add_paragraph(a, style='List Bullet')\n\ndoc.add_heading('3.  Load-Flow Results', level=1)\ntbl = doc.add_table(rows=1, cols=4)\ntbl.style = 'Light Grid Accent 1'\nhdr = tbl.rows[0].cells\nhdr[0].text = 'Bus'\nhdr[1].text = 'Voltage (pu)'\nhdr[2].text = 'Voltage (kV)'\nhdr[3].text = 'Status'\nfor bus in data.get('bus_results', []):\n    row = tbl.add_row().cells\n    row[0].text = str(bus.get('name', ''))\n    row[1].text = f\"{bus.get('Vmag_pu', 0):.4f}\"\n    row[2].text = f\"{bus.get('Vmag_kV', 0):.2f}\"\n    row[3].text = str(bus.get('status', ''))\n\ndoc.add_heading('4.  Fault Level Summary', level=1)\ntbl = doc.add_table(rows=1, cols=3)\ntbl.style = 'Light Grid Accent 1'\nhdr = tbl.rows[0].cells\nhdr[0].text = 'Bus'\nhdr[1].text = 'I_fault max (kA)'\nhdr[2].text = 'Margin to breaker (%)'\nfor f in data.get('fault_results', []):\n    row = tbl.add_row().cells\n    row[0].text = str(f.get('bus', ''))\n    row[1].text = f\"{f.get('Imax_kA', 0):.2f}\"\n    row[2].text = f\"{f.get('margin_pct', 0):.1f}%\"\n\ndoc.add_heading('5.  Conclusions and Recommendations', level=1)\nfor c in data.get('conclusions', []):\n    doc.add_paragraph(c, style='List Bullet')\n\ndoc.save('/output/connection-study.docx')\nprint('Wrote connection-study.docx')\n",
+  "blocks": [
+    { "type": "prose", "text": "Sample input — paste into results.json:" },
+    {
+      "type": "code", "language": "json", "filename": "results.json",
+      "text": "{\n  \"project\": \"Anvil Wind Farm\",\n  \"client\": \"NewCo Renewables\",\n  \"project_ref\": \"AWF-2024-073\",\n  \"date\": \"2026-05-09\",\n  \"report_type\": \"G99 Connection Study\",\n  \"executive_summary\": \"The 60 MW connection is acceptable subject to ...\",\n  \"network_description\": \"132 kV ring fed from substations X and Y ...\",\n  \"assumptions\": [\n    \"System base 100 MVA\",\n    \"Pre-fault voltages at flat 1.00 pu\",\n    \"Sequence impedance ratios Z2/Z1 = 1.0, Z0/Z1 = 3.0\"\n  ],\n  \"bus_results\": [\n    {\"name\": \"PCC\",  \"Vmag_pu\": 1.012, \"Vmag_kV\": 133.6, \"status\": \"OK\"},\n    {\"name\": \"WTG1\", \"Vmag_pu\": 0.991, \"Vmag_kV\": 130.8, \"status\": \"OK\"}\n  ],\n  \"fault_results\": [\n    {\"bus\": \"PCC\",  \"Imax_kA\": 21.4, \"margin_pct\": 32.1},\n    {\"bus\": \"WTG1\", \"Imax_kA\":  9.7, \"margin_pct\": 69.2}\n  ],\n  \"conclusions\": [\n    \"All bus voltages within \\u00b15% under the studied scenarios.\",\n    \"Fault duty at PCC remains within breaker rating.\",\n    \"Recommend a re-study if the fault level at PCC rises above 28 kA.\"\n  ]\n}"
+    },
+    { "type": "note", "kind": "tip", "text": "If you keep a results.json as the single source of truth (solver writes it, this tool reads it), every report is byte-identical for unchanged data — no transcription errors." }
+  ],
+  "relatedLabs": [
+    { "id": "power-flow-3bus", "label": "Newton-Raphson Power Flow" },
+    { "id": "fault-analysis",  "label": "Short-Circuit Fault Analysis" }
+  ]
+}

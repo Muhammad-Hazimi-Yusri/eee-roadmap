@@ -1,0 +1,240 @@
+---
+// src/pages/tools/index.astro — Power Systems Consulting Tools landing.
+// File-processing apps (browser-only) for plotting, Excel/Word output, and macros.
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { internalHref } from '../../utils/url';
+import type { Tool, ToolCategory } from '../../lib/tools/types';
+
+const toolRaw = import.meta.glob<Tool>('../../data/tools/*.json', { eager: true });
+const tools = Object.values(toolRaw);
+
+const categories: { id: ToolCategory; label: string; description: string }[] = [
+  {
+    id: 'data',
+    label: 'Data wrangling',
+    description: 'CSV/JSON parsing, cleaning, anonymising — the prep work before a study.',
+  },
+  {
+    id: 'power-flow',
+    label: 'Power flow & per-unit',
+    description: 'Bulk conversions and post-processing of load-flow results.',
+  },
+  {
+    id: 'fault',
+    label: 'Fault analysis',
+    description: 'Build fault-level tables and reports from solver output.',
+  },
+  {
+    id: 'harmonics',
+    label: 'Harmonics',
+    description: 'FFT, THD, G5/5 compliance plotting from time-series data.',
+  },
+  {
+    id: 'reporting',
+    label: 'Report generation',
+    description: 'Word and Excel deliverables straight from a results dictionary.',
+  },
+  {
+    id: 'macros',
+    label: 'VBA macros',
+    description: 'Excel macros for the daily grunt work that lives outside the browser.',
+  },
+];
+
+const grouped = categories.map(c => ({
+  ...c,
+  tools: tools.filter(t => t.category === c.id)
+    .sort((a, b) => a.title.localeCompare(b.title)),
+}));
+
+const total = tools.length;
+
+const runtimeLabel: Record<string, string> = {
+  js: 'browser',
+  python: 'python · pyodide',
+  snippet: 'copy-paste',
+};
+---
+
+<Layout
+  title="Tools"
+  description="Browser-only file-processing tools for power-systems consulting work — clean CSVs, run FFTs, build XLSX/DOCX reports, all client-side, no server."
+>
+  <Header />
+  <main id="main-content">
+    <div class="container py-12">
+
+      <p class="font-mono text-xs uppercase tracking-widest text-muted mb-2">// consulting tools</p>
+      <h1 class="page-title">Tools</h1>
+      <p class="page-desc">
+        {total} file-processing apps that run entirely in your browser. Drop in a CSV / JSON / waveform,
+        get a cleaned XLSX, plot, or anonymised file out — nothing is uploaded anywhere. Pairs with the
+        <a href={internalHref('labs')}>interactive labs</a>: labs build the intuition, tools ship the deliverable.
+      </p>
+
+      {grouped.map(group => (
+        group.tools.length > 0 && (
+          <section class="domain-section" id={group.id}>
+            <div class="domain-header">
+              <h2 class="domain-title">{group.label}</h2>
+              <p class="domain-desc">{group.description}</p>
+            </div>
+
+            <div class="tool-grid">
+              {group.tools.map(t => (
+                <a
+                  href={internalHref(`tools/${t.id}`)}
+                  class={`tool-card tool-card--${t.difficulty}`}
+                >
+                  <div class="tool-card__head">
+                    <span class={`tool-card__runtime tool-card__runtime--${t.runtime}`}>
+                      {runtimeLabel[t.runtime]}
+                    </span>
+                    <span class="tool-card__badge">{t.difficulty}</span>
+                  </div>
+                  <h3 class="tool-card__title">{t.title}</h3>
+                  <p class="tool-card__desc">{t.description}</p>
+                  <div class="tool-card__tags">
+                    {t.tags.slice(0, 4).map(tag => (<span class="tool-card__tag">{tag}</span>))}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      ))}
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .page-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  .page-desc {
+    max-width: 64ch;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 3rem;
+  }
+
+  .page-desc a {
+    color: var(--color-copper, #c87533);
+    text-decoration: none;
+  }
+
+  .page-desc a:hover {
+    text-decoration: underline;
+  }
+
+  .domain-section { margin-bottom: 3.5rem; }
+
+  .domain-header {
+    display: flex; flex-direction: column; gap: 0.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .domain-title {
+    font-size: 1.1rem; font-weight: 700; margin: 0;
+  }
+
+  .domain-desc {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    max-width: 64ch;
+    margin: 0;
+  }
+
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1rem;
+  }
+
+  .tool-card {
+    display: block;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .tool-card:hover {
+    border-color: var(--color-copper, #c87533);
+    background: var(--color-bg-grid);
+  }
+
+  .tool-card__head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.55rem;
+  }
+
+  .tool-card__runtime {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.12rem 0.45rem;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+
+  .tool-card__runtime--js      { color: #2563eb; border-color: rgb(37 99 235 / 35%); background: rgb(37 99 235 / 8%); }
+  .tool-card__runtime--python  { color: #16a34a; border-color: rgb(22 163 74 / 35%); background: rgb(22 163 74 / 8%); }
+  .tool-card__runtime--snippet { color: var(--color-text-muted); border-color: var(--color-border); background: var(--color-bg-grid); }
+
+  .tool-card__badge {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.12rem 0.45rem;
+    border-radius: 2px;
+  }
+
+  .tool-card--beginner     .tool-card__badge { background: color-mix(in srgb, var(--color-pcb) 15%, transparent); color: var(--color-pcb-light); }
+  .tool-card--intermediate .tool-card__badge { background: color-mix(in srgb, var(--color-copper) 15%, transparent); color: var(--color-copper); }
+  .tool-card--advanced     .tool-card__badge { background: color-mix(in srgb, #2563eb 15%, transparent); color: #60a5fa; }
+
+  .tool-card__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.4rem;
+    line-height: 1.3;
+  }
+
+  .tool-card__desc {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0 0 0.7rem;
+  }
+
+  .tool-card__tags {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+
+  .tool-card__tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--color-text-muted);
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+  }
+</style>
