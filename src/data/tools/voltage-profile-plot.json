@@ -1,0 +1,44 @@
+{
+  "id": "voltage-profile-plot",
+  "title": "Voltage Profile Plot (matplotlib)",
+  "category": "power-flow",
+  "difficulty": "beginner",
+  "runtime": "python",
+  "description": "Upload a bus-results CSV (the kind exported from the power-flow lab) and get a publication-ready PNG + PDF voltage-profile chart with G-Code limit bands. Runs python + matplotlib in your browser via Pyodide.",
+  "tags": ["matplotlib", "plot", "load-flow", "report"],
+  "packages": ["pandas", "matplotlib"],
+  "inputs": [
+    {
+      "name": "bus-results.csv",
+      "accept": ".csv",
+      "required": true,
+      "description": "CSV with at least BusID and Vmag_pu columns (extra columns are ignored)."
+    }
+  ],
+  "outputs": [
+    { "name": "voltage-profile.png", "mime": "image/png", "description": "Raster figure (200 DPI)." },
+    { "name": "voltage-profile.pdf", "mime": "application/pdf", "description": "Vector figure for Word reports." }
+  ],
+  "params": [
+    {
+      "kind": "select",
+      "name": "title_suffix",
+      "label": "Title suffix",
+      "default": "base case",
+      "options": [
+        { "value": "base case",          "label": "base case" },
+        { "value": "N-1 worst",          "label": "N-1 worst" },
+        { "value": "summer maximum",     "label": "summer maximum" },
+        { "value": "winter peak",        "label": "winter peak" }
+      ]
+    }
+  ],
+  "script": "import pandas as pd\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\ndf = pd.read_csv('/input/bus-results.csv')\n\nfig, ax = plt.subplots(figsize=(8, 4))\n\nax.axhspan(0.95, 1.05, color='#22c55e', alpha=0.10, label='Normal (0.95–1.05 pu)')\nax.axhline(0.95, color='#f97316', linestyle='--', linewidth=0.8)\nax.axhline(1.05, color='#f97316', linestyle='--', linewidth=0.8)\nax.axhline(0.90, color='#ef4444', linestyle=':',  linewidth=0.8)\nax.axhline(1.10, color='#ef4444', linestyle=':',  linewidth=0.8)\n\ndef colour(v):\n    if v < 0.90 or v > 1.10: return '#ef4444'\n    if v < 0.95 or v > 1.05: return '#f97316'\n    return '#2563eb'\n\nx = df['BusID'] if 'BusID' in df.columns else range(1, len(df) + 1)\nax.bar(x, df['Vmag_pu'],\n       color=[colour(v) for v in df['Vmag_pu']],\n       edgecolor='black', linewidth=0.4)\n\nax.axhline(1.00, color='gray', linestyle='-', linewidth=0.6)\nax.set_ylim(0.85, 1.15)\nax.set_xlabel('Bus number')\nax.set_ylabel('Voltage magnitude (pu)')\nax.set_title(f\"Bus voltage profile — {params['title_suffix']}\")\nax.legend(loc='lower right', fontsize=8)\nax.grid(axis='y', alpha=0.25)\n\nplt.tight_layout()\nplt.savefig('/output/voltage-profile.png', dpi=200, bbox_inches='tight')\nplt.savefig('/output/voltage-profile.pdf')\nprint(f'Wrote PNG + PDF for {len(df)} buses')\n",
+  "blocks": [
+    { "type": "prose", "text": "Drops the same matplotlib recipe straight onto your data — same figure as the toolkit copy-paste version, but you don't need a Python install. Use the PDF for Word; use the PNG for slides." },
+    { "type": "note", "kind": "tip", "text": "First run downloads the Pyodide runtime + matplotlib + pandas wheels (~25 MB total). After that, every Python tool starts in under a second." }
+  ],
+  "relatedLabs": [
+    { "id": "power-flow-3bus", "label": "Newton-Raphson Power Flow" }
+  ]
+}

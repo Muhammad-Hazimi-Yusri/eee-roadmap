@@ -1,0 +1,26 @@
+{
+  "id": "harmonic-spectrum-plot",
+  "title": "Harmonic Spectrum Plot with G5/5 Limits (matplotlib)",
+  "category": "harmonics",
+  "difficulty": "beginner",
+  "runtime": "python",
+  "description": "Upload a per-order spectrum CSV (Order, Magnitude_pct, G5_5_Limit_pct, Status — the format exported by the harmonics lab and by the FFT tool). Get a PDF + PNG chart with bars colour-coded for compliance and dashed G5/5 limit markers — drop straight into a connection-study report.",
+  "tags": ["matplotlib", "harmonics", "g5-5", "compliance"],
+  "packages": ["pandas", "matplotlib"],
+  "inputs": [
+    {
+      "name": "spectrum.csv",
+      "accept": ".csv",
+      "required": true,
+      "description": "Spectrum CSV (Order, Magnitude_pct, G5_5_Limit_pct columns)."
+    }
+  ],
+  "outputs": [
+    { "name": "harmonic-spectrum.png", "mime": "image/png", "description": "Raster figure (200 DPI)." },
+    { "name": "harmonic-spectrum.pdf", "mime": "application/pdf", "description": "Vector figure for Word reports." }
+  ],
+  "script": "import pandas as pd\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\ndf = pd.read_csv('/input/spectrum.csv')\ndf = df[df['Order'].apply(lambda x: str(x).isdigit())].copy()\ndf['Order']           = df['Order'].astype(int)\ndf['Magnitude_pct']   = df['Magnitude_pct'].astype(float)\ndf['G5_5_Limit_pct']  = pd.to_numeric(df['G5_5_Limit_pct'], errors='coerce')\ndf = df[df['Order'] >= 2]\n\nfig, ax = plt.subplots(figsize=(9, 4))\n\nbar_colors = ['#ef4444' if (l == l) and m > l else '#2563eb'\n              for m, l in zip(df['Magnitude_pct'], df['G5_5_Limit_pct'])]\nax.bar(df['Order'], df['Magnitude_pct'], color=bar_colors, edgecolor='black', linewidth=0.4)\n\nfor _, row in df.dropna(subset=['G5_5_Limit_pct']).iterrows():\n    ax.hlines(row['G5_5_Limit_pct'],\n              row['Order'] - 0.45, row['Order'] + 0.45,\n              colors='#f97316', linestyles='--', linewidth=1.5)\n\nax.set_xticks(df['Order'])\nax.set_xlabel('Harmonic order')\nax.set_ylabel('Magnitude (% of fundamental)')\nax.set_title('Voltage harmonic spectrum vs ENA G5/5 EHV planning levels')\nax.grid(axis='y', alpha=0.25)\nax.margins(x=0.02)\n\nplt.tight_layout()\nplt.savefig('/output/harmonic-spectrum.pdf')\nplt.savefig('/output/harmonic-spectrum.png', dpi=200)\nprint('Wrote PNG + PDF for', len(df), 'harmonics')\n",
+  "relatedLabs": [
+    { "id": "harmonics-analysis", "label": "Harmonic Analysis & G5/5 Compliance" }
+  ]
+}
