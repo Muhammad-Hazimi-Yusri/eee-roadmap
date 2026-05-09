@@ -7,12 +7,55 @@ import {
   type PuQuantity, type PuPhase, type PuDirection,
 } from '../../../lib/power/per-unit';
 import OutputPanel, { type ToolOutput } from '../OutputPanel';
+import ExampleLoader from '../ExampleLoader';
 
 const QUANTITIES: { value: PuQuantity; label: string }[] = [
   { value: 'voltage',   label: 'Voltage'   },
   { value: 'current',   label: 'Current'   },
   { value: 'impedance', label: 'Impedance' },
   { value: 'power',     label: 'Power'     },
+];
+
+interface BulkPerUnitExample {
+  label: string;
+  description: string;
+  direction: PuDirection;
+  quantity: PuQuantity;
+  phase: PuPhase;
+  baseMVA: number;
+  baseKV: number;
+  pasted: string;
+}
+
+const EXAMPLES: BulkPerUnitExample[] = [
+  {
+    label: '132 kV bus voltages → pu',
+    description: 'Five bus voltages near a 132 kV nominal — convert to per-unit on a 100 MVA base.',
+    direction: 'to-pu', quantity: 'voltage', phase: '3ph',
+    baseMVA: 100, baseKV: 132,
+    pasted: '132\n130.5\n128.0\n133.6\n131.2',
+  },
+  {
+    label: '33 kV currents → pu',
+    description: 'Feeder currents (A) on a 100 MVA, 33 kV base — convert to per-unit.',
+    direction: 'to-pu', quantity: 'current', phase: '3ph',
+    baseMVA: 100, baseKV: 33,
+    pasted: '1200\n1450\n890\n1230\n1680',
+  },
+  {
+    label: 'Powers pu → MW',
+    description: 'Generation results in pu — convert back to MW on a 100 MVA base.',
+    direction: 'from-pu', quantity: 'power', phase: '3ph',
+    baseMVA: 100, baseKV: 132,
+    pasted: '0.85\n0.92\n0.78\n1.02\n0.65',
+  },
+  {
+    label: 'Impedances pu → Ω',
+    description: 'Transformer reactances in pu on a 100 MVA, 132 kV base — convert to ohms.',
+    direction: 'from-pu', quantity: 'impedance', phase: '3ph',
+    baseMVA: 100, baseKV: 132,
+    pasted: '0.10\n0.12\n0.085\n0.15',
+  },
 ];
 
 export default function BulkPerUnit() {
@@ -33,6 +76,16 @@ export default function BulkPerUnit() {
       .map(s => Number(s))
       .filter(n => Number.isFinite(n));
   }, [pasted]);
+
+  const loadExample = useCallback((ex: BulkPerUnitExample) => {
+    setDirection(ex.direction);
+    setQuantity(ex.quantity);
+    setPhase(ex.phase);
+    setBaseMVA(ex.baseMVA);
+    setBaseKV(ex.baseKV);
+    setPasted(ex.pasted);
+    setOutputs([]);
+  }, []);
 
   const run = useCallback(() => {
     const values = parseInput();
@@ -77,6 +130,14 @@ export default function BulkPerUnit() {
 
   return (
     <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>
+      <ExampleLoader
+        examples={EXAMPLES.map(ex => ({
+          label: ex.label,
+          description: ex.description,
+          onLoad: () => loadExample(ex),
+        }))}
+      />
+
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
         gap: 8, padding: '8px 10px',

@@ -34,6 +34,32 @@
     }
   ],
   "script": "import pandas as pd\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\ndf = pd.read_csv('/input/bus-results.csv')\n\nfig, ax = plt.subplots(figsize=(8, 4))\n\nax.axhspan(0.95, 1.05, color='#22c55e', alpha=0.10, label='Normal (0.95–1.05 pu)')\nax.axhline(0.95, color='#f97316', linestyle='--', linewidth=0.8)\nax.axhline(1.05, color='#f97316', linestyle='--', linewidth=0.8)\nax.axhline(0.90, color='#ef4444', linestyle=':',  linewidth=0.8)\nax.axhline(1.10, color='#ef4444', linestyle=':',  linewidth=0.8)\n\ndef colour(v):\n    if v < 0.90 or v > 1.10: return '#ef4444'\n    if v < 0.95 or v > 1.05: return '#f97316'\n    return '#2563eb'\n\nx = df['BusID'] if 'BusID' in df.columns else range(1, len(df) + 1)\nax.bar(x, df['Vmag_pu'],\n       color=[colour(v) for v in df['Vmag_pu']],\n       edgecolor='black', linewidth=0.4)\n\nax.axhline(1.00, color='gray', linestyle='-', linewidth=0.6)\nax.set_ylim(0.85, 1.15)\nax.set_xlabel('Bus number')\nax.set_ylabel('Voltage magnitude (pu)')\nax.set_title(f\"Bus voltage profile — {params['title_suffix']}\")\nax.legend(loc='lower right', fontsize=8)\nax.grid(axis='y', alpha=0.25)\n\nplt.tight_layout()\nplt.savefig('/output/voltage-profile.png', dpi=200, bbox_inches='tight')\nplt.savefig('/output/voltage-profile.pdf')\nprint(f'Wrote PNG + PDF for {len(df)} buses')\n",
+  "examples": [
+    {
+      "label": "Healthy 8-bus profile",
+      "description": "All voltages between 0.96 and 1.04 pu — every bar inside the green band.",
+      "files": {
+        "bus-results.csv": "BusID,Vmag_pu,Vmag_kV,Pgen_MW,Pload_MW\n1,1.0200,134.64,80.0,0.0\n2,1.0140,133.85,0.0,12.0\n3,1.0060,132.79,0.0,18.5\n4,0.9985,131.80,0.0,22.0\n5,0.9920,130.94,0.0,27.5\n6,0.9870,130.28,0.0,15.0\n7,0.9835,129.82,0.0,9.5\n8,0.9810,129.49,0.0,11.0"
+      },
+      "params": { "title_suffix": "base case" }
+    },
+    {
+      "label": "N-1 outage — voltages low",
+      "description": "Worst-case N-1 contingency drives buses 6–8 below 0.95 pu — orange/red bars appear.",
+      "files": {
+        "bus-results.csv": "BusID,Vmag_pu,Vmag_kV,Pgen_MW,Pload_MW\n1,1.0150,134.00,80.0,0.0\n2,1.0050,132.66,0.0,12.0\n3,0.9920,130.94,0.0,18.5\n4,0.9780,129.10,0.0,22.0\n5,0.9620,126.98,0.0,27.5\n6,0.9420,124.34,0.0,15.0\n7,0.9180,121.18,0.0,9.5\n8,0.8950,118.14,0.0,11.0"
+      },
+      "params": { "title_suffix": "N-1 worst" }
+    },
+    {
+      "label": "Winter peak — high gen",
+      "description": "Heavy generation pushes the source-end buses above 1.05 pu (orange).",
+      "files": {
+        "bus-results.csv": "BusID,Vmag_pu,Vmag_kV,Pgen_MW,Pload_MW\n1,1.0750,141.90,140.0,0.0\n2,1.0680,140.98,0.0,8.0\n3,1.0590,139.79,0.0,12.5\n4,1.0510,138.73,0.0,18.0\n5,1.0440,137.81,0.0,22.0\n6,1.0380,137.02,0.0,15.0\n7,1.0345,136.55,0.0,9.5\n8,1.0320,136.22,0.0,11.0"
+      },
+      "params": { "title_suffix": "winter peak" }
+    }
+  ],
   "blocks": [
     { "type": "prose", "text": "Drops the same matplotlib recipe straight onto your data — same figure as the toolkit copy-paste version, but you don't need a Python install. Use the PDF for Word; use the PNG for slides." },
     { "type": "note", "kind": "tip", "text": "First run downloads the Pyodide runtime + matplotlib + pandas wheels (~25 MB total). After that, every Python tool starts in under a second." }
