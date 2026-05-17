@@ -13,6 +13,7 @@ import CatalogueList from './grid-code/CatalogueList';
 import ViewerSplitPane from './grid-code/ViewerSplitPane';
 import SearchPalette from './grid-code/SearchPalette';
 import PinnedRail from './grid-code/PinnedRail';
+import LocalCopiesRail from './grid-code/LocalCopiesRail';
 
 export default function GridCodeViewer() {
   const [data, setData]     = useState<StandardsPayload | null>(null);
@@ -21,6 +22,7 @@ export default function GridCodeViewer() {
     typeof window === 'undefined' ? { view: 'list' } : readState()
   );
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [uploadsKey, setUploadsKey]   = useState(0);
 
   // Load standards payload once on mount
   useEffect(() => {
@@ -159,6 +161,11 @@ export default function GridCodeViewer() {
             docLookup={data.documents}
             onOpenClause={openClause}
           />
+          <LocalCopiesRail
+            documents={data.documents}
+            onOpenDoc={d => openDocument(d)}
+            invalidationKey={uploadsKey}
+          />
         </aside>
 
         <main className="gcv-main">
@@ -175,6 +182,7 @@ export default function GridCodeViewer() {
               onBack={backToList}
               onJumpToClause={openClause}
               onJumpToDoc={openDocument}
+              onUploadsChanged={() => setUploadsKey(k => k + 1)}
             />
           ) : (
             <CatalogueList

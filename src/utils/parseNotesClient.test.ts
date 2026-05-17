@@ -60,7 +60,7 @@ describe('parseNotesClient', () => {
     it('renders PDFs as iframe with PDF.js viewer', () => {
       const result = parseNotesClient('![PDF doc](/pdfs/test.pdf)');
       expect(result).toContain('<iframe');
-      expect(result).toContain('src="/pdfjs/web/viewer.html?file=');
+      expect(result).toContain('src="/pdfjs/web/viewer/index.html?file=');
       expect(result).toContain('class="notes-pdf-iframe"');
       expect(result).toContain('loading="lazy"');
     });

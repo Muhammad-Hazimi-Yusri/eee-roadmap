@@ -39,7 +39,7 @@ marked.use({
         return `
           <div class="notes-pdf-embed" data-pdf-url="${href}">
             <iframe
-              src="/pdfjs/web/viewer.html?file=${encodedUrl}"
+              src="/pdfjs/web/viewer/index.html?file=${encodedUrl}"
               title="${altText || 'PDF document'}"
               class="notes-pdf-iframe"
               loading="lazy"
