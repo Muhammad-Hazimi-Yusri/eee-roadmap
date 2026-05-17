@@ -1,13 +1,25 @@
 // Split-pane viewer: PDF (LEFT) + related-clauses panel (RIGHT).
-// PDF is rendered via the existing /pdfjs/web/viewer.html iframe — same
-// pattern as src/utils/parseNotes.ts.
+//
+// LEFT pane sources, in order of preference:
+//   1. User-uploaded local copy (IndexedDB Blob)        — works for any doc
+//   2. /eu-codes/<id>.pdf (hostable-eu, same-origin)    — works for EU NCs
+//   3. UploadDropzone (link-only / paywalled / no URL)  — user provides own copy
+//
+// The PDF is rendered through the existing /pdfjs/web/viewer.html iframe
+// (same pattern as src/utils/parseNotes.ts). For user-uploaded copies we
+// pass a blob: URL via the ?file param.
 
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   StandardDocument, StandardClause, AdjacencyEntry,
 } from '../../../../lib/grid-code/types';
 import RelatedClausesPanel from './RelatedClausesPanel';
+import UploadDropzone from './UploadDropzone';
 import { isPinned, togglePin } from '../../../../lib/grid-code/pinned';
+import {
+  getLocalPdf, removeLocalPdf, formatBytes,
+  type LocalPdfRecord,
+} from '../../../../lib/grid-code/local-pdfs';
 
 interface Props {
   doc: StandardDocument;
@@ -21,33 +33,56 @@ interface Props {
   onBack: () => void;
   onJumpToClause: (clause: StandardClause) => void;
   onJumpToDoc:   (doc: StandardDocument, page?: number, clause?: string) => void;
+  onUploadsChanged?: () => void;
 }
 
-function buildPdfSrc(doc: StandardDocument, page?: number, query?: string): string {
-  // Prefer the local copy for EU-hostable docs; deep-link out for link-only and paywalled.
-  let fileUrl: string;
-  if (doc.license === 'hostable-eu') {
-    fileUrl = `/eu-codes/${doc.id}.pdf`;
-  } else if (doc.pdfUrl) {
-    fileUrl = doc.pdfUrl;
-  } else {
-    return '';
-  }
+function buildViewerSrc(fileUrl: string, page?: number, query?: string): string {
   const params = new URLSearchParams();
   params.set('file', fileUrl);
   const hashParts: string[] = [];
   if (page && page > 0) hashParts.push(`page=${page}`);
   if (query)            hashParts.push(`search=${encodeURIComponent(query)}`);
   const hash = hashParts.length ? `#${hashParts.join('&')}` : '';
-  return `/pdfjs/web/viewer.html?${params.toString()}${hash}`;
+  return `/pdfjs/web/viewer/index.html?${params.toString()}${hash}`;
 }
 
 export default function ViewerSplitPane(props: Props) {
   const { doc, clause, page, query, outgoing, incoming, clauses, documents } = props;
 
-  const pdfSrc = useMemo(() => buildPdfSrc(doc, page, query), [doc, page, query]);
-  const hasInAppPdf = pdfSrc !== '' && (doc.license === 'hostable-eu' || doc.pdfUrl);
-  const showFallback = !hasInAppPdf;
+  // ── Local PDF lookup ───────────────────────────────────────────────────────
+  const [localPdf, setLocalPdf] = useState<LocalPdfRecord | null>(null);
+  const [localChecked, setLocalChecked] = useState(false);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLocalChecked(false);
+    getLocalPdf(doc.id)
+      .then(rec => { if (!cancelled) { setLocalPdf(rec); setLocalChecked(true); } })
+      .catch(() => { if (!cancelled) { setLocalPdf(null); setLocalChecked(true); } });
+    return () => { cancelled = true; };
+  }, [doc.id]);
+
+  // Manage Blob URL lifecycle
+  useEffect(() => {
+    if (!localPdf) { setBlobUrl(null); return; }
+    const url = URL.createObjectURL(localPdf.blob);
+    setBlobUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [localPdf]);
+
+  // ── Decide what to render in the left pane ─────────────────────────────────
+  // Priority: local upload > hostable-eu > dropzone fallback
+  const pdfFileUrl = useMemo<string | null>(() => {
+    if (blobUrl) return blobUrl;
+    if (doc.license === 'hostable-eu') return `/eu-codes/${doc.id}.pdf`;
+    return null;
+  }, [blobUrl, doc.license, doc.id]);
+
+  const pdfSrc = useMemo(
+    () => pdfFileUrl ? buildViewerSrc(pdfFileUrl, page, query) : '',
+    [pdfFileUrl, page, query],
+  );
 
   // ── Resizable split ─────────────────────────────────────────────────────────
   const [leftPct, setLeftPct] = useState(58);
@@ -84,6 +119,7 @@ export default function ViewerSplitPane(props: Props) {
   const pinRef = clause?.ref ?? doc.id;
   const pinTitle = clause ? `${doc.title} — ${clause.clauseId} ${clause.title}` : doc.title;
   const [pinned, setPinned] = useState(() => isPinned(pinRef));
+  useEffect(() => { setPinned(isPinned(pinRef)); }, [pinRef]);
   function onTogglePin() {
     togglePin({ ref: pinRef, title: pinTitle });
     setPinned(isPinned(pinRef));
@@ -96,6 +132,20 @@ export default function ViewerSplitPane(props: Props) {
     navigator.clipboard?.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  }
+
+  // ── Local-copy actions ─────────────────────────────────────────────────────
+  async function onRemoveLocal() {
+    await removeLocalPdf(doc.id);
+    setLocalPdf(null);
+    props.onUploadsChanged?.();
+  }
+  function refreshLocal() {
+    setLocalChecked(false);
+    getLocalPdf(doc.id)
+      .then(rec => { setLocalPdf(rec); setLocalChecked(true); })
+      .catch(() => { setLocalPdf(null); setLocalChecked(true); });
+    props.onUploadsChanged?.();
   }
 
   return (
@@ -115,6 +165,11 @@ export default function ViewerSplitPane(props: Props) {
         </nav>
         <div className="vsp-actions">
           {doc.version && <span className="vsp-version">{doc.version}</span>}
+          {localPdf && (
+            <span className="vsp-local-badge" title={`${localPdf.fileName} · ${formatBytes(localPdf.sizeBytes)} · uploaded ${new Date(localPdf.uploadedAt).toLocaleDateString()}`}>
+              local copy
+            </span>
+          )}
           <button type="button" className="vsp-action" onClick={onTogglePin} title={pinned ? 'Unpin' : 'Pin'}>
             {pinned ? '★ Pinned' : '☆ Pin'}
           </button>
@@ -133,33 +188,33 @@ export default function ViewerSplitPane(props: Props) {
         style={{ gridTemplateColumns: `${leftPct}fr 6px ${100 - leftPct}fr` }}
       >
         <div className="vsp-pdf">
-          {hasInAppPdf ? (
-            <iframe
-              key={pdfSrc}
-              src={pdfSrc}
-              title={`${doc.title} PDF viewer`}
-              className="vsp-iframe"
-            />
+          {!localChecked ? (
+            <div className="vsp-fallback"><p>Checking for local copy…</p></div>
+          ) : pdfSrc ? (
+            <>
+              <iframe
+                key={pdfSrc}
+                src={pdfSrc}
+                title={`${doc.title} PDF viewer`}
+                className="vsp-iframe"
+              />
+              <div className="vsp-pdf-foot">
+                {localPdf ? (
+                  <>
+                    <small>
+                      Your local copy · <code>{localPdf.fileName}</code> · {formatBytes(localPdf.sizeBytes)}
+                    </small>
+                    <button type="button" className="vsp-foot-action" onClick={onRemoveLocal}>
+                      Remove
+                    </button>
+                  </>
+                ) : (
+                  <small>Served from <code>/eu-codes/{doc.id}.pdf</code> · © European Union, re-used under Decision 2011/833/EU</small>
+                )}
+              </div>
+            </>
           ) : (
-            <div className="vsp-fallback">
-              <h3>No in-app preview available</h3>
-              {doc.license === 'paywalled' ? (
-                <>
-                  <p>This standard is paywalled — purchase from the publisher and view your own copy locally.</p>
-                  <p><a href={doc.landingUrl ?? doc.pdfUrl} target="_blank" rel="noreferrer">Open publisher page →</a></p>
-                </>
-              ) : (
-                <>
-                  <p>This document doesn't have a direct PDF link in the catalogue.</p>
-                  {doc.landingUrl && <p><a href={doc.landingUrl} target="_blank" rel="noreferrer">Open publisher landing page →</a></p>}
-                </>
-              )}
-            </div>
-          )}
-          {showFallback ? null : (
-            <div className="vsp-pdf-foot">
-              <small>Hosted by publisher — content © its rights-holder.</small>
-            </div>
+            <UploadDropzone doc={doc} onUploaded={refreshLocal} />
           )}
         </div>
 
@@ -217,6 +272,16 @@ export default function ViewerSplitPane(props: Props) {
           background: var(--color-bg); border: 1px solid var(--color-border);
           border-radius: 2px; color: var(--color-text-muted);
         }
+        .vsp-local-badge {
+          font-size: 0.62rem;
+          padding: 0.1rem 0.4rem;
+          background: rgb(34 197 94 / 14%);
+          color: #16a34a;
+          border: 1px solid rgb(34 197 94 / 45%);
+          border-radius: 2px;
+          font-family: var(--font-mono);
+          text-transform: uppercase; letter-spacing: 0.06em;
+        }
         .vsp-action {
           background: var(--color-bg); border: 1px solid var(--color-border);
           padding: 0.2rem 0.5rem; cursor: pointer; color: var(--color-text);
@@ -249,16 +314,25 @@ export default function ViewerSplitPane(props: Props) {
           align-items: center; justify-content: center;
           text-align: center; height: 100%;
         }
-        .vsp-fallback h3 {
-          font-family: var(--font-mono); font-size: 0.85rem;
-          margin: 0;
-        }
         .vsp-pdf-foot {
           padding: 0.25rem 0.5rem;
           border-top: 1px dashed var(--color-border);
           color: var(--color-text-muted);
           font-family: var(--font-mono); font-size: 0.65rem;
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 0.5rem;
         }
+        .vsp-pdf-foot code {
+          font-family: var(--font-mono); font-size: 0.65rem;
+          color: var(--color-text);
+        }
+        .vsp-foot-action {
+          background: none; border: 1px solid var(--color-border);
+          color: var(--color-text-muted);
+          font-family: var(--font-mono); font-size: 0.62rem;
+          padding: 0.1rem 0.4rem; cursor: pointer; border-radius: 2px;
+        }
+        .vsp-foot-action:hover { border-color: #ef4444; color: #ef4444; }
         .vsp-divider {
           background: var(--color-bg-grid);
           border-left: 1px solid var(--color-border);
