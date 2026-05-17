@@ -14,7 +14,7 @@ const GLOSSARY_FILE     = join(DATA_DIR, '_glossary.json');
 const CONCEPT_LIB_FILE  = join(DATA_DIR, 'concept-library.json');
 
 // Files to exclude from roadmap track indexing (handled separately below)
-const EXCLUDE = ['sample.json', 'pdf-manifest.json', 'search-index.json', '_glossary.json', 'graph-data.json', 'concept-library.json'];
+const EXCLUDE = ['sample.json', 'pdf-manifest.json', 'search-index.json', '_glossary.json', 'graph-data.json', 'concept-library.json', 'standards-index.json'];
 
 function buildSearchIndex() {
   console.log('🔍 Building search index...\n');

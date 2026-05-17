@@ -46,6 +46,9 @@ public/pdf-manifest.json
 src/data/pdf-manifest.json
 public/data/
 
+# Grid Code Viewer — EU Network Code PDFs (fetched at build time from EUR-Lex)
+public/eu-codes/
+
 # Generated data files (built from YAML sources)
 src/data/*.json
 !src/data/sample.json
