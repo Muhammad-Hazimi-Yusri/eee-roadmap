@@ -39,7 +39,15 @@ export interface StandardDocument {
   sizeMb?: number;
   pages?: number;
   summary?: string;
+  // Whether the publisher allows cross-site iframing of pdfUrl directly.
+  // When true and no local copy exists, the viewer renders a bare iframe
+  // pointing at the publisher URL (native browser PDF viewer) instead of
+  // showing the upload dropzone. Set conservatively based on per-publisher
+  // X-Frame-Options / CSP frame-ancestors knowledge.
+  iframeable?: boolean;
 }
+
+export type HighlightSource = 'id' | 'title' | 'custom';
 
 export interface StandardClause {
   ref: string;       // e.g. "grid-code/ECC.6.3.15"

@@ -19,6 +19,9 @@ export interface LocalPdfRecord {
   sizeBytes: number;
   sha256: string;
   uploadedAt: string;
+  // clauseId -> 1-based page number, populated by post-upload extraction.
+  // Absent when the PDF hasn't been indexed yet, or when extraction failed.
+  clausePages?: Record<string, number>;
 }
 
 function indexedDbAvailable(): boolean {
@@ -81,6 +84,31 @@ export async function getLocalPdf(docId: string): Promise<LocalPdfRecord | null>
     const req = tx.objectStore(STORE_NAME).get(docId);
     req.onsuccess = () => { db.close(); resolve((req.result as LocalPdfRecord | undefined) ?? null); };
     req.onerror   = () => { db.close(); reject(req.error ?? new Error('Read failed')); };
+  });
+}
+
+// Update the clausePages sidecar without re-hashing the blob. No-op when
+// no record exists for docId (defensive — the upload may have been removed
+// while a background extraction was still running).
+export async function setLocalPdfClausePages(
+  docId: string,
+  clausePages: Record<string, number>,
+): Promise<void> {
+  if (!indexedDbAvailable()) return;
+  const db = await openDb();
+  return new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const getReq = store.get(docId);
+    getReq.onsuccess = () => {
+      const rec = getReq.result as LocalPdfRecord | undefined;
+      if (rec) {
+        rec.clausePages = clausePages;
+        store.put(rec);
+      }
+    };
+    tx.oncomplete = () => { db.close(); resolve(); };
+    tx.onerror    = () => { db.close(); reject(tx.error ?? new Error('Update failed')); };
   });
 }
 

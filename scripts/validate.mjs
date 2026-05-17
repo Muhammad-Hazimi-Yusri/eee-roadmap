@@ -93,6 +93,7 @@ const STANDARDS_CATALOGUE_SCHEMA = {
           sizeMb:       { type: 'number', minimum: 0 },
           pages:        { type: 'number', minimum: 0 },
           summary:      { type: 'string' },
+          iframeable:   { type: 'boolean' },
         },
         additionalProperties: false,
       },

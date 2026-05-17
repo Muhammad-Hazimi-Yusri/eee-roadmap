@@ -355,6 +355,7 @@ documents:
     pdfUrl: "https://dcode.org.uk/assets/250307ena-erec-g98-issue-2-(2025).pdf"
     landingUrl: "https://www.energynetworks.org/publications/all-erec-g98-documents"
     license: link-only
+    iframeable: true
     projectTypes: [G98]
     studyTypes: [FRT, FreqResp, Harmonics, Flicker, Protection, LoM]
     jurisdiction: GB
@@ -370,6 +371,7 @@ documents:
     pdfUrl: "https://dcode.org.uk/assets/250307ena-erec-g99-issue-2-(2025).pdf"
     landingUrl: "https://www.energynetworks.org/publications/all-erec-g99-documents"
     license: link-only
+    iframeable: true
     projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS]
     studyTypes: [LoadFlow, FaultLevel, Reactive, FRT, FreqResp, Harmonics, Flicker, Unbalance, Protection, LoM, FFCI]
     jurisdiction: GB
@@ -400,6 +402,7 @@ documents:
     pdfUrl: "https://www.dcode.org.uk/assets/uploads/ENA_EREC_G5_Issue_5__2020_.pdf"
     landingUrl: "https://www.energynetworks.org/publications/all-erec-g5-documents"
     license: link-only
+    iframeable: true
     projectTypes: [G98, G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC, Demand]
     studyTypes: [Harmonics]
     jurisdiction: GB
@@ -430,6 +433,7 @@ documents:
     pdfUrl: "https://www.dcode.org.uk/assets/files/Qualifying%20Standards/ENA_EREC_P28_Issue%202_(2019).pdf"
     landingUrl: "https://www.energynetworks.org/publications/all-erec-p28-documents"
     license: link-only
+    iframeable: true
     projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, PPM, Demand]
     studyTypes: [Flicker]
     jurisdiction: GB
@@ -460,6 +464,7 @@ documents:
     pdfUrl: "https://www.dcode.org.uk/assets/uploads/ENA_EREC_G81-1_Issue_3__2016__Final_v3.pdf"
     landingUrl: "https://www.energynetworks.org/publications/all-erec-g81-documents"
     license: link-only
+    iframeable: true
     projectTypes: [G99-A, G99-B]
     studyTypes: [LoadFlow]
     jurisdiction: GB
@@ -477,6 +482,7 @@ documents:
     pdfUrl: "https://dcode.org.uk/assets/2026/dcode-v59.pdf"
     landingUrl: "https://dcode.org.uk/"
     license: link-only
+    iframeable: true
     projectTypes: [G98, G99-A, G99-B, G99-C, BESS, Demand]
     studyTypes: [LoadFlow, FaultLevel, Reactive, Protection]
     jurisdiction: GB
@@ -566,7 +572,7 @@ documents:
     publisher: UKGov
     version: "As amended"
     date: "2020-12-31"
-    pdfUrl: ""
+    pdfUrl: "https://www.legislation.gov.uk/eur/2016/631/data.pdf"
     landingUrl: "https://www.legislation.gov.uk/eur/2016/631"
     license: hostable-eu
     projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM]
