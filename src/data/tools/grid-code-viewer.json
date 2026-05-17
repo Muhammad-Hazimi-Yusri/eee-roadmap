@@ -1,0 +1,16 @@
+{
+  "id": "grid-code-viewer",
+  "title": "Grid Code & Standards Viewer",
+  "category": "reporting",
+  "difficulty": "intermediate",
+  "runtime": "js",
+  "componentKey": "grid-code-viewer",
+  "description": "Browse and cross-reference UK and EU grid codes, ENA EREC documents, and connection-process artefacts without juggling PDF tabs. Faceted filter (project type × study type × topic × jurisdiction), split-pane viewer with the PDF on the left and related clauses on the right, per-clause permalinks. Link-only for GB documents (NESO Grid Code, EREC G99, Distribution Code etc.) per publisher T&Cs; EU Network Codes can be hosted locally and full-text searched.",
+  "tags": ["grid-code", "compliance", "g99", "standards", "neso", "ena", "eu-rfg", "reference"],
+  "blocks": [
+    { "type": "prose", "text": "Engineers writing simulation reports or compliance studies under EREC G99 typically need to flip between the Grid Code, EREC G99, EREC G5/5, EREC P28, the Distribution Code, and the underlying EU Network Codes (RfG/DCC/HVDC) for a single piece of work. This tool puts a curated catalogue of those documents behind a single faceted filter — pick your project type (G98, G99 Type A/B/C/D, BESS, syncgen, PPM, HVDC) and study type (FRT, harmonics, reactive capability etc.), and the relevant documents and clauses surface together with hand-curated cross-references." },
+    { "type": "note", "kind": "tip", "text": "Use ⌘K (Ctrl+K on Windows/Linux) to open the search palette from anywhere inside the tool. Searches over document titles, clause IDs and clause summaries — type 'ECC.6.3.7' or 'fault ride through' and hit Enter." },
+    { "type": "note", "kind": "warn", "text": "License buckets shown alongside each document — link-only means the source PDF can only be viewed at the publisher (ENA/NESO/DCode T&Cs prohibit redistribution); hostable-eu means the PDF is served locally (EU Network Codes under Decision 2011/833/EU); paywalled means the standard is metadata-only (IEEE 1547, IEC 61400, VDE-AR-N). Always verify against the current published version before submitting compliance evidence." },
+    { "type": "note", "kind": "gotcha", "text": "Versions drift. NESO Grid Code revises monthly, EREC G99 and the Distribution Code yearly. The catalogue tracks current revisions but the in-tool 'Last updated' badge reflects when the catalogue entry was refreshed, not necessarily the publisher's latest. When in doubt, click through to the publisher landing page." }
+  ]
+}

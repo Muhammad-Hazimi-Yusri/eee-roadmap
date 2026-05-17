@@ -11,12 +11,13 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import YAML from 'yaml';
 
-const __dirname    = dirname(fileURLToPath(import.meta.url));
-const ROOT         = join(__dirname, '..');
-const CONTENT_DIR  = join(ROOT, 'content');
-const TRACKS_DIR   = join(CONTENT_DIR, 'tracks');
-const CONCEPTS_DIR = join(CONTENT_DIR, 'concepts');
-const SCHEMA_PATH  = join(ROOT, 'roadmap.schema.json');
+const __dirname     = dirname(fileURLToPath(import.meta.url));
+const ROOT          = join(__dirname, '..');
+const CONTENT_DIR   = join(ROOT, 'content');
+const TRACKS_DIR    = join(CONTENT_DIR, 'tracks');
+const CONCEPTS_DIR  = join(CONTENT_DIR, 'concepts');
+const STANDARDS_DIR = join(CONTENT_DIR, 'standards');
+const SCHEMA_PATH   = join(ROOT, 'roadmap.schema.json');
 
 // Files to skip (templates, examples)
 const EXCLUDE = new Set(['sample', '_glossary']);
@@ -51,6 +52,96 @@ const CONCEPT_DOMAIN_SCHEMA = {
           notes:         { type: 'string' },
           tags:          { type: 'array', items: { type: 'string' } },
           prerequisites: { type: 'array', items: { type: 'string' } },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+};
+
+// ─── Standards catalogue schema (used by the Grid Code Viewer tool) ──────────
+
+const PROJECT_TYPES = ['G98', 'G99-A', 'G99-B', 'G99-C', 'G99-D', 'BESS', 'Synch', 'PPM', 'HVDC', 'OFTO', 'Demand'];
+const STUDY_TYPES   = ['LoadFlow', 'FaultLevel', 'Reactive', 'FRT', 'FreqResp', 'AVR', 'PSS', 'POD', 'Harmonics', 'Flicker', 'Unbalance', 'Protection', 'LoM', 'EMT', 'BlackStart', 'SSO', 'FFCI'];
+const LICENSE_BUCKETS = ['link-only', 'hostable-eu', 'paywalled'];
+const PUBLISHERS    = ['NESO', 'ENA', 'DCode', 'EU', 'UKGov', 'IEEE', 'IEC', 'VDE', 'AEMC', 'CIGRE'];
+const JURISDICTIONS = ['GB', 'EU', 'Scotland', 'Offshore', 'US', 'DE', 'AU'];
+const RELATIONS     = ['defined-in', 'defines', 'modified-by', 'see-also', 'tested-by', 'evidenced-by', 'mirrors', 'commercial'];
+
+const STANDARDS_CATALOGUE_SCHEMA = {
+  type: 'object',
+  required: ['documents'],
+  properties: {
+    _meta: { type: 'object' },
+    documents: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'title', 'publisher', 'license'],
+        properties: {
+          id:           { type: 'string', pattern: '^[a-z0-9-]+$' },
+          title:        { type: 'string', minLength: 1 },
+          publisher:    { type: 'string', enum: PUBLISHERS },
+          version:      { type: 'string' },
+          date:         { type: 'string' },
+          pdfUrl:       { type: 'string' },
+          landingUrl:   { type: 'string' },
+          license:      { type: 'string', enum: LICENSE_BUCKETS },
+          projectTypes: { type: 'array', items: { type: 'string', enum: PROJECT_TYPES } },
+          studyTypes:   { type: 'array', items: { type: 'string', enum: STUDY_TYPES } },
+          jurisdiction: { type: 'string', enum: JURISDICTIONS },
+          sizeMb:       { type: 'number', minimum: 0 },
+          pages:        { type: 'number', minimum: 0 },
+          summary:      { type: 'string' },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+};
+
+const STANDARDS_CLAUSES_SCHEMA = {
+  type: 'object',
+  required: ['clauses'],
+  properties: {
+    _meta: { type: 'object' },
+    clauses: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['ref', 'docId', 'clauseId', 'title'],
+        properties: {
+          ref:          { type: 'string', minLength: 1 },
+          docId:        { type: 'string', pattern: '^[a-z0-9-]+$' },
+          clauseId:     { type: 'string', minLength: 1 },
+          title:        { type: 'string', minLength: 1 },
+          pageStart:    { type: 'number', minimum: 0 },
+          projectTypes: { type: 'array', items: { type: 'string', enum: PROJECT_TYPES } },
+          studyTypes:   { type: 'array', items: { type: 'string', enum: STUDY_TYPES } },
+          forms:        { type: 'array', items: { type: 'string' } },
+          summary:      { type: 'string' },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+};
+
+const STANDARDS_XREFS_SCHEMA = {
+  type: 'object',
+  required: ['xrefs'],
+  properties: {
+    _meta: { type: 'object' },
+    xrefs: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['from', 'to', 'relation'],
+        properties: {
+          from:     { type: 'string', minLength: 1 },
+          to:       { type: 'string', minLength: 1 },
+          relation: { type: 'string', enum: RELATIONS },
+          note:     { type: 'string' },
         },
         additionalProperties: false,
       },
@@ -291,14 +382,122 @@ function validateTrackRefs() {
   return true;
 }
 
+// ─── Validate standards catalogue, clauses, xrefs ────────────────────────────
+
+function validateStandards() {
+  if (!existsSync(STANDARDS_DIR)) return true;
+
+  const ajv = new Ajv({ allErrors: true });
+  const validators = {
+    '_catalogue.yaml': ajv.compile(STANDARDS_CATALOGUE_SCHEMA),
+    '_clauses.yaml':   ajv.compile(STANDARDS_CLAUSES_SCHEMA),
+    '_xrefs.yaml':     ajv.compile(STANDARDS_XREFS_SCHEMA),
+  };
+
+  console.log('\n🔍 Validating standards files...\n');
+
+  let hasErrors  = false;
+  const docIds   = new Set();
+  const clauseRefs = new Set();
+
+  // Validate each file
+  for (const filename of Object.keys(validators)) {
+    const path = join(STANDARDS_DIR, filename);
+    if (!existsSync(path)) {
+      console.log(`  ⚠️  standards/${filename} missing`);
+      continue;
+    }
+
+    try {
+      const data  = YAML.parse(readFileSync(path, 'utf-8'));
+      const valid = validators[filename](data);
+
+      if (!valid) {
+        hasErrors = true;
+        console.log(`  ❌ standards/${filename}`);
+        for (const err of validators[filename].errors || []) {
+          console.log(`     - ${err.instancePath || '/'}: ${err.message}`);
+        }
+        continue;
+      }
+
+      // Collect IDs / refs for cross-validation
+      if (filename === '_catalogue.yaml') {
+        for (const d of data.documents ?? []) {
+          if (docIds.has(d.id)) {
+            hasErrors = true;
+            console.log(`  ❌ standards/_catalogue.yaml — duplicate id "${d.id}"`);
+          }
+          docIds.add(d.id);
+        }
+      }
+      if (filename === '_clauses.yaml') {
+        for (const c of data.clauses ?? []) {
+          if (clauseRefs.has(c.ref)) {
+            hasErrors = true;
+            console.log(`  ❌ standards/_clauses.yaml — duplicate ref "${c.ref}"`);
+          }
+          clauseRefs.add(c.ref);
+        }
+      }
+
+      const count = (data.documents ?? data.clauses ?? data.xrefs ?? []).length;
+      console.log(`  ✅ standards/${filename}  (${count} entries)`);
+    } catch (err) {
+      hasErrors = true;
+      console.log(`  ❌ standards/${filename}`);
+      console.log(`     - Parse error: ${err.message}`);
+    }
+  }
+
+  // Cross-validation: clauses point to known docs
+  const clausesPath = join(STANDARDS_DIR, '_clauses.yaml');
+  if (existsSync(clausesPath)) {
+    const clausesData = YAML.parse(readFileSync(clausesPath, 'utf-8'));
+    for (const c of clausesData?.clauses ?? []) {
+      if (!docIds.has(c.docId)) {
+        hasErrors = true;
+        console.log(`  ❌ clause "${c.ref}" → docId "${c.docId}" not in catalogue`);
+      }
+    }
+  }
+
+  // Cross-validation: xref endpoints resolve to clauses or docs
+  const xrefsPath = join(STANDARDS_DIR, '_xrefs.yaml');
+  if (existsSync(xrefsPath)) {
+    const xrefsData = YAML.parse(readFileSync(xrefsPath, 'utf-8'));
+    for (const x of xrefsData?.xrefs ?? []) {
+      const fromOk = clauseRefs.has(x.from) || docIds.has(x.from);
+      const toOk   = clauseRefs.has(x.to)   || docIds.has(x.to);
+      if (!fromOk) {
+        hasErrors = true;
+        console.log(`  ❌ xref from="${x.from}" not in clauses or documents`);
+      }
+      if (!toOk) {
+        hasErrors = true;
+        console.log(`  ❌ xref to="${x.to}" not in clauses or documents`);
+      }
+    }
+  }
+
+  if (hasErrors) {
+    console.log('\n❌ Standards validation failed');
+    return false;
+  }
+
+  console.log(`\n  ✅ Standards integrity OK (${docIds.size} docs, ${clauseRefs.size} clauses)`);
+  return true;
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 validate();
 
-const conceptsOk = validateConceptLibrary();
-const refsOk     = validateTrackRefs();
+const conceptsOk  = validateConceptLibrary();
+const refsOk      = validateTrackRefs();
+const standardsOk = validateStandards();
 
-if (!conceptsOk || !refsOk) {
+if (!conceptsOk || !refsOk || !standardsOk) {
   process.exit(1);
 }
 

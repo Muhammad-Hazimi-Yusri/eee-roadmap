@@ -1,0 +1,699 @@
+_meta:
+  description: |
+    Canonical catalogue of UK / EU / international grid codes, network codes, ENA EREC
+    documents, planning codes, and connection-process artefacts. Used by the Grid Code
+    Viewer tool at /tools/grid-code-viewer/.
+
+    Conventions:
+      id            unique slug, lowercase, hyphen-separated
+      publisher     NESO | ENA | DCode | EU | UKGov | IEEE | IEC | VDE | AEMC | CIGRE
+      license       link-only | hostable-eu | paywalled
+                      - link-only  : do not host the PDF, deep-link to publisher URL
+                      - hostable-eu: legally hostable under Decision 2011/833/EU or OGL v3
+                      - paywalled  : metadata only, user provides their own copy
+      projectTypes  subset of: G98, G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM,
+                                HVDC, OFTO, Demand
+      studyTypes    subset of: LoadFlow, FaultLevel, Reactive, FRT, FreqResp, AVR,
+                                PSS, POD, Harmonics, Flicker, Unbalance, Protection,
+                                LoM, EMT, BlackStart, SSO, FFCI
+      jurisdiction  GB | EU | Scotland | Offshore | US | DE | AU
+      pdfUrl        canonical publisher URL (kept current with publisher updates)
+      sizeMb        approx file size — informational only
+      pages         approx page count — informational only
+      formId        (clauses only) related submission artefact, e.g. "G99 Form A.2-2"
+
+documents:
+
+  # ──────────────────── NESO Grid Code, Codes & Process docs ────────────────────
+
+  - id: grid-code
+    title: The Grid Code
+    publisher: NESO
+    version: "Issue 6 Rev 39"
+    date: "2026-05-07"
+    pdfUrl: "https://www.neso.energy/document/381586/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc/grid-code-documents"
+    license: link-only
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC, OFTO, Demand]
+    studyTypes:   [LoadFlow, FaultLevel, Reactive, FRT, FreqResp, AVR, PSS, POD, Harmonics, Flicker, Unbalance, Protection, BlackStart, SSO, FFCI]
+    jurisdiction: GB
+    sizeMb: 12
+    pages: 700
+    summary: "The umbrella code for the GB transmission system. Contains CC (Connection), ECC (European Connection), BC (Balancing), OC (Operating), PC (Planning), CP (Compliance Process) sections."
+
+  - id: digitalised-grid-code
+    title: Digitalised Grid Code (online HTML)
+    publisher: NESO
+    version: "Live"
+    date: "continuous"
+    pdfUrl: ""
+    landingUrl: "https://dcm.neso.energy"
+    license: link-only
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC, OFTO, Demand]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 0
+    pages: 0
+    summary: "NESO's own online HTML version of the Grid Code. Useful for browsing but no offline access; revision cadence matches the canonical PDF."
+
+  - id: drc
+    title: Data Registration Code
+    publisher: NESO
+    version: "Current"
+    date: "2025-01-01"
+    pdfUrl: "https://www.neso.energy/document/348461/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
+    license: link-only
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC, OFTO]
+    studyTypes: [LoadFlow, FaultLevel, Reactive]
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 150
+    summary: "Schedules of registered operational data — referenced from PC.A.5 and elsewhere. Schedule 13 covers short-circuit data; Schedule 1 covers steady-state."
+
+  - id: gn-syncgen
+    title: Compliance Guidance Notes — Synchronous Generators (GB User)
+    publisher: NESO
+    version: "Issue 14"
+    date: "2024-07-03"
+    pdfUrl: "https://www.neso.energy/document/202476/download"
+    landingUrl: "https://www.neso.energy/industry-information/connections/compliance-process"
+    license: link-only
+    projectTypes: [Synch]
+    studyTypes: [Reactive, AVR, PSS, POD, FreqResp, FRT, BlackStart]
+    jurisdiction: GB
+    sizeMb: 4
+    pages: 120
+    summary: "NESO's guidance for synchronous generator compliance — links GC clauses to evidence forms."
+
+  - id: gn-ppm
+    title: Compliance Guidance Notes — Power Park Modules
+    publisher: NESO
+    version: "Issue 5"
+    date: "2024-06-01"
+    pdfUrl: "https://www.neso.energy/document/202461/download"
+    landingUrl: "https://www.neso.energy/industry-information/connections/compliance-process"
+    license: link-only
+    projectTypes: [PPM]
+    studyTypes: [Reactive, FRT, FreqResp, Harmonics, EMT, FFCI]
+    jurisdiction: GB
+    sizeMb: 4
+    pages: 120
+    summary: "NESO's compliance guidance for non-synchronous (wind/solar) Power Park Modules."
+
+  - id: gn-storage
+    title: Compliance Guidance Notes — Electricity Storage (EU User)
+    publisher: NESO
+    version: "Issue 4"
+    date: "2024-07-03"
+    pdfUrl: "https://www.neso.energy/document/278161/download"
+    landingUrl: "https://www.neso.energy/industry-information/connections/compliance-process"
+    license: link-only
+    projectTypes: [BESS]
+    studyTypes: [Reactive, FRT, FreqResp, FFCI, EMT]
+    jurisdiction: GB
+    sizeMb: 3
+    pages: 110
+    summary: "Storage-specific compliance notes — the canonical reference for BESS connection compliance under EU User rules."
+
+  - id: gn-grid-forming
+    title: Grid Forming Best Practice Guide
+    publisher: NESO
+    version: "Issue 3"
+    date: "2025-09-16"
+    pdfUrl: "https://www.neso.energy/document/289921/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
+    license: link-only
+    projectTypes: [BESS, PPM, HVDC]
+    studyTypes: [FRT, EMT, SSO, FFCI, BlackStart]
+    jurisdiction: GB
+    sizeMb: 3
+    pages: 100
+    summary: "GBGF best practice — informs ECC.6.3.19 compliance for inverter-based resources providing grid-forming services."
+
+  - id: gn-colocation
+    title: Co-location Guidance Notes
+    publisher: NESO
+    version: "Issue 3"
+    date: "2025-06-12"
+    pdfUrl: "https://www.neso.energy/document/215466/download"
+    landingUrl: "https://www.neso.energy/industry-information/connections/compliance-process"
+    license: link-only
+    projectTypes: [BESS, PPM]
+    studyTypes: [LoadFlow, Reactive]
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 80
+    summary: "Guidance for co-located generation/storage sites — covers shared connections and metering."
+
+  - id: gn-modelling
+    title: Guidance Notes — Modelling (GC0141)
+    publisher: NESO
+    version: "Mar 2024"
+    date: "2024-03-01"
+    pdfUrl: "https://www.neso.energy/document/316631/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
+    license: link-only
+    projectTypes: [G99-C, G99-D, BESS, PPM, HVDC]
+    studyTypes: [EMT, SSO]
+    jurisdiction: GB
+    sizeMb: 3
+    pages: 120
+    summary: "Modelling requirements under GC0141 — RMS and EMT model submission, encrypted 3rd-party model workflow."
+
+  - id: gn-phase-jump
+    title: Phase Angle Jump Performance for GBGF-I
+    publisher: NESO
+    version: "Issue 1"
+    date: "2026-02-02"
+    pdfUrl: "https://www.neso.energy/document/376661/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
+    license: link-only
+    projectTypes: [BESS, PPM]
+    studyTypes: [EMT, SSO]
+    jurisdiction: GB
+    sizeMb: 1
+    pages: 40
+    summary: "Phase angle jump performance specification for grid-forming inverter-based resources (GBGF-I)."
+
+  - id: gn-oscillation
+    title: Oscillation Assessment for IBR
+    publisher: NESO
+    version: "V2"
+    date: "2025-09-09"
+    pdfUrl: "https://www.neso.energy/document/368341/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
+    license: link-only
+    projectTypes: [BESS, PPM, HVDC]
+    studyTypes: [EMT, SSO]
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 60
+    summary: "Methodology for assessing low-frequency oscillation risk from inverter-based resources."
+
+  - id: gn-lfsm
+    title: LFSM Guidance Note
+    publisher: NESO
+    version: "Current"
+    date: "2024-01-01"
+    pdfUrl: "https://www.neso.energy/document/243501/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
+    license: link-only
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes: [FreqResp]
+    jurisdiction: GB
+    sizeMb: 1
+    pages: 40
+    summary: "Limited Frequency Sensitive Mode — overfrequency (LFSM-O) and underfrequency (LFSM-U) implementation."
+
+  - id: gn-stability-pathfinder
+    title: Compliance Guidance — NOA Stability Pathfinder
+    publisher: NESO
+    version: "Current"
+    date: "2024-01-01"
+    pdfUrl: "https://www.neso.energy/document/220936/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
+    license: link-only
+    projectTypes: [BESS, PPM, Synch]
+    studyTypes: [SSO, EMT]
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 60
+    summary: "Compliance approach for Stability Pathfinder contracted assets (inertia, short-circuit level, voltage control)."
+
+  - id: oc9
+    title: OC9 — System Restoration Procedure
+    publisher: NESO
+    version: "Issue 6 Rev 23"
+    date: "2024-04-01"
+    pdfUrl: "https://www.neso.energy/document/33831/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
+    license: link-only
+    projectTypes: [Synch, BESS, PPM]
+    studyTypes: [BlackStart]
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 60
+    summary: "Operating Code 9 — system restoration / black start procedure."
+
+  - id: mod-app-guide
+    title: Guide to submitting Modification Applications
+    publisher: NESO
+    version: "Current"
+    date: "2024-01-01"
+    pdfUrl: "https://www.neso.energy/document/366161/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes"
+    license: link-only
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC, OFTO, Demand]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 1
+    pages: 40
+    summary: "Process guide for submitting modification applications to NESO code panels."
+
+  # ──────────────────── CUSC (commercial connection terms) ──────────────────────
+
+  - id: cusc
+    title: CUSC (Connection and Use of System Code)
+    publisher: NESO
+    version: "Feb 2026"
+    date: "2026-02-11"
+    pdfUrl: "https://www.neso.energy/document/330091/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/cusc"
+    license: link-only
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC, OFTO]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 12
+    pages: 900
+    summary: "Connection and Use of System Code — the commercial framework for connecting to the GB transmission system."
+
+  - id: cusc-bca
+    title: CUSC Exhibit 1 — Bilateral Connection Agreement (BCA) template
+    publisher: NESO
+    version: "v1.11"
+    date: "2025-06-10"
+    pdfUrl: "https://www.neso.energy/document/91576/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/cusc"
+    license: link-only
+    projectTypes: [G99-B, G99-C, G99-D, BESS, PPM, HVDC]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 80
+    summary: "Template Bilateral Connection Agreement — used for distribution-connected generation."
+
+  - id: cusc-bega
+    title: CUSC Exhibit 2 — BEGA template
+    publisher: NESO
+    version: "v1.8"
+    date: "2025-01-01"
+    pdfUrl: "https://www.neso.energy/document/91581/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/cusc"
+    license: link-only
+    projectTypes: [G99-C, G99-D, Synch, PPM, HVDC]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 80
+    summary: "Bilateral Embedded Generation Agreement template — transmission-connected commercial framework."
+
+  - id: cusc-cca
+    title: CUSC Exhibit 3 — Construction Agreement
+    publisher: NESO
+    version: "v1.21"
+    date: "2025-01-01"
+    pdfUrl: "https://www.neso.energy/document/294186/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/cusc"
+    license: link-only
+    projectTypes: [G99-C, G99-D, Synch, PPM, HVDC]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 60
+    summary: "Construction Agreement template — covers construction-phase obligations."
+
+  # ──────────────────── STC (System Operator-Transmission Owner) ────────────────
+
+  - id: stc
+    title: STC (System Operator-Transmission Owner Code)
+    publisher: NESO
+    version: "Jan 2026"
+    date: "2026-01-21"
+    pdfUrl: "https://www.neso.energy/document/346671/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/system-operator-transmission-owner-code-stc"
+    license: link-only
+    projectTypes: [Synch, PPM, HVDC, OFTO]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 8
+    pages: 500
+    summary: "Code governing the relationship between NESO and Transmission Owners (NGET, SHET, SPT, OFTOs)."
+
+  - id: stcp-18-1
+    title: STCP 18-1 Connection & Modification Application
+    publisher: NESO
+    version: "Issue 017"
+    date: "2026-02-12"
+    pdfUrl: "https://www.neso.energy/document/303901/download"
+    landingUrl: "https://www.neso.energy/industry-information/codes/system-operator-transmission-owner-code-stc"
+    license: link-only
+    projectTypes: [G99-D, Synch, PPM, HVDC, OFTO]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 1
+    pages: 40
+    summary: "STC Procedure 18-1 — connection and modification application process for TO assets."
+
+  # ──────────────────── ENA EREC (Engineering Recommendations) ──────────────────
+
+  - id: erec-g98
+    title: EREC G98 — Microgenerators ≤16 A/phase
+    publisher: ENA
+    version: "Issue 2"
+    date: "2025-03-10"
+    pdfUrl: "https://dcode.org.uk/assets/250307ena-erec-g98-issue-2-(2025).pdf"
+    landingUrl: "https://www.energynetworks.org/publications/all-erec-g98-documents"
+    license: link-only
+    projectTypes: [G98]
+    studyTypes: [FRT, FreqResp, Harmonics, Flicker, Protection, LoM]
+    jurisdiction: GB
+    sizeMb: 3
+    pages: 140
+    summary: "Microgenerator connection standard — ≤16 A/phase, Type A under RfG."
+
+  - id: erec-g99
+    title: EREC G99 — Generation 16A–1 MW+ to DNO networks
+    publisher: ENA
+    version: "Issue 2"
+    date: "2025-03-10"
+    pdfUrl: "https://dcode.org.uk/assets/250307ena-erec-g99-issue-2-(2025).pdf"
+    landingUrl: "https://www.energynetworks.org/publications/all-erec-g99-documents"
+    license: link-only
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS]
+    studyTypes: [LoadFlow, FaultLevel, Reactive, FRT, FreqResp, Harmonics, Flicker, Unbalance, Protection, LoM, FFCI]
+    jurisdiction: GB
+    sizeMb: 8
+    pages: 380
+    summary: "The canonical distribution-network generation connection standard — covers Type A/B/C/D, includes storage provisions from March 2026."
+
+  - id: erec-g99-forms
+    title: EREC G99 Forms Hub (A1/A2/A3/B2/C2 …)
+    publisher: ENA
+    version: "Various"
+    date: "2025-01-01"
+    pdfUrl: ""
+    landingUrl: "https://www.energynetworks.org/publications/all-g99-forms"
+    license: link-only
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS]
+    studyTypes: []
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 0
+    summary: "Hub for all G99 submission forms — A1 (Type A install), A2 (Type B/C/D), A3 (commissioning), B2, C2."
+
+  - id: erec-g55
+    title: EREC G5/5 — Harmonics
+    publisher: ENA
+    version: "Issue 5"
+    date: "2020-06-17"
+    pdfUrl: "https://www.dcode.org.uk/assets/uploads/ENA_EREC_G5_Issue_5__2020_.pdf"
+    landingUrl: "https://www.energynetworks.org/publications/all-erec-g5-documents"
+    license: link-only
+    projectTypes: [G98, G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC, Demand]
+    studyTypes: [Harmonics]
+    jurisdiction: GB
+    sizeMb: 4
+    pages: 180
+    summary: "Planning limits for harmonic distortion at LV/MV/HV/EHV — Stages 1, 2, 3 assessment methodology."
+
+  - id: erec-g100
+    title: EREC G100 — Export Limitation
+    publisher: ENA
+    version: "Issue 2 Amd 2"
+    date: "2023-01-01"
+    pdfUrl: "https://www.energynetworks.org/assets/images/ENA_EREC_G100_Issue_2_Amendment_2_(2023).pdf"
+    landingUrl: "https://www.energynetworks.org/publications/all-erec-g100-documents"
+    license: link-only
+    projectTypes: [G99-A, G99-B, BESS]
+    studyTypes: [Protection]
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 80
+    summary: "Export limitation scheme requirements for embedded generation — alternative to firm export-capacity contracts."
+
+  - id: erec-p28
+    title: EREC P28 — Voltage fluctuation / Flicker
+    publisher: ENA
+    version: "Issue 2"
+    date: "2019-01-01"
+    pdfUrl: "https://www.dcode.org.uk/assets/files/Qualifying%20Standards/ENA_EREC_P28_Issue%202_(2019).pdf"
+    landingUrl: "https://www.energynetworks.org/publications/all-erec-p28-documents"
+    license: link-only
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, PPM, Demand]
+    studyTypes: [Flicker]
+    jurisdiction: GB
+    sizeMb: 3
+    pages: 120
+    summary: "Planning limits for voltage fluctuation and flicker — Stages 1, 2, 3 assessment."
+
+  - id: erec-p29
+    title: EREC P29 — Voltage unbalance
+    publisher: ENA
+    version: "Issue 1 (under revision)"
+    date: "1990-01-01"
+    pdfUrl: ""
+    landingUrl: "https://dcode.org.uk/current-areas-of-work/dcrp-er-p29-working-group.html"
+    license: link-only
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, Demand]
+    studyTypes: [Unbalance]
+    jurisdiction: GB
+    sizeMb: 1
+    pages: 30
+    summary: "Planning limits for voltage unbalance (negative-sequence) — under revision."
+
+  - id: erec-g81
+    title: EREC G81 — DNO Planning Standards Suite
+    publisher: ENA
+    version: "Issue 3"
+    date: "2016-01-01"
+    pdfUrl: "https://www.dcode.org.uk/assets/uploads/ENA_EREC_G81-1_Issue_3__2016__Final_v3.pdf"
+    landingUrl: "https://www.energynetworks.org/publications/all-erec-g81-documents"
+    license: link-only
+    projectTypes: [G99-A, G99-B]
+    studyTypes: [LoadFlow]
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 80
+    summary: "DNO planning standards suite — voltage limits, network capacity, design guidance."
+
+  # ──────────────────── Distribution Code ───────────────────────────────────────
+
+  - id: dcode
+    title: GB Distribution Code
+    publisher: DCode
+    version: "Issue 59"
+    date: "2026-04-24"
+    pdfUrl: "https://dcode.org.uk/assets/2026/dcode-v59.pdf"
+    landingUrl: "https://dcode.org.uk/"
+    license: link-only
+    projectTypes: [G98, G99-A, G99-B, G99-C, BESS, Demand]
+    studyTypes: [LoadFlow, FaultLevel, Reactive, Protection]
+    jurisdiction: GB
+    sizeMb: 5
+    pages: 280
+    summary: "GB Distribution Code — governs the distribution network and its connections (≤132 kV)."
+
+  # ──────────────────── EU Network Codes (HOSTABLE) ─────────────────────────────
+
+  - id: nc-rfg
+    title: Network Code on Requirements for Generators (NC RfG)
+    publisher: EU
+    version: "Reg (EU) 2016/631"
+    date: "2016-04-14"
+    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2016/631/oj/eng"
+    landingUrl: "https://eur-lex.europa.eu/eli/reg/2016/631"
+    license: hostable-eu
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes: [LoadFlow, Reactive, FRT, FreqResp, AVR, Harmonics, Protection, LoM]
+    jurisdiction: EU
+    sizeMb: 2
+    pages: 70
+    summary: "EU regulation establishing harmonised network code on requirements for grid connection of generators. Hostable under Decision 2011/833/EU."
+
+  - id: nc-dcc
+    title: Network Code on Demand Connection (NC DCC)
+    publisher: EU
+    version: "Reg (EU) 2016/1388"
+    date: "2016-08-17"
+    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2016/1388/oj/eng"
+    landingUrl: "https://eur-lex.europa.eu/eli/reg/2016/1388"
+    license: hostable-eu
+    projectTypes: [Demand]
+    studyTypes: [LoadFlow, Reactive, FRT, FreqResp]
+    jurisdiction: EU
+    sizeMb: 1
+    pages: 40
+    summary: "EU Network Code on Demand Connection — demand facilities, closed distribution systems, transmission-connected demand."
+
+  - id: nc-hvdc
+    title: Network Code on HVDC Connections (NC HVDC)
+    publisher: EU
+    version: "Reg (EU) 2016/1447"
+    date: "2016-08-26"
+    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2016/1447/oj/eng"
+    landingUrl: "https://eur-lex.europa.eu/eli/reg/2016/1447"
+    license: hostable-eu
+    projectTypes: [HVDC, OFTO]
+    studyTypes: [Reactive, FRT, FreqResp, EMT, SSO]
+    jurisdiction: EU
+    sizeMb: 1
+    pages: 45
+    summary: "EU Network Code on HVDC connections and DC-connected Power Park Modules."
+
+  - id: nc-so-gl
+    title: System Operation Guideline (SO GL)
+    publisher: EU
+    version: "Reg (EU) 2017/1485"
+    date: "2017-08-02"
+    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2017/1485/oj/eng"
+    landingUrl: "https://eur-lex.europa.eu/eli/reg/2017/1485"
+    license: hostable-eu
+    projectTypes: [Synch, PPM, HVDC, BESS]
+    studyTypes: [FreqResp, BlackStart]
+    jurisdiction: EU
+    sizeMb: 3
+    pages: 220
+    summary: "EU System Operation Guideline — operational security, scheduling, frequency support."
+
+  - id: nc-er
+    title: Emergency and Restoration Network Code (NC ER)
+    publisher: EU
+    version: "Reg (EU) 2017/2196"
+    date: "2017-11-24"
+    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2017/2196/oj/eng"
+    landingUrl: "https://eur-lex.europa.eu/eli/reg/2017/2196"
+    license: hostable-eu
+    projectTypes: [Synch, BESS, PPM]
+    studyTypes: [BlackStart]
+    jurisdiction: EU
+    sizeMb: 1
+    pages: 40
+    summary: "EU Network Code on Emergency and Restoration."
+
+  - id: uk-retained-rfg
+    title: UK retained Network Code on Requirements for Generators
+    publisher: UKGov
+    version: "As amended"
+    date: "2020-12-31"
+    pdfUrl: ""
+    landingUrl: "https://www.legislation.gov.uk/eur/2016/631"
+    license: hostable-eu
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes: [LoadFlow, Reactive, FRT, FreqResp, AVR]
+    jurisdiction: GB
+    sizeMb: 2
+    pages: 70
+    summary: "UK retained EU law version of NC RfG — published under OGL v3.0. Note: GB Grid Code and EREC G99 implement these requirements domestically."
+
+  # ──────────────────── International equivalents (paywalled) ───────────────────
+
+  - id: ieee-1547
+    title: IEEE 1547-2018 — Interconnection of DER
+    publisher: IEEE
+    version: "2018 + 1547.1-2020"
+    date: "2018-04-06"
+    pdfUrl: ""
+    landingUrl: "https://standards.ieee.org/ieee/1547/5915/"
+    license: paywalled
+    projectTypes: [G99-A, G99-B, BESS, PPM]
+    studyTypes: [FRT, FreqResp, Reactive, Harmonics, Protection]
+    jurisdiction: US
+    sizeMb: 4
+    pages: 140
+    summary: "US standard for interconnection of distributed energy resources to electric power systems."
+
+  - id: iec-61400-21-1
+    title: IEC 61400-21-1 — Wind turbine measurement
+    publisher: IEC
+    version: "Ed.1"
+    date: "2019-05-01"
+    pdfUrl: ""
+    landingUrl: "https://webstore.iec.ch/en/publication/29528"
+    license: paywalled
+    projectTypes: [PPM]
+    studyTypes: [Harmonics, Flicker, FRT, FreqResp]
+    jurisdiction: EU
+    sizeMb: 3
+    pages: 150
+    summary: "Wind turbine power-quality measurement methodology — basis for G99 type-test reports."
+
+  - id: iec-61400-21-2
+    title: IEC 61400-21-2 — Wind power plant measurement
+    publisher: IEC
+    version: "Ed.1"
+    date: "2023-01-01"
+    pdfUrl: ""
+    landingUrl: "https://webstore.iec.ch/en/publication/63281"
+    license: paywalled
+    projectTypes: [PPM]
+    studyTypes: [Harmonics, Flicker, FRT, FreqResp]
+    jurisdiction: EU
+    sizeMb: 3
+    pages: 120
+    summary: "Whole wind plant / PPC behaviour measurement methodology."
+
+  - id: vde-ar-n-4110
+    title: VDE-AR-N 4110 — DE MV connection standard
+    publisher: VDE
+    version: "2023-09"
+    date: "2023-09-01"
+    pdfUrl: ""
+    landingUrl: "https://www.vde-verlag.de/standards/0100735/"
+    license: paywalled
+    projectTypes: [G99-B, G99-C, BESS, PPM]
+    studyTypes: [FRT, Reactive, FreqResp, Harmonics, FFCI]
+    jurisdiction: DE
+    sizeMb: 5
+    pages: 250
+    summary: "German MV (11/33 kV equivalent) connection technical application rule — analogue to G99 Type B/C."
+
+  - id: vde-ar-n-4120
+    title: VDE-AR-N 4120 — DE HV connection standard
+    publisher: VDE
+    version: "2018-11"
+    date: "2018-11-01"
+    pdfUrl: ""
+    landingUrl: "https://www.vde-verlag.de/standards/0100493/"
+    license: paywalled
+    projectTypes: [G99-D, BESS, PPM]
+    studyTypes: [FRT, Reactive, FreqResp, FFCI]
+    jurisdiction: DE
+    sizeMb: 5
+    pages: 240
+    summary: "German HV (132 kV) connection standard — analogue to G99 Type D."
+
+  - id: vde-ar-n-4130
+    title: VDE-AR-N 4130 — DE EHV connection standard
+    publisher: VDE
+    version: "2018-11"
+    date: "2018-11-01"
+    pdfUrl: ""
+    landingUrl: "https://www.vde-verlag.de/standards/0100494/"
+    license: paywalled
+    projectTypes: [G99-D, Synch, PPM, HVDC]
+    studyTypes: [FRT, Reactive, FreqResp]
+    jurisdiction: DE
+    sizeMb: 5
+    pages: 240
+    summary: "German EHV (275/400 kV) connection standard — analogue to NESO ECC."
+
+  - id: vde-ar-n-4105
+    title: VDE-AR-N 4105 — DE LV connection standard
+    publisher: VDE
+    version: "2018-11"
+    date: "2018-11-01"
+    pdfUrl: ""
+    landingUrl: "https://www.vde-verlag.de/standards/0100492/"
+    license: paywalled
+    projectTypes: [G98, G99-A]
+    studyTypes: [Reactive, FRT, FreqResp, Harmonics, Protection]
+    jurisdiction: DE
+    sizeMb: 3
+    pages: 150
+    summary: "German LV connection standard — analogue to G98 + small G99 Type A."
+
+  - id: aemo-ner
+    title: AEMO National Electricity Rules (S5.2 Generator Performance)
+    publisher: AEMC
+    version: "v234"
+    date: "2025-05-01"
+    pdfUrl: ""
+    landingUrl: "https://energy-rules.aemc.gov.au/"
+    license: link-only
+    projectTypes: [Synch, BESS, PPM, HVDC]
+    studyTypes: [FRT, Reactive, FreqResp, EMT, SSO]
+    jurisdiction: AU
+    sizeMb: 30
+    pages: 3000
+    summary: "Australian National Electricity Rules — S5.2 Generator Performance Standards. Multi-tier AAS/MAS/NAS access standards."

@@ -1,0 +1,433 @@
+_meta:
+  description: |
+    High-value clause anchors across the catalogue. Each entry is identified by
+    a global `ref` of the form `<docId>/<clauseId>` (e.g. `grid-code/ECC.6.3.15`).
+    The clauseId follows the document's own numbering — bare for ENA docs
+    (e.g. `13.6`), qualified for Grid Code/CUSC/STC (e.g. `ECC.6.3.15`).
+
+    Used by:
+      - RelatedClausesPanel.tsx (the right-pane peek view)
+      - SearchPalette.tsx (Fuse.js index)
+      - Permalinks: /tools/grid-code-viewer?doc=...&clause=...&page=...
+
+clauses:
+
+  # ─── Frequency / active-power cluster ────────────────────────────────────────
+
+  - ref: grid-code/ECC.6.3.7
+    docId: grid-code
+    clauseId: ECC.6.3.7
+    title: "Frequency Response (FSM / LFSM-O / LFSM-U)"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   [FreqResp]
+    forms:        ["DRC Sch 1", "G99 Form A.2"]
+    summary: "Mandatory Frequency Sensitive Mode (FSM) and Limited FSM Over/Under behaviour requirements for transmission-connected and large embedded generation. Commercial delivery via BC3."
+
+  - ref: grid-code/ECP.A.5.6.3
+    docId: grid-code
+    clauseId: ECP.A.5.6.3
+    title: "Compliance Test Procedure — Frequency Response"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, Synch, PPM]
+    studyTypes:   [FreqResp]
+    forms:        ["Compliance Test Report"]
+    summary: "Witness test procedure for demonstrating compliance with ECC.6.3.7 frequency response requirements."
+
+  - ref: grid-code/BC3
+    docId: grid-code
+    clauseId: BC3
+    title: "Frequency Control (commercial delivery)"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, Synch, PPM]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Balancing Code 3 — commercial framework for frequency response delivery (Dynamic Containment, Dynamic Moderation, Dynamic Regulation)."
+
+  - ref: grid-code/CC.A.3.2
+    docId: grid-code
+    clauseId: CC.A.3.2
+    title: "Legacy GB Frequency Response"
+    pageStart: 0
+    projectTypes: [Synch]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Legacy GB frequency response specification — predates ECC.6.3.7, retained for grandfathered units."
+
+  - ref: erec-g99/13.2
+    docId: erec-g99
+    clauseId: "13.2"
+    title: "Frequency Response (Type B/C/D)"
+    pageStart: 0
+    projectTypes: [G99-B, G99-C, G99-D, BESS]
+    studyTypes:   [FreqResp]
+    forms:        ["G99 Form A.2"]
+    summary: "Distribution-network frequency response — LFSM-O mandatory at Type B+, FSM at Type C+. Mirrors ECC.6.3.7."
+
+  # ─── FRT / FFCI cluster ─────────────────────────────────────────────────────
+
+  - ref: grid-code/ECC.6.3.15
+    docId: grid-code
+    clauseId: ECC.6.3.15
+    title: "Fault Ride Through (FRT)"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   [FRT]
+    forms:        ["G99 Form A.2-2", "ECP.A.3.5 study"]
+    summary: "Transmission FRT envelope — generators must remain connected during voltage dips of specified depth and duration. References ECP.A.3.5 for study methodology."
+
+  - ref: grid-code/ECC.6.3.15.10
+    docId: grid-code
+    clauseId: ECC.6.3.15.10
+    title: "High Voltage Ride Through (HVRT)"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, PPM, HVDC]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "HVRT envelope (added by GC0155) — OV ≥1.20 pu for 0.5 s, UV <0.8 pu for 3 s."
+
+  - ref: grid-code/ECC.6.3.16
+    docId: grid-code
+    clauseId: ECC.6.3.16
+    title: "Fast Fault Current Injection (FFCI)"
+    pageStart: 0
+    projectTypes: [BESS, PPM, HVDC]
+    studyTypes:   [FFCI, FRT]
+    forms:        []
+    summary: "Fast Fault Current Injection — non-synchronous generators must inject reactive current during voltage dips proportional to dip depth."
+
+  - ref: grid-code/ECP.A.3.5
+    docId: grid-code
+    clauseId: ECP.A.3.5
+    title: "Compliance Process — FRT Study"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, PPM, HVDC]
+    studyTypes:   [FRT, EMT]
+    forms:        ["FRT Study Report"]
+    summary: "Pre-energisation study requirements to demonstrate FRT compliance, including EMT modelling for Type D and inverter-based plant."
+
+  - ref: erec-g99/13.6
+    docId: erec-g99
+    clauseId: "13.6"
+    title: "Fault Ride Through (Type B/C/D)"
+    pageStart: 0
+    projectTypes: [G99-B, G99-C, G99-D, BESS]
+    studyTypes:   [FRT]
+    forms:        ["G99 Form A.2-2"]
+    summary: "Distribution-side FRT envelope per RfG — Type B uses Annex C.5, Type C/D mirrors ECC.6.3.15."
+
+  - ref: grid-code/CC.6.3.15.3
+    docId: grid-code
+    clauseId: CC.6.3.15.3
+    title: "Protection / Loss-of-Mains (transmission)"
+    pageStart: 0
+    projectTypes: [G99-D, Synch, PPM, HVDC]
+    studyTypes:   [Protection, LoM]
+    forms:        []
+    summary: "Protection grading and loss-of-mains philosophy for transmission-connected generation."
+
+  # ─── Reactive / voltage cluster ─────────────────────────────────────────────
+
+  - ref: grid-code/ECC.6.3.2
+    docId: grid-code
+    clauseId: ECC.6.3.2
+    title: "Reactive Power Capability"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   [Reactive]
+    forms:        ["DRC Sch 5", "G99 Form A.2"]
+    summary: "Q-V capability — synchronous generators per Fig 4(a), non-synchronous per Fig 4(b). Storage variant defined in Compliance Guidance Notes."
+
+  - ref: grid-code/CC.6.3.2
+    docId: grid-code
+    clauseId: CC.6.3.2
+    title: "Reactive Power Capability (legacy)"
+    pageStart: 0
+    projectTypes: [Synch]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "Legacy GB reactive capability — Fig CC.A.4.3. Retained for grandfathered units."
+
+  - ref: grid-code/ECC.6.3.8
+    docId: grid-code
+    clauseId: ECC.6.3.8
+    title: "Voltage Control / AVR"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes:   [AVR]
+    forms:        ["G99 Form A.2"]
+    summary: "Voltage control mode — closed-loop AVR for synchronous, Q(U) or V-droop for non-synchronous."
+
+  - ref: grid-code/ECC.A.6.1
+    docId: grid-code
+    clauseId: ECC.A.6.1
+    title: "AVR Performance Specification"
+    pageStart: 0
+    projectTypes: [Synch]
+    studyTypes:   [AVR]
+    forms:        []
+    summary: "AVR performance bandwidth, step response, ceiling voltage specifications."
+
+  - ref: grid-code/ECC.A.6.2
+    docId: grid-code
+    clauseId: ECC.A.6.2
+    title: "PSS Performance Specification"
+    pageStart: 0
+    projectTypes: [G99-D, Synch]
+    studyTypes:   [PSS, POD]
+    forms:        []
+    summary: "Power System Stabiliser performance requirements — mandatory for Type D synchronous."
+
+  - ref: grid-code/ECC.A.6.2.4
+    docId: grid-code
+    clauseId: ECC.A.6.2.4
+    title: "PSS Tuning & Witness Test"
+    pageStart: 0
+    projectTypes: [G99-D, Synch]
+    studyTypes:   [PSS]
+    forms:        ["PSS Commissioning Test"]
+    summary: "PSS tuning procedure with NESO witness attendance under BC2.11."
+
+  - ref: grid-code/BC2.11
+    docId: grid-code
+    clauseId: BC2.11
+    title: "NESO Attendance — PSS Commissioning"
+    pageStart: 0
+    projectTypes: [G99-D, Synch]
+    studyTypes:   [PSS]
+    forms:        []
+    summary: "Operational requirement for NESO control engineer attendance during PSS commissioning tests."
+
+  # ─── Harmonics / PQ cluster ─────────────────────────────────────────────────
+
+  - ref: grid-code/ECC.6.1.5
+    docId: grid-code
+    clauseId: ECC.6.1.5
+    title: "Harmonics"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, PPM, HVDC, Demand]
+    studyTypes:   [Harmonics]
+    forms:        ["G5/5 Stage 3"]
+    summary: "Connection-specific harmonic emission requirements — references EREC G5/5 for planning levels."
+
+  - ref: erec-g55/8
+    docId: erec-g55
+    clauseId: "8"
+    title: "Stage 2 Assessment Methodology"
+    pageStart: 0
+    projectTypes: [G99-A, G99-B, G99-C, BESS, PPM]
+    studyTypes:   [Harmonics]
+    forms:        ["G5/5 Stage 2 Report"]
+    summary: "Allocated emission limits per harmonic order — Stage 2 (most distribution-connected projects)."
+
+  - ref: erec-g55/9
+    docId: erec-g55
+    clauseId: "9"
+    title: "Stage 3 Assessment Methodology"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, PPM, HVDC]
+    studyTypes:   [Harmonics]
+    forms:        ["G5/5 Stage 3 Report", "BCA Appendix F"]
+    summary: "Detailed harmonic network analysis with frequency-dependent impedance models — required for EHV connections and large IBR."
+
+  - ref: grid-code/ECC.6.1.7
+    docId: grid-code
+    clauseId: ECC.6.1.7
+    title: "Voltage Fluctuation / Flicker"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, PPM]
+    studyTypes:   [Flicker]
+    forms:        ["P28 Stage 2/3"]
+    summary: "Connection-specific flicker emission requirements — references EREC P28 for planning limits."
+
+  - ref: grid-code/ECC.6.1.6
+    docId: grid-code
+    clauseId: ECC.6.1.6
+    title: "Voltage Unbalance"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, PPM, Demand]
+    studyTypes:   [Unbalance]
+    forms:        []
+    summary: "NPS limit ≤1% at EHV — references EREC P29 for distribution."
+
+  # ─── Loss of Mains cluster ──────────────────────────────────────────────────
+
+  - ref: erec-g99/13.3
+    docId: erec-g99
+    clauseId: "13.3"
+    title: "Loss of Mains Protection"
+    pageStart: 0
+    projectTypes: [G99-A, G99-B, G99-C, BESS]
+    studyTypes:   [LoM, Protection]
+    forms:        ["ALoMCP witness test"]
+    summary: "RoCoF 1 Hz/s 500 ms, vector shift disallowed (since Issue 1 Amd matrix update). Old G59/3 schemes require retrofit under ALoMCP."
+
+  # ─── Compliance process cluster ─────────────────────────────────────────────
+
+  - ref: grid-code/CP.11
+    docId: grid-code
+    clauseId: CP.11
+    title: "Compliance Process — Data Submission"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, Synch, PPM, HVDC, OFTO]
+    studyTypes:   []
+    forms:        ["DRC Sch 1", "UDFS"]
+    summary: "Pre-energisation data submission — registered data schedules, User Data File for Studies."
+
+  - ref: grid-code/ECP.A.6
+    docId: grid-code
+    clauseId: ECP.A.6
+    title: "Compliance Process — Pre-ION"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   []
+    forms:        ["Compliance Statement", "Self-Cert", "Schedule of Unresolved Items"]
+    summary: "Pre-Interim Operational Notification — User Self-Certification process and supporting evidence."
+
+  - ref: grid-code/PC.A.9
+    docId: grid-code
+    clauseId: PC.A.9
+    title: "Planning Code — Modelling Requirements"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, PPM, HVDC]
+    studyTypes:   [EMT, SSO]
+    forms:        ["PSS/E or PowerFactory RMS model", "PSCAD EMT model"]
+    summary: "GC0141 modelling requirements — RMS submission mandatory, EMT mandatory for HVDC and large IBR. Validation Report required."
+
+  - ref: grid-code/PC.A.5
+    docId: grid-code
+    clauseId: PC.A.5
+    title: "Planning Code — Steady-State Data"
+    pageStart: 0
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   [LoadFlow, FaultLevel, Reactive]
+    forms:        ["DRC Sch 1"]
+    summary: "Steady-state planning data — PQ envelope, transformer impedance, harmonic model parameters."
+
+  # ─── Black Start / GFM cluster ──────────────────────────────────────────────
+
+  - ref: grid-code/ECC.6.3.19
+    docId: grid-code
+    clauseId: ECC.6.3.19
+    title: "Grid Forming Capability (GBGF)"
+    pageStart: 0
+    projectTypes: [BESS, PPM, HVDC]
+    studyTypes:   [BlackStart, SSO, FFCI]
+    forms:        ["GBGF Study Report", "GFM Validation Report"]
+    summary: "GB Grid Forming capability requirements — grid-following vs grid-forming-current (GBGF-I) vs grid-forming-voltage (GBGF-V). Mandatory for Stability Pathfinder contracts."
+
+  - ref: grid-code/BC2
+    docId: grid-code
+    clauseId: BC2
+    title: "Operational Communications & Procedures"
+    pageStart: 0
+    projectTypes: [Synch, BESS, PPM]
+    studyTypes:   [BlackStart]
+    forms:        []
+    summary: "Balancing Code 2 — operational communications, telemetry, restoration support."
+
+  # ─── EU Network Code key articles ───────────────────────────────────────────
+
+  - ref: nc-rfg/Art.13
+    docId: nc-rfg
+    clauseId: "Article 13"
+    title: "RfG Article 13 — Type B Requirements"
+    pageStart: 0
+    projectTypes: [G99-B]
+    studyTypes:   [FreqResp, FRT, Reactive]
+    forms:        []
+    summary: "EU RfG Type B generator requirements — frequency, FRT, fault ride-through, reactive."
+
+  - ref: nc-rfg/Art.14
+    docId: nc-rfg
+    clauseId: "Article 14"
+    title: "RfG Article 14 — Type C Requirements"
+    pageStart: 0
+    projectTypes: [G99-C, BESS]
+    studyTypes:   [FreqResp, FRT, Reactive, AVR]
+    forms:        []
+    summary: "EU RfG Type C generator requirements — frequency response, voltage control, FRT, simulation model."
+
+  - ref: nc-rfg/Art.15
+    docId: nc-rfg
+    clauseId: "Article 15"
+    title: "RfG Article 15 — Type D Requirements"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, Synch, PPM]
+    studyTypes:   [FreqResp, FRT, Reactive, AVR, PSS]
+    forms:        []
+    summary: "EU RfG Type D generator requirements — full operating envelope incl. HVRT, PSS, validation."
+
+  - ref: nc-hvdc/Art.11
+    docId: nc-hvdc
+    clauseId: "Article 11"
+    title: "HVDC Active-power & Frequency Support"
+    pageStart: 0
+    projectTypes: [HVDC]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "EU NC HVDC active-power control and frequency support requirements."
+
+  - ref: nc-dcc/Art.14
+    docId: nc-dcc
+    clauseId: "Article 14"
+    title: "DCC Demand FRT"
+    pageStart: 0
+    projectTypes: [Demand]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "EU NC DCC demand facility fault ride-through requirements."
+
+  - ref: nc-dcc/Art.15
+    docId: nc-dcc
+    clauseId: "Article 15"
+    title: "DCC Reactive Power Capability"
+    pageStart: 0
+    projectTypes: [Demand]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "EU NC DCC demand reactive capability requirements."
+
+  # ─── EREC G99 key sections ──────────────────────────────────────────────────
+
+  - ref: erec-g99/11
+    docId: erec-g99
+    clauseId: "11"
+    title: "Type A Protection (≤1 MW)"
+    pageStart: 0
+    projectTypes: [G99-A]
+    studyTypes:   [Protection]
+    forms:        ["G99 Form A.1"]
+    summary: "Protection requirements for Type A embedded generation."
+
+  - ref: erec-g99/12.5
+    docId: erec-g99
+    clauseId: "12.5"
+    title: "Type A Reactive Range"
+    pageStart: 0
+    projectTypes: [G99-A]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "Reactive capability for Type A — typically unity to 0.95 lag/lead at full output."
+
+  - ref: erec-g99/15.3
+    docId: erec-g99
+    clauseId: "15.3"
+    title: "Harmonic Emission Compliance"
+    pageStart: 0
+    projectTypes: [G99-A, G99-B, G99-C, BESS]
+    studyTypes:   [Harmonics]
+    forms:        ["G99 Form A.2-1/A.2-2/A.2-3"]
+    summary: "Cross-reference to EREC G5/5 for harmonic limits. Form A.2-1 (LV), A.2-2 (HV), A.2-3 (EHV)."
+
+  # ─── Storage-specific ──────────────────────────────────────────────────────
+
+  - ref: gn-storage/A.6
+    docId: gn-storage
+    clauseId: "Appendix A.6"
+    title: "Storage Frequency Response (carve-outs)"
+    pageStart: 0
+    projectTypes: [BESS]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Storage-specific carve-outs and clarifications for frequency response — covers state-of-charge dependency and discharge-direction asymmetry."

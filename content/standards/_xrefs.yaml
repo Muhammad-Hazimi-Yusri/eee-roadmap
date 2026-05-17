@@ -1,0 +1,84 @@
+_meta:
+  description: |
+    Hand-curated cross-references between clauses across the catalogue.
+    Used by the RelatedClausesPanel to surface "what else should I read?"
+
+    Relation vocabulary:
+      defined-in    - source clause defines a term/parameter referenced by target
+      defines       - inverse of defined-in (auto-derived; keep manually if useful)
+      modified-by   - source clause is modified or amended by target (e.g. GC0155)
+      see-also      - peer/companion clause worth reading alongside source
+      tested-by     - source clause's compliance is demonstrated via target test procedure
+      evidenced-by  - source clause is evidenced by target form/report
+      mirrors       - source clause has a direct counterpart in target (often EU NC vs GB)
+      commercial    - source technical requirement is commercially delivered via target
+
+    `from` and `to` use the global ref format: <docId>/<clauseId>.
+
+xrefs:
+
+  # ─── Frequency cluster ──────────────────────────────────────────────────────
+  - { from: "grid-code/ECC.6.3.7",     to: "grid-code/BC3",              relation: commercial,   note: "Commercial framework for frequency response delivery" }
+  - { from: "grid-code/ECC.6.3.7",     to: "grid-code/ECP.A.5.6.3",      relation: tested-by,    note: "Compliance test procedure" }
+  - { from: "grid-code/ECC.6.3.7",     to: "grid-code/CC.A.3.2",         relation: see-also,     note: "Legacy GB frequency response (grandfathered)" }
+  - { from: "grid-code/ECC.6.3.7",     to: "erec-g99/13.2",              relation: mirrors,      note: "Distribution mirror" }
+  - { from: "grid-code/ECC.6.3.7",     to: "nc-rfg/Art.15",              relation: defined-in,   note: "EU RfG Type D origin" }
+  - { from: "erec-g99/13.2",           to: "grid-code/ECC.6.3.7",        relation: mirrors,      note: "Transmission counterpart" }
+  - { from: "erec-g99/13.2",           to: "gn-lfsm",                    relation: see-also,     note: "LFSM implementation guidance" }
+  - { from: "gn-storage/A.6",          to: "grid-code/ECC.6.3.7",        relation: see-also,     note: "Storage carve-outs from ECC.6.3.7" }
+
+  # ─── FRT cluster ────────────────────────────────────────────────────────────
+  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECP.A.3.5",        relation: tested-by,    note: "FRT study methodology" }
+  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECC.6.3.16",       relation: see-also,     note: "FFCI works alongside FRT" }
+  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECC.6.3.15.10",    relation: see-also,     note: "HVRT envelope" }
+  - { from: "grid-code/ECC.6.3.15",    to: "erec-g99/13.6",              relation: mirrors,      note: "Distribution mirror" }
+  - { from: "grid-code/ECC.6.3.15",    to: "nc-rfg/Art.14",              relation: defined-in,   note: "EU RfG Type C origin" }
+  - { from: "grid-code/ECC.6.3.15",    to: "nc-rfg/Art.15",              relation: defined-in,   note: "EU RfG Type D origin" }
+  - { from: "grid-code/ECC.6.3.15.10", to: "grid-code/CC.6.3.15.3",      relation: see-also,     note: "Protection envelope bounds HVRT" }
+  - { from: "grid-code/ECC.6.3.16",    to: "grid-code/ECC.6.3.15",       relation: see-also,     note: "FFCI works alongside FRT" }
+  - { from: "grid-code/ECP.A.3.5",     to: "grid-code/PC.A.9",           relation: see-also,     note: "Modelling requirements for FRT study" }
+  - { from: "erec-g99/13.6",           to: "grid-code/ECC.6.3.15",       relation: mirrors,      note: "Transmission counterpart" }
+
+  # ─── Reactive / voltage cluster ─────────────────────────────────────────────
+  - { from: "grid-code/ECC.6.3.2",     to: "grid-code/ECC.6.3.8",        relation: see-also,     note: "Reactive capability + voltage control" }
+  - { from: "grid-code/ECC.6.3.2",     to: "grid-code/CC.6.3.2",         relation: see-also,     note: "Legacy synch counterpart" }
+  - { from: "grid-code/ECC.6.3.8",     to: "grid-code/ECC.A.6.1",        relation: defined-in,   note: "AVR performance spec" }
+  - { from: "grid-code/ECC.A.6.1",     to: "grid-code/ECC.A.6.2",        relation: see-also,     note: "PSS performance spec" }
+  - { from: "grid-code/ECC.A.6.2",     to: "grid-code/ECC.A.6.2.4",      relation: tested-by,    note: "PSS tuning + witness test" }
+  - { from: "grid-code/ECC.A.6.2.4",   to: "grid-code/BC2.11",           relation: see-also,     note: "NESO witness attendance" }
+
+  # ─── Harmonics cluster ──────────────────────────────────────────────────────
+  - { from: "grid-code/ECC.6.1.5",     to: "erec-g55/9",                 relation: defined-in,   note: "Stage 3 methodology" }
+  - { from: "erec-g55/8",              to: "erec-g99/15.3",              relation: evidenced-by, note: "Stage 2 emission form" }
+  - { from: "erec-g55/9",              to: "cusc-bca",                   relation: see-also,     note: "BCA App F site-specific harmonic limits" }
+  - { from: "grid-code/ECC.6.1.7",     to: "erec-p28",                   relation: defined-in,   note: "P28 flicker planning levels" }
+  - { from: "grid-code/ECC.6.1.6",     to: "erec-p29",                   relation: defined-in,   note: "P29 unbalance planning levels" }
+  - { from: "erec-g99/15.3",           to: "erec-g55/8",                 relation: see-also,     note: "Distribution G5/5 Stage 2 reference" }
+
+  # ─── LoM cluster ────────────────────────────────────────────────────────────
+  - { from: "erec-g99/13.3",           to: "grid-code/CC.6.3.15.3",      relation: see-also,     note: "Transmission protection bounds" }
+
+  # ─── Compliance process cluster ─────────────────────────────────────────────
+  - { from: "grid-code/CP.11",         to: "grid-code/PC.A.5",           relation: defined-in,   note: "Steady-state planning data forms" }
+  - { from: "grid-code/ECP.A.6",       to: "grid-code/CP.11",            relation: see-also,     note: "Pre-ION builds on data submission" }
+  - { from: "grid-code/ECP.A.6",       to: "cusc-bca",                   relation: evidenced-by, note: "Compliance Statement appended to BCA" }
+  - { from: "grid-code/PC.A.9",        to: "gn-modelling",               relation: defined-in,   note: "GC0141 modelling guidance" }
+  - { from: "grid-code/PC.A.5",        to: "drc",                        relation: defined-in,   note: "DRC Schedules referenced" }
+  - { from: "grid-code/PC.A.9",        to: "grid-code/ECP.A.3.5",        relation: see-also,     note: "EMT/RMS models support FRT study" }
+
+  # ─── Black start / GFM cluster ──────────────────────────────────────────────
+  - { from: "grid-code/ECC.6.3.19",    to: "gn-grid-forming",            relation: defined-in,   note: "GFM Best Practice Guide" }
+  - { from: "grid-code/ECC.6.3.19",    to: "grid-code/PC.A.5",           relation: see-also,     note: "Planning data for GFM characterisation" }
+  - { from: "grid-code/ECC.6.3.19",    to: "gn-stability-pathfinder",    relation: see-also,     note: "Pathfinder contract compliance approach" }
+  - { from: "grid-code/BC2",           to: "oc9",                        relation: see-also,     note: "Black start operating procedure" }
+
+  # ─── G99 forms cluster ──────────────────────────────────────────────────────
+  - { from: "erec-g99/11",             to: "erec-g99-forms",             relation: evidenced-by, note: "Form A.1 for Type A install" }
+  - { from: "erec-g99/13.2",           to: "erec-g99-forms",             relation: evidenced-by, note: "Form A.2 for Type B/C/D" }
+  - { from: "erec-g99/15.3",           to: "erec-g99-forms",             relation: evidenced-by, note: "Forms A.2-1/2/3 for harmonics" }
+
+  # ─── International equivalents (mirrors) ────────────────────────────────────
+  - { from: "grid-code/ECC.6.3.15",    to: "ieee-1547",                  relation: mirrors,      note: "US Cat II/III FRT envelope (allows momentary cessation)" }
+  - { from: "grid-code/ECC.6.3.15",    to: "vde-ar-n-4120",              relation: mirrors,      note: "German HV equivalent (LVRT 0 pu/150 ms, OVRT 1.30 pu/100 ms)" }
+  - { from: "grid-code/ECC.6.3.15",    to: "aemo-ner",                   relation: mirrors,      note: "AEMO NER S5.2.5.5 — MFRT goes beyond G99" }
+  - { from: "grid-code/ECC.6.3.7",     to: "ieee-1547",                  relation: mirrors,      note: "US Cat A/B freq response" }
