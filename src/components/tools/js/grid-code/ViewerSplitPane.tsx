@@ -14,7 +14,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
-  StandardDocument, StandardClause, AdjacencyEntry, HighlightSource,
+  StandardDocument, StandardClause, AdjacencyEntry, HighlightSource, OutlineEntry,
 } from '../../../../lib/grid-code/types';
 import RelatedClausesPanel from './RelatedClausesPanel';
 import UploadDropzone from './UploadDropzone';
@@ -44,7 +44,14 @@ function buildViewerSrc(fileUrl: string, page?: number, highlight?: string): str
   params.set('file', fileUrl);
   const hashParts: string[] = [];
   if (page && page > 0)        hashParts.push(`page=${page}`);
-  if (highlight)               hashParts.push(`search=${encodeURIComponent(highlight)}`);
+  if (highlight) {
+    hashParts.push(`search=${encodeURIComponent(highlight)}`);
+    // PDF.js v5 splits the search term on whitespace by default
+    // (viewer.mjs:1253 → query.match(/\S+/g) when phrase!==true), which
+    // turns "Type A Protection" into a per-word search and lights up every
+    // standalone "A". Force phrase mode for any multi-word term.
+    if (/\s/.test(highlight))  hashParts.push('phrase=true');
+  }
   const hash = hashParts.length ? `#${hashParts.join('&')}` : '';
   return `/pdfjs/web/viewer/index.html?${params.toString()}${hash}`;
 }
@@ -80,11 +87,15 @@ export default function ViewerSplitPane(props: Props) {
   // Default: highlight the current clause ID when one is selected.
   const [highlightSource, setHighlightSource] = useState<HighlightSource>('id');
   const [customHighlight, setCustomHighlight] = useState('');
+  // Set by outline tab clicks for auto-extracted entries — overrides the
+  // clause-driven page until the user navigates elsewhere.
+  const [pageOverride, setPageOverride] = useState<number | null>(null);
   useEffect(() => {
     // Reset to clause-id highlight when the clause changes
     setHighlightSource('id');
     setCustomHighlight('');
-  }, [clause?.ref]);
+    setPageOverride(null);
+  }, [clause?.ref, doc.id]);
 
   const highlightTerm = useMemo(() => {
     if (highlightSource === 'custom') return customHighlight;
@@ -92,12 +103,27 @@ export default function ViewerSplitPane(props: Props) {
     return clause?.clauseId ?? '';
   }, [highlightSource, customHighlight, clause?.clauseId, clause?.title]);
 
-  // ── Resolved page (prefer locally-indexed clausePages, fall back to YAML) ──
+  // ── Resolved page ──────────────────────────────────────────────────────────
+  // Priority: explicit outline override > locally-indexed clausePages > catalogue pageStart
   const resolvedPage = useMemo<number | undefined>(() => {
+    if (pageOverride && pageOverride > 0) return pageOverride;
     const local = clause && localPdf?.clausePages?.[clause.clauseId];
     if (local && local > 0) return local;
     return page;
-  }, [clause, localPdf, page]);
+  }, [pageOverride, clause, localPdf, page]);
+
+  // Auto-extracted outline entries get a `source: 'auto'` marker so the
+  // panel can badge them and route clicks through onJumpInDoc.
+  const outlineForPanel = useMemo<OutlineEntry[]>(
+    () => (localPdf?.outline ?? []).map(o => ({ ...o, source: 'auto' as const })),
+    [localPdf?.outline],
+  );
+
+  function onJumpInDoc(page: number, highlight: string) {
+    setPageOverride(page);
+    setHighlightSource('custom');
+    setCustomHighlight(highlight);
+  }
 
   // ── Decide what to render in the left pane ─────────────────────────────────
   // Priority: local upload > hostable-eu > iframeable publisher URL > dropzone
@@ -356,8 +382,10 @@ export default function ViewerSplitPane(props: Props) {
               incoming={incoming}
               clauses={clauses}
               documents={documents}
+              outline={outlineForPanel}
               onJumpToClause={props.onJumpToClause}
               onJumpToDoc={props.onJumpToDoc}
+              onJumpInDoc={onJumpInDoc}
             />
           </aside>
         )}

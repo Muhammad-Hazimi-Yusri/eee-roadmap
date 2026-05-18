@@ -1,10 +1,10 @@
 // Right-pane "Related clauses" panel — peek view for the current
-// document or clause. Three tabs: Related (xrefs), Forms (submission
-// artefacts), Plain-English summary.
+// document or clause. Four tabs: Related (xrefs), Outline (full ToC),
+// Forms (submission artefacts), Plain-English summary.
 
 import { useMemo, useState } from 'react';
 import type {
-  StandardDocument, StandardClause, AdjacencyEntry, XrefRelation,
+  StandardDocument, StandardClause, AdjacencyEntry, XrefRelation, OutlineEntry,
 } from '../../../../lib/grid-code/types';
 
 interface Props {
@@ -14,8 +14,15 @@ interface Props {
   incoming: AdjacencyEntry[];
   clauses: StandardClause[];
   documents: StandardDocument[];
+  // Auto-extracted heading outline from the local PDF, if available.
+  // Empty / undefined when no local copy is uploaded yet.
+  outline?: OutlineEntry[];
   onJumpToClause: (clause: StandardClause) => void;
   onJumpToDoc:    (doc: StandardDocument) => void;
+  // Used for auto-extracted outline entries that don't have a curated
+  // _clauses.yaml ref. Triggers a page+highlight change without altering
+  // URL state.
+  onJumpInDoc?: (page: number, highlight: string) => void;
 }
 
 const RELATION_LABEL: Record<XrefRelation, string> = {
@@ -30,9 +37,11 @@ const RELATION_LABEL: Record<XrefRelation, string> = {
 };
 
 export default function RelatedClausesPanel({
-  doc, clause, outgoing, incoming, clauses, documents, onJumpToClause, onJumpToDoc,
+  doc, clause, outgoing, incoming, clauses, documents, outline,
+  onJumpToClause, onJumpToDoc, onJumpInDoc,
 }: Props) {
-  const [tab, setTab] = useState<'related' | 'forms' | 'notes'>('related');
+  const [tab, setTab] = useState<'related' | 'outline' | 'forms' | 'notes'>('related');
+  const [outlineQuery, setOutlineQuery] = useState('');
 
   const docById    = useMemo(() => new Map(documents.map(d => [d.id, d])), [documents]);
   const clauseByRef = useMemo(() => new Map(clauses.map(c => [c.ref, c])), [clauses]);
@@ -64,11 +73,51 @@ export default function RelatedClausesPanel({
   const summary = clause?.summary ?? doc.summary ?? '';
   const docClauses = useMemo(() => clauses.filter(c => c.docId === doc.id), [clauses, doc.id]);
 
+  // Combined outline: curated _clauses.yaml entries first (always present),
+  // then auto-extracted entries that don't duplicate a curated ID. Both are
+  // filtered by the outline search box.
+  const combinedOutline = useMemo<OutlineEntry[]>(() => {
+    const seen = new Set<string>();
+    const out: OutlineEntry[] = [];
+    for (const c of docClauses) {
+      seen.add(c.clauseId);
+      out.push({ id: c.clauseId, title: c.title, page: c.pageStart ?? 0, source: 'curated' });
+    }
+    for (const o of outline ?? []) {
+      if (seen.has(o.id)) continue;
+      seen.add(o.id);
+      out.push({ id: o.id, title: o.title, page: o.page, source: 'auto' });
+    }
+    return out;
+  }, [docClauses, outline]);
+
+  const filteredOutline = useMemo<OutlineEntry[]>(() => {
+    const q = outlineQuery.trim().toLowerCase();
+    if (!q) return combinedOutline;
+    return combinedOutline.filter(o =>
+      o.id.toLowerCase().includes(q) || o.title.toLowerCase().includes(q),
+    );
+  }, [combinedOutline, outlineQuery]);
+
+  function onOutlineClick(o: OutlineEntry) {
+    // Curated entries route through onJumpToClause so URL state stays in
+    // sync. Auto entries route through onJumpInDoc which just sets the
+    // viewer's page + highlight without touching the URL.
+    if (o.source === 'curated') {
+      const c = clauses.find(x => x.docId === doc.id && x.clauseId === o.id);
+      if (c) { onJumpToClause(c); return; }
+    }
+    onJumpInDoc?.(o.page, o.id);
+  }
+
   return (
     <div className="rcp-root">
       <div className="rcp-tabs" role="tablist">
         <button type="button" role="tab" aria-selected={tab === 'related'} className={tab === 'related' ? 'rcp-tab rcp-tab--active' : 'rcp-tab'} onClick={() => setTab('related')}>
           Related <span className="rcp-tab-count">{edges.length}</span>
+        </button>
+        <button type="button" role="tab" aria-selected={tab === 'outline'} className={tab === 'outline' ? 'rcp-tab rcp-tab--active' : 'rcp-tab'} onClick={() => setTab('outline')}>
+          Outline <span className="rcp-tab-count">{combinedOutline.length}</span>
         </button>
         <button type="button" role="tab" aria-selected={tab === 'forms'} className={tab === 'forms' ? 'rcp-tab rcp-tab--active' : 'rcp-tab'} onClick={() => setTab('forms')}>
           Forms <span className="rcp-tab-count">{forms.length}</span>
@@ -122,6 +171,43 @@ export default function RelatedClausesPanel({
               </li>
             ))}
           </ul>
+        )}
+
+        {tab === 'outline' && (
+          <div className="rcp-outline">
+            <input
+              type="search"
+              className="rcp-outline-search"
+              placeholder="Filter outline (id or title)…"
+              value={outlineQuery}
+              onChange={e => setOutlineQuery(e.target.value)}
+              aria-label="Filter outline"
+            />
+            <p className="rcp-outline-hint">
+              Press <kbd>Ctrl</kbd>+<kbd>F</kbd> inside the PDF for full-text search.
+            </p>
+            {combinedOutline.length === 0 ? (
+              <p className="rcp-empty">
+                No outline yet. Upload a local copy to build one automatically.
+              </p>
+            ) : filteredOutline.length === 0 ? (
+              <p className="rcp-empty">No matches for &quot;{outlineQuery}&quot;.</p>
+            ) : (
+              <ul className="rcp-list rcp-list--outline">
+                {filteredOutline.map(o => (
+                  <li key={`${o.source}-${o.id}`}>
+                    <button type="button" className="rcp-edge" onClick={() => onOutlineClick(o)}>
+                      <div className="rcp-edge-title">
+                        <code>{o.id}</code>  {o.title}
+                        {o.source === 'auto' && <span className="rcp-outline-auto">auto</span>}
+                      </div>
+                      {o.page > 0 && <div className="rcp-edge-sub">page {o.page}</div>}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
 
         {tab === 'forms' && (
@@ -251,6 +337,36 @@ export default function RelatedClausesPanel({
           color: var(--color-text);
         }
         .rcp-summary p { margin: 0.5rem 0; }
+        .rcp-outline { display: flex; flex-direction: column; gap: 0.4rem; }
+        .rcp-outline-search {
+          background: var(--color-bg-grid); border: 1px solid var(--color-border);
+          color: var(--color-text); font-family: var(--font-mono); font-size: 0.78rem;
+          padding: 0.35rem 0.55rem; border-radius: 2px;
+          width: 100%;
+        }
+        .rcp-outline-search:focus { outline: none; border-color: var(--color-copper); }
+        .rcp-outline-hint {
+          margin: 0; font-size: 0.68rem; color: var(--color-text-muted);
+          font-family: var(--font-mono);
+        }
+        .rcp-outline-hint kbd {
+          font-family: var(--font-mono); font-size: 0.65rem;
+          padding: 0.05rem 0.3rem;
+          background: var(--color-bg-grid);
+          border: 1px solid var(--color-border);
+          border-radius: 2px;
+        }
+        .rcp-list--outline { gap: 0.2rem; }
+        .rcp-outline-auto {
+          font-family: var(--font-mono); font-size: 0.58rem;
+          margin-left: 0.4rem;
+          padding: 0 0.3rem;
+          background: var(--color-bg-grid);
+          border: 1px solid var(--color-border);
+          color: var(--color-text-muted);
+          text-transform: uppercase; letter-spacing: 0.05em;
+          border-radius: 2px;
+        }
       `}</style>
     </div>
   );

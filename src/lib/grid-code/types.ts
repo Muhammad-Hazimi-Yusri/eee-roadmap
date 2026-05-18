@@ -49,6 +49,15 @@ export interface StandardDocument {
 
 export type HighlightSource = 'id' | 'title' | 'custom';
 
+// A single navigable anchor in the per-document outline. Comes from either
+// _clauses.yaml (curated) or the post-upload heading extractor (auto).
+export interface OutlineEntry {
+  id:    string;     // clauseId, e.g. "ECC.6.3.7", "13.2", "Article 14"
+  title: string;
+  page:  number;     // 1-based
+  source: 'curated' | 'auto';
+}
+
 export interface StandardClause {
   ref: string;       // e.g. "grid-code/ECC.6.3.15"
   docId: string;

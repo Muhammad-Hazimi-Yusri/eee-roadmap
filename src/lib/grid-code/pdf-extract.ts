@@ -20,7 +20,9 @@
 //     `Table 13.2-1` incidentally — first hit wins.
 
 // Minimal PDF.js types — we only need what we use.
-interface PdfTextItem { str: string; [k: string]: unknown }
+// `transform` is PDF.js's 6-element affine matrix; transform[5] is the Y
+// offset of the text-run baseline, which we use to detect line breaks.
+interface PdfTextItem { str: string; transform?: number[]; [k: string]: unknown }
 interface PdfTextContent { items: PdfTextItem[] }
 interface PdfPage { getTextContent(): Promise<PdfTextContent> }
 interface PdfDocument {
@@ -90,6 +92,65 @@ function pageText(content: PdfTextContent): string {
     .replace(/\s+/g, ' ');
 }
 
+// Line-aware version: emit one logical line per PDF text-run group sharing
+// the same Y baseline. Y comparison uses transform[5] from PDF.js, with a
+// small epsilon so micro-typographic adjustments don't fragment a line.
+// Returns lines stripped of leading/trailing whitespace; empty lines are
+// dropped. Falls back gracefully when transform info is absent (treats
+// every item as its own line, which is conservative — the heading regex
+// will then anchor on item boundaries, still useful).
+export function pageLines(content: PdfTextContent): string[] {
+  const Y_EPSILON = 1.5;
+  const lines: string[] = [];
+  let current = '';
+  let currentY: number | null = null;
+  for (const it of content.items) {
+    const str = typeof it.str === 'string' ? it.str : '';
+    if (!str) continue;
+    const y = it.transform && typeof it.transform[5] === 'number' ? it.transform[5] : null;
+    if (currentY === null || y === null || Math.abs(y - currentY) <= Y_EPSILON) {
+      current += (current ? ' ' : '') + str;
+    } else {
+      const trimmed = current.replace(/\s+/g, ' ').trim();
+      if (trimmed) lines.push(trimmed);
+      current = str;
+    }
+    if (y !== null) currentY = y;
+  }
+  const trimmed = current.replace(/\s+/g, ' ').trim();
+  if (trimmed) lines.push(trimmed);
+  return lines;
+}
+
+// Build the three heading-shaped patterns used by the outline extractor.
+// Each returns [, id, title] match groups.
+export function buildHeadingRegexes(): RegExp[] {
+  return [
+    // Dotted alphabetic IDs: ECC.6.3.7, CC.A.3.2, BC2.11, CP.11, BC3, etc.
+    // The alpha-prefix may be followed by 0-3 digits (BC2, BC3) and then
+    // any number of dot-separated sub-segments. Title must start with a
+    // capital and span 4..80 chars of letters/punctuation. Requires at
+    // least one digit somewhere in the id so plain words don't match.
+    /^([A-Z]{1,5}\d{1,3}(?:\.[A-Za-z\d]+)*|[A-Z]{1,5}(?:\.[A-Za-z\d]+)+)\s+([A-Z][^\n]{4,80})$/,
+    // Plain numeric IDs: 11, 12.5, 13.2, 11.2.3 — up to 4 dot segments.
+    // Allow an optional trailing dot after the id ("13.2.").
+    /^(\d+(?:\.\d+){0,3})\.?\s+([A-Z][^\n]{4,80})$/,
+    // EU-style: "Article 14", "Annex C.5.7.3", "Appendix B".
+    /^(Article\s+\d+|Annex\s+[A-Z](?:\.\d+)*|Appendix\s+[A-Z])\s+([^\n]{4,80})$/,
+  ];
+}
+
+// Page-footer / running-header noise that the regexes occasionally catch.
+// These get filtered out before storage.
+const HEADING_REJECT = /^(?:page\s+\d+|continued|see\s+also|figure\s+\d|table\s+\d)/i;
+
+function lineLooksLikeHeading(line: string): boolean {
+  // A page footer is often "Page 13 of 380" — short, has digits. Filter.
+  if (line.length < 6) return false;
+  if (HEADING_REJECT.test(line)) return false;
+  return true;
+}
+
 export interface ExtractClausePagesOptions {
   // Bail out if the extraction would take longer than this many ms.
   // Default: no timeout. Used by the upload-flow to give large PDFs a chance
@@ -144,4 +205,66 @@ export async function extractClausePages(
   }
 
   return found;
+}
+
+export interface OutlineHit {
+  id:    string;
+  title: string;
+  page:  number;
+}
+
+export interface ExtractOutlineOptions extends ExtractClausePagesOptions {
+  // Stop collecting after this many hits. Default 500 — large enough for
+  // every doc in the catalogue, small enough to keep IndexedDB happy.
+  maxEntries?: number;
+}
+
+/**
+ * Walk the PDF and emit a heading outline: every line that looks like a
+ * clause heading, with its 1-based page number. The three regexes from
+ * buildHeadingRegexes() are applied in priority order; the first match per
+ * line wins. Within a page, multiple heading lines are emitted in textual
+ * order. Across pages, dedup by clause-id (first occurrence wins).
+ */
+export async function extractDocumentOutline(
+  blob: Blob,
+  opts: ExtractOutlineOptions = {},
+): Promise<OutlineHit[]> {
+  const startedAt   = Date.now();
+  const maxEntries  = opts.maxEntries ?? 500;
+  const pdfjs       = await loadPdfJs();
+  const buf         = await blob.arrayBuffer();
+  const pdf         = await pdfjs.getDocument({ data: buf }).promise;
+  const regexes     = buildHeadingRegexes();
+  const seen        = new Set<string>();
+  const out: OutlineHit[] = [];
+
+  try {
+    for (let p = 1; p <= pdf.numPages; p++) {
+      if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) break;
+      if (out.length >= maxEntries) break;
+      const page = await pdf.getPage(p);
+      const lines = pageLines(await page.getTextContent());
+      for (const line of lines) {
+        if (!lineLooksLikeHeading(line)) continue;
+        for (const re of regexes) {
+          const m = re.exec(line);
+          if (!m) continue;
+          const id    = m[1].trim();
+          const title = m[2].trim().replace(/[\s.;,:]+$/, '');
+          if (!id || !title) break;
+          if (seen.has(id)) break;
+          seen.add(id);
+          out.push({ id, title, page: p });
+          break; // first regex wins for this line
+        }
+        if (out.length >= maxEntries) break;
+      }
+      opts.onProgress?.(p, pdf.numPages);
+    }
+  } finally {
+    await pdf.destroy();
+  }
+
+  return out;
 }
