@@ -295,7 +295,7 @@ test.describe('Concept windows — topic expansion does not move unpinned window
     await clearStorage(page);
   });
 
-  test('expanding/collapsing a topic leaves unpinned window position unchanged', async ({
+  test('toggling a topic does not yank an offscreen unpinned window back into view', async ({
     page,
     openConceptWindow,
   }) => {
@@ -303,25 +303,40 @@ test.describe('Concept windows — topic expansion does not move unpinned window
     const win = await openConceptWindow();
     await expect(win).not.toHaveClass(/concept-window--pinned/);
 
-    const before = await win.boundingBox();
-    expect(before).not.toBeNull();
+    // Pick a topic to toggle that's not the one openConceptWindow already
+    // expanded. Capture its id once, so a re-query works after aria-expanded
+    // flips between clicks.
+    const otherNodeId = await page.evaluate(() => {
+      const btn = document.querySelector(
+        '[data-node-id] .node-button[aria-expanded="false"]',
+      );
+      return btn?.closest('[data-node-id]')?.getAttribute('data-node-id') ?? null;
+    });
+    test.skip(!otherNodeId, 'No other collapsible topic available on this track.');
 
-    // Find a topic node-button other than the one already expanded by the
-    // openConceptWindow fixture and toggle it twice (expand, then collapse).
-    const otherBtn = page
-      .locator('[data-node-id] .node-button[aria-expanded="false"]')
-      .first();
-    const hasOther = (await otherBtn.count()) > 0;
-    test.skip(!hasOther, 'No other collapsible topic available on this track.');
+    // Scroll far below the window. With the bug, the next ResizeObserver tick
+    // would clamp the window into [scrollY, scrollY + viewportH - h - 60],
+    // changing its style.top. Without the bug, style.top stays put.
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(150);
 
-    await otherBtn.click();
-    await page.waitForTimeout(50);
-    await otherBtn.click();
-    await page.waitForTimeout(50);
+    const beforeTop = await win.evaluate((el) => (el as HTMLElement).style.top);
 
-    const after = await win.boundingBox();
-    expect(after).not.toBeNull();
-    expect(after!.x).toBeCloseTo(before!.x, 0);
-    expect(after!.y).toBeCloseTo(before!.y, 0);
+    // Toggle the other topic twice. Each toggle changes the document height
+    // and fires the ResizeObserver on document.documentElement.
+    const toggle = async () => {
+      await page.evaluate((id) => {
+        const btn = document.querySelector(
+          `#${id} .node-button`,
+        ) as HTMLElement | null;
+        btn?.click();
+      }, otherNodeId);
+      await page.waitForTimeout(150);
+    };
+    await toggle();
+    await toggle();
+
+    const afterTop = await win.evaluate((el) => (el as HTMLElement).style.top);
+    expect(afterTop).toBe(beforeTop);
   });
 });
