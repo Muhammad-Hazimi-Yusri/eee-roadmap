@@ -49,13 +49,21 @@ export interface StandardDocument {
 
 export type HighlightSource = 'id' | 'title' | 'custom';
 
-// A single navigable anchor in the per-document outline. Comes from either
-// _clauses.yaml (curated) or the post-upload heading extractor (auto).
+// Per-tier provenance for an OutlineEntry. The post-upload extractor in
+// pdf-extract.ts tries three sources in order; the badge in the OUTLINE
+// tab shows which one a given row came from.
+//   - 'curated': hand-authored in _clauses.yaml
+//   - 'outline': from the PDF's embedded /Outlines tree (pdf.getOutline())
+//   - 'toc':     parsed from a ToC page in the body (leader-dot lines)
+//   - 'auto':    last-resort heading-line heuristic over body text
+export type OutlineSource = 'curated' | 'outline' | 'toc' | 'auto';
+
+// A single navigable anchor in the per-document outline.
 export interface OutlineEntry {
   id:    string;     // clauseId, e.g. "ECC.6.3.7", "13.2", "Article 14"
   title: string;
   page:  number;     // 1-based
-  source: 'curated' | 'auto';
+  source: OutlineSource;
 }
 
 export interface StandardClause {

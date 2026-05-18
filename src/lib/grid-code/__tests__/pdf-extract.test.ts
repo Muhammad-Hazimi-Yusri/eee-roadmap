@@ -3,7 +3,10 @@
 // testing in the browser (Node lacks the DOM the worker needs).
 
 import { describe, it, expect } from 'vitest';
-import { buildClauseRegex, buildHeadingRegexes, pageLines } from '../pdf-extract';
+import {
+  buildClauseRegex, buildHeadingRegexes, pageLines,
+  parseTocLine, titleLooksLikeHeading,
+} from '../pdf-extract';
 
 describe('buildClauseRegex', () => {
   it('matches an exact clause ID', () => {
@@ -155,5 +158,83 @@ describe('pageLines', () => {
     // on item boundaries via the trim/replace step.
     const lines = pageLines(content);
     expect(lines).toEqual(['a b c']);
+  });
+});
+
+describe('parseTocLine', () => {
+  it('parses a typical Grid-Code ToC line with leader dots', () => {
+    expect(parseTocLine('BC3.7 RESPONSE TO HIGH FREQUENCY ....... 6'))
+      .toEqual({ id: 'BC3.7', title: 'RESPONSE TO HIGH FREQUENCY', page: 6 });
+  });
+
+  it('parses an ENA-style numeric ToC line', () => {
+    expect(parseTocLine('13.2 Frequency Response (Type B/C/D) ........ 158'))
+      .toEqual({ id: '13.2', title: 'Frequency Response (Type B/C/D)', page: 158 });
+  });
+
+  it('parses an EU-style Article ToC line', () => {
+    expect(parseTocLine('Article 14 General requirements for Type C ........ 22'))
+      .toEqual({ id: 'Article', title: '14 General requirements for Type C', page: 22 });
+    // ↑ With the current regex `Article` is captured as id, `14 ...` as title.
+    // The downstream tier-2 filter rejects this when tocIdLooksClausey
+    // returns false, so EU outlines come through the embedded-outline tier
+    // instead. This test pins the current behaviour so we know if it shifts.
+  });
+
+  it('rejects body lines that have no leader dots', () => {
+    expect(parseTocLine('ECC.6.3.7 Frequency Response is mandatory')).toBeNull();
+    expect(parseTocLine('The Grid Code requires that ECC.6.3.7 be observed')).toBeNull();
+  });
+
+  it('rejects lines without a trailing page number', () => {
+    expect(parseTocLine('BC3.7 RESPONSE TO HIGH FREQUENCY ....... continued')).toBeNull();
+  });
+
+  it('rejects very short lines and pure-numeric titles', () => {
+    expect(parseTocLine('1 ... 2')).toBeNull();
+  });
+
+  it('handles tight leaders (just 3 dots)', () => {
+    expect(parseTocLine('PC.1 Planning Code ... 12')).toEqual({
+      id: 'PC.1', title: 'Planning Code', page: 12,
+    });
+  });
+});
+
+describe('titleLooksLikeHeading', () => {
+  it('accepts proper heading titles', () => {
+    expect(titleLooksLikeHeading('ECC.6.3.7', 'Frequency Response')).toBe(true);
+    expect(titleLooksLikeHeading('11', 'Type A Protection')).toBe(true);
+    expect(titleLooksLikeHeading('BC3', 'Frequency Control (commercial delivery)')).toBe(true);
+    expect(titleLooksLikeHeading('Annex C.5', 'Frequency Response Envelope')).toBe(true);
+  });
+
+  it('accepts ALL-CAPS headings', () => {
+    expect(titleLooksLikeHeading('BC3.7', 'RESPONSE TO HIGH FREQUENCY REQUIRED')).toBe(true);
+  });
+
+  it('tolerates connector words in titles', () => {
+    expect(titleLooksLikeHeading('13.2', 'Reactive Power and Voltage Control')).toBe(true);
+    expect(titleLooksLikeHeading('13.6', 'Loss of Mains Protection')).toBe(true);
+  });
+
+  it('rejects body sentences disguised as headings', () => {
+    expect(titleLooksLikeHeading('2019', 'In this case, all connections to the National Electricity')).toBe(false);
+    expect(titleLooksLikeHeading('Appendix P', 'of the relevant Construction Agreement as amended from')).toBe(false);
+  });
+
+  it('rejects date strings (year + month)', () => {
+    expect(titleLooksLikeHeading('2026', 'May 2026 issue')).toBe(false);
+    expect(titleLooksLikeHeading('07', 'May 2026')).toBe(false);
+    expect(titleLooksLikeHeading('2019', 'September 2018, and prior amendments')).toBe(false);
+  });
+
+  it('rejects unit-table rows', () => {
+    // "1000" id, "Wh = 1 kWh" — "kWh" starts lowercase and isn't a connector
+    expect(titleLooksLikeHeading('1000', 'Wh = 1 kWh')).toBe(false);
+  });
+
+  it('rejects very short titles', () => {
+    expect(titleLooksLikeHeading('5', 'OK')).toBe(false);
   });
 });
