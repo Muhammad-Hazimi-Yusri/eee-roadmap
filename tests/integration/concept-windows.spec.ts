@@ -289,3 +289,54 @@ test.describe('Concept windows — hygiene', () => {
     ).toBeLessThan(2);
   });
 });
+
+test.describe('Concept windows — topic expansion does not move unpinned windows', () => {
+  test.beforeEach(async ({ page }) => {
+    await clearStorage(page);
+  });
+
+  test('toggling a topic does not yank an offscreen unpinned window back into view', async ({
+    page,
+    openConceptWindow,
+  }) => {
+    await page.goto(FUNDAMENTALS);
+    const win = await openConceptWindow();
+    await expect(win).not.toHaveClass(/concept-window--pinned/);
+
+    // Pick a topic to toggle that's not the one openConceptWindow already
+    // expanded. Capture its id once, so a re-query works after aria-expanded
+    // flips between clicks.
+    const otherNodeId = await page.evaluate(() => {
+      const btn = document.querySelector(
+        '[data-node-id] .node-button[aria-expanded="false"]',
+      );
+      return btn?.closest('[data-node-id]')?.getAttribute('data-node-id') ?? null;
+    });
+    test.skip(!otherNodeId, 'No other collapsible topic available on this track.');
+
+    // Scroll far below the window. With the bug, the next ResizeObserver tick
+    // would clamp the window into [scrollY, scrollY + viewportH - h - 60],
+    // changing its style.top. Without the bug, style.top stays put.
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(150);
+
+    const beforeTop = await win.evaluate((el) => (el as HTMLElement).style.top);
+
+    // Toggle the other topic twice. Each toggle changes the document height
+    // and fires the ResizeObserver on document.documentElement.
+    const toggle = async () => {
+      await page.evaluate((id) => {
+        const btn = document.querySelector(
+          `#${id} .node-button`,
+        ) as HTMLElement | null;
+        btn?.click();
+      }, otherNodeId);
+      await page.waitForTimeout(150);
+    };
+    await toggle();
+    await toggle();
+
+    const afterTop = await win.evaluate((el) => (el as HTMLElement).style.top);
+    expect(afterTop).toBe(beforeTop);
+  });
+});
