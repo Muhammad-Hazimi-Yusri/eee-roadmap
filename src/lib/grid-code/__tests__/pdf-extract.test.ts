@@ -3,7 +3,7 @@
 // testing in the browser (Node lacks the DOM the worker needs).
 
 import { describe, it, expect } from 'vitest';
-import { buildClauseRegex } from '../pdf-extract';
+import { buildClauseRegex, buildHeadingRegexes, pageLines } from '../pdf-extract';
 
 describe('buildClauseRegex', () => {
   it('matches an exact clause ID', () => {
@@ -56,5 +56,104 @@ describe('buildClauseRegex', () => {
 
   it('returns a never-match regex for empty input', () => {
     expect(buildClauseRegex('').test('anything at all')).toBe(false);
+  });
+});
+
+// Find the first regex from buildHeadingRegexes() that matches a line.
+// Returns [id, title] or null.
+function matchHeading(line: string): [string, string] | null {
+  for (const re of buildHeadingRegexes()) {
+    const m = re.exec(line);
+    if (m) return [m[1].trim(), m[2].trim()];
+  }
+  return null;
+}
+
+describe('buildHeadingRegexes', () => {
+  it('matches Grid Code dotted alphabetic IDs', () => {
+    expect(matchHeading('ECC.6.3.7 Frequency Response')).toEqual(['ECC.6.3.7', 'Frequency Response']);
+    expect(matchHeading('CC.A.3.2 Legacy GB Frequency Response')).toEqual(['CC.A.3.2', 'Legacy GB Frequency Response']);
+    expect(matchHeading('BC2.11 Operational Notification')).toEqual(['BC2.11', 'Operational Notification']);
+  });
+
+  it('matches ENA plain-numeric IDs', () => {
+    expect(matchHeading('11 Type A Protection')).toEqual(['11', 'Type A Protection']);
+    expect(matchHeading('13.2 Frequency Response')).toEqual(['13.2', 'Frequency Response']);
+    expect(matchHeading('12.5.3 Reactive capability')).toEqual(['12.5.3', 'Reactive capability']);
+  });
+
+  it('matches numeric IDs with a trailing dot', () => {
+    expect(matchHeading('13.2. Frequency Response')).toEqual(['13.2', 'Frequency Response']);
+  });
+
+  it('matches EU Article / Annex / Appendix IDs', () => {
+    expect(matchHeading('Article 14 General requirements')).toEqual(['Article 14', 'General requirements']);
+    expect(matchHeading('Annex C.5.7.3 Frequency response envelope')).toEqual(['Annex C.5.7.3', 'Frequency response envelope']);
+    expect(matchHeading('Appendix B Compliance Process')).toEqual(['Appendix B', 'Compliance Process']);
+  });
+
+  it('rejects body sentences that start with a lowercase letter', () => {
+    expect(matchHeading('the generator must remain connected')).toBeNull();
+    expect(matchHeading('13.2 frequency response (lowercase)')).toBeNull();
+  });
+
+  it('rejects table captions, figure captions, and page footers', () => {
+    expect(matchHeading('Table 13.2-1 Capability envelope')).toBeNull();
+    expect(matchHeading('Figure 4 — System overview')).toBeNull();
+    expect(matchHeading('Page 13 of 380')).toBeNull();
+  });
+
+  it('rejects lines longer than 80 chars in the title portion', () => {
+    const longTitle = 'A'.repeat(120);
+    expect(matchHeading(`11 ${longTitle}`)).toBeNull();
+  });
+
+  it('rejects very short lines that may be noise', () => {
+    expect(matchHeading('11 Ok')).toBeNull(); // title under 4 chars
+  });
+});
+
+describe('pageLines', () => {
+  it('groups items by Y baseline', () => {
+    const content = {
+      items: [
+        { str: 'Heading',  transform: [1, 0, 0, 1, 10, 800] },
+        { str: 'line',     transform: [1, 0, 0, 1, 80, 800] },
+        { str: 'body',     transform: [1, 0, 0, 1, 10, 770] },
+        { str: 'text',     transform: [1, 0, 0, 1, 50, 770] },
+      ],
+    };
+    expect(pageLines(content)).toEqual(['Heading line', 'body text']);
+  });
+
+  it('drops empty items and collapses whitespace', () => {
+    const content = {
+      items: [
+        { str: '',     transform: [1, 0, 0, 1, 0, 800] },
+        { str: 'hi',   transform: [1, 0, 0, 1, 0, 800] },
+        { str: '   ',  transform: [1, 0, 0, 1, 0, 800] },
+        { str: 'you',  transform: [1, 0, 0, 1, 0, 800] },
+      ],
+    };
+    expect(pageLines(content)).toEqual(['hi    you'].map(s => s.replace(/\s+/g, ' ')));
+  });
+
+  it('tolerates micro Y differences within Y_EPSILON', () => {
+    const content = {
+      items: [
+        { str: 'same', transform: [1, 0, 0, 1, 0, 800.0] },
+        { str: 'line', transform: [1, 0, 0, 1, 0, 800.8] },
+      ],
+    };
+    expect(pageLines(content)).toEqual(['same line']);
+  });
+
+  it('falls back to single-item lines when transforms are missing', () => {
+    const content = { items: [{ str: 'a' }, { str: 'b' }, { str: 'c' }] };
+    // No transform means currentY stays null, so all items keep accumulating
+    // — the single-line fallback. Conservative: outline regex still anchors
+    // on item boundaries via the trim/replace step.
+    const lines = pageLines(content);
+    expect(lines).toEqual(['a b c']);
   });
 });

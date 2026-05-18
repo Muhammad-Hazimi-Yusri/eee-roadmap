@@ -12,6 +12,12 @@ const DB_NAME    = 'eee-grid-code';
 const STORE_NAME = 'local-pdfs';
 const DB_VERSION = 1;
 
+export interface LocalPdfOutlineEntry {
+  id:    string;     // clauseId, e.g. "ECC.6.3.7", "13.2", "Article 14"
+  title: string;
+  page:  number;     // 1-based
+}
+
 export interface LocalPdfRecord {
   docId: string;
   fileName: string;
@@ -22,6 +28,9 @@ export interface LocalPdfRecord {
   // clauseId -> 1-based page number, populated by post-upload extraction.
   // Absent when the PDF hasn't been indexed yet, or when extraction failed.
   clausePages?: Record<string, number>;
+  // Auto-extracted heading outline, populated by post-upload extraction.
+  // Used to back the OUTLINE tab when the PDF has no embedded bookmarks.
+  outline?: LocalPdfOutlineEntry[];
 }
 
 function indexedDbAvailable(): boolean {
@@ -94,6 +103,22 @@ export async function setLocalPdfClausePages(
   docId: string,
   clausePages: Record<string, number>,
 ): Promise<void> {
+  return updateLocalPdfRecord(docId, rec => { rec.clausePages = clausePages; });
+}
+
+// Update the auto-extracted outline sidecar. Same defensive contract as
+// setLocalPdfClausePages.
+export async function setLocalPdfOutline(
+  docId: string,
+  outline: LocalPdfOutlineEntry[],
+): Promise<void> {
+  return updateLocalPdfRecord(docId, rec => { rec.outline = outline; });
+}
+
+async function updateLocalPdfRecord(
+  docId: string,
+  mutate: (rec: LocalPdfRecord) => void,
+): Promise<void> {
   if (!indexedDbAvailable()) return;
   const db = await openDb();
   return new Promise<void>((resolve, reject) => {
@@ -103,7 +128,7 @@ export async function setLocalPdfClausePages(
     getReq.onsuccess = () => {
       const rec = getReq.result as LocalPdfRecord | undefined;
       if (rec) {
-        rec.clausePages = clausePages;
+        mutate(rec);
         store.put(rec);
       }
     };
