@@ -4,8 +4,10 @@
 
 import { useRef, useState } from 'react';
 import type { StandardDocument, StandardClause } from '../../../../lib/grid-code/types';
-import { storeLocalPdf, setLocalPdfClausePages, formatBytes } from '../../../../lib/grid-code/local-pdfs';
-import { extractClausePages } from '../../../../lib/grid-code/pdf-extract';
+import {
+  storeLocalPdf, setLocalPdfClausePages, setLocalPdfOutline, formatBytes,
+} from '../../../../lib/grid-code/local-pdfs';
+import { extractClausePages, extractDocumentOutline } from '../../../../lib/grid-code/pdf-extract';
 
 interface Props {
   doc: StandardDocument;
@@ -16,7 +18,7 @@ interface Props {
   onUploaded: () => void;
 }
 
-interface IndexingState { current: number; total: number; }
+interface IndexingState { phase: 'clauses' | 'outline'; current: number; total: number; }
 
 export default function UploadDropzone({ doc, clauses, onUploaded }: Props) {
   const [dragOver, setDragOver] = useState(false);
@@ -44,30 +46,47 @@ export default function UploadDropzone({ doc, clauses, onUploaded }: Props) {
     try {
       await storeLocalPdf(doc.id, file);
       onUploaded();
-      // Kick off page-number extraction in the background — non-blocking,
-      // user can already see the PDF while this finishes.
-      const docClauses = (clauses ?? []).filter(c => c.docId === doc.id);
-      if (docClauses.length > 0) {
-        const clauseIds = docClauses.map(c => c.clauseId);
-        setIndexing({ current: 0, total: 0 });
-        extractClausePages(file, clauseIds, {
-          timeoutMs: 60_000,
-          onProgress: (current, total) => setIndexing({ current, total }),
-        })
-          .then(map => setLocalPdfClausePages(doc.id, map))
-          .then(() => { setIndexing(null); onUploaded(); })
-          .catch(err => {
-            // Extraction is best-effort — log but don't surface to user.
-            // The upload still succeeded and the PDF is viewable.
-            console.warn('[grid-code] clause-page extraction failed:', err);
-            setIndexing(null);
-          });
-      }
+      // Kick off page-number extraction + outline extraction in the
+      // background — non-blocking, user can already see the PDF while
+      // these finish. Both are best-effort; failures are logged, not
+      // surfaced.
+      runBackgroundIndexing(file).catch(err => {
+        console.warn('[grid-code] background indexing failed:', err);
+        setIndexing(null);
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setBusy(false);
     }
+  }
+
+  async function runBackgroundIndexing(file: File) {
+    // Phase 1: per-clause page numbers (drives auto-jump when clicking a
+    // curated _clauses.yaml entry).
+    const docClauses = (clauses ?? []).filter(c => c.docId === doc.id);
+    if (docClauses.length > 0) {
+      setIndexing({ phase: 'clauses', current: 0, total: 0 });
+      const clauseIds = docClauses.map(c => c.clauseId);
+      const pages = await extractClausePages(file, clauseIds, {
+        timeoutMs: 60_000,
+        onProgress: (current, total) => setIndexing({ phase: 'clauses', current, total }),
+      });
+      await setLocalPdfClausePages(doc.id, pages);
+      onUploaded();
+    }
+
+    // Phase 2: full outline (drives the OUTLINE tab when the doc has no
+    // embedded bookmarks).
+    setIndexing({ phase: 'outline', current: 0, total: 0 });
+    const outline = await extractDocumentOutline(file, {
+      timeoutMs: 60_000,
+      maxEntries: 500,
+      onProgress: (current, total) => setIndexing({ phase: 'outline', current, total }),
+    });
+    await setLocalPdfOutline(doc.id, outline);
+    setIndexing(null);
+    onUploaded();
   }
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -136,7 +155,9 @@ export default function UploadDropzone({ doc, clauses, onUploaded }: Props) {
       {error && <p className="ud-error" role="alert">{error}</p>}
       {indexing && (
         <p className="ud-indexing" role="status">
-          Indexing clauses for page-jumps…
+          {indexing.phase === 'clauses'
+            ? 'Indexing clauses for page-jumps…'
+            : 'Building document outline…'}
           {indexing.total > 0 && (
             <span> page {indexing.current} / {indexing.total}</span>
           )}
