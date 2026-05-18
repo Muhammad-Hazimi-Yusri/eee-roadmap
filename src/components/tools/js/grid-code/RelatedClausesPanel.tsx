@@ -93,7 +93,8 @@ export default function RelatedClausesPanel({
     for (const o of outline ?? []) {
       if (seen.has(o.id)) continue;
       seen.add(o.id);
-      out.push({ id: o.id, title: o.title, page: o.page, source: 'auto' });
+      // Preserve the extractor tier — old records without a source get 'auto'.
+      out.push({ id: o.id, title: o.title, page: o.page, source: o.source ?? 'auto' });
     }
     // Sort by page (unknown=0 sinks to the bottom), then by id using
     // numeric collation so 13.2 sorts before 13.10.
@@ -213,7 +214,11 @@ export default function RelatedClausesPanel({
                     <button type="button" className="rcp-edge" onClick={() => onOutlineClick(o)}>
                       <div className="rcp-edge-title">
                         <code>{o.id}</code>  {o.title}
-                        {o.source === 'auto' && <span className="rcp-outline-auto">auto</span>}
+                        {o.source !== 'curated' && (
+                          <span className={`rcp-outline-badge rcp-outline-badge--${o.source}`}>
+                            {o.source}
+                          </span>
+                        )}
                       </div>
                       {o.page > 0 && <div className="rcp-edge-sub">page {o.page}</div>}
                     </button>
@@ -371,15 +376,30 @@ export default function RelatedClausesPanel({
           border-radius: 2px;
         }
         .rcp-list--outline { gap: 0.2rem; }
-        .rcp-outline-auto {
+        .rcp-outline-badge {
           font-family: var(--font-mono); font-size: 0.58rem;
           margin-left: 0.4rem;
           padding: 0 0.3rem;
-          background: var(--color-bg-grid);
           border: 1px solid var(--color-border);
-          color: var(--color-text-muted);
           text-transform: uppercase; letter-spacing: 0.05em;
           border-radius: 2px;
+        }
+        /* Embedded /Outlines tree — the cleanest source. */
+        .rcp-outline-badge--outline {
+          background: rgb(34 197 94 / 14%);
+          border-color: rgb(34 197 94 / 45%);
+          color: #16a34a;
+        }
+        /* ToC page parse — also high-precision. */
+        .rcp-outline-badge--toc {
+          background: rgb(59 130 246 / 14%);
+          border-color: rgb(59 130 246 / 45%);
+          color: #2563eb;
+        }
+        /* Heading-line heuristic — last resort, may include false positives. */
+        .rcp-outline-badge--auto {
+          background: var(--color-bg-grid);
+          color: var(--color-text-muted);
         }
       `}</style>
     </div>

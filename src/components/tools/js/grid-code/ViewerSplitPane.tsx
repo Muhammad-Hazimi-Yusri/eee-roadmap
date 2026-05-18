@@ -112,10 +112,14 @@ export default function ViewerSplitPane(props: Props) {
     return page;
   }, [pageOverride, clause, localPdf, page]);
 
-  // Auto-extracted outline entries get a `source: 'auto'` marker so the
-  // panel can badge them and route clicks through onJumpInDoc.
+  // Auto-extracted outline entries carry the extractor tier that produced
+  // them ('outline' | 'toc' | 'auto'). Records written before v0.27.2 don't
+  // have this field; default to 'auto' for graceful migration.
   const outlineForPanel = useMemo<OutlineEntry[]>(
-    () => (localPdf?.outline ?? []).map(o => ({ ...o, source: 'auto' as const })),
+    () => (localPdf?.outline ?? []).map(o => ({
+      id: o.id, title: o.title, page: o.page,
+      source: o.source ?? 'auto',
+    })),
     [localPdf?.outline],
   );
 

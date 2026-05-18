@@ -16,6 +16,9 @@ export interface LocalPdfOutlineEntry {
   id:    string;     // clauseId, e.g. "ECC.6.3.7", "13.2", "Article 14"
   title: string;
   page:  number;     // 1-based
+  // Which extractor tier produced this entry. Optional because v0.27.x
+  // records pre-date this field — readers should treat absence as 'auto'.
+  source?: 'outline' | 'toc' | 'auto';
 }
 
 export interface LocalPdfRecord {
