@@ -4,10 +4,8 @@
 
 import { useRef, useState } from 'react';
 import type { StandardDocument, StandardClause } from '../../../../lib/grid-code/types';
-import {
-  storeLocalPdf, setLocalPdfClausePages, setLocalPdfOutline, formatBytes,
-} from '../../../../lib/grid-code/local-pdfs';
-import { extractClausePages, extractDocumentOutline } from '../../../../lib/grid-code/pdf-extract';
+import { storeLocalPdf, formatBytes } from '../../../../lib/grid-code/local-pdfs';
+import { runDocIndexing, type IndexingProgress } from '../../../../lib/grid-code/reindex';
 
 interface Props {
   doc: StandardDocument;
@@ -18,13 +16,11 @@ interface Props {
   onUploaded: () => void;
 }
 
-interface IndexingState { phase: 'clauses' | 'outline'; current: number; total: number; }
-
 export default function UploadDropzone({ doc, clauses, onUploaded }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy]         = useState(false);
   const [error, setError]       = useState<string | null>(null);
-  const [indexing, setIndexing] = useState<IndexingState | null>(null);
+  const [indexing, setIndexing] = useState<IndexingProgress | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
@@ -46,47 +42,22 @@ export default function UploadDropzone({ doc, clauses, onUploaded }: Props) {
     try {
       await storeLocalPdf(doc.id, file);
       onUploaded();
-      // Kick off page-number extraction + outline extraction in the
-      // background — non-blocking, user can already see the PDF while
-      // these finish. Both are best-effort; failures are logged, not
-      // surfaced.
-      runBackgroundIndexing(file).catch(err => {
-        console.warn('[grid-code] background indexing failed:', err);
-        setIndexing(null);
-      });
+      // Kick off the shared two-phase indexing pipeline in the background.
+      // Non-blocking — user can already see the PDF while it finishes.
+      // Best-effort: failures are logged, not surfaced.
+      runDocIndexing(doc.id, file, clauses ?? [], {
+        onProgress: setIndexing,
+      })
+        .then(() => { setIndexing(null); onUploaded(); })
+        .catch(err => {
+          console.warn('[grid-code] background indexing failed:', err);
+          setIndexing(null);
+        });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setBusy(false);
     }
-  }
-
-  async function runBackgroundIndexing(file: File) {
-    // Phase 1: per-clause page numbers (drives auto-jump when clicking a
-    // curated _clauses.yaml entry).
-    const docClauses = (clauses ?? []).filter(c => c.docId === doc.id);
-    if (docClauses.length > 0) {
-      setIndexing({ phase: 'clauses', current: 0, total: 0 });
-      const clauseIds = docClauses.map(c => c.clauseId);
-      const pages = await extractClausePages(file, clauseIds, {
-        timeoutMs: 60_000,
-        onProgress: (current, total) => setIndexing({ phase: 'clauses', current, total }),
-      });
-      await setLocalPdfClausePages(doc.id, pages);
-      onUploaded();
-    }
-
-    // Phase 2: full outline (drives the OUTLINE tab when the doc has no
-    // embedded bookmarks).
-    setIndexing({ phase: 'outline', current: 0, total: 0 });
-    const outline = await extractDocumentOutline(file, {
-      timeoutMs: 60_000,
-      maxEntries: 500,
-      onProgress: (current, total) => setIndexing({ phase: 'outline', current, total }),
-    });
-    await setLocalPdfOutline(doc.id, outline);
-    setIndexing(null);
-    onUploaded();
   }
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {

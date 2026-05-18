@@ -34,6 +34,11 @@ export interface LocalPdfRecord {
   // Auto-extracted heading outline, populated by post-upload extraction.
   // Used to back the OUTLINE tab when the PDF has no embedded bookmarks.
   outline?: LocalPdfOutlineEntry[];
+  // Version of the extractor that produced clausePages/outline. Compared
+  // against EXTRACTOR_VERSION from pdf-extract.ts; mismatch triggers a
+  // background re-extraction in the viewer. Absent on records written by
+  // v0.27.0–v0.27.2, which are treated as version 1.
+  extractorVersion?: number;
 }
 
 function indexedDbAvailable(): boolean {
@@ -116,6 +121,16 @@ export async function setLocalPdfOutline(
   outline: LocalPdfOutlineEntry[],
 ): Promise<void> {
   return updateLocalPdfRecord(docId, rec => { rec.outline = outline; });
+}
+
+// Stamp the record with the extractor version that produced the current
+// clausePages / outline. Called at the end of a successful indexing run
+// so the viewer knows not to re-index this record on next load.
+export async function setLocalPdfExtractorVersion(
+  docId: string,
+  version: number,
+): Promise<void> {
+  return updateLocalPdfRecord(docId, rec => { rec.extractorVersion = version; });
 }
 
 async function updateLocalPdfRecord(

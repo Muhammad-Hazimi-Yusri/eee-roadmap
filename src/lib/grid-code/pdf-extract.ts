@@ -19,6 +19,14 @@
 //   • We require the match to be word-bounded so `13.2` doesn't grab
 //     `Table 13.2-1` incidentally — first hit wins.
 
+// Bumped on every backwards-incompatible extractor change. Stored on the
+// LocalPdfRecord by the indexing pipeline; the viewer compares the
+// stored value against this constant and re-runs extraction in the
+// background when a local copy was indexed by an older extractor.
+//   v1: original (no field, treated as 1 for legacy records)
+//   v2: three-tier extraction + tightened heading filters (this build)
+export const EXTRACTOR_VERSION = 2;
+
 // Minimal PDF.js types — we only need what we use.
 // `transform` is PDF.js's 6-element affine matrix; transform[5] is the Y
 // offset of the text-run baseline, which we use to detect line breaks.
