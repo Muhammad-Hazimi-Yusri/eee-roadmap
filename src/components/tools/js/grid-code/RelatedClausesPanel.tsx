@@ -17,6 +17,10 @@ interface Props {
   // Auto-extracted heading outline from the local PDF, if available.
   // Empty / undefined when no local copy is uploaded yet.
   outline?: OutlineEntry[];
+  // Per-clauseId page hits from the local PDF's auto-indexer, used to
+  // give curated outline entries their real page numbers (the YAML
+  // `pageStart` is unpopulated for most entries).
+  clausePages?: Record<string, number>;
   onJumpToClause: (clause: StandardClause) => void;
   onJumpToDoc:    (doc: StandardDocument) => void;
   // Used for auto-extracted outline entries that don't have a curated
@@ -37,7 +41,7 @@ const RELATION_LABEL: Record<XrefRelation, string> = {
 };
 
 export default function RelatedClausesPanel({
-  doc, clause, outgoing, incoming, clauses, documents, outline,
+  doc, clause, outgoing, incoming, clauses, documents, outline, clausePages,
   onJumpToClause, onJumpToDoc, onJumpInDoc,
 }: Props) {
   const [tab, setTab] = useState<'related' | 'outline' | 'forms' | 'notes'>('related');
@@ -73,23 +77,33 @@ export default function RelatedClausesPanel({
   const summary = clause?.summary ?? doc.summary ?? '';
   const docClauses = useMemo(() => clauses.filter(c => c.docId === doc.id), [clauses, doc.id]);
 
-  // Combined outline: curated _clauses.yaml entries first (always present),
-  // then auto-extracted entries that don't duplicate a curated ID. Both are
-  // filtered by the outline search box.
+  // Combined outline: curated _clauses.yaml entries + auto-extracted ones,
+  // deduped by id, sorted in document order (page ascending). Curated
+  // entries take their page from the local indexer's clausePages map
+  // when available — the YAML pageStart is 0 for most clauses, so without
+  // this merge the list would clump unindexed entries at page 0.
   const combinedOutline = useMemo<OutlineEntry[]>(() => {
     const seen = new Set<string>();
     const out: OutlineEntry[] = [];
     for (const c of docClauses) {
       seen.add(c.clauseId);
-      out.push({ id: c.clauseId, title: c.title, page: c.pageStart ?? 0, source: 'curated' });
+      const page = clausePages?.[c.clauseId] || c.pageStart || 0;
+      out.push({ id: c.clauseId, title: c.title, page, source: 'curated' });
     }
     for (const o of outline ?? []) {
       if (seen.has(o.id)) continue;
       seen.add(o.id);
       out.push({ id: o.id, title: o.title, page: o.page, source: 'auto' });
     }
-    return out;
-  }, [docClauses, outline]);
+    // Sort by page (unknown=0 sinks to the bottom), then by id using
+    // numeric collation so 13.2 sorts before 13.10.
+    return out.sort((a, b) => {
+      const ap = a.page > 0 ? a.page : Number.POSITIVE_INFINITY;
+      const bp = b.page > 0 ? b.page : Number.POSITIVE_INFINITY;
+      if (ap !== bp) return ap - bp;
+      return a.id.localeCompare(b.id, undefined, { numeric: true });
+    });
+  }, [docClauses, outline, clausePages]);
 
   const filteredOutline = useMemo<OutlineEntry[]>(() => {
     const q = outlineQuery.trim().toLowerCase();
