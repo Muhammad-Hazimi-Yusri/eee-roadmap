@@ -945,6 +945,11 @@
   // Reference viewport (set once at first window open, used for proportional scaling)
   let referenceViewportW: number | null = null;
   let referenceViewportH: number | null = null;
+  // Last observed viewport dimensions; used to ignore ResizeObserver ticks
+  // that fire because the document height changed (e.g. a topic node was
+  // expanded/collapsed) rather than because the viewport itself changed.
+  let lastObservedViewportW = typeof window !== 'undefined' ? window.innerWidth : 0;
+  let lastObservedViewportH = typeof window !== 'undefined' ? window.innerHeight : 0;
 
   // Load saved states from localStorage
   function loadStates(): Record<string, WindowState> {
@@ -1375,25 +1380,43 @@
 
   // Revalidate all window positions on viewport resize
   function initResizeHandler() {
-    // Use ResizeObserver for reliable viewport change detection
+    // Use ResizeObserver for reliable viewport change detection. The observer
+    // also fires when only the document height changes (e.g. a topic node
+    // expands/collapses), so we gate revalidation on actual viewport size
+    // changes — otherwise unpinned windows would be clamped back into view.
     const resizeObserver = new ResizeObserver(() => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (w === lastObservedViewportW && h === lastObservedViewportH) return;
+      lastObservedViewportW = w;
+      lastObservedViewportH = h;
       revalidateAllWindows();
     });
-    
+
     // Observe the document element (catches all viewport changes)
     resizeObserver.observe(document.documentElement);
-    
+
     // Also handle orientation changes on mobile
     window.addEventListener('orientationchange', () => {
-      setTimeout(revalidateAllWindows, 100);
+      setTimeout(() => {
+        lastObservedViewportW = window.innerWidth;
+        lastObservedViewportH = window.innerHeight;
+        revalidateAllWindows();
+      }, 100);
     });
-    
+
     // Fallback resize event
-    window.addEventListener('resize', revalidateAllWindows);
-    
+    window.addEventListener('resize', () => {
+      lastObservedViewportW = window.innerWidth;
+      lastObservedViewportH = window.innerHeight;
+      revalidateAllWindows();
+    });
+
     // Handle visibility change (e.g., switching monitors while minimized)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
+        lastObservedViewportW = window.innerWidth;
+        lastObservedViewportH = window.innerHeight;
         revalidateAllWindows();
       }
     });

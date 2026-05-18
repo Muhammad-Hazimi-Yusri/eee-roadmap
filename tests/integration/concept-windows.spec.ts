@@ -289,3 +289,39 @@ test.describe('Concept windows — hygiene', () => {
     ).toBeLessThan(2);
   });
 });
+
+test.describe('Concept windows — topic expansion does not move unpinned windows', () => {
+  test.beforeEach(async ({ page }) => {
+    await clearStorage(page);
+  });
+
+  test('expanding/collapsing a topic leaves unpinned window position unchanged', async ({
+    page,
+    openConceptWindow,
+  }) => {
+    await page.goto(FUNDAMENTALS);
+    const win = await openConceptWindow();
+    await expect(win).not.toHaveClass(/concept-window--pinned/);
+
+    const before = await win.boundingBox();
+    expect(before).not.toBeNull();
+
+    // Find a topic node-button other than the one already expanded by the
+    // openConceptWindow fixture and toggle it twice (expand, then collapse).
+    const otherBtn = page
+      .locator('[data-node-id] .node-button[aria-expanded="false"]')
+      .first();
+    const hasOther = (await otherBtn.count()) > 0;
+    test.skip(!hasOther, 'No other collapsible topic available on this track.');
+
+    await otherBtn.click();
+    await page.waitForTimeout(50);
+    await otherBtn.click();
+    await page.waitForTimeout(50);
+
+    const after = await win.boundingBox();
+    expect(after).not.toBeNull();
+    expect(after!.x).toBeCloseTo(before!.x, 0);
+    expect(after!.y).toBeCloseTo(before!.y, 0);
+  });
+});
