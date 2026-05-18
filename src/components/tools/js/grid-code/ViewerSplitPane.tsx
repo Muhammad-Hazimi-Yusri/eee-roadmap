@@ -383,6 +383,7 @@ export default function ViewerSplitPane(props: Props) {
               clauses={clauses}
               documents={documents}
               outline={outlineForPanel}
+              clausePages={localPdf?.clausePages}
               onJumpToClause={props.onJumpToClause}
               onJumpToDoc={props.onJumpToDoc}
               onJumpInDoc={onJumpInDoc}
