@@ -174,7 +174,6 @@ export default function GridCodeViewer() {
               doc={currentDoc}
               clause={currentClause}
               page={state.page}
-              query={state.q}
               outgoing={data.outgoing[currentClause?.ref ?? currentDoc.id] ?? []}
               incoming={data.incoming[currentClause?.ref ?? currentDoc.id] ?? []}
               clauses={data.clauses}

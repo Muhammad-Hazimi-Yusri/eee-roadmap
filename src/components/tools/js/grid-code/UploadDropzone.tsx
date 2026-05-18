@@ -3,18 +3,26 @@
 // in IndexedDB, never sent to a server.
 
 import { useRef, useState } from 'react';
-import type { StandardDocument } from '../../../../lib/grid-code/types';
-import { storeLocalPdf, formatBytes } from '../../../../lib/grid-code/local-pdfs';
+import type { StandardDocument, StandardClause } from '../../../../lib/grid-code/types';
+import { storeLocalPdf, setLocalPdfClausePages, formatBytes } from '../../../../lib/grid-code/local-pdfs';
+import { extractClausePages } from '../../../../lib/grid-code/pdf-extract';
 
 interface Props {
   doc: StandardDocument;
+  // Clauses for this doc. Used to seed the post-upload page-number extraction.
+  // Optional — when omitted, the upload still works but the clause→page map
+  // won't be populated.
+  clauses?: StandardClause[];
   onUploaded: () => void;
 }
 
-export default function UploadDropzone({ doc, onUploaded }: Props) {
+interface IndexingState { current: number; total: number; }
+
+export default function UploadDropzone({ doc, clauses, onUploaded }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy]         = useState(false);
   const [error, setError]       = useState<string | null>(null);
+  const [indexing, setIndexing] = useState<IndexingState | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
@@ -36,6 +44,25 @@ export default function UploadDropzone({ doc, onUploaded }: Props) {
     try {
       await storeLocalPdf(doc.id, file);
       onUploaded();
+      // Kick off page-number extraction in the background — non-blocking,
+      // user can already see the PDF while this finishes.
+      const docClauses = (clauses ?? []).filter(c => c.docId === doc.id);
+      if (docClauses.length > 0) {
+        const clauseIds = docClauses.map(c => c.clauseId);
+        setIndexing({ current: 0, total: 0 });
+        extractClausePages(file, clauseIds, {
+          timeoutMs: 60_000,
+          onProgress: (current, total) => setIndexing({ current, total }),
+        })
+          .then(map => setLocalPdfClausePages(doc.id, map))
+          .then(() => { setIndexing(null); onUploaded(); })
+          .catch(err => {
+            // Extraction is best-effort — log but don't surface to user.
+            // The upload still succeeded and the PDF is viewable.
+            console.warn('[grid-code] clause-page extraction failed:', err);
+            setIndexing(null);
+          });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
@@ -107,6 +134,14 @@ export default function UploadDropzone({ doc, onUploaded }: Props) {
       </div>
 
       {error && <p className="ud-error" role="alert">{error}</p>}
+      {indexing && (
+        <p className="ud-indexing" role="status">
+          Indexing clauses for page-jumps…
+          {indexing.total > 0 && (
+            <span> page {indexing.current} / {indexing.total}</span>
+          )}
+        </p>
+      )}
 
       <div className="ud-cta-row">
         {doc.pdfUrl && (
@@ -190,6 +225,16 @@ export default function UploadDropzone({ doc, onUploaded }: Props) {
           color: #ef4444;
           font-family: var(--font-mono); font-size: 0.78rem;
         }
+        .ud-indexing {
+          margin: 0;
+          padding: 0.4rem 0.7rem;
+          background: rgb(34 197 94 / 8%);
+          border: 1px solid rgb(34 197 94 / 35%);
+          border-radius: 3px;
+          color: #16a34a;
+          font-family: var(--font-mono); font-size: 0.72rem;
+        }
+        .ud-indexing span { color: var(--color-text-muted); margin-left: 0.4rem; }
         .ud-cta-row {
           display: flex; gap: 0.5rem; flex-wrap: wrap;
           margin-top: 0.25rem;
