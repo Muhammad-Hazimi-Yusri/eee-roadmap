@@ -24,8 +24,11 @@
 // stored value against this constant and re-runs extraction in the
 // background when a local copy was indexed by an older extractor.
 //   v1: original (no field, treated as 1 for legacy records)
-//   v2: three-tier extraction + tightened heading filters (this build)
-export const EXTRACTOR_VERSION = 2;
+//   v2: three-tier extraction + tightened heading filters
+//   v3: ToC-first outline — read the contents page for structure, then
+//       resolve each section's real page from the body (fixes the
+//       "everything on page 2" bug when the ToC has no page numbers)
+export const EXTRACTOR_VERSION = 3;
 
 // Minimal PDF.js types — we only need what we use.
 // `transform` is PDF.js's 6-element affine matrix; transform[5] is the Y
@@ -239,34 +242,46 @@ export async function extractClausePages(
 ): Promise<Record<string, number>> {
   if (candidateClauseIds.length === 0) return {};
 
-  const startedAt = Date.now();
   const pdfjs = await loadPdfJs();
   const buf  = await blob.arrayBuffer();
   const pdf  = await pdfjs.getDocument({ data: buf }).promise;
-
-  // Precompile a regex per clauseId once; track which ones we still need to hit.
-  const remaining = new Map<string, RegExp>();
-  for (const id of candidateClauseIds) remaining.set(id, buildClauseRegex(id));
-
-  const found: Record<string, number> = {};
-
   try {
-    for (let p = 1; p <= pdf.numPages && remaining.size > 0; p++) {
-      if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) break;
-      const page = await pdf.getPage(p);
-      const txt  = pageText(await page.getTextContent());
-      for (const [id, re] of remaining) {
-        if (re.test(txt)) {
-          found[id] = p;
-          remaining.delete(id);
-        }
-      }
-      opts.onProgress?.(p, pdf.numPages);
-    }
+    return await resolveIdsToPages(pdf, candidateClauseIds, opts);
   } finally {
     await pdf.destroy();
   }
+}
 
+// Walk the body matching each id via buildClauseRegex; first occurrence
+// at or after `startPage` wins. Returns a partial map (only ids that hit).
+// Shared by extractClausePages (startPage 1) and the ToC-first outline
+// (startPage = page after the contents, so the ToC page can't match
+// itself). Takes an already-open `pdf` so callers can reuse one document.
+async function resolveIdsToPages(
+  pdf: PdfDocument,
+  ids: string[],
+  opts: { startPage?: number; timeoutMs?: number; onProgress?: (n: number, total: number) => void } = {},
+): Promise<Record<string, number>> {
+  if (ids.length === 0) return {};
+  const startedAt = Date.now();
+  const startPage = Math.max(1, opts.startPage ?? 1);
+
+  const remaining = new Map<string, RegExp>();
+  for (const id of ids) remaining.set(id, buildClauseRegex(id));
+
+  const found: Record<string, number> = {};
+  for (let p = startPage; p <= pdf.numPages && remaining.size > 0; p++) {
+    if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) break;
+    const page = await pdf.getPage(p);
+    const txt  = pageText(await page.getTextContent());
+    for (const [id, re] of remaining) {
+      if (re.test(txt)) {
+        found[id] = p;
+        remaining.delete(id);
+      }
+    }
+    opts.onProgress?.(p, pdf.numPages);
+  }
   return found;
 }
 
@@ -366,21 +381,28 @@ async function extractEmbeddedOutline(pdf: PdfDocument): Promise<OutlineHit[]> {
   return out;
 }
 
-// ─── Tier 2: ToC page extraction (leader-dot lines) ─────────────────────────
+// ─── Tier 2: ToC-first outline ──────────────────────────────────────────────
+//
+// Model what a human does: read the contents page for the LIST of sections
+// (id + clean title, in document order), then flip through the body to find
+// where each section actually starts. This fixes the "everything on page 2"
+// bug — section headings are listed on the contents page, so a naive walk
+// records the contents-page number for all of them.
 
-// Match a typical ToC line:
-//   ECC.6.3.7   Frequency Response   .........  42
-//   13.2  Frequency Response (Type B/C/D)  ......  158
-// Capture groups: id, title, page. Leader is 3+ dot/space chars.
+// Optional trailing "...... 42" leader+page on a ToC line. Capture groups:
+// id, title, page. Leader is 3+ dot/space chars. Used when a ToC carries
+// its own page numbers (e.g. EREC G99); absent for code-only ToCs (Grid Code).
 const TOC_LINE_RE = /^(\S+)\s+(.+?)\s*[.\s]{3,}\s*(\d{1,4})$/;
 
-// Maximum pages we'll scan looking for ToC pages. ToCs typically sit in
-// the first few pages of a long doc; 20 is generous.
-const TOC_SCAN_PAGE_LIMIT = 20;
+// Maximum pages we'll scan looking for the contents pages. ToCs sit near
+// the front; 30 is generous for a 1000+ page code.
+const TOC_SCAN_PAGE_LIMIT = 30;
 
-// A page with >= this many ToC-shaped lines counts as a ToC page.
-const TOC_PAGE_LINE_THRESHOLD = 3;
+// A page with >= this many heading-shaped lines counts as a contents page.
+const TOC_PAGE_LINE_THRESHOLD = 5;
 
+// Parse a ToC line that carries its own trailing page number. Returns null
+// when the line has no leader+page (the common code-only ToC case).
 export function parseTocLine(line: string): { id: string; title: string; page: number } | null {
   const m = TOC_LINE_RE.exec(line);
   if (!m) return null;
@@ -389,60 +411,108 @@ export function parseTocLine(line: string): { id: string; title: string; page: n
   const page  = Number(m[3]);
   if (!id || !title || !Number.isFinite(page) || page <= 0) return null;
   // The title must contain at least one alphabetic character — a bare
-  // dot or digits-only string is a pathological match, not a real ToC
-  // line (e.g. "1 ... 2" where the regex sees `1`+`. .`+`2`).
+  // dot or digits-only string is a pathological match (e.g. "1 ... 2").
   if (!/[a-zA-Z]/.test(title)) return null;
   if (title.length < 3) return null;
   return { id, title, page };
 }
 
-// Does the captured id look like a clause id (vs a stray word)?
-function tocIdLooksClausey(id: string): boolean {
-  // Plain numeric, dotted-numeric, alpha-dotted, EU-style: anything that
-  // any of the heading regexes accept as an id.
+// One parsed contents-page entry. `page` is only set when the ToC line
+// carried its own page number; otherwise it's resolved later from the body.
+interface TocEntry { id: string; title: string; page?: number }
+
+// Parse a single contents-page line into (id, title[, page]). Tries the
+// leader+page shape first, then the bare "id title" heading shape.
+function parseTocStructureLine(line: string): TocEntry | null {
+  const withPage = parseTocLine(line);
+  if (withPage) return withPage;
   for (const re of buildHeadingRegexes()) {
-    if (re.test(`${id} Title Of Section`)) return true;
+    const m = re.exec(line);
+    if (!m) continue;
+    const id    = m[1].trim();
+    const title = m[2].trim().replace(/[\s.;,:]+$/, '');
+    if (id && title && titleLooksLikeHeading(id, title)) return { id, title };
   }
-  return false;
+  return null;
 }
 
-async function extractTocPageEntries(
+// Find the contiguous run of contents pages near the front of the document.
+// Returns [start, end] (1-based, inclusive) or null when no page clears the
+// heading-line-density threshold.
+export async function findTocPageRange(
   pdf: PdfDocument,
-  opts: ExtractOutlineOptions,
-): Promise<OutlineHit[]> {
+  opts: { timeoutMs?: number } = {},
+): Promise<[number, number] | null> {
   const startedAt = Date.now();
-  const seen = new Set<string>();
-  const out: OutlineHit[] = [];
-  const lastPage = Math.min(pdf.numPages, TOC_SCAN_PAGE_LIMIT);
-  let foundTocPage = false;
-
-  for (let p = 1; p <= lastPage; p++) {
+  const lastScan  = Math.min(pdf.numPages, TOC_SCAN_PAGE_LIMIT);
+  let start = 0;
+  let end   = 0;
+  for (let p = 1; p <= lastScan; p++) {
     if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) break;
-    const page = await pdf.getPage(p);
+    const page  = await pdf.getPage(p);
     const lines = pageLines(await page.getTextContent());
-
-    const hits: { id: string; title: string; page: number }[] = [];
+    let hits = 0;
     for (const line of lines) {
-      const parsed = parseTocLine(line);
-      if (!parsed) continue;
-      if (!tocIdLooksClausey(parsed.id)) continue;
-      hits.push(parsed);
+      if (parseTocStructureLine(line)) hits++;
     }
-    if (hits.length >= TOC_PAGE_LINE_THRESHOLD) {
-      foundTocPage = true;
-      for (const h of hits) {
-        if (seen.has(h.id)) continue;
-        seen.add(h.id);
-        out.push({ ...h, source: 'toc' });
-      }
-    } else if (foundTocPage) {
-      // ToC pages typically run contiguously. The first page after the
-      // ToC with no ToC-shaped lines is the end. Stop scanning.
-      break;
+    if (hits >= TOC_PAGE_LINE_THRESHOLD) {
+      if (start === 0) start = p;
+      end = p;
+    } else if (start !== 0) {
+      break; // contents pages run contiguously; first gap ends them
     }
   }
+  return start === 0 ? null : [start, end];
+}
 
+// Extract the ordered (id, title[, page]) list from the contents pages.
+export async function extractTocStructure(
+  pdf: PdfDocument,
+  range: [number, number],
+): Promise<TocEntry[]> {
+  const seen = new Set<string>();
+  const out: TocEntry[] = [];
+  for (let p = range[0]; p <= range[1]; p++) {
+    const page  = await pdf.getPage(p);
+    const lines = pageLines(await page.getTextContent());
+    for (const line of lines) {
+      const entry = parseTocStructureLine(line);
+      if (!entry || seen.has(entry.id)) continue;
+      seen.add(entry.id);
+      out.push(entry);
+    }
+  }
   return out;
+}
+
+// Tier 2 entry point: contents-page structure + body page resolution.
+async function extractTocOutline(
+  pdf: PdfDocument,
+  opts: ExtractOutlineOptions,
+): Promise<{ hits: OutlineHit[]; tocRange: [number, number] | null }> {
+  const tocRange = await findTocPageRange(pdf, opts);
+  if (!tocRange) return { hits: [], tocRange: null };
+
+  const entries = await extractTocStructure(pdf, tocRange);
+  if (entries.length === 0) return { hits: [], tocRange };
+
+  // Resolve real pages for entries that didn't carry their own page number,
+  // searching only the body AFTER the contents pages so the ToC can't match
+  // itself. Entries that already have a page (leader-dot ToCs) keep it.
+  const needResolve = entries.filter(e => !e.page).map(e => e.id);
+  const resolved = await resolveIdsToPages(pdf, needResolve, {
+    startPage: tocRange[1] + 1,
+    timeoutMs: opts.timeoutMs,
+    onProgress: opts.onProgress,
+  });
+
+  const hits: OutlineHit[] = entries.map(e => ({
+    id:    e.id,
+    title: e.title,
+    page:  e.page ?? resolved[e.id] ?? 0,
+    source: 'toc' as const,
+  }));
+  return { hits, tocRange };
 }
 
 // ─── Tier 3: heading-line heuristic (with date + title-case filters) ────────
@@ -450,6 +520,7 @@ async function extractTocPageEntries(
 async function extractHeadingLines(
   pdf: PdfDocument,
   opts: ExtractOutlineOptions,
+  skipRange: [number, number] | null = null,
 ): Promise<OutlineHit[]> {
   const startedAt  = Date.now();
   const maxEntries = opts.maxEntries ?? 500;
@@ -460,6 +531,9 @@ async function extractHeadingLines(
   for (let p = 1; p <= pdf.numPages; p++) {
     if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) break;
     if (out.length >= maxEntries) break;
+    // Skip the contents pages — otherwise every section heading listed there
+    // gets recorded at the contents-page number and dedup hides the real one.
+    if (skipRange && p >= skipRange[0] && p <= skipRange[1]) continue;
     const page = await pdf.getPage(p);
     const lines = pageLines(await page.getTextContent());
     for (const line of lines) {
@@ -506,14 +580,18 @@ export async function extractDocumentOutline(
   const pdf        = await pdfjs.getDocument({ data: buf }).promise;
 
   try {
+    // Tier 1: embedded /Outlines tree — cleanest when the PDF has bookmarks.
     const embedded = await extractEmbeddedOutline(pdf);
     if (embedded.length >= minTier) return embedded.slice(0, maxEntries);
 
-    const toc = await extractTocPageEntries(pdf, opts);
+    // Tier 2: ToC-first — read the contents page for structure, resolve
+    // real pages from the body. The dominant path for grid-code PDFs.
+    const { hits: toc, tocRange } = await extractTocOutline(pdf, opts);
     if (toc.length >= minTier) return toc.slice(0, maxEntries);
 
-    const auto = await extractHeadingLines(pdf, opts);
-    // Mix in any partial hits from earlier tiers so we don't lose them.
+    // Tier 3: heading-line heuristic, skipping the contents pages so they
+    // don't poison page numbers. Mix in any partial earlier-tier hits.
+    const auto = await extractHeadingLines(pdf, opts, tocRange);
     const seen = new Set<string>();
     const merged: OutlineHit[] = [];
     for (const e of [...embedded, ...toc, ...auto]) {

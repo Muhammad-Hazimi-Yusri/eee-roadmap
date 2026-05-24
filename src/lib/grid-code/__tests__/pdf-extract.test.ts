@@ -6,7 +6,35 @@ import { describe, it, expect } from 'vitest';
 import {
   buildClauseRegex, buildHeadingRegexes, pageLines,
   parseTocLine, titleLooksLikeHeading,
+  findTocPageRange, extractTocStructure,
 } from '../pdf-extract';
+
+// Build a fake PDF document from an array of pages, each page an array of
+// line strings. One text item per line, each given a distinct Y baseline
+// so pageLines() keeps them as separate lines. Only the members used by
+// findTocPageRange / extractTocStructure are implemented.
+function fakePdf(pages: string[][]) {
+  return {
+    numPages: pages.length,
+    async getPage(n: number) {
+      const lines = pages[n - 1] ?? [];
+      return {
+        async getTextContent() {
+          return {
+            items: lines.map((str, i) => ({
+              str,
+              transform: [1, 0, 0, 1, 0, 1000 - i * 20],
+            })),
+          };
+        },
+      };
+    },
+    async destroy() {},
+    async getOutline() { return null; },
+    async getDestination() { return null; },
+    async getPageIndex() { return 0; },
+  } as unknown as Parameters<typeof findTocPageRange>[0];
+}
 
 describe('buildClauseRegex', () => {
   it('matches an exact clause ID', () => {
@@ -236,5 +264,73 @@ describe('titleLooksLikeHeading', () => {
 
   it('rejects very short titles', () => {
     expect(titleLooksLikeHeading('5', 'OK')).toBe(false);
+  });
+});
+
+describe('findTocPageRange', () => {
+  // A Grid-Code-style contents page: many code-only section lines, no page
+  // numbers. Page 1 is a cover; page 2 is the contents; page 3+ is body.
+  const contents = [
+    'OC1 Demand Forecasts',
+    'OC2 Operational Planning and Data Provision',
+    'OC3 Systems Incident Report',
+    'OC4 Demand Control',
+    'OC5 Testing and Monitoring',
+    'BC1 Pre Gate Closure Process',
+    'BC2 Post Gate Closure Process',
+  ];
+
+  it('finds the contiguous contents page run', async () => {
+    const pdf = fakePdf([
+      ['THE GRID CODE', 'Issue 6 Revision 39'],   // p1 cover
+      contents,                                    // p2 contents
+      ['OC1 Demand Forecasts', 'Some body text here that is long.'], // p3 body
+    ]);
+    expect(await findTocPageRange(pdf)).toEqual([2, 2]);
+  });
+
+  it('spans multiple contiguous contents pages', async () => {
+    const pdf = fakePdf([
+      ['Cover'],
+      contents,
+      contents,
+      ['Body paragraph, not a contents page at all.'],
+    ]);
+    expect(await findTocPageRange(pdf)).toEqual([2, 3]);
+  });
+
+  it('returns null when no page is dense enough', async () => {
+    const pdf = fakePdf([
+      ['Cover'],
+      ['OC1 Demand Forecasts', 'just one heading line'],
+      ['Body text only.'],
+    ]);
+    expect(await findTocPageRange(pdf)).toBeNull();
+  });
+});
+
+describe('extractTocStructure', () => {
+  it('extracts ordered id/title pairs, deduped', async () => {
+    const pdf = fakePdf([
+      ['Cover'],
+      [
+        'OC1 Demand Forecasts',
+        'OC2 Operational Planning and Data Provision',
+        'OC1 Demand Forecasts',          // dup — ignored
+        'OC3 Systems Incident Report',
+      ],
+    ]);
+    const entries = await extractTocStructure(pdf, [2, 2]);
+    expect(entries.map(e => e.id)).toEqual(['OC1', 'OC2', 'OC3']);
+    expect(entries[0]).toEqual({ id: 'OC1', title: 'Demand Forecasts' });
+  });
+
+  it('keeps a ToC line page number when present (leader-dot ToC)', async () => {
+    const pdf = fakePdf([
+      ['Cover'],
+      ['13.2 Frequency Response ......... 158'],
+    ]);
+    const entries = await extractTocStructure(pdf, [2, 2]);
+    expect(entries[0]).toEqual({ id: '13.2', title: 'Frequency Response', page: 158 });
   });
 });
