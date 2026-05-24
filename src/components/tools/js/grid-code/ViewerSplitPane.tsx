@@ -21,6 +21,9 @@ import UploadDropzone from './UploadDropzone';
 import HighlightControls from './HighlightControls';
 import { isPinned, togglePin } from '../../../../lib/grid-code/pinned';
 import {
+  runDocIndexing, EXTRACTOR_VERSION, type IndexingProgress,
+} from '../../../../lib/grid-code/reindex';
+import {
   getLocalPdf, removeLocalPdf, formatBytes,
   type LocalPdfRecord,
 } from '../../../../lib/grid-code/local-pdfs';
@@ -82,6 +85,51 @@ export default function ViewerSplitPane(props: Props) {
     setBlobUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [localPdf]);
+
+  // ── Stale-version auto re-index ─────────────────────────────────────────────
+  // When the cached record was written by an older extractor, kick off a
+  // background re-index so the OUTLINE tab reflects the current extractor's
+  // output. The PDF itself stays visible the whole time; only the sidecars
+  // get rewritten. `reindex.ts` de-dupes concurrent runs via an in-flight
+  // map, so this is safe to call alongside a manual "Re-index" click.
+  const [reindexing, setReindexing] = useState<IndexingProgress | null>(null);
+  useEffect(() => {
+    if (!localPdf) return;
+    if ((localPdf.extractorVersion ?? 1) >= EXTRACTOR_VERSION) return;
+    let cancelled = false;
+    runDocIndexing(localPdf.docId, localPdf.blob, clauses, {
+      onProgress: p => { if (!cancelled) setReindexing(p); },
+    })
+      .then(() => {
+        if (cancelled) return;
+        setReindexing(null);
+        // Refresh the record so the new outline/clausePages render.
+        getLocalPdf(doc.id)
+          .then(rec => { if (!cancelled) setLocalPdf(rec); })
+          .catch(() => { /* keep stale render */ });
+      })
+      .catch(err => {
+        console.warn('[grid-code] auto re-index failed:', err);
+        if (!cancelled) setReindexing(null);
+      });
+    return () => { cancelled = true; };
+  }, [localPdf, clauses, doc.id]);
+
+  function manualReindex() {
+    if (!localPdf) return;
+    setReindexing({ phase: 'clauses', current: 0, total: 0 });
+    runDocIndexing(localPdf.docId, localPdf.blob, clauses, {
+      onProgress: setReindexing,
+    })
+      .then(() => {
+        setReindexing(null);
+        getLocalPdf(doc.id).then(setLocalPdf).catch(() => {});
+      })
+      .catch(err => {
+        console.warn('[grid-code] manual re-index failed:', err);
+        setReindexing(null);
+      });
+  }
 
   // ── Highlight state ────────────────────────────────────────────────────────
   // Default: highlight the current clause ID when one is selected.
@@ -263,6 +311,15 @@ export default function ViewerSplitPane(props: Props) {
               local copy
             </span>
           )}
+          {reindexing && (
+            <span
+              className="vsp-reindex-pill"
+              title="Re-indexing this PDF with the latest extractor"
+            >
+              ⟳ Re-indexing {reindexing.phase}
+              {reindexing.total > 0 && <> · {reindexing.current}/{reindexing.total}</>}
+            </span>
+          )}
           <button type="button" className="vsp-action" onClick={onTogglePin} title={pinned ? 'Unpin' : 'Pin'}>
             {pinned ? '★ Pinned' : '☆ Pin'}
           </button>
@@ -330,9 +387,20 @@ export default function ViewerSplitPane(props: Props) {
                         <> · indexed {Object.keys(localPdf.clausePages).length} clauses</>
                       )}
                     </small>
-                    <button type="button" className="vsp-foot-action" onClick={onRemoveLocal}>
-                      Remove
-                    </button>
+                    <span className="vsp-foot-actions">
+                      <button
+                        type="button"
+                        className="vsp-foot-action"
+                        onClick={manualReindex}
+                        disabled={!!reindexing}
+                        title="Re-run extraction on the local copy"
+                      >
+                        {reindexing ? 'Re-indexing…' : 'Re-index'}
+                      </button>
+                      <button type="button" className="vsp-foot-action" onClick={onRemoveLocal}>
+                        Remove
+                      </button>
+                    </span>
                   </>
                 ) : (
                   <small>Served from <code>/eu-codes/{doc.id}.pdf</code> · © European Union, re-used under Decision 2011/833/EU</small>
@@ -435,6 +503,16 @@ export default function ViewerSplitPane(props: Props) {
           font-family: var(--font-mono);
           text-transform: uppercase; letter-spacing: 0.06em;
         }
+        .vsp-reindex-pill {
+          font-size: 0.62rem;
+          padding: 0.1rem 0.4rem;
+          background: rgb(234 179 8 / 14%);
+          color: #b45309;
+          border: 1px solid rgb(234 179 8 / 45%);
+          border-radius: 2px;
+          font-family: var(--font-mono);
+          text-transform: uppercase; letter-spacing: 0.06em;
+        }
         .vsp-action {
           background: var(--color-bg); border: 1px solid var(--color-border);
           padding: 0.2rem 0.5rem; cursor: pointer; color: var(--color-text);
@@ -486,13 +564,15 @@ export default function ViewerSplitPane(props: Props) {
           background: rgb(245 158 11 / 8%);
           border-top: 1px dashed rgb(245 158 11 / 35%);
         }
+        .vsp-foot-actions { display: inline-flex; gap: 0.35rem; }
         .vsp-foot-action {
           background: none; border: 1px solid var(--color-border);
           color: var(--color-text-muted);
           font-family: var(--font-mono); font-size: 0.62rem;
           padding: 0.1rem 0.4rem; cursor: pointer; border-radius: 2px;
         }
-        .vsp-foot-action:hover { border-color: #ef4444; color: #ef4444; }
+        .vsp-foot-action:hover { border-color: var(--color-copper); color: var(--color-copper); }
+        .vsp-foot-action:disabled { opacity: 0.5; cursor: not-allowed; }
         .vsp-foot-link {
           background: none; border: none; padding: 0;
           color: var(--color-copper); cursor: pointer;
