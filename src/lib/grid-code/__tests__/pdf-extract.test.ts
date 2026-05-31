@@ -2,18 +2,29 @@
 // the PDF.js loader path here — that's covered by manual integration
 // testing in the browser (Node lacks the DOM the worker needs).
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   buildClauseRegex, buildHeadingRegexes, pageLines,
   parseTocLine, titleLooksLikeHeading,
   findTocPageRange, extractTocStructure,
+  resolveIdsToPages, resolveDestPage, extractEmbeddedOutline,
+  cleanOutlineTitle, splitOutlineTitle, extractTocOutline,
+  extractHeadingLines, selectDocumentOutline,
 } from '../pdf-extract';
+
+// Overrides for the PDF.js document members the outline tiers reach for.
+// Default fakes return "no embedded outline" so the ToC/heading tiers run.
+type FakeExtra = {
+  getOutline?:     () => Promise<unknown>;
+  getDestination?: (name: string) => Promise<unknown>;
+  getPageIndex?:   (ref: unknown) => Promise<number>;
+};
 
 // Build a fake PDF document from an array of pages, each page an array of
 // line strings. One text item per line, each given a distinct Y baseline
-// so pageLines() keeps them as separate lines. Only the members used by
-// findTocPageRange / extractTocStructure are implemented.
-function fakePdf(pages: string[][]) {
+// so pageLines() keeps them as separate lines. `extra` lets a test supply
+// an embedded /Outlines tree and dest→page resolution for tier-1 coverage.
+function fakePdf(pages: string[][], extra: FakeExtra = {}) {
   return {
     numPages: pages.length,
     async getPage(n: number) {
@@ -30,9 +41,9 @@ function fakePdf(pages: string[][]) {
       };
     },
     async destroy() {},
-    async getOutline() { return null; },
-    async getDestination() { return null; },
-    async getPageIndex() { return 0; },
+    getOutline:     extra.getOutline     ?? (async () => null),
+    getDestination: extra.getDestination ?? (async () => null),
+    getPageIndex:   extra.getPageIndex   ?? (async () => 0),
   } as unknown as Parameters<typeof findTocPageRange>[0];
 }
 
@@ -332,5 +343,281 @@ describe('extractTocStructure', () => {
     ]);
     const entries = await extractTocStructure(pdf, [2, 2]);
     expect(entries[0]).toEqual({ id: '13.2', title: 'Frequency Response', page: 158 });
+  });
+});
+
+describe('resolveIdsToPages', () => {
+  it('records the first page each id appears on', async () => {
+    const pdf = fakePdf([
+      ['introductory matter'],               // p1
+      ['see ECC.6.3.7 for the response'],    // p2
+      ['ECC.6.3.7 again', 'clause 13.2 here'], // p3
+    ]);
+    expect(await resolveIdsToPages(pdf, ['ECC.6.3.7', '13.2']))
+      .toEqual({ 'ECC.6.3.7': 2, '13.2': 3 });
+  });
+
+  it('starts at startPage so a ToC page cannot match itself', async () => {
+    const pdf = fakePdf([
+      ['ECC.6.3.7 listed in the contents'],  // p1 (ToC)
+      ['unrelated body'],                    // p2
+      ['ECC.6.3.7 in the actual body'],      // p3
+    ]);
+    expect(await resolveIdsToPages(pdf, ['ECC.6.3.7'], { startPage: 2 }))
+      .toEqual({ 'ECC.6.3.7': 3 });
+  });
+
+  it('returns a partial map when some ids never appear', async () => {
+    const pdf = fakePdf([['only ECC.6.3.7 is here']]);
+    expect(await resolveIdsToPages(pdf, ['ECC.6.3.7', 'ECC.9.9.9']))
+      .toEqual({ 'ECC.6.3.7': 1 });
+  });
+
+  it('returns {} for an empty id list without reading pages', async () => {
+    expect(await resolveIdsToPages(fakePdf([['anything']]), [])).toEqual({});
+  });
+
+  it('fires onTimeout and bails when the budget is exceeded', async () => {
+    const pdf = fakePdf([['nothing on p1'], ['ECC.6.3.7 on p2']]);
+    const onTimeout = vi.fn();
+    const now = vi.spyOn(Date, 'now');
+    now.mockReturnValueOnce(0).mockReturnValue(5000); // startedAt=0, loop check=5000
+    const found = await resolveIdsToPages(pdf, ['ECC.6.3.7'], { timeoutMs: 1, onTimeout });
+    expect(onTimeout).toHaveBeenCalledTimes(1);
+    expect(found).toEqual({}); // bailed before reaching p2
+    now.mockRestore();
+  });
+});
+
+describe('resolveDestPage', () => {
+  it('resolves a named-string destination via getDestination (1-based)', async () => {
+    const pdf = fakePdf([[]], {
+      getDestination: async n => (n === 'sec1' ? ['pageRef'] : null),
+      getPageIndex:   async () => 6,
+    });
+    expect(await resolveDestPage(pdf, 'sec1')).toBe(7);
+  });
+
+  it('resolves an explicit array destination', async () => {
+    const pdf = fakePdf([[]], { getPageIndex: async () => 0 });
+    expect(await resolveDestPage(pdf, ['pageRef'])).toBe(1);
+  });
+
+  it('returns 0 for null and empty destinations', async () => {
+    const pdf = fakePdf([[]]);
+    expect(await resolveDestPage(pdf, null)).toBe(0);
+    expect(await resolveDestPage(pdf, [])).toBe(0);
+  });
+
+  it('returns 0 when getPageIndex throws', async () => {
+    const pdf = fakePdf([[]], { getPageIndex: async () => { throw new Error('bad ref'); } });
+    expect(await resolveDestPage(pdf, ['pageRef'])).toBe(0);
+  });
+
+  it('returns 0 when a named destination does not resolve', async () => {
+    const pdf = fakePdf([[]], { getDestination: async () => null });
+    expect(await resolveDestPage(pdf, 'missing')).toBe(0);
+  });
+});
+
+describe('cleanOutlineTitle / splitOutlineTitle', () => {
+  it('strips a trailing leader+page artefact', () => {
+    expect(cleanOutlineTitle('Section 6 ........ 12')).toBe('Section 6');
+    expect(cleanOutlineTitle('No leader here')).toBe('No leader here');
+  });
+
+  it('splits an id + title using the heading regexes', () => {
+    expect(splitOutlineTitle('ECC.6.3.7 Frequency Response'))
+      .toEqual({ id: 'ECC.6.3.7', title: 'Frequency Response' });
+  });
+
+  it('cleans the leader before splitting', () => {
+    expect(splitOutlineTitle('13.2 Frequency Response ..... 158'))
+      .toEqual({ id: '13.2', title: 'Frequency Response' });
+  });
+
+  it('falls back to (full, full) when no regex matches', () => {
+    expect(splitOutlineTitle('Introduction')).toEqual({ id: 'Introduction', title: 'Introduction' });
+  });
+});
+
+describe('extractEmbeddedOutline', () => {
+  it('walks nested items and resolves each dest to a 1-based page', async () => {
+    const nodes = [
+      { title: 'ECC.6.3.7 Frequency Response', dest: ['ref-12'] },
+      { title: 'Parent Section', dest: ['ref-3'], items: [
+        { title: 'BC2.11 Operational Notification', dest: ['ref-20'] },
+      ] },
+    ];
+    const pageMap: Record<string, number> = { 'ref-3': 2, 'ref-12': 11, 'ref-20': 19 };
+    const pdf = fakePdf([[]], {
+      getOutline:   async () => nodes,
+      getPageIndex: async ref => pageMap[String(ref)] ?? 0,
+    });
+    expect(await extractEmbeddedOutline(pdf)).toEqual([
+      { id: 'ECC.6.3.7', title: 'Frequency Response', page: 12, source: 'outline' },
+      { id: 'Parent Section', title: 'Parent Section', page: 3, source: 'outline' },
+      { id: 'BC2.11', title: 'Operational Notification', page: 20, source: 'outline' },
+    ]);
+  });
+
+  it('skips nodes whose destination cannot be resolved (page 0)', async () => {
+    const nodes = [
+      { title: 'ECC.6.3.7 Frequency Response', dest: null },
+      { title: '13.2 Frequency Response', dest: ['ref'] },
+    ];
+    const pdf = fakePdf([[]], { getOutline: async () => nodes, getPageIndex: async () => 8 });
+    expect(await extractEmbeddedOutline(pdf)).toEqual([
+      { id: '13.2', title: 'Frequency Response', page: 9, source: 'outline' },
+    ]);
+  });
+
+  it('dedups repeated ids, keeping the first', async () => {
+    const nodes = [
+      { title: 'ECC.6.3.7 First Title', dest: ['a'] },
+      { title: 'ECC.6.3.7 Second Title', dest: ['b'] },
+    ];
+    const pdf = fakePdf([[]], { getOutline: async () => nodes, getPageIndex: async () => 4 });
+    expect(await extractEmbeddedOutline(pdf)).toEqual([
+      { id: 'ECC.6.3.7', title: 'First Title', page: 5, source: 'outline' },
+    ]);
+  });
+
+  it('returns [] when getOutline throws', async () => {
+    const pdf = fakePdf([[]], { getOutline: async () => { throw new Error('no outline'); } });
+    expect(await extractEmbeddedOutline(pdf)).toEqual([]);
+  });
+
+  it('returns [] when there is no embedded outline', async () => {
+    expect(await extractEmbeddedOutline(fakePdf([[]]))).toEqual([]);
+  });
+});
+
+describe('extractTocOutline', () => {
+  it('returns empty hits with null range when no contents page is dense enough', async () => {
+    const pdf = fakePdf([['Just body text, not a contents page at all.']]);
+    expect(await extractTocOutline(pdf, {})).toEqual({ hits: [], tocRange: null });
+  });
+
+  it('keeps leader-dot ToC pages and resolves page-less entries from the body', async () => {
+    const toc = [
+      '13.1 Scope ......... 10',      // carries its own page
+      '13.2 Frequency Response',      // resolved from body
+      '13.3 Loss of Mains Protection',
+      '13.4 Reactive Power Capability',
+      '13.5 Voltage Control Requirements',
+    ];
+    const pdf = fakePdf([
+      ['Cover page'],                              // p1
+      toc,                                         // p2 contents
+      ['intro body paragraph'],                    // p3
+      ['13.2 Frequency Response in the body'],     // p4
+      ['13.3 Loss of Mains Protection body'],      // p5
+      ['13.4 Reactive Power Capability body'],     // p6
+      ['13.5 Voltage Control Requirements body'],  // p7
+    ]);
+    const { hits, tocRange } = await extractTocOutline(pdf, {});
+    expect(tocRange).toEqual([2, 2]);
+    const byId = Object.fromEntries(hits.map(h => [h.id, h.page]));
+    expect(byId['13.1']).toBe(10); // kept from the ToC line
+    expect(byId['13.2']).toBe(4);  // resolved from the body
+    expect(byId['13.3']).toBe(5);
+    expect(hits.every(h => h.source === 'toc')).toBe(true);
+  });
+});
+
+describe('extractHeadingLines', () => {
+  it('collects heading lines across the body, deduping ids', async () => {
+    const pdf = fakePdf([
+      ['ECC.6.3.7 Frequency Response', 'this is just a body sentence, not a heading'],
+      ['ECC.6.3.7 Frequency Response', 'BC2.11 Operational Notification Process'],
+    ]);
+    expect(await extractHeadingLines(pdf, {})).toEqual([
+      { id: 'ECC.6.3.7', title: 'Frequency Response', page: 1, source: 'auto' },
+      { id: 'BC2.11', title: 'Operational Notification Process', page: 2, source: 'auto' },
+    ]);
+  });
+
+  it('honours maxEntries', async () => {
+    const pdf = fakePdf([
+      ['ECC.6.3.7 Frequency Response', 'ECC.6.3.8 Reactive Power Capability'],
+    ]);
+    const out = await extractHeadingLines(pdf, { maxEntries: 1 });
+    expect(out).toHaveLength(1);
+    expect(out[0].id).toBe('ECC.6.3.7');
+  });
+
+  it('skips pages inside skipRange (the contents pages)', async () => {
+    const pdf = fakePdf([
+      ['ECC.6.3.7 Frequency Response'],         // p1 — skipped
+      ['ECC.6.3.8 Reactive Power Capability'],  // p2 — kept
+    ]);
+    const out = await extractHeadingLines(pdf, {}, [1, 1]);
+    expect(out.map(h => h.id)).toEqual(['ECC.6.3.8']);
+  });
+
+  it('fires onTimeout and bails early', async () => {
+    const pdf = fakePdf([
+      ['ECC.6.3.7 Frequency Response'],
+      ['ECC.6.3.8 Reactive Power Capability'],
+    ]);
+    const onTimeout = vi.fn();
+    const now = vi.spyOn(Date, 'now');
+    now.mockReturnValueOnce(0).mockReturnValue(5000);
+    const out = await extractHeadingLines(pdf, { timeoutMs: 1, onTimeout });
+    expect(onTimeout).toHaveBeenCalledTimes(1);
+    expect(out).toEqual([]);
+    now.mockRestore();
+  });
+});
+
+describe('selectDocumentOutline (tier selection)', () => {
+  // Embedded /Outlines nodes whose titles parse to ECC.6.3.<i> headings.
+  const embeddedNodes = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      title: `ECC.6.3.${i} Heading Number ${i}`,
+      dest: [`ref-${i}`],
+    }));
+
+  it('returns the embedded outline when it meets minTier', async () => {
+    const pdf = fakePdf([[]], {
+      getOutline:   async () => embeddedNodes(6),
+      getPageIndex: async () => 0,
+    });
+    const out = await selectDocumentOutline(pdf, { minTierEntries: 5 });
+    expect(out).toHaveLength(6);
+    expect(out.every(e => e.source === 'outline')).toBe(true);
+  });
+
+  it('falls through to the ToC tier when the embedded outline is too small', async () => {
+    const toc = [
+      '13.1 Scope and Purpose',
+      '13.2 Frequency Response',
+      '13.3 Loss of Mains Protection',
+      '13.4 Reactive Power Capability',
+      '13.5 Voltage Control Requirements',
+    ];
+    const pdf = fakePdf([
+      ['Cover'], toc,
+      ['13.1 Scope and Purpose body'],
+      ['13.2 Frequency Response body'],
+      ['13.3 Loss of Mains Protection body'],
+      ['13.4 Reactive Power Capability body'],
+      ['13.5 Voltage Control Requirements body'],
+    ], { getOutline: async () => [], getPageIndex: async () => 0 });
+    const out = await selectDocumentOutline(pdf, { minTierEntries: 5 });
+    expect(out.length).toBeGreaterThanOrEqual(5);
+    expect(out.every(e => e.source === 'toc')).toBe(true);
+  });
+
+  it('merges tiers (deduped) and caps at maxEntries when none meets minTier', async () => {
+    const pdf = fakePdf([
+      ['ECC.6.3.7 Frequency Response'],
+      ['ECC.6.3.8 Reactive Power Capability'],
+      ['ECC.6.3.9 Voltage Control Requirements'],
+    ], { getOutline: async () => [], getPageIndex: async () => 0 });
+    const out = await selectDocumentOutline(pdf, { minTierEntries: 50, maxEntries: 2 });
+    expect(out).toHaveLength(2);
+    expect(out.every(e => e.source === 'auto')).toBe(true);
   });
 });

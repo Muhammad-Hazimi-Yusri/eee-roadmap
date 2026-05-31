@@ -225,6 +225,10 @@ export interface ExtractClausePagesOptions {
   // Called after each page is processed (1-based page number).
   // Use to update a progress indicator.
   onProgress?: (pageNum: number, totalPages: number) => void;
+  // Fired once if extraction bails early because it hit `timeoutMs`. Lets
+  // callers tell a complete result apart from a truncated one (the result
+  // itself is just a partial map / list with no built-in signal).
+  onTimeout?: () => void;
 }
 
 /**
@@ -257,10 +261,10 @@ export async function extractClausePages(
 // Shared by extractClausePages (startPage 1) and the ToC-first outline
 // (startPage = page after the contents, so the ToC page can't match
 // itself). Takes an already-open `pdf` so callers can reuse one document.
-async function resolveIdsToPages(
+export async function resolveIdsToPages(
   pdf: PdfDocument,
   ids: string[],
-  opts: { startPage?: number; timeoutMs?: number; onProgress?: (n: number, total: number) => void } = {},
+  opts: { startPage?: number; timeoutMs?: number; onProgress?: (n: number, total: number) => void; onTimeout?: () => void } = {},
 ): Promise<Record<string, number>> {
   if (ids.length === 0) return {};
   const startedAt = Date.now();
@@ -271,7 +275,7 @@ async function resolveIdsToPages(
 
   const found: Record<string, number> = {};
   for (let p = startPage; p <= pdf.numPages && remaining.size > 0; p++) {
-    if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) break;
+    if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) { opts.onTimeout?.(); break; }
     const page = await pdf.getPage(p);
     const txt  = pageText(await page.getTextContent());
     for (const [id, re] of remaining) {
@@ -307,7 +311,7 @@ export interface ExtractOutlineOptions extends ExtractClausePagesOptions {
 // named destination (string → must be resolved via getDestination) or
 // an explicit array whose first element is a page Ref. Returns 0 when
 // the destination can't be resolved, which the caller treats as "skip".
-async function resolveDestPage(pdf: PdfDocument, dest: PdfDest): Promise<number> {
+export async function resolveDestPage(pdf: PdfDocument, dest: PdfDest): Promise<number> {
   if (!dest) return 0;
   let explicit: unknown[] | null;
   if (typeof dest === 'string') {
@@ -330,14 +334,14 @@ async function resolveDestPage(pdf: PdfDocument, dest: PdfDest): Promise<number>
 // "Section 6 ........ 12". Some PDF generators bake the page number into
 // the bookmark text rather than the dest array. We keep the dest's page,
 // drop the redundant tail.
-function cleanOutlineTitle(raw: string): string {
+export function cleanOutlineTitle(raw: string): string {
   return raw.replace(/[\s.·•–—-]{2,}\d{1,4}\s*$/, '').trim();
 }
 
 // Split an outline title into (id, title) using the same heading regexes
 // as tier 3, falling back to (full-title, full-title) when no regex
 // matches. Either way the entry is navigable.
-function splitOutlineTitle(raw: string): { id: string; title: string } {
+export function splitOutlineTitle(raw: string): { id: string; title: string } {
   const cleaned = cleanOutlineTitle(raw);
   for (const re of buildHeadingRegexes()) {
     const m = re.exec(cleaned);
@@ -350,7 +354,7 @@ function splitOutlineTitle(raw: string): { id: string; title: string } {
   return { id: cleaned, title: cleaned };
 }
 
-async function extractEmbeddedOutline(pdf: PdfDocument): Promise<OutlineHit[]> {
+export async function extractEmbeddedOutline(pdf: PdfDocument): Promise<OutlineHit[]> {
   let nodes: PdfOutlineNode[] | null;
   try {
     nodes = await pdf.getOutline();
@@ -419,11 +423,11 @@ export function parseTocLine(line: string): { id: string; title: string; page: n
 
 // One parsed contents-page entry. `page` is only set when the ToC line
 // carried its own page number; otherwise it's resolved later from the body.
-interface TocEntry { id: string; title: string; page?: number }
+export interface TocEntry { id: string; title: string; page?: number }
 
 // Parse a single contents-page line into (id, title[, page]). Tries the
 // leader+page shape first, then the bare "id title" heading shape.
-function parseTocStructureLine(line: string): TocEntry | null {
+export function parseTocStructureLine(line: string): TocEntry | null {
   const withPage = parseTocLine(line);
   if (withPage) return withPage;
   for (const re of buildHeadingRegexes()) {
@@ -441,14 +445,14 @@ function parseTocStructureLine(line: string): TocEntry | null {
 // heading-line-density threshold.
 export async function findTocPageRange(
   pdf: PdfDocument,
-  opts: { timeoutMs?: number } = {},
+  opts: { timeoutMs?: number; onTimeout?: () => void } = {},
 ): Promise<[number, number] | null> {
   const startedAt = Date.now();
   const lastScan  = Math.min(pdf.numPages, TOC_SCAN_PAGE_LIMIT);
   let start = 0;
   let end   = 0;
   for (let p = 1; p <= lastScan; p++) {
-    if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) break;
+    if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) { opts.onTimeout?.(); break; }
     const page  = await pdf.getPage(p);
     const lines = pageLines(await page.getTextContent());
     let hits = 0;
@@ -486,7 +490,7 @@ export async function extractTocStructure(
 }
 
 // Tier 2 entry point: contents-page structure + body page resolution.
-async function extractTocOutline(
+export async function extractTocOutline(
   pdf: PdfDocument,
   opts: ExtractOutlineOptions,
 ): Promise<{ hits: OutlineHit[]; tocRange: [number, number] | null }> {
@@ -517,7 +521,7 @@ async function extractTocOutline(
 
 // ─── Tier 3: heading-line heuristic (with date + title-case filters) ────────
 
-async function extractHeadingLines(
+export async function extractHeadingLines(
   pdf: PdfDocument,
   opts: ExtractOutlineOptions,
   skipRange: [number, number] | null = null,
@@ -529,7 +533,7 @@ async function extractHeadingLines(
   const out: OutlineHit[] = [];
 
   for (let p = 1; p <= pdf.numPages; p++) {
-    if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) break;
+    if (opts.timeoutMs && Date.now() - startedAt > opts.timeoutMs) { opts.onTimeout?.(); break; }
     if (out.length >= maxEntries) break;
     // Skip the contents pages — otherwise every section heading listed there
     // gets recorded at the contents-page number and dedup hides the real one.
@@ -573,35 +577,49 @@ export async function extractDocumentOutline(
   blob: Blob,
   opts: ExtractOutlineOptions = {},
 ): Promise<OutlineHit[]> {
-  const minTier    = opts.minTierEntries ?? 5;
-  const maxEntries = opts.maxEntries ?? 500;
-  const pdfjs      = await loadPdfJs();
-  const buf        = await blob.arrayBuffer();
-  const pdf        = await pdfjs.getDocument({ data: buf }).promise;
-
+  const pdfjs = await loadPdfJs();
+  const buf   = await blob.arrayBuffer();
+  const pdf   = await pdfjs.getDocument({ data: buf }).promise;
   try {
-    // Tier 1: embedded /Outlines tree — cleanest when the PDF has bookmarks.
-    const embedded = await extractEmbeddedOutline(pdf);
-    if (embedded.length >= minTier) return embedded.slice(0, maxEntries);
-
-    // Tier 2: ToC-first — read the contents page for structure, resolve
-    // real pages from the body. The dominant path for grid-code PDFs.
-    const { hits: toc, tocRange } = await extractTocOutline(pdf, opts);
-    if (toc.length >= minTier) return toc.slice(0, maxEntries);
-
-    // Tier 3: heading-line heuristic, skipping the contents pages so they
-    // don't poison page numbers. Mix in any partial earlier-tier hits.
-    const auto = await extractHeadingLines(pdf, opts, tocRange);
-    const seen = new Set<string>();
-    const merged: OutlineHit[] = [];
-    for (const e of [...embedded, ...toc, ...auto]) {
-      if (seen.has(e.id)) continue;
-      seen.add(e.id);
-      merged.push(e);
-      if (merged.length >= maxEntries) break;
-    }
-    return merged;
+    return await selectDocumentOutline(pdf, opts);
   } finally {
     await pdf.destroy();
   }
+}
+
+/**
+ * Tier-selection core, split out from extractDocumentOutline so it can be
+ * unit-tested against a fake PdfDocument (the public function's loadPdfJs
+ * path can't run in Node). Tries the three sources in order of cleanliness
+ * and returns the first that yields >= `minTierEntries`, else a deduped
+ * merge of whatever the tiers found. Caps at `maxEntries`.
+ */
+export async function selectDocumentOutline(
+  pdf: PdfDocument,
+  opts: ExtractOutlineOptions = {},
+): Promise<OutlineHit[]> {
+  const minTier    = opts.minTierEntries ?? 5;
+  const maxEntries = opts.maxEntries ?? 500;
+
+  // Tier 1: embedded /Outlines tree — cleanest when the PDF has bookmarks.
+  const embedded = await extractEmbeddedOutline(pdf);
+  if (embedded.length >= minTier) return embedded.slice(0, maxEntries);
+
+  // Tier 2: ToC-first — read the contents page for structure, resolve
+  // real pages from the body. The dominant path for grid-code PDFs.
+  const { hits: toc, tocRange } = await extractTocOutline(pdf, opts);
+  if (toc.length >= minTier) return toc.slice(0, maxEntries);
+
+  // Tier 3: heading-line heuristic, skipping the contents pages so they
+  // don't poison page numbers. Mix in any partial earlier-tier hits.
+  const auto = await extractHeadingLines(pdf, opts, tocRange);
+  const seen = new Set<string>();
+  const merged: OutlineHit[] = [];
+  for (const e of [...embedded, ...toc, ...auto]) {
+    if (seen.has(e.id)) continue;
+    seen.add(e.id);
+    merged.push(e);
+    if (merged.length >= maxEntries) break;
+  }
+  return merged;
 }

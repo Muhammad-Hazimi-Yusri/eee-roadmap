@@ -183,4 +183,14 @@ describe('grid-code local-pdfs', () => {
     expect(formatBytes(1024 * 1024)).toBe('1.0 MB');
     expect(formatBytes(1.5 * 1024 * 1024)).toBe('1.5 MB');
   });
+
+  it('isQuotaError detects quota-exhaustion errors by name', async () => {
+    const { isQuotaError } = await import('../local-pdfs');
+    expect(isQuotaError({ name: 'QuotaExceededError' })).toBe(true);
+    expect(isQuotaError({ name: 'NS_ERROR_DOM_QUOTA_REACHED' })).toBe(true);
+    expect(isQuotaError(new Error('something else'))).toBe(false);
+    expect(isQuotaError('QuotaExceededError')).toBe(false); // a bare string isn't an error
+    expect(isQuotaError(null)).toBe(false);
+    expect(isQuotaError(undefined)).toBe(false);
+  });
 });

@@ -1,0 +1,3 @@
+# Treat PDFs as binary so end-of-line normalization never rewrites bytes
+# (the test fixtures are hand-built PDFs whose xref offsets must stay exact).
+*.pdf binary

@@ -27,6 +27,12 @@ import {
   getLocalPdf, removeLocalPdf, formatBytes,
   type LocalPdfRecord,
 } from '../../../../lib/grid-code/local-pdfs';
+import { showToast } from '../../../../utils/toast';
+
+// Heads-up shown after a re-index that bailed on its wall-clock budget and
+// returned a partial outline. Surfaced from both the auto and manual paths.
+const PARTIAL_OUTLINE_MSG =
+  'Outline may be incomplete — re-index again on a faster connection to finish.';
 
 interface Props {
   doc: StandardDocument;
@@ -100,9 +106,10 @@ export default function ViewerSplitPane(props: Props) {
     runDocIndexing(localPdf.docId, localPdf.blob, clauses, {
       onProgress: p => { if (!cancelled) setReindexing(p); },
     })
-      .then(() => {
+      .then(result => {
         if (cancelled) return;
         setReindexing(null);
+        if (result.timedOut) showToast(PARTIAL_OUTLINE_MSG, 'info', 6000);
         // Refresh the record so the new outline/clausePages render.
         getLocalPdf(doc.id)
           .then(rec => { if (!cancelled) setLocalPdf(rec); })
@@ -111,6 +118,7 @@ export default function ViewerSplitPane(props: Props) {
       .catch(err => {
         console.warn('[grid-code] auto re-index failed:', err);
         if (!cancelled) setReindexing(null);
+        showToast('Couldn’t refresh the outline for this PDF — showing the previous version.', 'error');
       });
     return () => { cancelled = true; };
   }, [localPdf, clauses, doc.id]);
@@ -121,13 +129,15 @@ export default function ViewerSplitPane(props: Props) {
     runDocIndexing(localPdf.docId, localPdf.blob, clauses, {
       onProgress: setReindexing,
     })
-      .then(() => {
+      .then(result => {
         setReindexing(null);
+        if (result.timedOut) showToast(PARTIAL_OUTLINE_MSG, 'info', 6000);
         getLocalPdf(doc.id).then(setLocalPdf).catch(() => {});
       })
       .catch(err => {
         console.warn('[grid-code] manual re-index failed:', err);
         setReindexing(null);
+        showToast('Re-index failed — please try again.', 'error');
       });
   }
 

@@ -4,8 +4,9 @@
 
 import { useRef, useState } from 'react';
 import type { StandardDocument, StandardClause } from '../../../../lib/grid-code/types';
-import { storeLocalPdf, formatBytes } from '../../../../lib/grid-code/local-pdfs';
+import { storeLocalPdf, formatBytes, isQuotaError } from '../../../../lib/grid-code/local-pdfs';
 import { runDocIndexing, type IndexingProgress } from '../../../../lib/grid-code/reindex';
+import { showToast } from '../../../../utils/toast';
 
 interface Props {
   doc: StandardDocument;
@@ -38,23 +39,51 @@ export default function UploadDropzone({ doc, clauses, onUploaded }: Props) {
       setError(`File too large (${formatBytes(file.size)}). Max 200 MB.`);
       return;
     }
+    // Pre-flight storage check: warn before hashing a file we can't store.
+    // Best-effort — browsers without the Storage API just skip this and let
+    // the write below surface any real quota error.
+    try {
+      const est = await navigator.storage?.estimate?.();
+      if (est && typeof est.quota === 'number' && typeof est.usage === 'number'
+          && est.usage + file.size > est.quota * 0.95) {
+        const msg = `Not enough browser storage for this file (${formatBytes(file.size)}). Remove an existing local copy or clear site data, then retry.`;
+        setError(msg);
+        showToast(msg, 'error', 6000);
+        return;
+      }
+    } catch { /* Storage API unavailable — proceed; the write will surface quota errors. */ }
+
     setBusy(true);
     try {
       await storeLocalPdf(doc.id, file);
       onUploaded();
       // Kick off the shared two-phase indexing pipeline in the background.
       // Non-blocking — user can already see the PDF while it finishes.
-      // Best-effort: failures are logged, not surfaced.
       runDocIndexing(doc.id, file, clauses ?? [], {
         onProgress: setIndexing,
       })
-        .then(() => { setIndexing(null); onUploaded(); })
+        .then(result => {
+          setIndexing(null);
+          onUploaded();
+          if (result.timedOut) {
+            showToast(
+              'Outline may be incomplete on this large PDF — open the viewer and use “Re-index” to finish.',
+              'info', 6000,
+            );
+          }
+        })
         .catch(err => {
           console.warn('[grid-code] background indexing failed:', err);
           setIndexing(null);
+          showToast('Background indexing failed — clause page-jumps and the outline may be limited.', 'error');
         });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      const quota = isQuotaError(err);
+      const msg = quota
+        ? 'Not enough browser storage to save this PDF. Remove an existing local copy or clear site data, then retry.'
+        : (err instanceof Error ? err.message : 'Upload failed');
+      setError(msg);
+      if (quota) showToast(msg, 'error', 6000);
     } finally {
       setBusy(false);
     }
