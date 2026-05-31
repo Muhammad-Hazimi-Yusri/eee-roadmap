@@ -28,6 +28,17 @@ export interface IndexingProgress {
   total:   number;
 }
 
+// Summary of a completed indexing run. Lets callers tell a full result
+// apart from a truncated one — the extractors themselves return only a
+// partial map / list with no built-in "I bailed early" signal, so we
+// aggregate the per-phase onTimeout callbacks here.
+export interface IndexingResult {
+  clausesIndexed: number;   // entries in the clausePages map (0 if no clauses)
+  outlineEntries: number;   // outline rows persisted
+  timedOut: boolean;        // a phase bailed on its per-phase wall-clock budget
+  stamped: boolean;         // the extractor version was written (full success)
+}
+
 export interface RunDocIndexingOptions {
   // Progress callback fired per page within each phase. The phase changes
   // when the clausePages walk finishes and the outline walk begins.
@@ -39,7 +50,7 @@ export interface RunDocIndexingOptions {
 
 // docId -> in-flight promise. Awaits the existing run if a second call
 // arrives while one is in progress. Cleared on settle (success or fail).
-const inFlight = new Map<string, Promise<void>>();
+const inFlight = new Map<string, Promise<IndexingResult>>();
 
 /**
  * Run both indexing phases against `file`, persist results, and stamp
@@ -51,19 +62,26 @@ const inFlight = new Map<string, Promise<void>>();
  * (so the next viewer load will retry). Any partial writes from the
  * first phase still take effect — that's intentional: a partial result
  * is better than the old garbage.
+ *
+ * Resolves to an IndexingResult summarising the run. `timedOut` is true
+ * when either phase hit its per-phase wall-clock budget and returned a
+ * partial result — callers surface this so the user knows to re-index.
  */
 export function runDocIndexing(
   docId: string,
   file: File | Blob,
   clauses: StandardClause[],
   opts: RunDocIndexingOptions = {},
-): Promise<void> {
+): Promise<IndexingResult> {
   const existing = inFlight.get(docId);
   if (existing) return existing;
 
-  const run = (async () => {
+  const run = (async (): Promise<IndexingResult> => {
     const timeoutMs = opts.timeoutMs ?? 60_000;
     const blob = file as Blob;
+    let timedOut = false;
+    let clausesIndexed = 0;
+    let outlineEntries = 0;
 
     // Phase 1: per-clause page numbers (drives auto-jump for curated
     // _clauses.yaml entries).
@@ -73,9 +91,11 @@ export function runDocIndexing(
       opts.onProgress?.({ phase: 'clauses', current: 0, total: 0 });
       const pages = await extractClausePages(blob, clauseIds, {
         timeoutMs,
+        onTimeout: () => { timedOut = true; },
         onProgress: (current, total) =>
           opts.onProgress?.({ phase: 'clauses', current, total }),
       });
+      clausesIndexed = Object.keys(pages).length;
       await setLocalPdfClausePages(docId, pages);
     }
 
@@ -84,20 +104,28 @@ export function runDocIndexing(
     const outline = await extractDocumentOutline(blob, {
       timeoutMs,
       maxEntries: 500,
+      onTimeout: () => { timedOut = true; },
       onProgress: (current, total) =>
         opts.onProgress?.({ phase: 'outline', current, total }),
     });
+    outlineEntries = outline.length;
     await setLocalPdfOutline(docId, outline);
 
     // Stamp the version last, so a failure leaves the record stale
     // (which triggers another retry on next load).
     await setLocalPdfExtractorVersion(docId, EXTRACTOR_VERSION);
+
+    return { clausesIndexed, outlineEntries, timedOut, stamped: true };
   })();
 
   inFlight.set(docId, run);
-  run.finally(() => {
-    if (inFlight.get(docId) === run) inFlight.delete(docId);
-  });
+  // Clear the in-flight entry once the run settles (success OR failure) so a
+  // later call re-runs. We use then(clear, clear) rather than
+  // run.finally(clear): chaining .finally() forks a *second* promise that
+  // re-throws on rejection, producing an unhandled rejection whenever a phase
+  // fails. The caller still sees the failure via the returned `run`.
+  const clear = () => { if (inFlight.get(docId) === run) inFlight.delete(docId); };
+  void run.then(clear, clear);
   return run;
 }
 

@@ -182,3 +182,13 @@ export function formatBytes(n: number): string {
   if (n < 1024 * 1024)  return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
+
+// True when a storage write failed because the origin's IndexedDB quota is
+// exhausted. Browsers signal this with a DOMException named
+// 'QuotaExceededError' (Firefox also uses the legacy
+// 'NS_ERROR_DOM_QUOTA_REACHED'). Lets the upload UI show an actionable
+// "free up space" message instead of the cryptic bare "Store failed".
+export function isQuotaError(err: unknown): boolean {
+  const name = (err as { name?: unknown })?.name;
+  return name === 'QuotaExceededError' || name === 'NS_ERROR_DOM_QUOTA_REACHED';
+}
