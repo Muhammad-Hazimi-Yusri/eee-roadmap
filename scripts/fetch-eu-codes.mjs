@@ -84,6 +84,20 @@ async function downloadOne(doc, manifest) {
       return { downloaded: false, skipped: false, failed: true };
     }
     const buffer = Buffer.from(await response.arrayBuffer());
+
+    // Validate it's actually a PDF before writing. Content-negotiated EUR-Lex
+    // ELI URLs (…/oj/eng) silently return an HTML page with HTTP 200; without
+    // this guard we'd save HTML as "<id>.pdf" and the viewer would break.
+    if (buffer.subarray(0, 5).toString('latin1') !== '%PDF-') {
+      const contentType = response.headers.get('content-type') ?? 'unknown';
+      const head = buffer.subarray(0, 24).toString('latin1').replace(/\s+/g, ' ').trim();
+      console.error(
+        `  ❌ ${doc.id}: response is not a PDF (content-type: ${contentType}; starts with "${head}"). ` +
+        `Refusing to write — check pdfUrl points at the actual PDF, not a landing page.`,
+      );
+      return { downloaded: false, skipped: false, failed: true };
+    }
+
     const hash   = await sha256(buffer);
     writeFileSync(localPath, buffer);
     manifest[doc.id] = {

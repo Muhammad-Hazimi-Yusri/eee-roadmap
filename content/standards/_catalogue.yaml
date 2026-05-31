@@ -497,7 +497,7 @@ documents:
     publisher: EU
     version: "Reg (EU) 2016/631"
     date: "2016-04-14"
-    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2016/631/oj/eng"
+    pdfUrl: "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016R0631"
     landingUrl: "https://eur-lex.europa.eu/eli/reg/2016/631"
     license: hostable-eu
     projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM]
@@ -512,7 +512,7 @@ documents:
     publisher: EU
     version: "Reg (EU) 2016/1388"
     date: "2016-08-17"
-    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2016/1388/oj/eng"
+    pdfUrl: "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016R1388"
     landingUrl: "https://eur-lex.europa.eu/eli/reg/2016/1388"
     license: hostable-eu
     projectTypes: [Demand]
@@ -527,7 +527,7 @@ documents:
     publisher: EU
     version: "Reg (EU) 2016/1447"
     date: "2016-08-26"
-    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2016/1447/oj/eng"
+    pdfUrl: "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016R1447"
     landingUrl: "https://eur-lex.europa.eu/eli/reg/2016/1447"
     license: hostable-eu
     projectTypes: [HVDC, OFTO]
@@ -542,7 +542,7 @@ documents:
     publisher: EU
     version: "Reg (EU) 2017/1485"
     date: "2017-08-02"
-    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2017/1485/oj/eng"
+    pdfUrl: "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32017R1485"
     landingUrl: "https://eur-lex.europa.eu/eli/reg/2017/1485"
     license: hostable-eu
     projectTypes: [Synch, PPM, HVDC, BESS]
@@ -557,7 +557,7 @@ documents:
     publisher: EU
     version: "Reg (EU) 2017/2196"
     date: "2017-11-24"
-    pdfUrl: "https://eur-lex.europa.eu/eli/reg/2017/2196/oj/eng"
+    pdfUrl: "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32017R2196"
     landingUrl: "https://eur-lex.europa.eu/eli/reg/2017/2196"
     license: hostable-eu
     projectTypes: [Synch, BESS, PPM]
