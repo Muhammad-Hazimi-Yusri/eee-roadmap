@@ -1,0 +1,135 @@
+_meta:
+  description: |
+    Bibliography for the field guide: textbooks, CIGRE and IEEE references.
+    Grid codes and standards are NOT listed here; topics cite them through
+    content/standards/_clauses.yaml so one corrected clause fixes every page.
+
+    status records how a chapter/section pointer was verified (2026-10-24):
+      checked   read from the publisher's table of contents or catalogue
+      inferred  chapter number deduced from neighbouring checked chapters
+      memory    not verified against any table of contents; cite by title
+    Locations are for the edition named. Other editions renumber chapters.
+
+sources:
+
+  machowski-2020:
+    kind: book
+    authors: "Machowski, Lubosny, Bialek, Bumby"
+    title: "Power System Dynamics: Stability and Control"
+    edition: "3rd ed."
+    publisher: "Wiley"
+    year: 2020
+    isbn: "9781119526346"
+    url: "https://www.wiley.com/en-gb/Power+System+Dynamics%3A+Stability+and+Control%2C+3rd+Edition-p-9781119526346"
+    access: paywalled
+    basis: "Wiley table of contents PDF"
+    sections:
+      - { id: "2.3.2.1", title: "Excitation systems",                         page: 20,  status: checked }
+      - { id: "2.3.3.7", title: "Governor control functions",                 page: 33,  status: checked }
+      - { id: "3.3.4",   title: "Reactive power capability curve of a round-rotor generator", page: 83, status: checked }
+      - { id: "3.3.5",   title: "Voltage-reactive power characteristic V(Q)", page: 93,  status: checked }
+      - { id: "5.1",     title: "Swing equation",                              page: 195, status: checked }
+      - { id: "6",       title: "Electromechanical dynamics — large disturbances", page: 229, status: checked }
+      - { id: "6.1.5",   title: "Effect of the AVR",                           page: 238, status: checked }
+      - { id: "6.3.4",   title: "Equal area criterion",                        page: 252, status: checked }
+      - { id: "8",       title: "Voltage stability",                           page: 315, status: checked }
+      - { id: "8.3.4",   title: "Influence of voltage control",                page: 331, status: checked }
+      - { id: "9",       title: "Frequency stability and control",             page: 355, status: checked }
+      - { id: "9.2",     title: "Stage I — rotor swings in the generators",    page: 368, status: checked }
+      - { id: "10.1",    title: "Stability enhancement — excitation control",  page: 408, status: checked }
+      - { id: "11.2",    title: "Excitation systems (advanced modelling)",     page: 496, status: checked }
+      - { id: "11.3",    title: "Turbines and turbine governors",              page: 505, status: checked }
+      - { id: "17.2",    title: "Inertia",                                     page: 742, status: checked }
+      - { id: "17.2.1.2", title: "Inertia constant and RoCoF",                 page: 745, status: checked }
+      - { id: "17.2.2",  title: "Impact of reduced inertia",                   page: 752, status: checked }
+      - { id: "17.3",    title: "Virtual (synthetic) inertia",                 page: 758, status: checked }
+
+  kundur-1994:
+    kind: book
+    authors: "Kundur"
+    title: "Power System Stability and Control"
+    edition: "1st ed. (EPRI Power System Engineering Series)"
+    publisher: "McGraw-Hill"
+    year: 1994
+    access: paywalled
+    basis: "Publisher catalogue chapter list (ch 7–11); later chapters inferred from sequence. The 2022 2nd edition (Kundur & Malik) renumbers."
+    sections:
+      - { id: "8",  title: "Excitation systems",                    status: checked }
+      - { id: "9",  title: "Prime movers and energy supply systems", status: checked }
+      - { id: "11", title: "Control of active power and reactive power", status: checked }
+      - { id: "12", title: "Small-signal stability",                status: inferred }
+      - { id: "13", title: "Transient stability",                   status: inferred }
+      - { id: "14", title: "Voltage stability",                     status: inferred }
+
+  glover-2017:
+    kind: book
+    authors: "Glover, Overbye, Sarma"
+    title: "Power System Analysis and Design"
+    edition: "6th ed."
+    publisher: "Cengage"
+    year: 2017
+    access: paywalled
+    basis: "Third-party table of contents. The 7th edition (2023) differs."
+    sections:
+      - { id: "11", title: "Transient stability",     status: checked }
+      - { id: "12", title: "Power system controls",   status: checked }
+
+  grainger-1994:
+    kind: book
+    authors: "Grainger, Stevenson"
+    title: "Power System Analysis"
+    publisher: "McGraw-Hill"
+    year: 1994
+    access: paywalled
+    basis: "Not checked against a table of contents — cite the stability chapter by title only."
+    sections:
+      - { id: "stability", title: "Power system stability (chapter)", status: memory }
+
+  cigre-tb885:
+    kind: brochure
+    authors: "CIGRE JWG A1/C4.66"
+    title: "Guide on the assessment, specification and design of synchronous condensers for power systems with predominance of low or zero inertia generators"
+    edition: "Technical Brochure 885"
+    publisher: "CIGRE"
+    year: 2022
+    isbn: "978-2-85873-590-7"
+    url: "https://e-cigre.org/"
+    access: paywalled
+    basis: "Bibliographic record"
+    sections: []
+
+  cigre-gb16:
+    kind: book
+    authors: "Badrzadeh, Emin (eds)"
+    title: "Power System Dynamic Modelling and Analysis in Evolving Networks"
+    edition: "CIGRE Green Book"
+    publisher: "Springer"
+    year: 2024
+    doi: "10.1007/978-3-031-47821-5"
+    url: "https://doi.org/10.1007/978-3-031-47821-5"
+    access: paywalled
+    basis: "Bibliographic record"
+    sections: []
+
+  cigre-gb8:
+    kind: book
+    authors: "Hatziargyriou, de Siqueira (eds)"
+    title: "Electricity Supply Systems of the Future"
+    edition: "CIGRE Green Book"
+    publisher: "Springer"
+    year: 2020
+    access: paywalled
+    basis: "Bibliographic record"
+    sections: []
+
+  ieee-stability-2021:
+    kind: paper
+    authors: "Hatziargyriou et al."
+    title: "Definition and Classification of Power System Stability — Revisited & Extended"
+    publisher: "IEEE Transactions on Power Systems 36(4), 3271–3281"
+    year: 2021
+    doi: "10.1109/TPWRS.2020.3041774"
+    url: "https://doi.org/10.1109/TPWRS.2020.3041774"
+    access: open
+    basis: "Bibliographic record; open-access copy in the Imperial repository"
+    sections: []

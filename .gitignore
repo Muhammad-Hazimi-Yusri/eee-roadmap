@@ -52,6 +52,7 @@ public/eu-codes/
 # Generated data files (built from YAML sources)
 src/data/*.json
 !src/data/sample.json
+src/data/field-guide/
 
 # Windows file system metadata
 *:Zone.Identifier

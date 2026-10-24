@@ -1,0 +1,61 @@
+---
+// From application to final sign-off. The three notification labels are the
+// same in GB (Grid Code glossary), Ireland (CC.15.10) and NI (CC16.2).
+const steps = [
+  { key: 'Offer', title: 'Connection offer', body: 'Type, capacity and site-specific values fixed in the agreement.' },
+  { key: 'Design', title: 'Design studies', body: 'Models built to the TSO spec; FRT, reactive, voltage and frequency studies.' },
+  { key: 'EON', title: 'Energisation', body: 'Permission to energise plant from the network.' },
+  { key: 'ION', title: 'Interim', body: 'Export and run compliance tests; partial compliance shown.' },
+  { key: 'FON', title: 'Final', body: 'Compliance demonstrated; models validated against tests.' },
+  { key: 'Life', title: 'Ongoing', body: 'Keep models current; re-prove compliance after plant changes.' },
+];
+---
+
+<ol class="lc">
+  {steps.map((s, i) => (
+    <li class={`lc__step${['EON', 'ION', 'FON'].includes(s.key) ? ' lc__step--notice' : ''}`}>
+      <span class="lc__key">{i + 1}. {s.key}</span>
+      <strong>{s.title}</strong>
+      <span class="lc__body">{s.body}</span>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .lc {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+    gap: 0.5rem;
+    font-size: 0.78rem;
+  }
+
+  .lc__step {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.55rem 0.7rem;
+    background: var(--fg-card);
+  }
+
+  .lc__step--notice {
+    border-color: var(--color-copper);
+    border-top-width: 4px;
+  }
+
+  .lc__key {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    color: var(--color-copper);
+    font-weight: 700;
+  }
+
+  .lc__body {
+    color: var(--color-text-muted);
+    line-height: 1.4;
+  }
+</style>

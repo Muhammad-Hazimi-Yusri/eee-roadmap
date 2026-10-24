@@ -61,11 +61,11 @@ const CONCEPT_DOMAIN_SCHEMA = {
 
 // ─── Standards catalogue schema (used by the Grid Code Viewer tool) ──────────
 
-const PROJECT_TYPES = ['G98', 'G99-A', 'G99-B', 'G99-C', 'G99-D', 'BESS', 'Synch', 'PPM', 'HVDC', 'OFTO', 'Demand'];
+const PROJECT_TYPES = ['G98', 'G99-A', 'G99-B', 'G99-C', 'G99-D', 'BESS', 'Synch', 'SynCon', 'PPM', 'HVDC', 'OFTO', 'Demand'];
 const STUDY_TYPES   = ['LoadFlow', 'FaultLevel', 'Reactive', 'FRT', 'FreqResp', 'AVR', 'PSS', 'POD', 'Harmonics', 'Flicker', 'Unbalance', 'Protection', 'LoM', 'EMT', 'BlackStart', 'SSO', 'FFCI'];
 const LICENSE_BUCKETS = ['link-only', 'hostable-eu', 'paywalled'];
-const PUBLISHERS    = ['NESO', 'ENA', 'DCode', 'EU', 'UKGov', 'IEEE', 'IEC', 'VDE', 'AEMC', 'CIGRE'];
-const JURISDICTIONS = ['GB', 'EU', 'Scotland', 'Offshore', 'US', 'DE', 'AU'];
+const PUBLISHERS    = ['NESO', 'ENA', 'DCode', 'EU', 'UKGov', 'EirGrid', 'SONI', 'IEEE', 'IEC', 'VDE', 'AEMC', 'CIGRE'];
+const JURISDICTIONS = ['GB', 'IE', 'NI', 'EU', 'Scotland', 'Offshore', 'US', 'DE', 'AU'];
 const RELATIONS     = ['defined-in', 'defines', 'modified-by', 'see-also', 'tested-by', 'evidenced-by', 'mirrors', 'commercial'];
 
 const STANDARDS_CATALOGUE_SCHEMA = {

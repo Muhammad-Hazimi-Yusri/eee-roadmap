@@ -1,0 +1,60 @@
+---
+// One reference: a clause/document (links to the publisher, plus a viewer
+// shortcut) or a textbook/CIGRE/IEEE source (with how it was verified).
+import type { ResolvedRef } from '../../lib/field-guide/types';
+import { viewerHref, jurisdictionTone, shortDocLabel } from '../../lib/field-guide/links';
+
+interface Props {
+  r: ResolvedRef;
+}
+
+const { r } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+const STATUS_TEXT = {
+  checked: { mark: '✓', title: 'Location checked against the table of contents' },
+  inferred: { mark: '~', title: 'Chapter number inferred from neighbouring chapters — confirm in your copy' },
+  memory: { mark: '?', title: 'Not checked against a table of contents — cite by title' },
+} as const;
+---
+
+{r.kind === 'source' ? (
+  <span class="fg-chip fg-chip--book">
+    {r.href ? (
+      <a class="fg-chip__main" href={r.href} target="_blank" rel="noopener noreferrer"
+        title={`${r.title}${r.sectionTitle ? ` — ${r.sectionTitle}` : ''}${r.why ? `\n${r.why}` : ''}`}>
+        <span class="fg-chip__doc">{r.label}</span>
+      </a>
+    ) : (
+      <span class="fg-chip__main" title={`${r.title}${r.sectionTitle ? ` — ${r.sectionTitle}` : ''}`}>
+        <span class="fg-chip__doc">{r.label}</span>
+      </span>
+    )}
+    <span class={`fg-chip__status fg-chip__status--${r.status}`} title={STATUS_TEXT[r.status].title}>
+      {STATUS_TEXT[r.status].mark}<span class="sr-only"> {r.status}</span>
+    </span>
+  </span>
+) : (
+  <span class={`fg-chip fg-chip--${jurisdictionTone(r.doc.jurisdiction)}`}>
+    <a class="fg-chip__main" href={r.href} target="_blank" rel="noopener noreferrer"
+      title={`${r.doc.title} ${r.doc.version}\n${r.kind === 'clause' ? `${r.label} — ${r.title}` : r.title}${r.summary ? `\n\n${r.summary}` : ''}`}>
+      <span class="fg-chip__doc">{shortDocLabel(r.doc.id, r.doc.publisher)}</span>
+      {r.kind === 'clause' && <span>{r.label}</span>}
+      {r.pin && r.pin !== r.label && <span class="fg-chip__pin">{r.pin}</span>}
+      {r.page > 0 && <span class="fg-chip__pin">p.{r.page}</span>}
+    </a>
+    <a class="fg-chip__viewer" href={viewerHref(r.viewer, base)} title="Open in the Grid Code Viewer"
+      aria-label={`Open ${r.label} in the Grid Code Viewer`}>⧉</a>
+  </span>
+)}
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>

@@ -1,0 +1,492 @@
+---
+// src/pages/field-guide/index.astro — the consultant field guide hub:
+// find a topic from the question you were asked, see how topics connect,
+// the contrasts worth remembering, and every source the guide relies on.
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import RefList from '../../components/field-guide/RefList.astro';
+import { internalHref } from '../../utils/url';
+import guideJson from '../../data/field-guide/guide.json';
+import type { Guide, ClauseRef } from '../../lib/field-guide/types';
+import '../../styles/field-guide.css';
+
+const guide = guideJson as unknown as Guide;
+const byRef = new Map(guide.cited.map(c => [c.ref, c]));
+const refs = (...ids: string[]): ClauseRef[] => ids.map(id => {
+  const r = byRef.get(id);
+  if (!r) throw new Error(`field-guide hub cites "${id}", which no topic cites — add it to a topic or fix the id`);
+  return r;
+});
+
+const contrasts = [
+  { what: 'Fast fault current priority', detail: 'GB and NI put reactive current first; Ireland puts active power first.',
+    refs: refs('grid-code/ECC.6.3.16', 'soni-grid-code/CC.S2.1.4.5', 'eirgrid-grid-code/PPM1.4.2'), topic: 'fault-ride-through' },
+  { what: 'LFSM-O start and slope', detail: 'GB: 50.4 Hz at 10% droop. Ireland and NI: 50.2 Hz at a 4% default.',
+    refs: refs('grid-code/ECC.6.3.7.1', 'eirgrid-grid-code/PPM1.5.3.11', 'soni-grid-code/CC8.8.7'), topic: 'frequency-response' },
+  { what: 'Type thresholds', detail: 'Ireland and NI took the RfG ceilings (0.1 / 5 / 10 MW); GB set 1 / 10 / 50 MW, below its own ceilings.',
+    refs: refs('nc-rfg/Art.5', 'grid-code/GD.PGM-Types', 'ie-rfg-banding/Table'), topic: 'landscape' },
+  { what: 'Where non-RfG FRT is measured', detail: 'Ireland: HV terminals of the grid transformer. NI: the connection point. Same curve, different place.',
+    refs: refs('eirgrid-grid-code/PPM1.4.1', 'soni-grid-code/CC.S2.1.3.9'), topic: 'fault-ride-through' },
+  { what: 'Base for PPM reactive capability', detail: 'GB: Maximum Capacity. Ireland and NI: Registered Capacity, at the connection point.',
+    refs: refs('grid-code/ECC.6.3.2', 'eirgrid-grid-code/PPM1.6.3', 'soni-grid-code/CC.S2.1.3.2'), topic: 'reactive-voltage' },
+  { what: 'SynCon fault clearance at 110 kV', detail: 'Ireland: 120 ms. NI: 80 ms.',
+    refs: refs('eirgrid-grid-code/SCU1.6.1', 'soni-grid-code/CC.S4.1.5.2'), topic: 'inertia-syncons' },
+];
+
+const asks = guide.topics.flatMap(t => t.asks.map(q => ({ q, topic: t })));
+
+// Topic map layout (desktop only; cards below carry the same links).
+const NODE: Record<string, { x: number; y: number; short: string }> = {
+  'landscape': { x: 320, y: 40, short: 'Rulebook map' },
+  'inertia-syncons': { x: 120, y: 165, short: 'Inertia & SynCons' },
+  'frequency-response': { x: 520, y: 165, short: 'Frequency response' },
+  'fault-ride-through': { x: 150, y: 295, short: 'Fault ride-through' },
+  'reactive-voltage': { x: 490, y: 295, short: 'Reactive & voltage' },
+};
+const boxW = (s: string) => Math.max(150, s.length * 7.6 + 28);
+const EDGES: { a: string; b: string; label: string[]; lx: number; ly: number; anchor: string }[] = [
+  { a: 'inertia-syncons', b: 'frequency-response', label: ['inertia sets RoCoF · droop sets the nadir'], lx: 320, ly: 138, anchor: 'middle' },
+  { a: 'inertia-syncons', b: 'fault-ride-through', label: ['SynCons add', 'fault current'], lx: 24, ly: 228, anchor: 'start' },
+  { a: 'fault-ride-through', b: 'reactive-voltage', label: ['FFCI = reactive current in the dip'], lx: 320, ly: 268, anchor: 'middle' },
+  { a: 'inertia-syncons', b: 'reactive-voltage', label: ['SynCon AVR & Q range'], lx: 330, ly: 216, anchor: 'middle' },
+];
+const citedByDoc = new Map<string, typeof guide.cited>();
+for (const c of guide.cited) {
+  const key = `${c.doc.publisher} — ${c.doc.title}`;
+  citedByDoc.set(key, [...(citedByDoc.get(key) ?? []), c]);
+}
+const STATUS_MARK = { checked: '✓', inferred: '~', memory: '?' } as const;
+---
+
+<Layout
+  title="Field guide"
+  description="Big-picture answers to GB, Ireland and Northern Ireland grid connection questions, each tied to the grid code clause, standard or textbook chapter it comes from."
+  needsKatex={false}
+>
+  <Header />
+  <main id="main-content" class="fg-page">
+    <div class="container py-16">
+      <header class="fg-hero">
+        <p class="fg-eyebrow">Consultant field guide · GB · Ireland · Northern Ireland</p>
+        <h1>Answer the question, then show the clause.</h1>
+        <p>
+          The big picture of a grid-connection topic, how the rulebooks differ across GB, Ireland and NI,
+          and the exact clause, table or textbook section behind every statement — checked against the
+          current codes.
+        </p>
+        <ol class="fg-steps">
+          <li><strong>Find the topic</strong> from the question you were asked.</li>
+          <li><strong>Read the picture</strong> — visual first, then the key ideas.</li>
+          <li><strong>Open the clause</strong> — every chip links to the source document.</li>
+        </ol>
+      </header>
+
+      <h2 class="fg-h2" id="ask">Someone asks…</h2>
+      <label class="fg-search">
+        <span>Filter questions</span>
+        <input id="fg-ask-filter" type="search" placeholder="e.g. droop, SynCon, measured, Type C" autocomplete="off" />
+      </label>
+      <ul class="fg-asklist" id="fg-ask-list">
+        {asks.map(a => (
+          <li data-text={`${a.q} ${a.topic.title}`.toLowerCase()}>
+            <a href={internalHref(`field-guide/${a.topic.id}`)}>
+              <span class="fg-asklist__q">“{a.q}”</span>
+              <span class="fg-asklist__t">→ {a.topic.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p class="fg-empty" id="fg-ask-empty" hidden>No question matches — try the topic cards below.</p>
+
+      <h2 class="fg-h2" id="topics">Topics</h2>
+      <svg viewBox="0 0 640 330" class="fg-svg fg-map" role="img" aria-label="Map of how the field guide topics connect">
+        {EDGES.map(e => (
+          <line x1={NODE[e.a].x} y1={NODE[e.a].y} x2={NODE[e.b].x} y2={NODE[e.b].y} stroke="var(--color-border)" stroke-width="1.5" />
+        ))}
+        {EDGES.map(e => (
+          <text x={e.lx} y={e.ly} text-anchor={e.anchor} font-size="10" class="fg-svg__muted fg-map__label">{e.label.map((l, i) => <tspan x={e.lx} dy={i === 0 ? 0 : 12}>{l}</tspan>)}</text>
+        ))}
+        <text x={NODE.landscape.x} y={NODE.landscape.y + 34} text-anchor="middle" font-size="10" fill="var(--color-copper)">Type + jurisdiction select the clauses in every topic below</text>
+        {guide.topics.map(t => (
+          <a href={internalHref(`field-guide/${t.id}`)}>
+            <rect x={NODE[t.id].x - boxW(NODE[t.id].short) / 2} y={NODE[t.id].y - 17} width={boxW(NODE[t.id].short)} height="34" rx="6"
+              fill="var(--color-bg)" stroke="var(--color-text)" stroke-width="1.5" />
+            <text x={NODE[t.id].x} y={NODE[t.id].y + 4} text-anchor="middle" font-size="12" font-weight="700">{NODE[t.id].short}</text>
+          </a>
+        ))}
+      </svg>
+
+      <div class="fg-cards">
+        {guide.topics.map(t => (
+          <a class="fg-card fg-topic" href={internalHref(`field-guide/${t.id}`)}>
+            <span class="fg-eyebrow">{t.order}. {t.kicker}</span>
+            <strong class="fg-topic__title">{t.title}</strong>
+            <span class="fg-topic__sum">{t.summary}</span>
+            <span class="fg-topic__meta">{t.keyIdeas.length} key ideas · {t.matrix?.rows.length ?? 0} rows compared · {t.visuals.length} visuals</span>
+          </a>
+        ))}
+      </div>
+
+      <h2 class="fg-h2" id="contrasts">Contrasts worth remembering</h2>
+      <div class="fg-contrasts">
+        {contrasts.map(c => (
+          <article class="fg-card">
+            <h3>{c.what}</h3>
+            <p>{c.detail}</p>
+            <RefList refs={c.refs} />
+            <a class="fg-more" href={internalHref(`field-guide/${c.topic}`)}>Topic →</a>
+          </article>
+        ))}
+      </div>
+
+      <h2 class="fg-h2" id="legend">Reading the references</h2>
+      <ul class="fg-legend">
+        <li><span class="fg-chip fg-chip--gb"><span class="fg-chip__main"><span class="fg-chip__doc">NESO GC</span>ECC.6.3.15</span></span> GB transmission (blue) · <span class="fg-swatch fg-swatch--ie">IE</span> EirGrid (green) · <span class="fg-swatch fg-swatch--ni">NI</span> SONI (purple) · <span class="fg-swatch fg-swatch--eu">RfG</span> EU (amber)</li>
+        <li>Click a chip to open the publisher's document — at the clause's page where one is pinned. ⧉ opens it in the <a href={internalHref('tools/grid-code-viewer')}>Grid Code Viewer</a>.</li>
+        <li>GB Grid Code clauses are cited by number only: NESO now publishes changes as update packs, so the consolidated text lives in the digital code. These were checked against Issue 6 Revision 46.</li>
+        <li>Clause summaries are paraphrases with the key numbers. Read the clause itself before relying on one in a study.</li>
+        <li>Textbook chips: ✓ location checked against the table of contents · ~ chapter inferred · ? not checked.</li>
+      </ul>
+
+      <h2 class="fg-h2" id="sources">Sources</h2>
+      <div class="fg-sources">
+        {guide.sources.map(s => (
+          <article class="fg-source" id={`src-${s.id}`}>
+            <p class="fg-source__cite">
+              <strong>{s.authors}</strong> ({s.year}). <em>{s.title}</em>{s.edition && `, ${s.edition}`}. {s.publisher}.
+              {s.isbn && <span> ISBN {s.isbn}.</span>}
+              {s.doi && <span> doi:{s.doi}.</span>}
+              {s.href && <a href={s.href} target="_blank" rel="noopener noreferrer"> Link ↗</a>}
+              <span class={`fg-access fg-access--${s.access}`}>{s.access}</span>
+            </p>
+            <p class="fg-source__basis">{s.basis}</p>
+            {s.sections.length > 0 && (
+              <ul class="fg-source__sections">
+                {s.sections.map(sec => (
+                  <li><span class={`fg-chip__status--${sec.status}`} title={sec.status}>{STATUS_MARK[sec.status]}</span> {/^\d/.test(sec.id) ? (sec.id.includes('.') ? `§${sec.id}` : `ch. ${sec.id}`) : ''} {sec.title}{sec.page ? ` (p. ${sec.page})` : ''}</li>
+                ))}
+              </ul>
+            )}
+          </article>
+        ))}
+      </div>
+
+      <details class="fg-cited">
+        <summary>Every clause and document this guide cites ({guide.cited.length})</summary>
+        {[...citedByDoc.entries()].map(([doc, items]) => (
+          <section>
+            <h3>{doc}</h3>
+            <ul>
+              {items.map(c => (
+                <li>
+                  <a href={c.href} target="_blank" rel="noopener noreferrer">{c.kind === 'clause' ? c.label : c.title}</a>
+                  {c.kind === 'clause' && <span> — {c.title}</span>}
+                  {c.page > 0 && <span class="fg-muted"> · p.{c.page}</span>}
+                  <span class="fg-muted"> · used in {c.topics.map(id => guide.topics.find(t => t.id === id)?.title).join(', ')}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </details>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  const input = document.getElementById('fg-ask-filter') as HTMLInputElement | null;
+  const list = document.getElementById('fg-ask-list');
+  const empty = document.getElementById('fg-ask-empty');
+  input?.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    let shown = 0;
+    list?.querySelectorAll<HTMLLIElement>('li').forEach(li => {
+      const match = !q || (li.dataset.text ?? '').includes(q);
+      li.hidden = !match;
+      if (match) shown++;
+    });
+    if (empty) empty.hidden = shown > 0;
+  });
+</script>
+
+<style>
+  .fg-hero h1 {
+    font-family: var(--font-mono);
+    font-size: 1.9rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .fg-hero p {
+    max-width: 66ch;
+    line-height: 1.6;
+  }
+
+  .fg-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 1.25rem 0 0;
+    counter-reset: step;
+  }
+
+  .fg-steps li {
+    counter-increment: step;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    background: var(--fg-card);
+  }
+
+  .fg-steps li::before {
+    content: counter(step) '. ';
+    font-family: var(--font-mono);
+    color: var(--color-copper);
+    font-weight: 700;
+  }
+
+  .fg-search {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    max-width: 28rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .fg-search input {
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .fg-asklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    gap: 0.4rem;
+  }
+
+  .fg-asklist a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.85rem;
+    height: 100%;
+  }
+
+  .fg-asklist a:hover {
+    border-color: var(--color-copper);
+  }
+
+  .fg-asklist__q {
+    font-style: italic;
+  }
+
+  .fg-asklist__t {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--color-copper);
+  }
+
+  .fg-empty {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .fg-map {
+    display: none;
+    max-width: 760px;
+    margin: 0 auto 1.25rem;
+  }
+
+  @media (width >= 760px) {
+    .fg-map {
+      display: block;
+    }
+  }
+
+  .fg-map__label {
+    paint-order: stroke;
+    stroke: var(--color-bg);
+    stroke-width: 4px;
+  }
+
+  .fg-map a:hover rect {
+    stroke: var(--color-copper);
+  }
+
+  .fg-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 0.75rem;
+  }
+
+  .fg-topic {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .fg-topic:hover {
+    border-color: var(--color-copper);
+  }
+
+  .fg-topic__title {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+  }
+
+  .fg-topic__sum {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .fg-topic__meta {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: var(--color-text-muted);
+    margin-top: auto;
+  }
+
+  .fg-contrasts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 0.75rem;
+  }
+
+  .fg-contrasts h3 {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    margin: 0 0 0.35rem;
+  }
+
+  .fg-contrasts p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .fg-more {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-copper);
+  }
+
+  .fg-legend {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+
+  .fg-swatch {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  .fg-swatch--ie { color: var(--fg-ie); }
+
+  .fg-swatch--ni { color: var(--fg-ni); }
+
+  .fg-swatch--eu { color: var(--fg-eu); }
+
+  .fg-sources {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .fg-source {
+    border-left: 3px solid var(--color-copper);
+    padding: 0.2rem 0 0.2rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .fg-source__cite {
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .fg-source__basis {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    color: var(--color-text-muted);
+  }
+
+  .fg-source__sections {
+    margin: 0.35rem 0 0;
+    padding-left: 1rem;
+    font-size: 0.78rem;
+    columns: 2 260px;
+    line-height: 1.6;
+  }
+
+  .fg-access {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    margin-left: 0.4rem;
+    padding: 0.05rem 0.35rem;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+  }
+
+  .fg-access--open {
+    color: var(--fg-ok);
+    border-color: var(--fg-ok);
+  }
+
+  .fg-cited {
+    margin-top: 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+  }
+
+  .fg-cited summary {
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .fg-cited h3 {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    margin: 1rem 0 0.3rem;
+  }
+
+  .fg-cited ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+</style>

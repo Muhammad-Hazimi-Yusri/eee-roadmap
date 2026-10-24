@@ -1,0 +1,185 @@
+id: landscape
+title: "The rulebook map"
+kicker: "Who sets the rules, which document applies, and why Type matters"
+order: 1
+checked: "2026-10-24"
+
+asks:
+  - "Who sets the technical rules for connecting a generator in GB, Ireland and Northern Ireland?"
+  - "Grid Code or G99 — which one applies to this site?"
+  - "Why is a 6 MW wind farm Type C in Ireland but Type B in GB?"
+  - "What are EON, ION and FON?"
+
+summary: >-
+  One EU template (RfG) sets the menu of requirements and the maximum size
+  bands. Each system operator turns it into its own code. A plant's Type
+  (A–D), connection voltage and RfG status then decide which clauses apply,
+  and compliance is proven in stages before full operation.
+
+bigPicture: |
+  - **Layers, top to bottom.** EU Regulation 2016/631 (RfG) is the template. GB
+    keeps a retained copy and implements it through the **Grid Code** (NESO,
+    transmission) and **EREC G99** (ENA, distribution). On the island of Ireland
+    the implementers are the **EirGrid Grid Code** (Ireland) and the **SONI Grid
+    Code** (Northern Ireland). Your connection agreement then fixes the
+    site-specific numbers.
+  - **Ireland and Northern Ireland are one synchronous system.** RfG groups them
+    as one area, which is why their thresholds and curves are near-identical and
+    why both are stricter than GB: a small system sees bigger frequency swings
+    for the same loss.
+  - **Type is the dial.** Size (and voltage) puts a plant in Type A–D. Each step
+    up inherits everything below and adds more — LFSM-O for all, fault ride
+    through from B, frequency sensitive mode and LFSM-U from C, the deepest
+    curves at D.
+  - **Minimum capability vs bought services.** Codes set what plant must be
+    *able* to do. Anything extra (GB grid forming, faster frequency services) is
+    usually procured through markets, not mandated.
+
+visuals: [landscape-map, document-stack, banding-chart, lifecycle]
+
+keyIdeas:
+  - title: "RfG is a menu with ceilings"
+    body: >-
+      Article 5 lets each synchronous area pick Type B/C/D thresholds up to a
+      ceiling: GB 1/50/75 MW, Ireland & NI 0.1/5/10 MW. Ireland and NI took the
+      ceilings; GB set C and D lower (10 and 50 MW), so more GB plant carries
+      Type C/D duties than RfG requires.
+    refs:
+      - "nc-rfg/Art.5"
+      - "grid-code/GD.PGM-Types"
+      - "ie-rfg-banding/Table"
+  - title: "Voltage overrides size"
+    body: >-
+      Any plant connected at 110 kV or above is Type D, whatever its MW. A
+      20 MW plant at 132 kV in GB is Type D, not Type C.
+    refs:
+      - "grid-code/GD.PGM-Types"
+      - "ie-rfg-banding/Table"
+  - title: "Transmission vs distribution in GB"
+    body: >-
+      Transmission-connected plant answers to the Grid Code's ECC. Distribution-
+      connected plant answers to G99, whose Type C/D clauses mirror the ECC
+      (FRT, FFCI, reactive capability, frequency response).
+    refs:
+      - { clause: "erec-g99/13.3", pin: "mirrors ECC.6.3.15" }
+      - { clause: "erec-g99/13.2", pin: "mirrors ECC.6.3.7" }
+  - title: "Legacy vs RfG plant"
+    body: >-
+      GB keeps two parallel sets: CC for plant connected under the old rules,
+      ECC for RfG-era plant. The EirGrid code marks each clause with a circle
+      (RfG units) or struck circle (non-RfG units) — read the marker before the
+      number.
+    refs:
+      - { clause: "grid-code/CC.6.3.2", pin: "legacy CC example" }
+      - { clause: "eirgrid-grid-code/PPM1", pin: "RfG / non-RfG markers" }
+  - title: "Compliance is staged"
+    body: >-
+      Energisation (EON) lets you energise plant; Interim (ION) lets you export
+      and test; Final (FON) follows when the evidence is complete. GB, Ireland
+      and NI all use the same three labels.
+    refs:
+      - "grid-code/GD.EON-ION-FON"
+      - "eirgrid-grid-code/CC.15.10"
+      - "soni-grid-code/CC16.2"
+  - title: "Capability is mandatory, services are bought"
+    body: >-
+      GB grid forming capability is specified in the code but not mandatory —
+      it is procured. Day-to-day frequency control is directed under BC3; the
+      response products themselves are contracted outside the code.
+    refs:
+      - "grid-code/ECC.6.3.19"
+      - "grid-code/BC3"
+
+matrix:
+  caption: "Where to look first, per rulebook"
+  rows:
+    - param: "Main generator rulebook"
+      cells:
+        GB:  { text: "Grid Code — ECC (RfG plant), CC (legacy)", ref: "grid-code" }
+        G99: { text: "EREC G99 + Distribution Code", ref: "erec-g99" }
+        IE:  { text: "EirGrid Grid Code v17 — CC.7 (synchronous), PPM1, SCU1", ref: "eirgrid-grid-code" }
+        NI:  { text: "SONI Grid Code — CC Schedules 1 (synchronous), 2 (PPM), 4 (SCU)", ref: "soni-grid-code" }
+        RfG: { text: "Regulation (EU) 2016/631", ref: "nc-rfg" }
+    - param: "Type B from"
+      cells:
+        GB:  { text: "1 MW", ref: "grid-code/GD.PGM-Types" }
+        G99: { text: "1 MW (same bands)", ref: "grid-code/GD.PGM-Types" }
+        IE:  { text: "100 kW", ref: "ie-rfg-banding/Table" }
+        NI:  { text: "100 kW (SONI proposed the same as IE)", ref: "ie-rfg-banding/Table" }
+        RfG: { text: "Ceiling: 1 MW (GB) · 0.1 MW (IE & NI)", ref: "nc-rfg/Art.5" }
+    - param: "Type C from"
+      cells:
+        GB:  { text: "10 MW", ref: "grid-code/GD.PGM-Types" }
+        G99: { text: "10 MW", ref: "grid-code/GD.PGM-Types" }
+        IE:  { text: "5 MW", ref: "ie-rfg-banding/Table" }
+        NI:  { text: "5 MW", ref: "ie-rfg-banding/Table" }
+        RfG: { text: "Ceiling: 50 MW (GB) · 5 MW (IE & NI)", ref: "nc-rfg/Art.5" }
+    - param: "Type D from"
+      cells:
+        GB:  { text: "50 MW, or any connection at 110 kV+", ref: "grid-code/GD.PGM-Types" }
+        G99: { text: "50 MW, or 110 kV+", ref: "grid-code/GD.PGM-Types" }
+        IE:  { text: "10 MW, or 110 kV+", ref: "ie-rfg-banding/Table" }
+        NI:  { text: "10 MW, or 110 kV+", ref: "ie-rfg-banding/Table" }
+        RfG: { text: "Ceiling: 75 MW (GB) · 10 MW (IE & NI); always D at 110 kV+", ref: "nc-rfg/Art.5" }
+    - param: "Staged permission to operate"
+      cells:
+        GB:  { text: "EON → ION → FON (transmission); embedded plant via G99 and the DNO", refs: ["grid-code/GD.EON-ION-FON", "grid-code/ECP.A.6"] }
+        IE:  { text: "EON → ION → FON", ref: "eirgrid-grid-code/CC.15.10" }
+        NI:  { text: "EON → ION → FON", ref: "soni-grid-code/CC16.2" }
+    - param: "Dynamic model requirements"
+      cells:
+        GB:  { text: "PC Appendix 9 — control system models", ref: "grid-code/PC.A.9" }
+        G99: { text: "Annex C.7.8 — model verification & validation", ref: "erec-g99/C.7" }
+        IE:  { text: "PC.A8 — RMS (and EMT where specified)", ref: "eirgrid-grid-code/PC.A8" }
+        NI:  { text: "PC Appendix D (PC.D2)", ref: "soni-grid-code/PC.D2" }
+
+pitfalls:
+  - title: "Same Type letter, different plant"
+    body: >-
+      Type letters are only comparable within one synchronous area. A 6 MW
+      wind farm is Type C in Ireland (C from 5 MW) but Type B in GB (C from
+      10 MW) — it picks up LFSM-U and FSM duties in Ireland that it would not
+      have in GB.
+    refs: ["ie-rfg-banding/Table", "grid-code/GD.PGM-Types"]
+  - title: "Citing GB Grid Code page numbers"
+    body: >-
+      NESO now publishes changes as update packs; the consolidated text lives
+      in the digital code (dcm.neso.energy). Cite clause numbers and the issue
+      and revision, not PDF pages. This site's GB clauses were checked against
+      Issue 6 Revision 46.
+    refs: ["digitalised-grid-code"]
+  - title: "Measurement point is part of the requirement"
+    body: >-
+      Curves and capability envelopes are defined at a named point — GB's Grid
+      Entry Point or User System Entry Point, Ireland's connection point (RfG
+      plant) or the grid transformer's HV terminals (non-RfG PPMs). Put the
+      measurement in your model at that point, not at the inverter terminals.
+    refs:
+      - { clause: "grid-code/ECC.6.3.15", pin: "ECC.6.3.15.1" }
+      - "eirgrid-grid-code/PPM1.4.1"
+      - "eirgrid-grid-code/PPM1.6.3"
+
+inStudies:
+  - title: "Start with an applicability table"
+    body: >-
+      Before any study: jurisdiction, transmission or distribution, Type,
+      connection voltage, RfG or non-RfG status, technology. Those six facts
+      select the clause set. The matrices on each topic page are that table,
+      pre-filled.
+    refs: []
+
+reading:
+  - { source: "ieee-stability-2021", why: "The current vocabulary for stability classes, including converter-driven stability" }
+  - { source: "cigre-gb8", why: "Context on how system needs are changing with converter-based plant" }
+
+concepts:
+  - national-energy-system-operator-neso
+  - transmission-owners-tos
+  - distribution-network-operators-dnos
+  - connection-process
+  - g99-overview
+  - uk-g99-requirements
+  - transmission-voltages
+  - balancing-mechanism
+
+related: [fault-ride-through, reactive-voltage, frequency-response, inertia-syncons]

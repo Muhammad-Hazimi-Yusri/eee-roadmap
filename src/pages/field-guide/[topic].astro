@@ -1,0 +1,382 @@
+---
+// src/pages/field-guide/[topic].astro — one field-guide topic: the big
+// picture, visuals, key ideas, the cross-jurisdiction requirement matrix,
+// pitfalls, study practice and further reading. Content comes from
+// content/field-guide/<topic>.yaml via scripts/build-field-guide.mjs.
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import VisualSlot from '../../components/field-guide/VisualSlot.astro';
+import RefList from '../../components/field-guide/RefList.astro';
+import RefChip from '../../components/field-guide/RefChip.astro';
+import RequirementsMatrix from '../../components/field-guide/RequirementsMatrix.astro';
+import { parseNotes } from '../../utils/parseNotes';
+import { internalHref } from '../../utils/url';
+import guideJson from '../../data/field-guide/guide.json';
+import type { Guide, Topic } from '../../lib/field-guide/types';
+import '../../styles/field-guide.css';
+
+export function getStaticPaths() {
+  const guide = guideJson as unknown as Guide;
+  return guide.topics.map(topic => ({ params: { topic: topic.id }, props: { topic } }));
+}
+
+interface Props {
+  topic: Topic;
+}
+
+const { topic } = Astro.props;
+const guide = guideJson as unknown as Guide;
+const md = (s: string) => parseNotes(s);
+const relatedTopics = topic.related
+  .map(id => guide.topics.find(t => t.id === id))
+  .filter((t): t is Topic => Boolean(t));
+const sections = [
+  ['picture', 'Big picture'],
+  ['visuals', 'Visuals'],
+  ['ideas', 'Key ideas'],
+  ...(topic.matrix ? [['matrix', 'Side by side']] : []),
+  ['pitfalls', 'Pitfalls'],
+  ['studies', 'In studies'],
+  ['reading', 'Reading'],
+  ['roadmap', 'On the roadmap'],
+];
+---
+
+<Layout title={`${topic.title} — Field guide`} description={topic.summary} needsKatex={true}>
+  <Header />
+  <main id="main-content" class="fg-page">
+    <div class="container py-16">
+      <nav class="fg-crumb" aria-label="Breadcrumb">
+        <a href={internalHref('field-guide')}>Field guide</a>
+        <span aria-hidden="true"> / </span>
+        <span>{topic.title}</span>
+      </nav>
+
+      <header class="fg-head">
+        <p class="fg-eyebrow">{topic.kicker}</p>
+        <h1 class="fg-title">{topic.title}</h1>
+        <p class="fg-summary">{topic.summary}</p>
+        <p class="fg-checked">Clauses and chapters checked {topic.checked} · GB Grid Code Issue 6 Rev 46 · EirGrid GC v17 · SONI GC July 2026 · G99 Issue 2</p>
+      </header>
+
+      <nav class="fg-toc" aria-label="On this page">
+        {sections.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
+      </nav>
+
+      {topic.asks.length > 0 && (
+        <section class="fg-asks" aria-label="Questions this page answers">
+          <p class="fg-asks__label">When someone asks…</p>
+          <ul>
+            {topic.asks.map(q => <li>“{q}”</li>)}
+          </ul>
+        </section>
+      )}
+
+      <h2 class="fg-h2" id="picture">Big picture</h2>
+      <div class="fg-prose" set:html={md(topic.bigPicture)} />
+
+      <h2 class="fg-h2" id="visuals">Visuals</h2>
+      {topic.visuals.map(v => <VisualSlot kind={v} />)}
+
+      <h2 class="fg-h2" id="ideas">Key ideas</h2>
+      <div class="fg-ideas">
+        {topic.keyIdeas.map(k => (
+          <article class="fg-card fg-idea">
+            <h3>{k.title}</h3>
+            <div class="fg-prose" set:html={md(k.body)} />
+            <RefList refs={k.refs} />
+          </article>
+        ))}
+      </div>
+
+      {topic.matrix && (
+        <>
+          <h2 class="fg-h2" id="matrix">Side by side</h2>
+          <RequirementsMatrix caption={topic.matrix.caption} rows={topic.matrix.rows} columns={guide.jurisdictions} />
+          <p class="fg-note">Hover a chip for the clause summary; click it for the publisher's document (jumps to the page where pinned), or ⧉ to open it in the Grid Code Viewer. A dash means this guide has not pinned a clause for that cell — not that no requirement exists.</p>
+        </>
+      )}
+
+      <h2 class="fg-h2" id="pitfalls">Pitfalls</h2>
+      <div class="fg-list">
+        {topic.pitfalls.map(p => (
+          <article class="fg-pitfall">
+            <h3>⚠ {p.title}</h3>
+            <div class="fg-prose" set:html={md(p.body)} />
+            <RefList refs={p.refs} />
+          </article>
+        ))}
+      </div>
+
+      <h2 class="fg-h2" id="studies">In studies</h2>
+      <div class="fg-list">
+        {topic.inStudies.map(s => (
+          <article class="fg-study">
+            <h3>{s.title}</h3>
+            <div class="fg-prose" set:html={md(s.body)} />
+            <RefList refs={s.refs} />
+          </article>
+        ))}
+      </div>
+
+      <h2 class="fg-h2" id="reading">Reading</h2>
+      <ul class="fg-reading">
+        {topic.reading.map(r => (
+          <li>
+            <RefChip r={r} />
+            <span class="fg-reading__title">{r.sectionTitle ?? r.title}</span>
+            {r.why && <span class="fg-reading__why">— {r.why}</span>}
+          </li>
+        ))}
+      </ul>
+      <p class="fg-note">✓ location checked against the table of contents · ~ chapter inferred, confirm in your copy · ? not checked, cite by title. Locations are for the edition listed on the <a href={internalHref('field-guide') + '#sources'}>sources list</a>.</p>
+
+      <h2 class="fg-h2" id="roadmap">On the roadmap</h2>
+      <p class="fg-muted fg-small">Concepts behind this topic, and where the roadmaps teach them.</p>
+      <div class="fg-concepts">
+        {topic.concepts.map(c => (
+          <div class="fg-concept">
+            <strong>{c.name}</strong>
+            {c.locations.length > 0 ? (
+              <span class="fg-concept__links">
+                {c.locations.map(l => (
+                  <a href={internalHref(`roadmaps/${l.track}#${l.topicId}`)} title={l.trackTitle}>{l.topicTitle}</a>
+                ))}
+              </span>
+            ) : (
+              <span class="fg-muted fg-small">in the concept library only</span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {relatedTopics.length > 0 && (
+        <>
+          <h2 class="fg-h2">Related topics</h2>
+          <div class="fg-related">
+            {relatedTopics.map(t => (
+              <a class="fg-card fg-related__card" href={internalHref(`field-guide/${t.id}`)}>
+                <span class="fg-eyebrow">{t.kicker}</span>
+                <strong>{t.title}</strong>
+              </a>
+            ))}
+          </div>
+        </>
+      )}
+
+      <div class="fg-foot">
+        <a href={internalHref('field-guide')} class="btn">← All field-guide topics</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .fg-crumb {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .fg-crumb a {
+    color: var(--color-text-muted);
+  }
+
+  .fg-title {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 0.6rem;
+  }
+
+  .fg-summary {
+    font-size: 1.02rem;
+    line-height: 1.6;
+    max-width: 68ch;
+    margin: 0;
+  }
+
+  .fg-checked {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    color: var(--color-text-muted);
+    margin: 0.75rem 0 0;
+  }
+
+  .fg-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1.5rem 0 0;
+  }
+
+  .fg-toc a {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .fg-toc a:hover {
+    border-color: var(--color-copper);
+    color: var(--color-copper);
+  }
+
+  .fg-asks {
+    margin-top: 1.5rem;
+    border-left: 4px solid var(--color-copper);
+    padding: 0.5rem 1rem;
+    background: var(--fg-card);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .fg-asks__label {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-copper);
+    margin: 0 0 0.3rem;
+  }
+
+  .fg-asks ul {
+    margin: 0;
+    padding-left: 1rem;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .fg-ideas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 0.9rem;
+  }
+
+  .fg-idea h3,
+  .fg-pitfall h3,
+  .fg-study h3 {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    margin: 0 0 0.4rem;
+  }
+
+  .fg-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .fg-pitfall {
+    border: 1px solid color-mix(in srgb, var(--fg-warn) 60%, transparent);
+    border-left: 4px solid var(--fg-warn);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+  }
+
+  .fg-pitfall h3 {
+    color: var(--fg-warn);
+  }
+
+  .fg-study {
+    border-left: 4px solid var(--fg-gb);
+    padding: 0.4rem 1rem;
+  }
+
+  .fg-note,
+  .fg-small {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--color-text-muted);
+    line-height: 1.55;
+  }
+
+  .fg-note {
+    margin: 0.75rem 0 0;
+  }
+
+  .fg-reading {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fg-reading li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: baseline;
+    font-size: 0.85rem;
+  }
+
+  .fg-reading__why {
+    color: var(--color-text-muted);
+  }
+
+  .fg-concepts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 0.5rem;
+  }
+
+  .fg-concept {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.82rem;
+  }
+
+  .fg-concept__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .fg-concept__links a {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--color-copper);
+    border-radius: 3px;
+    color: var(--color-copper);
+    text-decoration: none;
+  }
+
+  .fg-concept__links a:hover {
+    background: var(--color-copper);
+    color: #fff;
+  }
+
+  .fg-related {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 0.6rem;
+  }
+
+  .fg-related__card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .fg-related__card:hover {
+    border-color: var(--color-copper);
+  }
+
+  .fg-foot {
+    margin-top: 2.5rem;
+  }
+</style>

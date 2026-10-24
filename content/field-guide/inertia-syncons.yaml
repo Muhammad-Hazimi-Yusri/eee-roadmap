@@ -1,0 +1,220 @@
+id: inertia-syncons
+title: "Inertia & synchronous condensers"
+kicker: "What spinning mass buys you, and what a SynCon must do"
+order: 2
+checked: "2026-10-24"
+
+asks:
+  - "Why does less inertia mean a faster RoCoF, and where does 1 Hz/s come from?"
+  - "What does a synchronous condenser actually give the system?"
+  - "Which grid code clauses apply to a SynCon — it isn't a generator?"
+  - "What dynamic model does EirGrid want for a SynCon, and in which tool?"
+
+summary: >-
+  Inertia is rotating stored energy that slows the first second of a
+  frequency fall. A synchronous condenser is a synchronous machine with no
+  prime mover: it adds real inertia, fault current and fast reactive power
+  without producing energy. Ireland and NI regulate it as its own class.
+
+bigPicture: |
+  - **Inertia in one equation.** Each machine stores $E = H\,S$ (MW·s). At the
+    instant a loss of $\Delta P$ hits, before any control acts,
+    $\dfrac{df}{dt} = \dfrac{\Delta P\, f_0}{2\,E_k}$, where $E_k$ is the system
+    total. Halve $E_k$ and the RoCoF doubles.
+  - **Why it is scarce now.** Grid-following converters (most wind, solar and
+    batteries) hold no stored energy that responds to frequency on its own, so
+    as they displace synchronous plant, system inertia and short-circuit level
+    both fall.
+  - **What a SynCon provides.** (1) *Inertia* — a real rotor, sometimes with a
+    flywheel; (2) *system strength* — fault current that keeps protection
+    working and gives converters a stiff voltage to follow; (3) *dynamic
+    reactive power* through its AVR. It draws a little active power to cover
+    losses.
+  - **How the codes treat it.** EirGrid (SCU1) and SONI (CC Schedule 4) make
+    it a separate class with its own FRT curve, reactive range, AVR, protection
+    and model requirements. GB defines it in the glossary but has no dedicated
+    requirements section.
+
+visuals: [rocof-calculator, syncon-anatomy, capability-chart]
+
+keyIdeas:
+  - title: "RoCoF is set by inertia alone in the first instant"
+    body: >-
+      Governors and converters need time to measure and act; the first few
+      hundred milliseconds are pure physics — the aggregate swing equation.
+      That is why codes specify a RoCoF *withstand* over a measurement window.
+    refs:
+      - { source: "machowski-2020", section: "17.2.1.2" }
+      - { source: "machowski-2020", section: "5.1" }
+  - title: "1 Hz/s over 500 ms is the common withstand"
+    body: >-
+      GB power generating modules must ride through 1 Hz/s on a rolling 500 ms
+      window (2 Hz/s for grid-forming PPMs). Ireland asks the same of PPMs and
+      of synchronous condensers.
+    refs:
+      - "grid-code/ECC.6.3.13"
+      - "eirgrid-grid-code/PPM1.5"
+      - "eirgrid-grid-code/SCU1.4.1"
+  - title: "A SynCon is neither generator nor demand"
+    body: >-
+      In Ireland the generator clauses CC.7.3–7.5 and all of PPM1 do not apply
+      to an SCU; SCU1 replaces them. Compliance testing is at the TSO's
+      discretion. A joint EirGrid/SONI note maps the rest of the code onto SCUs.
+    refs:
+      - "eirgrid-grid-code/SCU1"
+      - "eirgrid-scu-impl-note"
+  - title: "What an SCU must do in Ireland"
+    body: >-
+      Ride through 0 pu for 150 ms, 0.5 pu to 450 ms, 0.9 pu after; supply
+      0.8 × MVA lagging to 0.4 × MVA leading at the connection point; AVR with
+      Q and kV setpoint modes and a 1–10% slope; OLTC on the grid transformer;
+      synchronise within 30 min; trip on loss of angular stability.
+    refs:
+      - "eirgrid-grid-code/SCU1.4.1"
+      - "eirgrid-grid-code/SCU1.4.6"
+      - "eirgrid-grid-code/SCU1.4.7"
+      - "eirgrid-grid-code/SCU1.5"
+  - title: "NI: same shape, local numbers"
+    body: >-
+      Same FRT steps and roughly the same −0.4 to +0.8 Q/MVA range, but faster
+      required fault clearance (80 ms) and explicit excitation limiters (UEL,
+      OEL, stator current) with a PSS where the TSO asks.
+    refs:
+      - "soni-grid-code/CC.S4.1.8.1"
+      - "soni-grid-code/CC.S4.1.3.2"
+      - "soni-grid-code/CC.S4.1.5.2"
+  - title: "Grid forming is the converter-side answer"
+    body: >-
+      A grid-forming converter behaves like a voltage source and can offer
+      synthetic inertia. GB specifies the capability (GBGF) but procures it
+      rather than mandating it.
+    refs:
+      - "grid-code/ECC.6.3.19"
+      - "gn-grid-forming"
+      - { source: "machowski-2020", section: "17.3" }
+
+matrix:
+  caption: "Synchronous condenser requirements side by side"
+  rows:
+    - param: "Where the rules live"
+      cells:
+        GB: { text: "Glossary definition only; stability-service assets follow NESO's Stability Pathfinder guidance", ref: "grid-code/GD.Synchronous-Compensation" }
+        IE: { text: "SCU1 — own section; CC.7.3–7.5 and PPM1 excluded", ref: "eirgrid-grid-code/SCU1" }
+        NI: { text: "CC Schedule 4 Part I", ref: "soni-grid-code/CC.S4.1.3.2" }
+    - param: "Fault ride through"
+      cells:
+        IE: { text: "0 pu to 150 ms → 0.5 pu to 450 ms → 0.9 pu", ref: { clause: "eirgrid-grid-code/SCU1.4.1", pin: "Figure SCU1.4.1" } }
+        NI: { text: "Same curve", ref: "soni-grid-code/CC.S4.1.8.1" }
+    - param: "Reactive range"
+      cells:
+        IE: { text: "+0.8 × MVA (lagging) to −0.4 × MVA (leading)", ref: "eirgrid-grid-code/SCU1.4.6" }
+        NI: { text: "≈ +0.8 to −0.4 Q/MVA", ref: "soni-grid-code/CC.S4.1.3.2" }
+    - param: "Continuous voltage range"
+      cells:
+        IE: { text: "110 kV 0.9–1.118 · 220 kV 0.9–1.114 · 400 kV 0.9–1.05 pu", ref: "eirgrid-grid-code/SCU1.4.1" }
+        NI: { text: "110 kV 0.9–1.1 · 275 kV 0.9–1.09 · 400 kV 0.9–1.05 pu", ref: "soni-grid-code/CC.S4.1.3.2" }
+    - param: "RoCoF withstand"
+      cells:
+        GB: { text: "1 Hz/s, rolling 500 ms (applies to PGMs)", ref: "grid-code/ECC.6.3.13" }
+        IE: { text: "1 Hz/s, rolling 500 ms", ref: "eirgrid-grid-code/SCU1.4.1" }
+    - param: "Voltage control"
+      cells:
+        IE: { text: "AVR to BS 4999-140; Q or kV setpoint; slope 1–10% set online", ref: "eirgrid-grid-code/SCU1.4.7" }
+        NI: { text: "UEL, OEL, stator current limiter; PSS case by case", ref: "soni-grid-code/CC.S4.1.3.2" }
+    - param: "Start-up"
+      cells:
+        IE: { text: "Synchronised within 30 min of instruction", ref: "eirgrid-grid-code/SCU1.4.1" }
+        NI: { text: "Within 30 min", ref: "soni-grid-code/CC.S4.1.3.5" }
+    - param: "Fault clearance"
+      cells:
+        IE: { text: "120 ms at 110 kV · 100 ms at 220 kV · 80 ms at 400 kV", ref: "eirgrid-grid-code/SCU1.6.1" }
+        NI: { text: "≤ 80 ms at 275 kV and at ≤110 kV", ref: "soni-grid-code/CC.S4.1.5.2" }
+    - param: "Dynamic models"
+      cells:
+        GB: { text: "PC Appendix 9 (control system models)", ref: "grid-code/PC.A.9" }
+        IE: { text: "All of PC.A8 applies + SCU EMT model spec", ref: "eirgrid-scu-impl-note/Table-A5" }
+        NI: { text: "PC Appendix D", ref: "soni-grid-code/PC.D2" }
+
+pitfalls:
+  - title: "Building an SCU compliance matrix from a generator template"
+    body: >-
+      In Ireland a generator or PPM template lists clauses that do not apply
+      (CC.7.3–7.5, PPM1) and misses SCU-only ones: angular-stability agreement,
+      disconnection on loss of synchronism, fault recorder with an oscillation
+      trigger, the OLTC requirement.
+    refs: ["eirgrid-grid-code/SCU1", "eirgrid-grid-code/SCU1.4.1", "eirgrid-grid-code/SCU1.5"]
+  - title: "Mixing H bases"
+    body: >-
+      H is quoted on the machine's own MVA rating. Convert to stored energy
+      (E = H·S) before adding machines together or comparing with a system
+      figure in MW·s.
+    refs: [{ source: "machowski-2020", section: "17.2.1.2" }]
+  - title: "Assuming the code names the simulation tool"
+    body: >-
+      PC.A8.8 says models are built for the software packages and versions the
+      TSO defines and publishes separately; the code itself names no tool.
+      Check EirGrid's current published list before building — don't carry a
+      version over from a previous project.
+    refs: [{ clause: "eirgrid-grid-code/PC.A8", pin: "PC.A8.8" }]
+  - title: "The 90 Business Day model clock"
+    body: >-
+      After compliance tests, the validated (revised) model is due within 90
+      Business Days. Plan the validation work before the test date, not after.
+    refs: [{ clause: "eirgrid-grid-code/PC.A8", pin: "PC.A8.6" }]
+  - title: "Using Irish clearance times in an NI study (or vice versa)"
+    body: >-
+      120 ms at 110 kV in Ireland becomes 80 ms in NI. Critical clearing time
+      margins change accordingly.
+    refs: ["eirgrid-grid-code/SCU1.6.1", "soni-grid-code/CC.S4.1.5.2"]
+
+inStudies:
+  - title: "The RMS model EirGrid expects"
+    body: >-
+      One lumped, scalable model valid from sub-transient to reserve
+      timescales; block diagrams or a reference to a standard IEEE model (for
+      example an IEEE 421.5 exciter type); a sample case of the plant and grid
+      transformer feeding an infinite bus through the connection-point
+      impedance; validation against compliance tests.
+    refs:
+      - { clause: "eirgrid-grid-code/PC.A8", pin: "PC.A8.2, A8.3, A8.6, A8.8" }
+      - "eirgrid-scu-impl-note/Table-A5"
+  - title: "The EMT model"
+    body: >-
+      SCUs also need an EMT model to EirGrid's SCU specification, used where
+      converter interactions or fast transients matter.
+    refs: ["eirgrid-scu-emt-spec"]
+  - title: "Typical SCU study set"
+    body: >-
+      FRT against the stepped curve; U–Q capability across the voltage range at
+      the connection point; AVR step response in both setpoint modes;
+      angular stability and the agreed trip criteria; fault-level contribution
+      for the network owner.
+    refs:
+      - "eirgrid-grid-code/SCU1.4.1"
+      - "eirgrid-grid-code/SCU1.4.6"
+      - "eirgrid-grid-code/SCU1.4.7"
+
+reading:
+  - { source: "cigre-tb885", why: "The reference guide to specifying and designing synchronous condensers" }
+  - { source: "machowski-2020", section: "17.2", why: "Inertia in systems with high converter share" }
+  - { source: "machowski-2020", section: "17.2.1.2", why: "Inertia constant and the RoCoF derivation" }
+  - { source: "machowski-2020", section: "17.3", why: "Virtual inertia from converters" }
+  - { source: "machowski-2020", section: "5.1", why: "The swing equation" }
+  - { source: "kundur-1994", section: "8", why: "Excitation systems — the AVR and limiters a SynCon relies on" }
+  - { source: "cigre-gb16", why: "Modern dynamic modelling, RMS vs EMT" }
+
+concepts:
+  - the-swing-equation
+  - synchronous-machine-basics
+  - synchronous-generator
+  - excitation
+  - excitation-and-reactive-power
+  - ieee-421-5-excitation-models
+  - power-system-stabilizer
+  - grid-forming-inverter
+  - grid-following-inverter
+  - inverter-based-resources-ibr
+  - fault-level-definition
+  - tap-changers
+
+related: [frequency-response, fault-ride-through, reactive-voltage, landscape]

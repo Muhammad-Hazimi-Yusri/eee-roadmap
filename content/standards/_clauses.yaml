@@ -5,12 +5,56 @@ _meta:
     The clauseId follows the document's own numbering — bare for ENA docs
     (e.g. `13.6`), qualified for Grid Code/CUSC/STC (e.g. `ECC.6.3.15`).
 
+    pageStart is the PDF page index (what `#page=N` opens) of the document's
+    catalogue pdfUrl, not the printed page label; 0 means "not pinned".
+      - GB Grid Code: NESO no longer publishes a consolidated PDF, so GB clause
+        numbers were checked against the digital code (dcm.neso.energy) and
+        pages stay 0.
+      - NC RfG: articles were checked against the legislation.gov.uk "adopted"
+        PDF, whose pagination differs from the EUR-Lex PDF the catalogue links,
+        so pages stay 0 and the article number is the anchor.
+    Summaries are paraphrases with the key numbers; read the clause itself
+    before relying on one in a study.
+
     Used by:
       - RelatedClausesPanel.tsx (the right-pane peek view)
       - SearchPalette.tsx (Fuse.js index)
       - Permalinks: /tools/grid-code-viewer?doc=...&clause=...&page=...
+      - The field guide (/field-guide/), whose references point at these refs
 
 clauses:
+
+  # ─── GB: definitions ────────────────────────────────────────────────────────
+
+  - ref: grid-code/GD.PGM-Types
+    docId: grid-code
+    clauseId: "GD (Type A–D Power Generating Module)"
+    title: "Type A/B/C/D Power Generating Module (definitions)"
+    pageStart: 0
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes:   []
+    forms:        []
+    summary: "GB banding by Maximum Capacity and connection voltage: Type A 0.8 kW to <1 MW, Type B 1 to <10 MW, Type C 10 to <50 MW (all below 110 kV); Type D is 50 MW and above, or any connection at 110 kV or higher."
+
+  - ref: grid-code/GD.Synchronous-Compensation
+    docId: grid-code
+    clauseId: "GD (Synchronous Compensation Equipment)"
+    title: "Synchronous Compensation (definitions)"
+    pageStart: 0
+    projectTypes: [SynCon]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "GB defines Synchronous Compensation as rotating synchronous apparatus run to generate or absorb reactive power, and lists synchronous compensators as dynamic reactive compensation equipment. Unlike EirGrid SCU1 or SONI Schedule 4 there is no dedicated requirements section."
+
+  - ref: grid-code/GD.EON-ION-FON
+    docId: grid-code
+    clauseId: "GD (EON / ION / FON)"
+    title: "Operational Notifications — EON, ION, FON (definitions)"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   []
+    forms:        ["EON", "ION", "FON"]
+    summary: "The staged notifications from NESO: Energisation (EON) for transmission-connected plant, Interim (ION) once the User has shown partial compliance, Final (FON) once compliance is demonstrated. Embedded plant can rely on G99 plus the network operator's final notification."
 
   # ─── Frequency / active-power cluster ────────────────────────────────────────
 
@@ -22,47 +66,127 @@ clauses:
     projectTypes: [G99-D, BESS, Synch, PPM, HVDC]
     studyTypes:   [FreqResp]
     forms:        ["DRC Sch 1", "G99 Form A.2"]
-    summary: "Mandatory Frequency Sensitive Mode (FSM) and Limited FSM Over/Under behaviour requirements for transmission-connected and large embedded generation. Commercial delivery via BC3."
+    summary: "Mandatory Frequency Sensitive Mode (FSM) and Limited FSM Over/Under behaviour requirements for transmission-connected and large embedded generation."
+
+  - ref: grid-code/ECC.6.3.7.1
+    docId: grid-code
+    clauseId: ECC.6.3.7.1
+    title: "LFSM-O (overfrequency)"
+    pageStart: 0
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Above 50.4 Hz (50.5 Hz if already in FSM) cut active power by at least 2% of output per 0.1 Hz, i.e. a 10% droop."
+
+  - ref: grid-code/ECC.6.3.7.2
+    docId: grid-code
+    clauseId: ECC.6.3.7.2
+    title: "LFSM-U (underfrequency)"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Type C/D: below 49.5 Hz raise active power at 2% of output per 0.1 Hz (10% droop), within available headroom. Storage importing has its own sub-clause."
+
+  - ref: grid-code/ECC.6.3.7.3
+    docId: grid-code
+    clauseId: ECC.6.3.7.3
+    title: "FSM (frequency sensitive mode)"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Table ECC.6.3.7.3.3(a): FSM active-power range 10% of Pmax, insensitivity ±15 mHz (0.03%), deadband 0 mHz, droop 3–5%."
+
+  - ref: grid-code/ECC.6.3.13
+    docId: grid-code
+    clauseId: ECC.6.3.13
+    title: "Frequency, RoCoF and voltage protection settings"
+    pageStart: 0
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    studyTypes:   [FreqResp, Protection]
+    forms:        []
+    summary: "Users protect their own plant against 47–52 Hz excursions. PGMs must withstand RoCoF of 1 Hz/s measured over a rolling 500 ms (2 Hz/s for grid-forming PPMs); HVDC and DC-connected PPMs have their own limits."
 
   - ref: grid-code/ECP.A.5.6.3
     docId: grid-code
     clauseId: ECP.A.5.6.3
-    title: "Compliance Test Procedure — Frequency Response"
+    title: "Compliance Test — excitation limiter procedure (synchronous)"
+    pageStart: 0
+    projectTypes: [G99-D, Synch]
+    studyTypes:   [AVR]
+    forms:        ["Compliance Test Report"]
+    summary: "Typical procedure for witnessed excitation-limiter tests on synchronous plant (sits under the over-excitation limiter test heading)."
+
+  - ref: grid-code/ECP.A.5.8
+    docId: grid-code
+    clauseId: ECP.A.5.8
+    title: "Compliance Test — governor & load controller response (synchronous)"
+    pageStart: 0
+    projectTypes: [G99-D, Synch]
+    studyTypes:   [FreqResp]
+    forms:        ["Compliance Test Report"]
+    summary: "Witnessed frequency-response tests for synchronous plant — the test counterpart of ECC.6.3.7."
+
+  - ref: grid-code/ECP.A.6.6
+    docId: grid-code
+    clauseId: ECP.A.6.6
+    title: "Compliance Test — PPM frequency response"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, PPM]
+    studyTypes:   [FreqResp]
+    forms:        ["Compliance Test Report"]
+    summary: "Frequency-response tests for power park modules — the PPM test counterpart of ECC.6.3.7."
+
+  - ref: grid-code/ECP.A.3.6
+    docId: grid-code
+    clauseId: ECP.A.3.6
+    title: "Simulation Study — LFSM-O"
     pageStart: 0
     projectTypes: [G99-D, BESS, Synch, PPM]
     studyTypes:   [FreqResp]
-    forms:        ["Compliance Test Report"]
-    summary: "Witness test procedure for demonstrating compliance with ECC.6.3.7 frequency response requirements."
+    forms:        []
+    summary: "Simulation-study requirements for demonstrating LFSM-O behaviour."
 
   - ref: grid-code/BC3
     docId: grid-code
     clauseId: BC3
-    title: "Frequency Control (commercial delivery)"
+    title: "Frequency Control Process"
     pageStart: 0
     projectTypes: [G99-D, BESS, Synch, PPM]
     studyTypes:   [FreqResp]
     forms:        []
-    summary: "Balancing Code 3 — commercial framework for frequency response delivery (Dynamic Containment, Dynamic Moderation, Dynamic Regulation)."
+    summary: "Balancing Code 3 — how NESO directs System Frequency control in operation. Commercial response services are contracted outside the Grid Code."
 
   - ref: grid-code/CC.A.3.2
     docId: grid-code
     clauseId: CC.A.3.2
-    title: "Legacy GB Frequency Response"
+    title: "Legacy GB Frequency Response — operating range"
     pageStart: 0
     projectTypes: [Synch]
     studyTypes:   [FreqResp]
     forms:        []
-    summary: "Legacy GB frequency response specification — predates ECC.6.3.7, retained for grandfathered units."
+    summary: "Part of CC Appendix 3, the legacy (pre-RfG) minimum frequency response profile: primary, secondary and high-frequency response. Retained for plant still under the CC."
+
+  - ref: erec-g99/12.2
+    docId: erec-g99
+    clauseId: "12.2"
+    title: "Frequency Response (Type B)"
+    pageStart: 146
+    projectTypes: [G99-B, BESS]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Type B distribution-connected frequency requirements, including LFSM-O."
 
   - ref: erec-g99/13.2
     docId: erec-g99
     clauseId: "13.2"
-    title: "Frequency Response (Type B/C/D)"
-    pageStart: 0
-    projectTypes: [G99-B, G99-C, G99-D, BESS]
+    title: "Frequency Response (Type C/D)"
+    pageStart: 161
+    projectTypes: [G99-C, G99-D, BESS]
     studyTypes:   [FreqResp]
     forms:        ["G99 Form A.2"]
-    summary: "Distribution-network frequency response — LFSM-O mandatory at Type B+, FSM at Type C+. Mirrors ECC.6.3.7."
+    summary: "Type C/D distribution-connected frequency requirements: LFSM-O (13.2.4), LFSM-U (13.2.5) and FSM (13.2.6). Mirrors ECC.6.3.7."
 
   # ─── FRT / FFCI cluster ─────────────────────────────────────────────────────
 
@@ -71,20 +195,30 @@ clauses:
     clauseId: ECC.6.3.15
     title: "Fault Ride Through (FRT)"
     pageStart: 0
-    projectTypes: [G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC]
     studyTypes:   [FRT]
-    forms:        ["G99 Form A.2-2", "ECP.A.3.5 study"]
-    summary: "Transmission FRT envelope — generators must remain connected during voltage dips of specified depth and duration. References ECP.A.3.5 for study methodology."
+    forms:        ["ECP.A.3.5 study"]
+    summary: "Stay connected and stable through balanced and unbalanced faults while the GEP/UsEP voltage stays on or above a voltage-against-time curve. Tables ECC.6.3.15.2–.6 give the curve per plant: synchronous B/C/D, PPM <110 kV (Uret 0.10 pu for 140 ms, 0.85 pu by 2.2 s) and Type D PPM at 110 kV+ (0 pu for 140 ms)."
+
+  - ref: grid-code/ECC.6.3.15.9
+    docId: grid-code
+    clauseId: ECC.6.3.15.9
+    title: "FRT — faults longer than 140 ms"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "Extra ride-through conditions for longer-duration faults, including restoring active power to at least 90% of the pre-fault level."
 
   - ref: grid-code/ECC.6.3.15.10
     docId: grid-code
     clauseId: ECC.6.3.15.10
-    title: "High Voltage Ride Through (HVRT)"
+    title: "FRT — other requirements and exceptions"
     pageStart: 0
-    projectTypes: [G99-D, BESS, PPM, HVDC]
+    projectTypes: [G99-C, G99-D, BESS, PPM]
     studyTypes:   [FRT]
     forms:        []
-    summary: "HVRT envelope (added by GC0155) — OV ≥1.20 pu for 0.5 s, UV <0.8 pu for 3 s."
+    summary: "Exceptions around the FRT rules, e.g. the longer-fault requirements of ECC.6.3.15.9 do not apply to a PPM running below 5% of Rated MW or in very high primary-energy conditions."
 
   - ref: grid-code/ECC.6.3.16
     docId: grid-code
@@ -94,37 +228,77 @@ clauses:
     projectTypes: [BESS, PPM, HVDC]
     studyTypes:   [FFCI, FRT]
     forms:        []
-    summary: "Fast Fault Current Injection — non-synchronous generators must inject reactive current during voltage dips proportional to dip depth."
+    summary: "Type B/C/D PPMs and HVDC inject reactive current during a dip: no less than pre-fault, rising as voltage falls below 0.9 pu, within rating. Reactive current takes priority."
 
   - ref: grid-code/ECP.A.3.5
     docId: grid-code
     clauseId: ECP.A.3.5
-    title: "Compliance Process — FRT Study"
+    title: "Simulation Study — FRT and FFCI"
     pageStart: 0
     projectTypes: [G99-C, G99-D, BESS, PPM, HVDC]
-    studyTypes:   [FRT, EMT]
+    studyTypes:   [FRT, FFCI, EMT]
     forms:        ["FRT Study Report"]
-    summary: "Pre-energisation study requirements to demonstrate FRT compliance, including EMT modelling for Type D and inverter-based plant."
+    summary: "Simulation studies demonstrating fault ride through and fast fault current injection (ECP Appendix 3)."
 
-  - ref: erec-g99/13.6
-    docId: erec-g99
-    clauseId: "13.6"
-    title: "Fault Ride Through (Type B/C/D)"
+  - ref: grid-code/ECP.A.6.7
+    docId: grid-code
+    clauseId: ECP.A.6.7
+    title: "Compliance Test — PPM fault ride through"
     pageStart: 0
-    projectTypes: [G99-B, G99-C, G99-D, BESS]
+    projectTypes: [G99-D, BESS, PPM]
     studyTypes:   [FRT]
-    forms:        ["G99 Form A.2-2"]
-    summary: "Distribution-side FRT envelope per RfG — Type B uses Annex C.5, Type C/D mirrors ECC.6.3.15."
+    forms:        ["Compliance Test Report"]
+    summary: "FRT testing for power park modules, run for the fault types and durations of ECC.6.3.15."
 
   - ref: grid-code/CC.6.3.15.3
     docId: grid-code
     clauseId: CC.6.3.15.3
-    title: "Protection / Loss-of-Mains (transmission)"
+    title: "FRT — other requirements (legacy CC)"
     pageStart: 0
-    projectTypes: [G99-D, Synch, PPM, HVDC]
-    studyTypes:   [Protection, LoM]
+    projectTypes: [Synch, PPM, HVDC]
+    studyTypes:   [FRT]
     forms:        []
-    summary: "Protection grading and loss-of-mains philosophy for transmission-connected generation."
+    summary: "Legacy (CC) counterpart of ECC.6.3.15.10: exceptions to the CC fault ride through rules, e.g. for wind PPMs at low output."
+
+  - ref: erec-g99/12.3
+    docId: erec-g99
+    clauseId: "12.3"
+    title: "Fault Ride Through (Type B)"
+    pageStart: 151
+    projectTypes: [G99-B, BESS]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "Type B fault ride through and phase-voltage-unbalance withstand."
+
+  - ref: erec-g99/12.6
+    docId: erec-g99
+    clauseId: "12.6"
+    title: "Fast Fault Current Injection (Type B)"
+    pageStart: 156
+    projectTypes: [G99-B, BESS]
+    studyTypes:   [FFCI]
+    forms:        []
+    summary: "Type B power park module fast fault current injection."
+
+  - ref: erec-g99/13.3
+    docId: erec-g99
+    clauseId: "13.3"
+    title: "Fault Ride Through (Type C/D)"
+    pageStart: 171
+    projectTypes: [G99-C, G99-D, BESS]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "Type C/D fault ride through at distribution level. The distribution mirror of ECC.6.3.15."
+
+  - ref: erec-g99/13.6
+    docId: erec-g99
+    clauseId: "13.6"
+    title: "Fast Fault Current Injection (Type C/D)"
+    pageStart: 182
+    projectTypes: [G99-C, G99-D, BESS]
+    studyTypes:   [FFCI, FRT]
+    forms:        []
+    summary: "Type C/D power park module fast fault current injection. The distribution mirror of ECC.6.3.16."
 
   # ─── Reactive / voltage cluster ─────────────────────────────────────────────
 
@@ -133,10 +307,20 @@ clauses:
     clauseId: ECC.6.3.2
     title: "Reactive Power Capability"
     pageStart: 0
-    projectTypes: [G99-C, G99-D, BESS, Synch, PPM, HVDC]
+    projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC]
     studyTypes:   [Reactive]
     forms:        ["DRC Sch 5", "G99 Form A.2"]
-    summary: "Q-V capability — synchronous generators per Fig 4(a), non-synchronous per Fig 4(b). Storage variant defined in Compliance Guidance Notes."
+    summary: "Reactive capability by plant type. Type B synchronous and PPM: 0.95 pf lagging to leading at Maximum Capacity (ECC.6.3.2.1–.2.2); Type C/D synchronous in .2.3; Type C/D PPM and HVDC in .2.4."
+
+  - ref: grid-code/ECC.6.3.2.4
+    docId: grid-code
+    clauseId: ECC.6.3.2.4
+    title: "Reactive Capability — Type C/D PPM and HVDC"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, PPM, HVDC]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "Type C/D PPMs connected above 33 kV follow Figure ECC.6.3.2.4(a) at the GEP/UsEP at Maximum Capacity; at 33 kV and below, Figure ECC.6.3.2.4(b)."
 
   - ref: grid-code/CC.6.3.2
     docId: grid-code
@@ -146,47 +330,97 @@ clauses:
     projectTypes: [Synch]
     studyTypes:   [Reactive]
     forms:        []
-    summary: "Legacy GB reactive capability — Fig CC.A.4.3. Retained for grandfathered units."
+    summary: "Legacy (CC) reactive capability: synchronous units at Rated MW operate continuously between 0.85 pf lagging and 0.95 pf leading. Retained for plant still under the CC."
 
   - ref: grid-code/ECC.6.3.8
     docId: grid-code
     clauseId: ECC.6.3.8
-    title: "Voltage Control / AVR"
+    title: "Excitation and Voltage Control Performance"
     pageStart: 0
     projectTypes: [G99-C, G99-D, BESS, Synch, PPM]
     studyTypes:   [AVR]
     forms:        ["G99 Form A.2"]
-    summary: "Voltage control mode — closed-loop AVR for synchronous, Q(U) or V-droop for non-synchronous."
+    summary: "Continuously acting voltage control: an AVR for synchronous plant (detailed in Appendix E6), a voltage controller for PPMs and HVDC (Appendix E7)."
 
   - ref: grid-code/ECC.A.6.1
     docId: grid-code
     clauseId: ECC.A.6.1
-    title: "AVR Performance Specification"
+    title: "Excitation System Performance (App E6) — scope"
     pageStart: 0
     projectTypes: [Synch]
     studyTypes:   [AVR]
     forms:        []
-    summary: "AVR performance bandwidth, step response, ceiling voltage specifications."
+    summary: "Appendix E6: performance requirements for continuously acting excitation control on onshore synchronous PGMs."
 
   - ref: grid-code/ECC.A.6.2
     docId: grid-code
     clauseId: ECC.A.6.2
-    title: "PSS Performance Specification"
+    title: "Excitation System Requirements (App E6)"
     pageStart: 0
-    projectTypes: [G99-D, Synch]
-    studyTypes:   [PSS, POD]
+    projectTypes: [G99-C, G99-D, Synch]
+    studyTypes:   [AVR, PSS]
     forms:        []
-    summary: "Power System Stabiliser performance requirements — mandatory for Type D synchronous."
+    summary: "Type C/D synchronous excitation must include an exciter and a continuously acting AVR; Type D must also have a power system stabiliser."
 
   - ref: grid-code/ECC.A.6.2.4
     docId: grid-code
     clauseId: ECC.A.6.2.4
-    title: "PSS Tuning & Witness Test"
+    title: "Transient Voltage Control (App E6)"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, Synch]
+    studyTypes:   [AVR]
+    forms:        []
+    summary: "Open-circuit step-response requirements for the synchronous excitation system (e.g. a 90%→100% terminal-voltage step must settle with a damped response)."
+
+  - ref: grid-code/ECC.A.6.2.5
+    docId: grid-code
+    clauseId: ECC.A.6.2.5
+    title: "Power Oscillation Damping Control — PSS (App E6)"
     pageStart: 0
     projectTypes: [G99-D, Synch]
-    studyTypes:   [PSS]
+    studyTypes:   [PSS, POD]
     forms:        ["PSS Commissioning Test"]
-    summary: "PSS tuning procedure with NESO witness attendance under BC2.11."
+    summary: "Type D synchronous AVRs include a power system stabiliser so the unit keeps second-swing stability and adds damping to low-frequency electromechanical oscillations."
+
+  - ref: grid-code/ECC.A.7.2
+    docId: grid-code
+    clauseId: ECC.A.7.2
+    title: "Voltage Control Performance — PPM and HVDC (App E7)"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, PPM, HVDC]
+    studyTypes:   [AVR, Reactive]
+    forms:        []
+    summary: "Voltage setpoint 95–105% in 0.25% steps; slope 2–7% in 0.5% steps (ECC.A.7.2.2). After a step, reactive response starts within 0.2 s and reaches 90% of the change within 2 s (ECC.A.7.2.3)."
+
+  - ref: grid-code/ECP.A.3.4
+    docId: grid-code
+    clauseId: ECP.A.3.4
+    title: "Simulation Study — voltage control and reactive stability"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes:   [AVR, Reactive]
+    forms:        []
+    summary: "Simulation-study requirements for voltage control and reactive power stability (ECP Appendix 3)."
+
+  - ref: grid-code/ECP.A.6.4
+    docId: grid-code
+    clauseId: ECP.A.6.4
+    title: "Compliance Test — PPM reactive capability"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, PPM]
+    studyTypes:   [Reactive]
+    forms:        ["Compliance Test Report"]
+    summary: "Reactive capability test for power park modules."
+
+  - ref: grid-code/ECP.A.6.5
+    docId: grid-code
+    clauseId: ECP.A.6.5
+    title: "Compliance Test — PPM voltage control"
+    pageStart: 0
+    projectTypes: [G99-D, BESS, PPM]
+    studyTypes:   [AVR]
+    forms:        ["Compliance Test Report"]
+    summary: "Voltage control tests for power park modules."
 
   - ref: grid-code/BC2.11
     docId: grid-code
@@ -197,6 +431,56 @@ clauses:
     studyTypes:   [PSS]
     forms:        []
     summary: "Operational requirement for NESO control engineer attendance during PSS commissioning tests."
+
+  - ref: erec-g99/12.4
+    docId: erec-g99
+    clauseId: "12.4"
+    title: "Voltage Limits and Control (Type B)"
+    pageStart: 154
+    projectTypes: [G99-B, BESS]
+    studyTypes:   [AVR]
+    forms:        []
+    summary: "Type B voltage limits and voltage control."
+
+  - ref: erec-g99/12.5
+    docId: erec-g99
+    clauseId: "12.5"
+    title: "Reactive Capability (Type B)"
+    pageStart: 155
+    projectTypes: [G99-B, BESS]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "Type B reactive capability requirements."
+
+  - ref: erec-g99/13.4
+    docId: erec-g99
+    clauseId: "13.4"
+    title: "Voltage Limits and Control (Type C/D)"
+    pageStart: 177
+    projectTypes: [G99-C, G99-D, BESS]
+    studyTypes:   [AVR]
+    forms:        []
+    summary: "Type C/D voltage limits and voltage control. Distribution mirror of ECC.6.3.8."
+
+  - ref: erec-g99/13.5
+    docId: erec-g99
+    clauseId: "13.5"
+    title: "Reactive Capability (Type C/D)"
+    pageStart: 179
+    projectTypes: [G99-C, G99-D, BESS]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "Type C/D reactive capability requirements. Distribution mirror of ECC.6.3.2."
+
+  - ref: erec-g99/D.4
+    docId: erec-g99
+    clauseId: "Annex D.4"
+    title: "Summary of Reactive and Voltage Control Requirements (all types)"
+    pageStart: 473
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS]
+    studyTypes:   [Reactive, AVR]
+    forms:        []
+    summary: "One-page summary of G99 reactive capability and voltage control requirements across Types A–D. A quick way in before reading the full clauses."
 
   # ─── Harmonics / PQ cluster ─────────────────────────────────────────────────
 
@@ -250,17 +534,17 @@ clauses:
     forms:        []
     summary: "NPS limit ≤1% at EHV — references EREC P29 for distribution."
 
-  # ─── Loss of Mains cluster ──────────────────────────────────────────────────
+  # ─── Loss of Mains / protection cluster ─────────────────────────────────────
 
-  - ref: erec-g99/13.3
+  - ref: erec-g99/10.4
     docId: erec-g99
-    clauseId: "13.3"
+    clauseId: "10.4"
     title: "Loss of Mains Protection"
-    pageStart: 0
+    pageStart: 118
     projectTypes: [G99-A, G99-B, G99-C, BESS]
     studyTypes:   [LoM, Protection]
     forms:        ["ALoMCP witness test"]
-    summary: "RoCoF 1 Hz/s 500 ms, vector shift disallowed (since Issue 1 Amd matrix update). Old G59/3 schemes require retrofit under ALoMCP."
+    summary: "Loss-of-mains protection for distribution-connected generation. Vector shift is not an acceptable loss-of-mains technique."
 
   # ─── Compliance process cluster ─────────────────────────────────────────────
 
@@ -277,32 +561,42 @@ clauses:
   - ref: grid-code/ECP.A.6
     docId: grid-code
     clauseId: ECP.A.6
-    title: "Compliance Process — Pre-ION"
+    title: "Compliance Testing of Power Park Modules (ECP Appendix 6)"
     pageStart: 0
-    projectTypes: [G99-D, BESS, Synch, PPM, HVDC]
-    studyTypes:   []
-    forms:        ["Compliance Statement", "Self-Cert", "Schedule of Unresolved Items"]
-    summary: "Pre-Interim Operational Notification — User Self-Certification process and supporting evidence."
+    projectTypes: [G99-D, BESS, PPM]
+    studyTypes:   [Reactive, AVR, FreqResp, FRT]
+    forms:        ["Compliance Test Report"]
+    summary: "The PPM test programme: early voltage-control tests while part-built, then reactive capability (A.6.4), voltage control (A.6.5), frequency response (A.6.6) and fault ride through (A.6.7)."
 
   - ref: grid-code/PC.A.9
     docId: grid-code
     clauseId: PC.A.9
-    title: "Planning Code — Modelling Requirements"
+    title: "Planning Code — Control System Model Requirements"
     pageStart: 0
     projectTypes: [G99-D, BESS, PPM, HVDC]
     studyTypes:   [EMT, SSO]
     forms:        ["PSS/E or PowerFactory RMS model", "PSCAD EMT model"]
-    summary: "GC0141 modelling requirements — RMS submission mandatory, EMT mandatory for HVDC and large IBR. Validation Report required."
+    summary: "Control system model requirements for Users (PC Appendix 9) — RMS model submission, EMT where required, and model validation."
 
   - ref: grid-code/PC.A.5
     docId: grid-code
     clauseId: PC.A.5
-    title: "Planning Code — Steady-State Data"
+    title: "Planning Code — Generating Plant Data"
     pageStart: 0
     projectTypes: [G99-B, G99-C, G99-D, BESS, Synch, PPM, HVDC]
     studyTypes:   [LoadFlow, FaultLevel, Reactive]
     forms:        ["DRC Sch 1"]
-    summary: "Steady-state planning data — PQ envelope, transformer impedance, harmonic model parameters."
+    summary: "Planning data for power generating modules, PPMs, DC converters, HVDC and OTSDUW plant."
+
+  - ref: erec-g99/C.7
+    docId: erec-g99
+    clauseId: "Annex C.7"
+    title: "Simulation Studies (Type C/D)"
+    pageStart: 437
+    projectTypes: [G99-C, G99-D, BESS]
+    studyTypes:   [Reactive, AVR, FRT, FFCI, FreqResp]
+    forms:        []
+    summary: "Compliance simulation studies for Type C/D: reactive capability across the voltage range, voltage control, FRT and FFCI (C.7.5), LFSM-O/U, and controller model verification and validation (C.7.8)."
 
   # ─── Black Start / GFM cluster ──────────────────────────────────────────────
 
@@ -314,7 +608,7 @@ clauses:
     projectTypes: [BESS, PPM, HVDC]
     studyTypes:   [BlackStart, SSO, FFCI]
     forms:        ["GBGF Study Report", "GFM Validation Report"]
-    summary: "GB Grid Forming capability requirements — grid-following vs grid-forming-current (GBGF-I) vs grid-forming-voltage (GBGF-V). Mandatory for Stability Pathfinder contracts."
+    summary: "GB grid forming capability (GBGF). Not mandatory: provided through market arrangements, with the technical spec here and in the Grid Forming guidance."
 
   - ref: grid-code/BC2
     docId: grid-code
@@ -326,37 +620,455 @@ clauses:
     forms:        []
     summary: "Balancing Code 2 — operational communications, telemetry, restoration support."
 
+  # ─── IE: EirGrid Grid Code v17 ──────────────────────────────────────────────
+
+  - ref: eirgrid-grid-code/PC.A8
+    docId: eirgrid-grid-code
+    clauseId: PC.A8
+    title: "Modelling Requirements for Users"
+    pageStart: 74
+    projectTypes: [BESS, Synch, SynCon, PPM, HVDC]
+    studyTypes:   [EMT, FRT]
+    forms:        []
+    summary: "RMS positive-sequence model covering sub-transient to reserve timeframes (EMT where specified); one lumped, scalable plant model; block/Laplace documentation or a standard IEEE model; validate against compliance tests and resubmit within 90 Business Days; software and versions as the TSO publishes (the code does not name a tool); sample case of plant + grid transformer to an infinite bus."
+
+  - ref: eirgrid-grid-code/CC.7.3
+    docId: eirgrid-grid-code
+    clauseId: CC.7.3
+    title: "Generator Requirements (synchronous)"
+    pageStart: 100
+    projectTypes: [Synch]
+    studyTypes:   [Reactive, FRT, FreqResp, AVR]
+    forms:        []
+    summary: "Technical requirements on Generation Units; reactive capability is CC.7.3.6. Synchronous condensers are excluded (they follow SCU1)."
+
+  - ref: eirgrid-grid-code/CC.7.3.6
+    docId: eirgrid-grid-code
+    clauseId: CC.7.3.6
+    title: "Reactive Power Capability (generators)"
+    pageStart: 112
+    projectTypes: [Synch]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "Reactive capability requirements for Generation Units."
+
+  - ref: eirgrid-grid-code/CC.15.10
+    docId: eirgrid-grid-code
+    clauseId: CC.15.10
+    title: "Operational Notification Procedure (EON / ION / FON)"
+    pageStart: 166
+    projectTypes: [BESS, Synch, SynCon, PPM, HVDC]
+    studyTypes:   []
+    forms:        ["EON", "ION", "FON"]
+    summary: "The staged permission to connect: Energisation (EON), Interim (ION) and Final (FON) Operational Notifications, with compliance evidence due at each stage."
+
+  - ref: eirgrid-grid-code/PPM1
+    docId: eirgrid-grid-code
+    clauseId: PPM1
+    title: "Controllable PPM Requirements"
+    pageStart: 379
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FRT, FreqResp, AVR, Reactive, FFCI]
+    forms:        []
+    summary: "Power park module section: FRT (PPM1.4), frequency (PPM1.5), voltage and reactive (PPM1.6). Clause markers split RfG and non-RfG units."
+
+  - ref: eirgrid-grid-code/PPM1.4.1
+    docId: eirgrid-grid-code
+    clauseId: PPM1.4.1
+    title: "FRT — non-RfG PPMs"
+    pageStart: 382
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "Non-RfG curve measured at the HV terminals of the grid-connected transformer: ride through 15% retained voltage for 625 ms, recovering linearly to 90% at 3 s."
+
+  - ref: eirgrid-grid-code/PPM1.4.2
+    docId: eirgrid-grid-code
+    clauseId: PPM1.4.2
+    title: "FRT — active power recovery, reactive current and RfG curve"
+    pageStart: 383
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FRT, FFCI]
+    forms:        []
+    summary: "Active power back to 90% of available within 500 ms of voltage recovery (faults ≤140 ms), 1 s for longer faults. Priority to ACTIVE power during and after faults; reactive current rise ≤100 ms, settle ≤300 ms. RfG curve (f) at the connection point: 0 pu to 150 ms, linear to 85% at 2.9 s."
+
+  - ref: eirgrid-grid-code/PPM1.5
+    docId: eirgrid-grid-code
+    clauseId: PPM1.5
+    title: "Frequency Ranges and RoCoF"
+    pageStart: 386
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "49.5–50.5 Hz continuous; 47.5–52 Hz for 60 min; 47–47.5 Hz for 20 s. Withstand RoCoF of 1 Hz/s over a rolling 500 ms."
+
+  - ref: eirgrid-grid-code/PPM1.5.3
+    docId: eirgrid-grid-code
+    clauseId: PPM1.5.3
+    title: "Active Power Frequency Response"
+    pageStart: 390
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Droop on REGISTERED CAPACITY (non-RfG 2–10%, RfG 2–12%, default 4%), with deviation measured from 50 Hz, not from the deadband edge. 60% of response within 5 s, 100% within 15 s. Table PPM1.5.3.7.a sets the FA–FE breakpoints."
+
+  - ref: eirgrid-grid-code/PPM1.5.3.11
+    docId: eirgrid-grid-code
+    clauseId: PPM1.5.3.11
+    title: "LFSM-O (RfG PPMs)"
+    pageStart: 397
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "From 50.2 Hz upward, reduce active power on a 2–12% droop, default 4%."
+
+  - ref: eirgrid-grid-code/PPM1.5.3.12
+    docId: eirgrid-grid-code
+    clauseId: PPM1.5.3.12
+    title: "LFSM-U (RfG PPMs)"
+    pageStart: 398
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "From 49.5 Hz downward, increase active power on a 2–12% droop, default 4%."
+
+  - ref: eirgrid-grid-code/PPM1.6.2
+    docId: eirgrid-grid-code
+    clauseId: PPM1.6.2
+    title: "PPM Voltage Control (AVR)"
+    pageStart: 407
+    projectTypes: [BESS, PPM]
+    studyTypes:   [AVR]
+    forms:        []
+    summary: "RfG: kV setpoint 0.95–1.05 pu in 0.01 pu steps, 90% of reactive response within 1 s and settled within 5 s, deadband 0 to ±5%, setpoint change within 20 s. Slope: non-RfG 1–10%, RfG 2–7% in 0.5% steps."
+
+  - ref: eirgrid-grid-code/PPM1.6.3
+    docId: eirgrid-grid-code
+    clauseId: PPM1.6.3
+    title: "PPM Reactive Power Capability"
+    pageStart: 409
+    projectTypes: [BESS, PPM]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "Q/Pmax ±0.33 (≈0.95 pf) at 100% of REGISTERED CAPACITY, the same MVAr held down to 12% of RC, tapering to cut-in (points A–F), measured at the connection point."
+
+  - ref: eirgrid-grid-code/SCU1
+    docId: eirgrid-grid-code
+    clauseId: SCU1
+    title: "Synchronous Condenser Unit Provisions"
+    pageStart: 430
+    projectTypes: [SynCon]
+    studyTypes:   [FRT, Reactive, AVR, Protection]
+    forms:        []
+    summary: "A separate class (neither generator nor demand). The generator clauses CC.7.3–7.5 and all of PPM1 do not apply; compliance testing at TSO discretion."
+
+  - ref: eirgrid-grid-code/SCU1.4.1
+    docId: eirgrid-grid-code
+    clauseId: SCU1.4.1
+    title: "SCU Frequency, Voltage, FRT and Angular Stability"
+    pageStart: 432
+    projectTypes: [SynCon]
+    studyTypes:   [FRT, FreqResp]
+    forms:        []
+    summary: "RoCoF withstand 1 Hz/s (rolling 500 ms); synchronise within 30 min; unlimited-time voltage bands per level (110 kV 0.9–1.118 pu); FRT curve 0 pu to 150 ms, 0.5 pu to 450 ms, 0.9 pu after; disconnect on loss of angular stability; fault recorder with oscillation trigger."
+
+  - ref: eirgrid-grid-code/SCU1.4.6
+    docId: eirgrid-grid-code
+    clauseId: SCU1.4.6
+    title: "SCU Reactive Power Capability"
+    pageStart: 435
+    projectTypes: [SynCon]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "At the connection point: 0.8 × MVA rating producing (lagging) to 0.4 × MVA absorbing (leading), across the voltage range, with U–Q/MVA profiles for 110, 220 and 400 kV."
+
+  - ref: eirgrid-grid-code/SCU1.4.7
+    docId: eirgrid-grid-code
+    clauseId: SCU1.4.7
+    title: "SCU AVR"
+    pageStart: 437
+    projectTypes: [SynCon]
+    studyTypes:   [AVR]
+    forms:        []
+    summary: "Continuously acting AVR to BS 4999 part 140; Q-setpoint and kV-setpoint modes; setpoint changes start within 20 s; slope settable 1–10% online by the TSO."
+
+  - ref: eirgrid-grid-code/SCU1.5
+    docId: eirgrid-grid-code
+    clauseId: SCU1.5
+    title: "SCU Grid-Connected Transformers"
+    pageStart: 439
+    projectTypes: [SynCon]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "The grid-connected transformer must have an on-load tap changer."
+
+  - ref: eirgrid-grid-code/SCU1.6.1
+    docId: eirgrid-grid-code
+    clauseId: SCU1.6.1
+    title: "SCU Fault Clearance Times"
+    pageStart: 440
+    projectTypes: [SynCon]
+    studyTypes:   [Protection]
+    forms:        []
+    summary: "Fault clearance within 120 ms at 110 kV, 100 ms at 220 kV and 80 ms at 400 kV."
+
+  # ─── NI: SONI Grid Code ─────────────────────────────────────────────────────
+
+  - ref: soni-grid-code/PC.D2
+    docId: soni-grid-code
+    clauseId: PC.D2
+    title: "Modelling Requirements for Users"
+    pageStart: 119
+    projectTypes: [BESS, Synch, SynCon, PPM, HVDC]
+    studyTypes:   [EMT, FRT]
+    forms:        []
+    summary: "SONI's dynamic-model requirements (Planning Code Appendix D), the NI counterpart of EirGrid PC.A8."
+
+  - ref: soni-grid-code/CC8.8.6
+    docId: soni-grid-code
+    clauseId: CC8.8.6
+    title: "Frequency Ranges (CDGUs & Controllable PPMs)"
+    pageStart: 145
+    projectTypes: [BESS, Synch, PPM]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Stay connected 49–51 Hz indefinitely; 47.5–49 Hz and 51–51.5 Hz for 90 min; 51.5–52 Hz for 60 min; 47–47.5 Hz for 20 s. Sits under the CC8.8 heading in this issue, so confirm applicability for your connection."
+
+  - ref: soni-grid-code/CC8.8.7
+    docId: soni-grid-code
+    clauseId: CC8.8.7
+    title: "Frequency Response Modes (LFSM-O / LFSM-U / FSM)"
+    pageStart: 145
+    projectTypes: [BESS, Synch, PPM]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "For CDGUs and Controllable PPMs: LFSM-O from 50.2 Hz and LFSM-U below 49.5 Hz, both at 5% of output per 0.1 Hz (4% droop) and settable 2–12%; FSM at 4% nominal droop with ±15 mHz insensitivity. Sits under the CC8.8 heading in this issue, so confirm applicability for your connection."
+
+  - ref: soni-grid-code/CC16.2
+    docId: soni-grid-code
+    clauseId: CC16.2
+    title: "Operational Notification Procedure (EON / ION / FON)"
+    pageStart: 167
+    projectTypes: [BESS, Synch, SynCon, PPM, HVDC]
+    studyTypes:   []
+    forms:        ["EON", "ION", "FON"]
+    summary: "NI's staged permission to connect: Energisation, Interim and Final Operational Notifications."
+
+  - ref: soni-grid-code/CC.S2.1.3.2
+    docId: soni-grid-code
+    clauseId: CC.S2.1.3.2
+    title: "PPM Reactive Capability and Voltage Control"
+    pageStart: 199
+    projectTypes: [BESS, PPM]
+    studyTypes:   [Reactive, AVR]
+    forms:        []
+    summary: "Continuous voltage control at the connection point within a reactive envelope A–F: A/B at Registered Capacity, C/D at 12% of RC, E/F at cut-in (same structure as EirGrid PPM1.6.3)."
+
+  - ref: soni-grid-code/CC.S2.1.3.9
+    docId: soni-grid-code
+    clauseId: CC.S2.1.3.9
+    title: "FRT — non-RfG PPMs"
+    pageStart: 205
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "Non-RfG curve measured at the PPM connection point: 15% retained voltage for 625 ms, recovering to 90% at 3 s."
+
+  - ref: soni-grid-code/CC.S2.1.4
+    docId: soni-grid-code
+    clauseId: CC.S2.1.4
+    title: "FRT — RfG PPMs"
+    pageStart: 207
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "RfG curve: 0 pu to 150 ms, then linear to 0.85 pu at 2.9 s. Pre- and post-fault short-circuit levels for the assessment come from the Transmission Forecast Statement (CC.S2.1.4.3)."
+
+  - ref: soni-grid-code/CC.S2.1.4.5
+    docId: soni-grid-code
+    clauseId: CC.S2.1.4.5
+    title: "PPM Fast Fault Current"
+    pageStart: 208
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FFCI, FRT]
+    forms:        []
+    summary: "Below 0.9 pu, inject fast fault current at the connection point, prioritising REACTIVE current; rise ≤100 ms, settle ≤300 ms."
+
+  - ref: soni-grid-code/CC.S2.1.4.6
+    docId: soni-grid-code
+    clauseId: CC.S2.1.4.6
+    title: "PPM Post-Fault Active Power Recovery"
+    pageStart: 209
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "90% of active power back within 500 ms for faults cleared ≤140 ms, within 1 s for longer faults."
+
+  - ref: soni-grid-code/CC.S2.1.7.2
+    docId: soni-grid-code
+    clauseId: CC.S2.1.7.2
+    title: "PPM Frequency Control (governor)"
+    pageStart: 211
+    projectTypes: [BESS, PPM]
+    studyTypes:   [FreqResp]
+    forms:        []
+    summary: "Fast-acting proportional power governor: droop settable 2–20%, adjustable deadband edges (49–50 Hz low, 50–51 Hz high, 0.05 Hz steps), high-frequency trip settable 51–52 Hz, and the ability to run curtailed (50–100%) to carry reserve."
+
+  - ref: soni-grid-code/CC.S2.1.7.3
+    docId: soni-grid-code
+    clauseId: CC.S2.1.7.3
+    title: "PPM Voltage / pf / Q Control and Oscillation Limit"
+    pageStart: 212
+    projectTypes: [BESS, PPM]
+    studyTypes:   [AVR, POD]
+    forms:        []
+    summary: "Switchable voltage, power-factor or Q control at the connection point (reverting to voltage control outside the band), plus a damping loop so MW oscillations between 0.25 and 1.75 Hz stay under 1% of Registered Capacity peak-to-peak."
+
+  - ref: soni-grid-code/CC.S4.1.3.2
+    docId: soni-grid-code
+    clauseId: CC.S4.1.3.2
+    title: "SCU Voltage Stability and Reactive Capability"
+    pageStart: 243
+    projectTypes: [SynCon]
+    studyTypes:   [Reactive, AVR, POD]
+    forms:        []
+    summary: "Reactive range of roughly −0.4 to +0.8 Q/MVA over the voltage range; contribute to oscillation damping; angular-stability agreement; unlimited-time voltage bands (110 kV 0.9–1.1 pu, 275 kV 0.9–1.09, 400 kV 0.9–1.05); excitation limiters (UEL, OEL, stator current) and a PSS where required."
+
+  - ref: soni-grid-code/CC.S4.1.3.5
+    docId: soni-grid-code
+    clauseId: CC.S4.1.3.5
+    title: "SCU Start-Up"
+    pageStart: 246
+    projectTypes: [SynCon]
+    studyTypes:   []
+    forms:        []
+    summary: "Start up within 30 minutes of instruction."
+
+  - ref: soni-grid-code/CC.S4.1.5.2
+    docId: soni-grid-code
+    clauseId: CC.S4.1.5.2
+    title: "SCU Fault Clearance Times"
+    pageStart: 247
+    projectTypes: [SynCon]
+    studyTypes:   [Protection]
+    forms:        []
+    summary: "Unless agreed otherwise, connection-agreement clearance times are no more than 80 ms at 275 kV and 80 ms at 110 kV and below. CC.S4.1.5.4 adds breaker-fail, loss-of-excitation and pole-slip protection."
+
+  - ref: soni-grid-code/CC.S4.1.8.1
+    docId: soni-grid-code
+    clauseId: CC.S4.1.8.1
+    title: "SCU Fault Ride Through"
+    pageStart: 249
+    projectTypes: [SynCon]
+    studyTypes:   [FRT]
+    forms:        []
+    summary: "Same curve shape as EirGrid SCU1: 0 pu to 150 ms, 0.5 pu to 450 ms, 0.9 pu after."
+
+  # ─── EirGrid/SONI supporting documents ──────────────────────────────────────
+
+  - ref: eirgrid-scu-impl-note/Table-A5
+    docId: eirgrid-scu-impl-note
+    clauseId: "Table A5"
+    title: "Modelling Requirements Applicable to SCUs"
+    pageStart: 15
+    projectTypes: [SynCon]
+    studyTypes:   [EMT, FRT]
+    forms:        []
+    summary: "Maps each PC.A8 sub-clause to synchronous condensers: all of PC.A8 applies, with the PC.A8.2 variation limited to the model template (FRT and voltage-fluctuation studies)."
+
+  - ref: ie-rfg-banding/Table
+    docId: ie-rfg-banding
+    clauseId: "Banding table"
+    title: "Ireland RfG Type Thresholds"
+    pageStart: 5
+    projectTypes: [BESS, Synch, PPM]
+    studyTypes:   []
+    forms:        []
+    summary: "Below 110 kV: Type A 0.8 kW to <100 kW, B 100 kW to <5 MW, C 5 to <10 MW; Type D 10 MW and above or any connection at 110 kV+. SONI proposed the same for NI."
+
   # ─── EU Network Code key articles ───────────────────────────────────────────
+  # RfG numbering: Art 13 = type A (and the base every larger type inherits),
+  # 14 = type B, 15 = type C, 16 = type D; 17–19 synchronous B/C/D; 20–22 PPM B/C/D.
+
+  - ref: nc-rfg/Art.5
+    docId: nc-rfg
+    clauseId: "Article 5"
+    title: "RfG Article 5 — Type A/B/C/D thresholds"
+    pageStart: 0
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes:   []
+    forms:        []
+    summary: "How modules are banded, with the maximum B/C/D thresholds each synchronous area may set (Table 1): GB 1/50/75 MW, Ireland & NI 0.1/5/10 MW. Countries could go lower — GB chose 1/10/50 MW."
 
   - ref: nc-rfg/Art.13
     docId: nc-rfg
     clauseId: "Article 13"
-    title: "RfG Article 13 — Type B Requirements"
+    title: "RfG Article 13 — General requirements for type A"
     pageStart: 0
-    projectTypes: [G99-B]
-    studyTypes:   [FreqResp, FRT, Reactive]
+    projectTypes: [G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes:   [FreqResp]
     forms:        []
-    summary: "EU RfG Type B generator requirements — frequency, FRT, fault ride-through, reactive."
+    summary: "The base layer every type inherits: frequency ranges, RoCoF withstand (13(1)(b)) and LFSM-O (13(2))."
 
   - ref: nc-rfg/Art.14
     docId: nc-rfg
     clauseId: "Article 14"
-    title: "RfG Article 14 — Type C Requirements"
+    title: "RfG Article 14 — General requirements for type B"
     pageStart: 0
-    projectTypes: [G99-C, BESS]
-    studyTypes:   [FreqResp, FRT, Reactive, AVR]
+    projectTypes: [G99-B, G99-C, BESS, Synch, PPM]
+    studyTypes:   [FRT, FreqResp]
     forms:        []
-    summary: "EU RfG Type C generator requirements — frequency response, voltage control, FRT, simulation model."
+    summary: "Adds fault ride through (14(3)(a), Tables 3.1 synchronous / 3.2 PPM) and other type B capabilities. Type C inherits Articles 13 and 14 apart from listed exceptions."
 
   - ref: nc-rfg/Art.15
     docId: nc-rfg
     clauseId: "Article 15"
-    title: "RfG Article 15 — Type D Requirements"
+    title: "RfG Article 15 — General requirements for type C"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, Synch, PPM]
+    studyTypes:   [FreqResp, AVR]
+    forms:        []
+    summary: "Adds LFSM-U (15(2)(c)) and FSM (15(2)(d)): Table 4 ranges are active-power range 1.5–10% of Pmax, insensitivity 10–30 mHz, deadband 0–500 mHz, droop 2–12%; Table 5 activation ≤2 s and full response ≤30 s."
+
+  - ref: nc-rfg/Art.16
+    docId: nc-rfg
+    clauseId: "Article 16"
+    title: "RfG Article 16 — General requirements for type D"
     pageStart: 0
     projectTypes: [G99-D, BESS, Synch, PPM]
-    studyTypes:   [FreqResp, FRT, Reactive, AVR, PSS]
+    studyTypes:   [FRT]
     forms:        []
-    summary: "EU RfG Type D generator requirements — full operating envelope incl. HVRT, PSS, validation."
+    summary: "Type D-specific requirements, including the deeper fault ride through profile of 16(3)(a) (Tables 7.1 synchronous / 7.2 PPM)."
+
+  - ref: nc-rfg/Art.18
+    docId: nc-rfg
+    clauseId: "Article 18"
+    title: "RfG Article 18 — Synchronous type C (voltage stability)"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, Synch]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "Reactive capability at maximum capacity (18(2)(b)): Table 8 caps the U–Q/Pmax inner envelope at Q/Pmax 0.95 for GB and 1.08 for Ireland & NI, voltage range 0.225 / 0.218 pu."
+
+  - ref: nc-rfg/Art.20
+    docId: nc-rfg
+    clauseId: "Article 20"
+    title: "RfG Article 20 — PPM type B"
+    pageStart: 0
+    projectTypes: [G99-B, BESS, PPM]
+    studyTypes:   [FFCI, Reactive]
+    forms:        []
+    summary: "PPM type B requirements, including fast fault current (20(2)(b))."
+
+  - ref: nc-rfg/Art.21
+    docId: nc-rfg
+    clauseId: "Article 21"
+    title: "RfG Article 21 — PPM type C"
+    pageStart: 0
+    projectTypes: [G99-C, G99-D, BESS, PPM]
+    studyTypes:   [Reactive]
+    forms:        []
+    summary: "PPM reactive capability at maximum capacity (21(3)(b)): Table 9 caps the inner envelope at Q/Pmax 0.66 for GB and for Ireland & NI, voltage range 0.225 / 0.218 pu."
 
   - ref: nc-hvdc/Art.11
     docId: nc-hvdc
@@ -393,22 +1105,12 @@ clauses:
   - ref: erec-g99/11
     docId: erec-g99
     clauseId: "11"
-    title: "Type A Protection (≤1 MW)"
-    pageStart: 0
+    title: "Type A Technical Requirements"
+    pageStart: 137
     projectTypes: [G99-A]
-    studyTypes:   [Protection]
+    studyTypes:   [FreqResp, FRT, AVR]
     forms:        ["G99 Form A.1"]
-    summary: "Protection requirements for Type A embedded generation."
-
-  - ref: erec-g99/12.5
-    docId: erec-g99
-    clauseId: "12.5"
-    title: "Type A Reactive Range"
-    pageStart: 0
-    projectTypes: [G99-A]
-    studyTypes:   [Reactive]
-    forms:        []
-    summary: "Reactive capability for Type A — typically unity to 0.95 lag/lead at full output."
+    summary: "Type A requirements: frequency response (11.2), fault ride through (11.3), voltage limits and control (11.4). Protection, including loss of mains, is section 10."
 
   - ref: erec-g99/15.3
     docId: erec-g99

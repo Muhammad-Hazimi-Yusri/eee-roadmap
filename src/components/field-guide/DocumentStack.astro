@@ -1,0 +1,75 @@
+---
+// The document stack: each layer works inside the limits of the one above.
+const layers = [
+  { tag: 'EU', title: 'RfG 2016/631', body: 'Which capabilities exist, the parameter ranges, and the Type ceilings.', tone: 'eu' },
+  { tag: 'Code', title: 'National grid code', body: 'Grid Code / G99 / EirGrid GC / SONI GC pick the numbers within RfG’s ranges.', tone: 'gb' },
+  { tag: 'Guidance', title: 'Guidance notes & specifications', body: 'How to comply: NESO compliance guidance, EirGrid SCU note, EMT model specs.', tone: 'ie' },
+  { tag: 'Site', title: 'Connection agreement', body: 'Site values: capacities (RC, MEC), setpoints, clearance times, agreed exceptions.', tone: 'ni' },
+  { tag: 'Evidence', title: 'Studies, models, tests', body: 'What you produce: simulation studies, validated models, test reports.', tone: 'other' },
+];
+---
+
+<ol class="ds">
+  {layers.map((l, i) => (
+    <li class={`ds__layer ds__layer--${l.tone}`} style={`--indent: ${i * 4}%`}>
+      <span class="ds__tag">{l.tag}</span>
+      <strong>{l.title}</strong>
+      <span class="ds__body">{l.body}</span>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .ds {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+  }
+
+  .ds__layer {
+    --tone: var(--fg-other);
+
+    margin-left: var(--indent);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.6rem;
+    align-items: baseline;
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--tone);
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    background: var(--fg-card);
+  }
+
+  .ds__layer--eu { --tone: var(--fg-eu); }
+
+  .ds__layer--gb { --tone: var(--fg-gb); }
+
+  .ds__layer--ie { --tone: var(--fg-ie); }
+
+  .ds__layer--ni { --tone: var(--fg-ni); }
+
+  .ds__tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--tone);
+    min-width: 4.5rem;
+  }
+
+  .ds__body {
+    color: var(--color-text-muted);
+    flex-basis: 100%;
+  }
+
+  @media (width >= 640px) {
+    .ds__body {
+      flex-basis: auto;
+    }
+  }
+</style>
