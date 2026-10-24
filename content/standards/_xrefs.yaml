@@ -10,42 +10,111 @@ _meta:
       see-also      - peer/companion clause worth reading alongside source
       tested-by     - source clause's compliance is demonstrated via target test procedure
       evidenced-by  - source clause is evidenced by target form/report
-      mirrors       - source clause has a direct counterpart in target (often EU NC vs GB)
+      mirrors       - source clause has a direct counterpart in target (often EU NC vs GB,
+                      or the same requirement in another jurisdiction's code)
       commercial    - source technical requirement is commercially delivered via target
 
     `from` and `to` use the global ref format: <docId>/<clauseId>.
 
 xrefs:
 
+  # ─── Type banding ───────────────────────────────────────────────────────────
+  - { from: "grid-code/GD.PGM-Types",  to: "nc-rfg/Art.5",               relation: defined-in,   note: "RfG sets the maximum thresholds; GB chose lower ones" }
+  - { from: "ie-rfg-banding/Table",    to: "nc-rfg/Art.5",               relation: defined-in,   note: "Ireland & NI adopt the RfG maxima" }
+  - { from: "grid-code/GD.PGM-Types",  to: "ie-rfg-banding/Table",       relation: mirrors,      note: "Same A–D labels, very different MW thresholds" }
+
   # ─── Frequency cluster ──────────────────────────────────────────────────────
-  - { from: "grid-code/ECC.6.3.7",     to: "grid-code/BC3",              relation: commercial,   note: "Commercial framework for frequency response delivery" }
-  - { from: "grid-code/ECC.6.3.7",     to: "grid-code/ECP.A.5.6.3",      relation: tested-by,    note: "Compliance test procedure" }
+  - { from: "grid-code/ECC.6.3.7",     to: "grid-code/BC3",              relation: see-also,     note: "How NESO directs frequency control in operation" }
+  - { from: "grid-code/ECC.6.3.7",     to: "grid-code/ECP.A.5.8",        relation: tested-by,    note: "Synchronous plant frequency-response tests" }
+  - { from: "grid-code/ECC.6.3.7",     to: "grid-code/ECP.A.6.6",        relation: tested-by,    note: "PPM frequency-response tests" }
   - { from: "grid-code/ECC.6.3.7",     to: "grid-code/CC.A.3.2",         relation: see-also,     note: "Legacy GB frequency response (grandfathered)" }
-  - { from: "grid-code/ECC.6.3.7",     to: "erec-g99/13.2",              relation: mirrors,      note: "Distribution mirror" }
-  - { from: "grid-code/ECC.6.3.7",     to: "nc-rfg/Art.15",              relation: defined-in,   note: "EU RfG Type D origin" }
+  - { from: "grid-code/ECC.6.3.7",     to: "erec-g99/13.2",              relation: mirrors,      note: "Distribution mirror (Type C/D)" }
+  - { from: "grid-code/ECC.6.3.7",     to: "nc-rfg/Art.15",              relation: defined-in,   note: "RfG 15(2)(c)-(d): LFSM-U and FSM for type C and up" }
+  - { from: "grid-code/ECC.6.3.7.1",   to: "nc-rfg/Art.13",              relation: defined-in,   note: "RfG 13(2): LFSM-O for every type" }
+  - { from: "grid-code/ECC.6.3.7.1",   to: "eirgrid-grid-code/PPM1.5.3.11", relation: mirrors,   note: "IE: starts at 50.2 Hz, default 4% droop (GB: 50.4 Hz, 10%)" }
+  - { from: "grid-code/ECC.6.3.7.1",   to: "soni-grid-code/CC8.8.7",     relation: mirrors,      note: "NI: starts at 50.2 Hz, default 4% droop" }
+  - { from: "grid-code/ECC.6.3.7.1",   to: "grid-code/ECP.A.3.6",        relation: tested-by,    note: "LFSM-O simulation study" }
+  - { from: "grid-code/ECC.6.3.7.2",   to: "eirgrid-grid-code/PPM1.5.3.12", relation: mirrors,   note: "IE LFSM-U: 49.5 Hz, default 4% droop" }
+  - { from: "grid-code/ECC.6.3.7.3",   to: "nc-rfg/Art.15",              relation: defined-in,   note: "RfG Table 4 FSM parameter ranges" }
+  - { from: "grid-code/ECC.6.3.7.3",   to: "eirgrid-grid-code/PPM1.5.3", relation: mirrors,      note: "IE: droop on Registered Capacity, measured from 50 Hz" }
+  - { from: "grid-code/ECC.6.3.7.3",   to: "soni-grid-code/CC.S2.1.7.2", relation: mirrors,      note: "NI PPM governor: droop 2–20%, settable deadband" }
+  - { from: "grid-code/ECC.6.3.13",    to: "nc-rfg/Art.13",              relation: defined-in,   note: "RfG 13(1)(b): RoCoF withstand" }
+  - { from: "grid-code/ECC.6.3.13",    to: "eirgrid-grid-code/PPM1.5",   relation: mirrors,      note: "IE: 1 Hz/s over rolling 500 ms" }
   - { from: "erec-g99/13.2",           to: "grid-code/ECC.6.3.7",        relation: mirrors,      note: "Transmission counterpart" }
   - { from: "erec-g99/13.2",           to: "gn-lfsm",                    relation: see-also,     note: "LFSM implementation guidance" }
+  - { from: "erec-g99/12.2",           to: "erec-g99/13.2",              relation: see-also,     note: "Type B vs Type C/D frequency requirements" }
   - { from: "gn-storage/A.6",          to: "grid-code/ECC.6.3.7",        relation: see-also,     note: "Storage carve-outs from ECC.6.3.7" }
+  - { from: "eirgrid-grid-code/PPM1.5.3", to: "nc-rfg/Art.15",           relation: defined-in,   note: "RfG Table 4 droop range 2–12%" }
 
   # ─── FRT cluster ────────────────────────────────────────────────────────────
-  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECP.A.3.5",        relation: tested-by,    note: "FRT study methodology" }
+  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECP.A.3.5",        relation: tested-by,    note: "FRT/FFCI simulation study" }
+  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECP.A.6.7",        relation: tested-by,    note: "PPM FRT testing" }
   - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECC.6.3.16",       relation: see-also,     note: "FFCI works alongside FRT" }
-  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECC.6.3.15.10",    relation: see-also,     note: "HVRT envelope" }
-  - { from: "grid-code/ECC.6.3.15",    to: "erec-g99/13.6",              relation: mirrors,      note: "Distribution mirror" }
-  - { from: "grid-code/ECC.6.3.15",    to: "nc-rfg/Art.14",              relation: defined-in,   note: "EU RfG Type C origin" }
-  - { from: "grid-code/ECC.6.3.15",    to: "nc-rfg/Art.15",              relation: defined-in,   note: "EU RfG Type D origin" }
-  - { from: "grid-code/ECC.6.3.15.10", to: "grid-code/CC.6.3.15.3",      relation: see-also,     note: "Protection envelope bounds HVRT" }
+  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECC.6.3.15.9",     relation: see-also,     note: "Faults longer than 140 ms" }
+  - { from: "grid-code/ECC.6.3.15",    to: "grid-code/ECC.6.3.15.10",    relation: see-also,     note: "Exceptions to the FRT rules" }
+  - { from: "grid-code/ECC.6.3.15",    to: "erec-g99/13.3",              relation: mirrors,      note: "Distribution mirror (Type C/D)" }
+  - { from: "grid-code/ECC.6.3.15",    to: "nc-rfg/Art.14",              relation: defined-in,   note: "RfG 14(3)(a): FRT profile for type B (type C inherits it)" }
+  - { from: "grid-code/ECC.6.3.15",    to: "nc-rfg/Art.16",              relation: defined-in,   note: "RfG 16(3)(a): FRT profile for type D" }
+  - { from: "grid-code/ECC.6.3.15",    to: "eirgrid-grid-code/PPM1.4.2", relation: mirrors,      note: "IE RfG PPM curve: 0 pu 150 ms → 85% at 2.9 s" }
+  - { from: "grid-code/ECC.6.3.15",    to: "soni-grid-code/CC.S2.1.4",   relation: mirrors,      note: "NI RfG PPM curve: 0 pu 150 ms → 0.85 pu at 2.9 s" }
+  - { from: "grid-code/ECC.6.3.15.10", to: "grid-code/CC.6.3.15.3",      relation: mirrors,      note: "Legacy CC counterpart" }
   - { from: "grid-code/ECC.6.3.16",    to: "grid-code/ECC.6.3.15",       relation: see-also,     note: "FFCI works alongside FRT" }
+  - { from: "grid-code/ECC.6.3.16",    to: "nc-rfg/Art.20",              relation: defined-in,   note: "RfG 20(2)(b): PPM fast fault current" }
+  - { from: "grid-code/ECC.6.3.16",    to: "erec-g99/13.6",              relation: mirrors,      note: "Distribution mirror (Type C/D)" }
+  - { from: "grid-code/ECC.6.3.16",    to: "soni-grid-code/CC.S2.1.4.5", relation: mirrors,      note: "NI also prioritises reactive current" }
+  - { from: "grid-code/ECC.6.3.16",    to: "eirgrid-grid-code/PPM1.4.2", relation: mirrors,      note: "IE prioritises ACTIVE power instead" }
   - { from: "grid-code/ECP.A.3.5",     to: "grid-code/PC.A.9",           relation: see-also,     note: "Modelling requirements for FRT study" }
-  - { from: "erec-g99/13.6",           to: "grid-code/ECC.6.3.15",       relation: mirrors,      note: "Transmission counterpart" }
+  - { from: "erec-g99/13.3",           to: "grid-code/ECC.6.3.15",       relation: mirrors,      note: "Transmission counterpart" }
+  - { from: "erec-g99/13.3",           to: "erec-g99/13.6",              relation: see-also,     note: "FFCI works alongside FRT" }
+  - { from: "erec-g99/13.6",           to: "grid-code/ECC.6.3.16",       relation: mirrors,      note: "Transmission counterpart" }
+  - { from: "erec-g99/12.3",           to: "erec-g99/13.3",              relation: see-also,     note: "Type B vs Type C/D FRT" }
+  - { from: "erec-g99/C.7",            to: "erec-g99/13.3",              relation: see-also,     note: "C.7.5 FRT/FFCI simulation studies" }
+  - { from: "eirgrid-grid-code/PPM1.4.1", to: "soni-grid-code/CC.S2.1.3.9", relation: mirrors,   note: "Same non-RfG curve; IE measures at transformer HV terminals, NI at the connection point" }
+  - { from: "eirgrid-grid-code/PPM1.4.2", to: "soni-grid-code/CC.S2.1.4",   relation: mirrors,   note: "Same RfG curve" }
+  - { from: "eirgrid-grid-code/PPM1.4.2", to: "soni-grid-code/CC.S2.1.4.6", relation: mirrors,   note: "Same 500 ms / 1 s active-power recovery" }
+  - { from: "eirgrid-grid-code/PPM1.4.2", to: "nc-rfg/Art.14",             relation: defined-in, note: "RfG FRT profile" }
 
   # ─── Reactive / voltage cluster ─────────────────────────────────────────────
   - { from: "grid-code/ECC.6.3.2",     to: "grid-code/ECC.6.3.8",        relation: see-also,     note: "Reactive capability + voltage control" }
   - { from: "grid-code/ECC.6.3.2",     to: "grid-code/CC.6.3.2",         relation: see-also,     note: "Legacy synch counterpart" }
-  - { from: "grid-code/ECC.6.3.8",     to: "grid-code/ECC.A.6.1",        relation: defined-in,   note: "AVR performance spec" }
-  - { from: "grid-code/ECC.A.6.1",     to: "grid-code/ECC.A.6.2",        relation: see-also,     note: "PSS performance spec" }
-  - { from: "grid-code/ECC.A.6.2",     to: "grid-code/ECC.A.6.2.4",      relation: tested-by,    note: "PSS tuning + witness test" }
-  - { from: "grid-code/ECC.A.6.2.4",   to: "grid-code/BC2.11",           relation: see-also,     note: "NESO witness attendance" }
+  - { from: "grid-code/ECC.6.3.2",     to: "grid-code/ECC.6.3.2.4",      relation: see-also,     note: "Type C/D PPM and HVDC figures" }
+  - { from: "grid-code/ECC.6.3.2",     to: "erec-g99/13.5",              relation: mirrors,      note: "Distribution mirror (Type C/D)" }
+  - { from: "grid-code/ECC.6.3.2",     to: "nc-rfg/Art.18",              relation: defined-in,   note: "RfG Table 8: synchronous U–Q/Pmax envelope" }
+  - { from: "grid-code/ECC.6.3.2.4",   to: "nc-rfg/Art.21",              relation: defined-in,   note: "RfG Table 9: PPM U–Q/Pmax envelope" }
+  - { from: "grid-code/ECC.6.3.2.4",   to: "eirgrid-grid-code/PPM1.6.3", relation: mirrors,      note: "IE: ±0.33 Q/Pmax on Registered Capacity" }
+  - { from: "grid-code/ECC.6.3.2.4",   to: "soni-grid-code/CC.S2.1.3.2", relation: mirrors,      note: "NI: A–F envelope at the connection point" }
+  - { from: "grid-code/ECC.6.3.2",     to: "grid-code/ECP.A.6.4",        relation: tested-by,    note: "PPM reactive capability test" }
+  - { from: "grid-code/ECC.6.3.8",     to: "grid-code/ECC.A.6.1",        relation: defined-in,   note: "Synchronous excitation performance (App E6)" }
+  - { from: "grid-code/ECC.6.3.8",     to: "grid-code/ECC.A.7.2",        relation: defined-in,   note: "PPM/HVDC voltage control performance (App E7)" }
+  - { from: "grid-code/ECC.6.3.8",     to: "grid-code/ECP.A.6.5",        relation: tested-by,    note: "PPM voltage control tests" }
+  - { from: "grid-code/ECC.6.3.8",     to: "grid-code/ECP.A.3.4",        relation: tested-by,    note: "Voltage control simulation study" }
+  - { from: "grid-code/ECC.6.3.8",     to: "erec-g99/13.4",              relation: mirrors,      note: "Distribution mirror (Type C/D)" }
+  - { from: "grid-code/ECC.A.6.1",     to: "grid-code/ECC.A.6.2",        relation: see-also,     note: "Requirements of the same appendix" }
+  - { from: "grid-code/ECC.A.6.2",     to: "grid-code/ECC.A.6.2.4",      relation: see-also,     note: "Transient (step) response" }
+  - { from: "grid-code/ECC.A.6.2",     to: "grid-code/ECC.A.6.2.5",      relation: see-also,     note: "PSS / oscillation damping (Type D)" }
+  - { from: "grid-code/ECC.A.6.2.5",   to: "grid-code/BC2.11",           relation: see-also,     note: "NESO attendance at PSS commissioning" }
+  - { from: "grid-code/ECC.A.7.2",     to: "eirgrid-grid-code/PPM1.6.2", relation: mirrors,      note: "IE PPM voltage control: 90% Q in 1 s, slope 2–7% (RfG)" }
+  - { from: "eirgrid-grid-code/PPM1.6.3", to: "soni-grid-code/CC.S2.1.3.2", relation: mirrors,   note: "Same A–F envelope structure" }
+  - { from: "erec-g99/D.4",            to: "erec-g99/13.5",              relation: see-also,     note: "Summary table across all types" }
+
+  # ─── Synchronous condensers ─────────────────────────────────────────────────
+  - { from: "eirgrid-grid-code/SCU1",  to: "soni-grid-code/CC.S4.1.3.2", relation: mirrors,      note: "NI SCU schedule" }
+  - { from: "eirgrid-grid-code/SCU1",  to: "eirgrid-scu-impl-note",      relation: see-also,     note: "How existing clauses apply to SCUs" }
+  - { from: "eirgrid-grid-code/SCU1.4.1", to: "soni-grid-code/CC.S4.1.8.1", relation: mirrors,   note: "Same SCU FRT curve" }
+  - { from: "eirgrid-grid-code/SCU1.4.6", to: "soni-grid-code/CC.S4.1.3.2", relation: mirrors,   note: "Same −0.4 to +0.8 Q/MVA range" }
+  - { from: "eirgrid-grid-code/SCU1.6.1", to: "soni-grid-code/CC.S4.1.5.2", relation: mirrors,   note: "IE 120/100/80 ms by voltage; NI 80 ms" }
+  - { from: "eirgrid-grid-code/SCU1.4.7", to: "grid-code/ECC.A.6.1",      relation: see-also,     note: "GB synchronous excitation spec for comparison" }
+
+  # ─── Modelling ──────────────────────────────────────────────────────────────
+  - { from: "eirgrid-grid-code/PC.A8", to: "soni-grid-code/PC.D2",       relation: mirrors,      note: "NI modelling requirements" }
+  - { from: "eirgrid-grid-code/PC.A8", to: "eirgrid-scu-impl-note/Table-A5", relation: see-also, note: "All of PC.A8 applies to SCUs" }
+  - { from: "eirgrid-grid-code/PC.A8", to: "eirgrid-scu-emt-spec",       relation: see-also,     note: "SCU EMT model specification" }
+  - { from: "eirgrid-grid-code/PC.A8", to: "grid-code/PC.A.9",           relation: mirrors,      note: "GB control system model requirements" }
+
+  # ─── Operational notification ───────────────────────────────────────────────
+  - { from: "eirgrid-grid-code/CC.15.10", to: "soni-grid-code/CC16.2",    relation: mirrors,      note: "Same EON / ION / FON stages" }
+  - { from: "grid-code/GD.EON-ION-FON", to: "eirgrid-grid-code/CC.15.10", relation: mirrors,      note: "Same three stage labels in Ireland" }
+  - { from: "grid-code/GD.EON-ION-FON", to: "grid-code/ECP.A.6",       relation: see-also,     note: "PPM tests that build the evidence" }
 
   # ─── Harmonics cluster ──────────────────────────────────────────────────────
   - { from: "grid-code/ECC.6.1.5",     to: "erec-g55/9",                 relation: defined-in,   note: "Stage 3 methodology" }
@@ -55,25 +124,22 @@ xrefs:
   - { from: "grid-code/ECC.6.1.6",     to: "erec-p29",                   relation: defined-in,   note: "P29 unbalance planning levels" }
   - { from: "erec-g99/15.3",           to: "erec-g55/8",                 relation: see-also,     note: "Distribution G5/5 Stage 2 reference" }
 
-  # ─── LoM cluster ────────────────────────────────────────────────────────────
-  - { from: "erec-g99/13.3",           to: "grid-code/CC.6.3.15.3",      relation: see-also,     note: "Transmission protection bounds" }
-
   # ─── Compliance process cluster ─────────────────────────────────────────────
   - { from: "grid-code/CP.11",         to: "grid-code/PC.A.5",           relation: defined-in,   note: "Steady-state planning data forms" }
-  - { from: "grid-code/ECP.A.6",       to: "grid-code/CP.11",            relation: see-also,     note: "Pre-ION builds on data submission" }
-  - { from: "grid-code/ECP.A.6",       to: "cusc-bca",                   relation: evidenced-by, note: "Compliance Statement appended to BCA" }
+  - { from: "grid-code/ECP.A.6",       to: "grid-code/CP.11",            relation: see-also,     note: "Compliance process the tests sit within" }
   - { from: "grid-code/PC.A.9",        to: "gn-modelling",               relation: defined-in,   note: "GC0141 modelling guidance" }
   - { from: "grid-code/PC.A.5",        to: "drc",                        relation: defined-in,   note: "DRC Schedules referenced" }
   - { from: "grid-code/PC.A.9",        to: "grid-code/ECP.A.3.5",        relation: see-also,     note: "EMT/RMS models support FRT study" }
 
   # ─── Black start / GFM cluster ──────────────────────────────────────────────
-  - { from: "grid-code/ECC.6.3.19",    to: "gn-grid-forming",            relation: defined-in,   note: "GFM Best Practice Guide" }
+  - { from: "grid-code/ECC.6.3.19",    to: "gn-grid-forming",            relation: defined-in,   note: "Grid Forming guidance" }
   - { from: "grid-code/ECC.6.3.19",    to: "grid-code/PC.A.5",           relation: see-also,     note: "Planning data for GFM characterisation" }
   - { from: "grid-code/ECC.6.3.19",    to: "gn-stability-pathfinder",    relation: see-also,     note: "Pathfinder contract compliance approach" }
   - { from: "grid-code/BC2",           to: "oc9",                        relation: see-also,     note: "Black start operating procedure" }
 
-  # ─── G99 forms cluster ──────────────────────────────────────────────────────
+  # ─── G99 forms / protection cluster ─────────────────────────────────────────
   - { from: "erec-g99/11",             to: "erec-g99-forms",             relation: evidenced-by, note: "Form A.1 for Type A install" }
+  - { from: "erec-g99/11",             to: "erec-g99/10.4",              relation: see-also,     note: "Protection (incl. loss of mains) is section 10" }
   - { from: "erec-g99/13.2",           to: "erec-g99-forms",             relation: evidenced-by, note: "Form A.2 for Type B/C/D" }
   - { from: "erec-g99/15.3",           to: "erec-g99-forms",             relation: evidenced-by, note: "Forms A.2-1/2/3 for harmonics" }
 

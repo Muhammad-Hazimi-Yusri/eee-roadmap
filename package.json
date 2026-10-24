@@ -1,7 +1,7 @@
 {
   "name": "eee-roadmap",
   "type": "module",
-  "version": "0.28.0",
+  "version": "0.29.0",
   "description": "Interactive roadmap for Electrical & Electronic Engineering education",
   "scripts": {
     "download:pdfs": "node scripts/download-pdfs.mjs && node scripts/fetch-eu-codes.mjs",
@@ -9,8 +9,9 @@
     "build:glossary": "node scripts/build-glossary.mjs",
     "build:search": "node scripts/build-search-index.mjs",
     "build:standards": "node scripts/build-standards.mjs",
+    "build:field-guide": "node scripts/build-field-guide.mjs",
     "fetch:eu-codes": "node scripts/fetch-eu-codes.mjs",
-    "build:data": "node scripts/build-concept-index.mjs && node scripts/build-data.mjs && node scripts/build-glossary.mjs && node scripts/build-search-index.mjs && node scripts/build-graph-data.mjs && node scripts/build-standards.mjs",
+    "build:data": "node scripts/build-concept-index.mjs && node scripts/build-data.mjs && node scripts/build-glossary.mjs && node scripts/build-search-index.mjs && node scripts/build-graph-data.mjs && node scripts/build-standards.mjs && node scripts/build-field-guide.mjs",
     "validate": "node scripts/validate.mjs",
     "dev": "npm run build:data && npm run download:pdfs && astro dev",
     "dev:check": "npm run build:data && npm run validate && npm run test:run && npm run build && npm run check-links",

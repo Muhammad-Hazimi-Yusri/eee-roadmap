@@ -1,0 +1,152 @@
+---
+// Who's who: the bodies behind each rulebook, GB vs Ireland vs NI.
+// Roles are simplified for orientation; the codes themselves are the authority.
+const columns = [
+  {
+    id: 'gb', title: 'Great Britain',
+    rows: [
+      ['Regulator', 'Ofgem'],
+      ['System operator', 'NESO — owns the Grid Code'],
+      ['Transmission owners', 'NGET (England & Wales), SPT, SHET (Scotland), OFTOs'],
+      ['Distribution', 'DNOs — G99 (published by ENA) and the Distribution Code'],
+      ['Generator rulebooks', 'Grid Code (ECC for RfG-era plant, CC legacy) · G99 below transmission'],
+    ],
+  },
+  {
+    id: 'ie', title: 'Ireland',
+    rows: [
+      ['Regulator', 'CRU — approves code modifications'],
+      ['System operator', 'EirGrid — owns the Grid Code'],
+      ['Transmission owner', 'ESB Networks (asset owner)'],
+      ['Distribution', 'ESB Networks (DSO) — Distribution Code'],
+      ['Generator rulebook', 'EirGrid Grid Code: CC.7 synchronous, PPM1, SCU1'],
+    ],
+  },
+  {
+    id: 'ni', title: 'Northern Ireland',
+    rows: [
+      ['Regulator', 'Utility Regulator'],
+      ['System operator', 'SONI — owns the Grid Code'],
+      ['Transmission owner', 'NIE Networks'],
+      ['Distribution', 'NIE Networks (DNO) — G98/NI, G99/NI'],
+      ['Generator rulebook', 'SONI Grid Code: CC Schedules 1, 2, 4'],
+    ],
+  },
+];
+---
+
+<div class="lm">
+  <div class="lm__top">
+    <span class="lm__tag">EU template</span>
+    <strong>RfG — Regulation (EU) 2016/631</strong>
+    <span class="fg-muted">sets requirement menus and Type ceilings per synchronous area · GB keeps a retained UK copy</span>
+  </div>
+  <div class="lm__arrow" aria-hidden="true">▼ implemented by ▼</div>
+  <div class="lm__cols">
+    {columns.map(c => (
+      <section class={`lm__col lm__col--${c.id}`}>
+        <h4 class="lm__title">{c.title}</h4>
+        <dl>
+          {c.rows.map(([k, v]) => (
+            <div class="lm__row">
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    ))}
+  </div>
+  <p class="lm__note">Ireland and Northern Ireland are one synchronous system, so EirGrid and SONI align their numbers. Roles simplified for orientation.</p>
+</div>
+
+<style>
+  .lm {
+    font-size: 0.8rem;
+  }
+
+  .lm__top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+    align-items: baseline;
+    border: 1px solid var(--fg-eu);
+    border-left-width: 4px;
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .lm__tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-eu);
+  }
+
+  .lm__arrow {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    margin: 0.4rem 0;
+  }
+
+  .lm__cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 0.75rem;
+  }
+
+  .lm__col {
+    --tone: var(--fg-other);
+
+    border: 1px solid var(--color-border);
+    border-top: 4px solid var(--tone);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    background: var(--fg-card);
+  }
+
+  .lm__col--gb { --tone: var(--fg-gb); }
+
+  .lm__col--ie { --tone: var(--fg-ie); }
+
+  .lm__col--ni { --tone: var(--fg-ni); }
+
+  .lm__title {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--tone);
+    margin: 0 0 0.5rem;
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  .lm__row {
+    padding: 0.3rem 0;
+    border-top: 1px dashed color-mix(in srgb, var(--color-border) 50%, transparent);
+  }
+
+  dt {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0.1rem 0 0;
+    line-height: 1.4;
+  }
+
+  .lm__note {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    color: var(--color-text-muted);
+    margin: 0.6rem 0 0;
+  }
+</style>

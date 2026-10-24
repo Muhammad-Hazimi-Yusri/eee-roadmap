@@ -1,0 +1,83 @@
+---
+// What acts when after a sudden generation loss. Timescales are typical
+// orders of magnitude for teaching, not code values.
+const phases = [
+  { when: '0 – 0.5 s', what: 'Inertia', body: 'Stored rotating energy feeds the deficit. Sets the initial RoCoF. No control involved.', tone: 'gb' },
+  { when: '~0.5 – 10 s', what: 'Fast & primary response', body: 'Droop controls (FSM, LFSM-U, converter fast response) arrest the fall at the nadir.', tone: 'ie' },
+  { when: '10 s – minutes', what: 'Secondary / reserves', body: 'Slower reserves restore frequency toward 50 Hz and free up primary headroom.', tone: 'ni' },
+  { when: 'minutes +', what: 'Re-dispatch', body: 'The operator re-balances the system and restores reserves for the next event.', tone: 'eu' },
+];
+---
+
+<div class="ft">
+  <svg viewBox="0 0 600 150" class="fg-svg ft__svg" role="img" aria-label="Sketch of frequency falling after a loss, reaching a nadir and recovering">
+    <line x1="30" y1="30" x2="590" y2="30" stroke="var(--color-text-muted)" stroke-dasharray="3 3" />
+    <text x="34" y="24" font-size="10" class="fg-svg__muted">50 Hz</text>
+    <path d="M30,30 L70,30 C110,60 140,118 190,122 C250,126 300,96 380,84 C460,74 520,58 590,46"
+      fill="none" stroke="var(--color-text)" stroke-width="2.4" />
+    <circle cx="190" cy="122" r="4" fill="var(--fg-bad)" />
+    <text x="198" y="134" font-size="10" fill="var(--fg-bad)">nadir</text>
+    <text x="76" y="62" font-size="10" fill="var(--fg-gb)">RoCoF = slope here</text>
+    <line x1="70" y1="140" x2="70" y2="20" stroke="var(--color-border)" />
+    <text x="72" y="148" font-size="9" class="fg-svg__muted">loss</text>
+  </svg>
+  <ol class="ft__phases">
+    {phases.map(p => (
+      <li class={`ft__phase ft__phase--${p.tone}`}>
+        <span class="ft__when">{p.when}</span>
+        <strong>{p.what}</strong>
+        <span class="ft__body">{p.body}</span>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .ft__svg {
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg);
+    margin-bottom: 0.6rem;
+  }
+
+  .ft__phases {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+    gap: 0.5rem;
+    font-size: 0.78rem;
+  }
+
+  .ft__phase {
+    --tone: var(--fg-other);
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    border-left: 4px solid var(--tone);
+    padding: 0.3rem 0.6rem;
+    background: var(--fg-card);
+    border-radius: 4px;
+  }
+
+  .ft__phase--gb { --tone: var(--fg-gb); }
+
+  .ft__phase--ie { --tone: var(--fg-ie); }
+
+  .ft__phase--ni { --tone: var(--fg-ni); }
+
+  .ft__phase--eu { --tone: var(--fg-eu); }
+
+  .ft__when {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: var(--tone);
+  }
+
+  .ft__body {
+    color: var(--color-text-muted);
+    line-height: 1.4;
+  }
+</style>

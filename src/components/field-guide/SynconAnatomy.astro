@@ -1,0 +1,117 @@
+---
+// What a synchronous condenser is, as a one-line flow from grid to rotor,
+// and the three things it gives the system.
+const chain = [
+  { name: 'Transmission system', note: 'Connection point: where the code measures FRT and Q' },
+  { name: 'Grid transformer + OLTC', note: 'OLTC required in Ireland (SCU1.5); sized so Q holds across the voltage range' },
+  { name: 'Synchronous machine', note: 'No turbine. Started up to speed, then synchronised (≤30 min)' },
+  { name: 'Excitation + AVR', note: 'Sets Q: kV or Q setpoint, slope; limiters (UEL, OEL, stator)' },
+  { name: 'Rotor (+ optional flywheel)', note: 'Stored energy E = H·S — real inertia' },
+];
+const gives = [
+  { title: 'Inertia', body: 'Rotor energy resists frequency change from the first instant — slows RoCoF.' },
+  { title: 'System strength', body: 'Several times rated current into faults — protection sees faults, converters see a stiff voltage.' },
+  { title: 'Dynamic reactive power', body: 'AVR-driven Q in both directions, fast, independent of any MW output.' },
+];
+---
+
+<div class="sa">
+  <ol class="sa__chain">
+    {chain.map(c => (
+      <li class="sa__node">
+        <strong>{c.name}</strong>
+        <span>{c.note}</span>
+      </li>
+    ))}
+  </ol>
+  <div class="sa__gives">
+    {gives.map(g => (
+      <div class="sa__give">
+        <strong>{g.title}</strong>
+        <span>{g.body}</span>
+      </div>
+    ))}
+  </div>
+  <p class="sa__note">Cost side: it draws a little active power for losses and needs protection for loss of excitation and pole slip. Fault-current multiple depends on the machine — check the manufacturer's data.</p>
+</div>
+
+<style>
+  .sa {
+    font-size: 0.78rem;
+  }
+
+  .sa__chain {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sa__node {
+    display: grid;
+    grid-template-columns: minmax(9rem, 14rem) 1fr;
+    gap: 0.75rem;
+    align-items: baseline;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.45rem 0.7rem;
+    background: var(--fg-card);
+    position: relative;
+    margin-bottom: 0.9rem;
+  }
+
+  .sa__node:not(:last-child)::after {
+    content: '▼';
+    position: absolute;
+    left: 1.2rem;
+    bottom: -0.95rem;
+    font-size: 0.6rem;
+    color: var(--color-text-muted);
+  }
+
+  .sa__node strong {
+    font-family: var(--font-mono);
+  }
+
+  .sa__node span {
+    color: var(--color-text-muted);
+  }
+
+  @media (width < 560px) {
+    .sa__node {
+      grid-template-columns: 1fr;
+      gap: 0.15rem;
+    }
+  }
+
+  .sa__gives {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 0.5rem;
+  }
+
+  .sa__give {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    border-top: 4px solid var(--color-copper);
+    border-radius: 4px;
+    padding: 0.5rem 0.7rem;
+    background: var(--fg-card);
+  }
+
+  .sa__give strong {
+    font-family: var(--font-mono);
+    color: var(--color-copper);
+  }
+
+  .sa__note {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    color: var(--color-text-muted);
+    margin: 0.6rem 0 0;
+    line-height: 1.5;
+  }
+</style>

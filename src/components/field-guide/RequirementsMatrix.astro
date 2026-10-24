@@ -1,0 +1,145 @@
+---
+// Side-by-side requirement table: one row per parameter, one column per
+// rulebook. Columns no row uses are dropped; empty cells say so explicitly
+// rather than implying "no requirement".
+import type { Column, MatrixRow } from '../../lib/field-guide/types';
+import RefList from './RefList.astro';
+
+interface Props {
+  caption: string;
+  rows: MatrixRow[];
+  columns: Column[];
+}
+
+const { caption, rows, columns } = Astro.props;
+const used = columns.filter(c => rows.some(r => r.cells[c.id]));
+---
+
+<div class="fg-matrix" role="region" aria-label={caption} tabindex="0">
+  <table>
+    <caption>{caption}</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="fg-matrix__param">Requirement</th>
+        {used.map(c => (
+          <th scope="col" class={`fg-matrix__col fg-matrix__col--${c.id.toLowerCase()}`}>
+            <span class="fg-matrix__col-id">{c.short}</span>
+            <span class="fg-matrix__col-sub">{c.rulebook}</span>
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map(row => (
+        <tr>
+          <th scope="row" class="fg-matrix__param">{row.param}</th>
+          {used.map(c => {
+            const cell = row.cells[c.id];
+            return cell ? (
+              <td>
+                <span class="fg-matrix__text">{cell.text}</span>
+                <RefList refs={cell.refs} />
+              </td>
+            ) : (
+              <td class="fg-matrix__empty" title="Not pinned to a clause in this guide yet">—</td>
+            );
+          })}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .fg-matrix {
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    max-width: 100%;
+  }
+
+  .fg-matrix:focus-visible {
+    outline: 2px solid var(--color-copper);
+    outline-offset: 2px;
+  }
+
+  table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  caption {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .fg-matrix__param {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    width: 12rem;
+    position: sticky;
+    left: 0;
+    background: var(--color-bg);
+    z-index: 1;
+  }
+
+  .fg-matrix__col {
+    --tone: var(--fg-other);
+
+    font-family: var(--font-mono);
+    border-top: 3px solid var(--tone);
+    min-width: 11rem;
+  }
+
+  .fg-matrix__col--gb,
+  .fg-matrix__col--g99 { --tone: var(--fg-gb); }
+
+  .fg-matrix__col--ie { --tone: var(--fg-ie); }
+
+  .fg-matrix__col--ni { --tone: var(--fg-ni); }
+
+  .fg-matrix__col--rfg { --tone: var(--fg-eu); }
+
+  .fg-matrix__col-id {
+    display: block;
+    color: var(--tone);
+    font-size: 0.85rem;
+  }
+
+  .fg-matrix__col-sub {
+    display: block;
+    font-size: 0.64rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .fg-matrix__text {
+    display: block;
+    line-height: 1.45;
+  }
+
+  .fg-matrix__empty {
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+</style>

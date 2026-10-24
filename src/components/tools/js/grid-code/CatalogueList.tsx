@@ -15,7 +15,7 @@ const LICENSE_BADGE: Record<string, { label: string; cls: string }> = {
   'paywalled':   { label: 'paywalled',   cls: 'lic--pay'  },
 };
 
-const PUBLISHER_ORDER = ['NESO', 'ENA', 'DCode', 'EU', 'UKGov', 'IEEE', 'IEC', 'VDE', 'AEMC', 'CIGRE'];
+const PUBLISHER_ORDER = ['NESO', 'ENA', 'DCode', 'EU', 'UKGov', 'EirGrid', 'SONI', 'IEEE', 'IEC', 'VDE', 'AEMC', 'CIGRE'];
 
 export default function CatalogueList({ documents, totalCount, onOpen }: Props) {
   const grouped = useMemo(() => {

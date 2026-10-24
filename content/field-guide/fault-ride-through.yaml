@@ -1,0 +1,221 @@
+id: fault-ride-through
+title: "Fault ride-through"
+kicker: "Stay on through the dip, then give the megawatts back"
+order: 3
+checked: "2026-10-24"
+
+asks:
+  - "Does my PPM have to stay connected through 0% voltage for 140 ms?"
+  - "Where is the FRT voltage measured, and does it matter?"
+  - "During the dip, should the inverter push reactive or active current?"
+  - "How quickly must active power come back after the fault clears?"
+
+summary: >-
+  An FRT curve is a lower limit on voltage against time. While the voltage
+  at the measurement point stays on or above it, the plant must stay
+  connected and stable; only below it may protection trip the plant. Fast
+  fault current rules say what current to push while the voltage is low.
+
+bigPicture: |
+  - **Why it exists.** A transmission fault drags voltage down across a wide
+    area for the 100–150 ms protection needs to clear it. If every converter
+    tripped on that dip, the system would lose generation at the moment it is
+    weakest — and a cleared fault would turn into a frequency event.
+  - **One shape, many numbers.** RfG Figure 3 defines the curve with seven
+    parameters: retained voltage $U_{ret}$ until clearance $t_{clear}$, then
+    recovery points $U_{rec1}$, $U_{rec2}$ at $t_{rec1}$–$t_{rec3}$. Each TSO
+    picks values per plant type and connection voltage, inside RfG's ranges.
+  - **Deeper at higher voltage, deeper for converters.** Converters can ride
+    through lower voltages than synchronous machines can (which lose
+    synchronism if the dip lasts), so PPM curves go lower; Type D plant at
+    110 kV+ in GB rides through 0 pu.
+  - **Two more duties around the dip.** Inject fast fault current while the
+    voltage is low; restore active power quickly after clearance.
+
+visuals: [frt-explorer, ffci-sketch]
+
+keyIdeas:
+  - title: "A lower limit, not a waveform"
+    body: >-
+      The curve does not describe what the voltage will do. It marks the
+      boundary between "must ride through" (voltage above) and "may disconnect"
+      (voltage below). Try a dip in the explorer above.
+    refs:
+      - { clause: "nc-rfg/Art.14", pin: "14(3)(a), Figure 3" }
+      - { clause: "grid-code/ECC.6.3.15", pin: "ECC.6.3.15.1" }
+  - title: "Seven parameters define the shape"
+    body: >-
+      Hold at Uret to tclear, step to Uclear, ramp to Urec1 at trec1, hold to
+      trec2, ramp to Urec2 at trec3. PPM tables set Uclear = Uret and
+      trec1 = trec2 = tclear, which collapses the curve into a single ramp.
+    refs:
+      - { clause: "nc-rfg/Art.14", pin: "Tables 3.1 (synchronous), 3.2 (PPM)" }
+  - title: "GB curves by plant and voltage"
+    body: >-
+      PPMs below 110 kV: 0.10 pu for 140 ms, ramp to 0.85 pu at 2.2 s. Type D
+      PPMs at 110 kV+: the same but from 0 pu. Synchronous Type B: 0.3 pu, then
+      0.7 pu at clearance and 0.9 pu by 1.5 s. Balanced and unbalanced faults
+      both count.
+    refs:
+      - { clause: "grid-code/ECC.6.3.15", pin: "Tables ECC.6.3.15.2–.6" }
+  - title: "Ireland and NI: 150 ms at zero, 85% by 2.9 s"
+    body: >-
+      RfG PPMs ride through 0 pu for 150 ms and recover along a ramp to
+      0.85 pu at 2.9 s. Older non-RfG PPMs keep the earlier 15%/625 ms curve to
+      90% at 3 s.
+    refs:
+      - { clause: "eirgrid-grid-code/PPM1.4.2", pin: "PPM1.4.2(f)" }
+      - "eirgrid-grid-code/PPM1.4.1"
+      - "soni-grid-code/CC.S2.1.4"
+      - "soni-grid-code/CC.S2.1.3.9"
+  - title: "Give the megawatts back"
+    body: >-
+      Ireland and NI: 90% of available active power within 500 ms of the
+      voltage recovering (faults cleared within 140 ms), within 1 s for longer
+      faults. GB: at least 90% of pre-fault active power for faults longer than
+      140 ms.
+    refs:
+      - { clause: "eirgrid-grid-code/PPM1.4.2", pin: "PPM1.4.2(b)" }
+      - "soni-grid-code/CC.S2.1.4.6"
+      - "grid-code/ECC.6.3.15.9"
+  - title: "Fast fault current: whose current comes first?"
+    body: >-
+      GB and NI give reactive current priority, rising as voltage falls below
+      0.9 pu. Ireland gives active power priority, with reactive current at
+      least proportional to the dip. IE and NI both require rise within 100 ms
+      and settling within 300 ms.
+    refs:
+      - { clause: "grid-code/ECC.6.3.16", pin: "ECC.6.3.16.1.3, .16.1.5" }
+      - "soni-grid-code/CC.S2.1.4.5"
+      - { clause: "eirgrid-grid-code/PPM1.4.2", pin: "PPM1.4.2(c)" }
+  - title: "Protection must not undo the curve"
+    body: >-
+      Undervoltage protection is set to the widest the plant can technically
+      stand, unless the system operator asks for narrower settings — a trip
+      inside the envelope is a compliance failure.
+    refs:
+      - { clause: "grid-code/ECC.6.3.15", pin: "ECC.6.3.15.8(vii)" }
+      - { clause: "nc-rfg/Art.14", pin: "14(3)(a)(vii)" }
+
+matrix:
+  caption: "FRT and fast fault current at a glance (power park modules unless stated)"
+  rows:
+    - param: "Deepest dip to ride through"
+      cells:
+        GB:  { text: "0.10 pu for 140 ms (<110 kV); 0 pu for 140 ms (Type D ≥110 kV)", ref: { clause: "grid-code/ECC.6.3.15", pin: "Tables .15.5, .15.6" } }
+        G99: { text: "Type C/D mirror the ECC", ref: "erec-g99/13.3" }
+        IE:  { text: "RfG: 0 pu for 150 ms · non-RfG: 0.15 pu for 625 ms", ref: "eirgrid-grid-code/PPM1.4.2" }
+        NI:  { text: "RfG: 0 pu for 150 ms · non-RfG: 0.15 pu for 625 ms", ref: "soni-grid-code/CC.S2.1.4" }
+        RfG: { text: "Uret 0.05–0.15 pu, tclear 0.14–0.15 s (PPM, types B/C)", ref: { clause: "nc-rfg/Art.14", pin: "Table 3.2" } }
+    - param: "Recovery point"
+      cells:
+        GB:  { text: "0.85 pu at 2.2 s", ref: "grid-code/ECC.6.3.15" }
+        IE:  { text: "RfG 0.85 pu at 2.9 s · non-RfG 0.9 pu at 3 s", ref: "eirgrid-grid-code/PPM1.4.2" }
+        NI:  { text: "RfG 0.85 pu at 2.9 s · non-RfG 0.9 pu at 3 s", ref: "soni-grid-code/CC.S2.1.4" }
+        RfG: { text: "Urec2 0.85 pu at trec3 1.5–3.0 s (PPM)", ref: { clause: "nc-rfg/Art.14", pin: "Table 3.2" } }
+    - param: "Measured at"
+      cells:
+        GB:  { text: "Grid Entry Point / User System Entry Point; phase-phase (phase-earth for unbalanced)", ref: { clause: "grid-code/ECC.6.3.15", pin: "ECC.6.3.15.1.3" } }
+        IE:  { text: "RfG: connection point · non-RfG: HV terminals of grid transformer", ref: "eirgrid-grid-code/PPM1.4.1" }
+        NI:  { text: "Connection point (both)", ref: "soni-grid-code/CC.S2.1.3.9" }
+        RfG: { text: "Connection point", ref: { clause: "nc-rfg/Art.14", pin: "Figure 3" } }
+    - param: "Synchronous plant, Type D ≥110 kV"
+      cells:
+        GB:  { text: "0 pu to 140 ms, step to 0.25 pu, 0.5 pu by 0.25 s, 0.9 pu by 1.5 s", ref: { clause: "grid-code/ECC.6.3.15", pin: "Table ECC.6.3.15.4" } }
+        RfG: { text: "Type D profile in Tables 7.1/7.2", ref: { clause: "nc-rfg/Art.16", pin: "16(3)(a)" } }
+    - param: "Active power recovery"
+      cells:
+        GB:  { text: "≥90% of pre-fault for faults >140 ms (Type C/D)", ref: "grid-code/ECC.6.3.15.9" }
+        IE:  { text: "90% within 500 ms (faults ≤140 ms) or 1 s", ref: { clause: "eirgrid-grid-code/PPM1.4.2", pin: "PPM1.4.2(b)" } }
+        NI:  { text: "90% within 500 ms (faults ≤140 ms) or 1 s", ref: "soni-grid-code/CC.S2.1.4.6" }
+    - param: "Current priority during the dip"
+      cells:
+        GB:  { text: "Reactive", ref: { clause: "grid-code/ECC.6.3.16", pin: "ECC.6.3.16.1.5" } }
+        G99: { text: "Type C/D mirror ECC.6.3.16", ref: "erec-g99/13.6" }
+        IE:  { text: "ACTIVE", ref: { clause: "eirgrid-grid-code/PPM1.4.2", pin: "PPM1.4.2(c)" } }
+        NI:  { text: "Reactive", ref: "soni-grid-code/CC.S2.1.4.5" }
+        RfG: { text: "Fast fault current required for PPMs", ref: { clause: "nc-rfg/Art.20", pin: "20(2)(b)" } }
+    - param: "Fast fault current timing"
+      cells:
+        IE:  { text: "Rise ≤100 ms, settle ≤300 ms", ref: { clause: "eirgrid-grid-code/PPM1.4.2", pin: "PPM1.4.2(c)" } }
+        NI:  { text: "Rise ≤100 ms, settle ≤300 ms", ref: "soni-grid-code/CC.S2.1.4.5" }
+    - param: "Synchronous condensers"
+      cells:
+        IE:  { text: "0 pu to 150 ms → 0.5 pu to 450 ms → 0.9 pu", ref: "eirgrid-grid-code/SCU1.4.1" }
+        NI:  { text: "Same", ref: "soni-grid-code/CC.S4.1.8.1" }
+
+pitfalls:
+  - title: "Testing at the wrong point"
+    body: >-
+      Applying a retained voltage at the inverter terminals, or on the wrong
+      side of the grid transformer, tests a different requirement. Irish non-RfG
+      PPMs are measured at the transformer's HV terminals; RfG PPMs at the
+      connection point.
+    refs: ["eirgrid-grid-code/PPM1.4.1", "eirgrid-grid-code/PPM1.4.2"]
+  - title: "Using the non-RfG curve for an RfG plant"
+    body: >-
+      In IE and NI both curves sit side by side in the code. An RfG plant must
+      survive 0 pu for 150 ms, which the older 15% curve never tests.
+    refs: ["eirgrid-grid-code/PPM1.4.2", "soni-grid-code/CC.S2.1.4"]
+  - title: "Carrying GB FFCI tuning into Ireland"
+    body: >-
+      Converter controls tuned for GB put reactive current first. EirGrid's
+      PPM1.4.2(c) puts active power first — current limits and priority logic
+      may need retuning, and the model must reflect it.
+    refs:
+      - { clause: "eirgrid-grid-code/PPM1.4.2", pin: "PPM1.4.2(c)" }
+      - "grid-code/ECC.6.3.16"
+  - title: "Unbalanced faults in a positive-sequence tool"
+    body: >-
+      GB applies the curve to unbalanced faults too (phase-earth voltage). An
+      RMS positive-sequence model does not show phase voltages; check how your
+      tool represents unbalanced faults, or use EMT where it matters.
+    refs: [{ clause: "grid-code/ECC.6.3.15", pin: "ECC.6.3.15.1" }]
+  - title: "Ignoring the grid-strength inputs"
+    body: >-
+      Ride-through depends on pre-fault operating point and post-fault short-
+      circuit level. RfG has the TSO supply them; SONI publishes them in its
+      Transmission Forecast Statement. Use those, not a default stiff source.
+    refs:
+      - { clause: "nc-rfg/Art.14", pin: "14(3)(a)(iv)–(v)" }
+      - { clause: "soni-grid-code/CC.S2.1.4", pin: "CC.S2.1.4.3" }
+
+inStudies:
+  - title: "The FRT study"
+    body: >-
+      Apply faults that produce the curve's retained voltage at the measurement
+      point for the specified durations (balanced and, in GB, unbalanced).
+      Check the plant stays connected and stable, injects the required fault
+      current, and restores active power in time.
+    refs:
+      - "grid-code/ECP.A.3.5"
+      - "erec-g99/C.7"
+      - { clause: "eirgrid-grid-code/PC.A8", pin: "PC.A8.6 (validation incl. FRT)" }
+  - title: "The FRT test"
+    body: >-
+      GB PPMs are tested for the fault types and durations of ECC.6.3.15; the
+      test results then validate the model.
+    refs: ["grid-code/ECP.A.6.7"]
+
+reading:
+  - { source: "machowski-2020", section: "6", why: "Large-disturbance (transient) stability — why clearing time matters for synchronous plant" }
+  - { source: "machowski-2020", section: "6.3.4", why: "Equal area criterion" }
+  - { source: "machowski-2020", section: "6.1.5", why: "How the AVR changes the outcome" }
+  - { source: "kundur-1994", section: "13", why: "Transient stability" }
+  - { source: "glover-2017", section: "11", why: "Transient stability, textbook level" }
+  - { source: "grainger-1994", section: "stability", why: "Classic treatment of the stability chapter" }
+  - { source: "ieee-stability-2021", why: "Converter-driven stability as its own class" }
+  - { source: "cigre-gb16", why: "Modelling FRT behaviour of converter plant, RMS vs EMT" }
+
+concepts:
+  - three-phase-fault-lll
+  - critical-clearing-time
+  - equal-area-criterion
+  - the-swing-equation
+  - fault-level-definition
+  - fault-current-contribution
+  - inverter-based-resources-ibr
+  - grid-following-inverter
+  - stability-study-methodology
+
+related: [inertia-syncons, reactive-voltage, landscape]

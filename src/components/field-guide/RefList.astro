@@ -1,0 +1,16 @@
+---
+import type { ResolvedRef } from '../../lib/field-guide/types';
+import RefChip from './RefChip.astro';
+
+interface Props {
+  refs: ResolvedRef[];
+}
+
+const { refs } = Astro.props;
+---
+
+{refs.length > 0 && (
+  <div class="fg-refs">
+    {refs.map(r => <RefChip r={r} />)}
+  </div>
+)}

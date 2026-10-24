@@ -5,7 +5,7 @@
 
 export type ProjectType =
   | 'G98' | 'G99-A' | 'G99-B' | 'G99-C' | 'G99-D'
-  | 'BESS' | 'Synch' | 'PPM' | 'HVDC' | 'OFTO' | 'Demand';
+  | 'BESS' | 'Synch' | 'SynCon' | 'PPM' | 'HVDC' | 'OFTO' | 'Demand';
 
 export type StudyType =
   | 'LoadFlow' | 'FaultLevel' | 'Reactive' | 'FRT' | 'FreqResp'
@@ -15,10 +15,10 @@ export type StudyType =
 export type LicenseBucket = 'link-only' | 'hostable-eu' | 'paywalled';
 
 export type Publisher =
-  | 'NESO' | 'ENA' | 'DCode' | 'EU' | 'UKGov'
+  | 'NESO' | 'ENA' | 'DCode' | 'EU' | 'UKGov' | 'EirGrid' | 'SONI'
   | 'IEEE' | 'IEC' | 'VDE' | 'AEMC' | 'CIGRE';
 
-export type Jurisdiction = 'GB' | 'EU' | 'Scotland' | 'Offshore' | 'US' | 'DE' | 'AU';
+export type Jurisdiction = 'GB' | 'IE' | 'NI' | 'EU' | 'Scotland' | 'Offshore' | 'US' | 'DE' | 'AU';
 
 export type XrefRelation =
   | 'defined-in' | 'defines' | 'modified-by' | 'see-also'

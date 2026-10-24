@@ -6,17 +6,17 @@ _meta:
 
     Conventions:
       id            unique slug, lowercase, hyphen-separated
-      publisher     NESO | ENA | DCode | EU | UKGov | IEEE | IEC | VDE | AEMC | CIGRE
+      publisher     NESO | ENA | DCode | EU | UKGov | EirGrid | SONI | IEEE | IEC | VDE | AEMC | CIGRE
       license       link-only | hostable-eu | paywalled
                       - link-only  : do not host the PDF, deep-link to publisher URL
                       - hostable-eu: legally hostable under Decision 2011/833/EU or OGL v3
                       - paywalled  : metadata only, user provides their own copy
-      projectTypes  subset of: G98, G99-A, G99-B, G99-C, G99-D, BESS, Synch, PPM,
+      projectTypes  subset of: G98, G99-A, G99-B, G99-C, G99-D, BESS, Synch, SynCon, PPM,
                                 HVDC, OFTO, Demand
       studyTypes    subset of: LoadFlow, FaultLevel, Reactive, FRT, FreqResp, AVR,
                                 PSS, POD, Harmonics, Flicker, Unbalance, Protection,
                                 LoM, EMT, BlackStart, SSO, FFCI
-      jurisdiction  GB | EU | Scotland | Offshore | US | DE | AU
+      jurisdiction  GB | IE | NI | EU | Scotland | Offshore | US | DE | AU
       pdfUrl        canonical publisher URL (kept current with publisher updates)
       sizeMb        approx file size — informational only
       pages         approx page count — informational only
@@ -119,7 +119,7 @@ documents:
   - id: gn-grid-forming
     title: Grid Forming Best Practice Guide
     publisher: NESO
-    version: "Issue 3"
+    version: "Issue 4"
     date: "2025-09-16"
     pdfUrl: "https://www.neso.energy/document/289921/download"
     landingUrl: "https://www.neso.energy/industry-information/codes/grid-code-gc"
@@ -489,6 +489,85 @@ documents:
     sizeMb: 5
     pages: 280
     summary: "GB Distribution Code — governs the distribution network and its connections (≤132 kV)."
+
+  # ──────────────────── Ireland & Northern Ireland (EirGrid / SONI) ─────────────
+  # Neither TSO states an open licence for its publications, so these are
+  # link-only. Clause pageStart values are PDF page indices of these exact PDFs.
+
+  - id: eirgrid-grid-code
+    title: EirGrid Grid Code (Ireland)
+    publisher: EirGrid
+    version: "Version 17"
+    date: "2026-08-05"
+    pdfUrl: "https://cms.eirgrid.ie/sites/default/files/publications/GridCodeVersion17.pdf"
+    landingUrl: "https://www.eirgrid.ie/grid/grid-codes-and-compliance/grid-code"
+    license: link-only
+    projectTypes: [BESS, Synch, SynCon, PPM, HVDC, Demand]
+    studyTypes:   [LoadFlow, FaultLevel, Reactive, FRT, FreqResp, AVR, PSS, Protection, EMT, FFCI]
+    jurisdiction: IE
+    sizeMb: 4.9
+    pages: 497
+    summary: "Ireland's transmission grid code. Generator rules sit in CC.7 (synchronous), PPM1 (power park modules) and SCU1 (synchronous condensers); PC.A8 sets the dynamic-model requirements. A circle marker against a clause flags RfG units, a struck circle non-RfG units."
+
+  - id: soni-grid-code
+    title: SONI Grid Code (Northern Ireland)
+    publisher: SONI
+    version: "20 July 2026 (incl. SCU update)"
+    date: "2026-07-20"
+    pdfUrl: "https://cms.soni.ltd.uk//sites/default/files/2026-07/SONI_GridCode_June_2026_SCU_.pdf"
+    landingUrl: "https://www.soni.ltd.uk/industry/grid-codes-and-compliance/grid-code"
+    license: link-only
+    projectTypes: [BESS, Synch, SynCon, PPM, HVDC, Demand]
+    studyTypes:   [LoadFlow, FaultLevel, Reactive, FRT, FreqResp, AVR, PSS, Protection, EMT, FFCI]
+    jurisdiction: NI
+    sizeMb: 5.6
+    pages: 633
+    summary: "Northern Ireland's transmission grid code. Plant-specific rules are in CC schedules: Schedule 1 synchronous units, Schedule 2 Part I power park modules, Schedule 4 Part I synchronous condenser units. PC Appendix D sets model requirements."
+
+  - id: eirgrid-scu-impl-note
+    title: Synchronous Condenser Grid Code Implementation Note
+    publisher: EirGrid
+    version: "v1.0"
+    date: "2022-10-01"
+    pdfUrl: "https://cms.eirgrid.ie/sites/default/files/publications/Synchronous-Condenser-Implementation-Note.pdf"
+    landingUrl: "https://www.eirgrid.ie/grid/grid-codes-and-compliance/grid-code"
+    license: link-only
+    projectTypes: [SynCon]
+    studyTypes:   [FRT, Reactive, AVR, EMT]
+    jurisdiction: IE
+    sizeMb: 0.7
+    pages: 29
+    summary: "Joint EirGrid/SONI note on how existing grid code clauses apply to synchronous condenser units while the SCU-specific sections bed in. Its tables map each clause (including all of PC.A8 modelling) to SCUs."
+
+  - id: eirgrid-scu-emt-spec
+    title: EMT Model Specification — Synchronous Condenser Units
+    publisher: EirGrid
+    version: "v1.0"
+    date: "2025-07-01"
+    pdfUrl: "https://cms.eirgrid.ie/sites/default/files/publications/EirGrid-EMT-model-specification-Synchronous-Condenser-Units_v1.0.pdf"
+    landingUrl: "https://www.eirgrid.ie/grid/grid-codes-and-compliance/grid-code"
+    license: link-only
+    projectTypes: [SynCon]
+    studyTypes:   [EMT]
+    jurisdiction: IE
+    sizeMb: 0.4
+    pages: 25
+    summary: "EirGrid's specification for the electromagnetic-transient (EMT) model a synchronous condenser unit owner must submit."
+
+  - id: ie-rfg-banding
+    title: RfG Banding Thresholds — Ireland (TSO final position)
+    publisher: EirGrid
+    version: "Final position"
+    date: "2018-05-15"
+    pdfUrl: "https://www.entsoe.eu/Documents/al/Ireland/proposal-for-rfg-banding-thresholds-final-position-ireland.pdf"
+    landingUrl: "https://www.entsoe.eu/network_codes/rfg/"
+    license: link-only
+    projectTypes: [BESS, Synch, PPM]
+    studyTypes:   []
+    jurisdiction: IE
+    sizeMb: 0.2
+    pages: 9
+    summary: "EirGrid's final proposal (submitted for CRU approval) for the RfG Type A/B/C/D thresholds in Ireland: B from 100 kW, C from 5 MW, D from 10 MW or 110 kV. Records that SONI proposed the identical position for Northern Ireland."
 
   # ──────────────────── EU Network Codes (HOSTABLE) ─────────────────────────────
 

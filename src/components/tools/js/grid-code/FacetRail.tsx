@@ -21,10 +21,10 @@ interface FacetGroup<T extends string> {
   values: T[];
 }
 
-const PROJECT_TYPES: ProjectType[] = ['G98', 'G99-A', 'G99-B', 'G99-C', 'G99-D', 'BESS', 'Synch', 'PPM', 'HVDC', 'OFTO', 'Demand'];
+const PROJECT_TYPES: ProjectType[] = ['G98', 'G99-A', 'G99-B', 'G99-C', 'G99-D', 'BESS', 'Synch', 'SynCon', 'PPM', 'HVDC', 'OFTO', 'Demand'];
 const STUDY_TYPES:   StudyType[]   = ['FRT', 'FFCI', 'FreqResp', 'Reactive', 'AVR', 'PSS', 'Harmonics', 'Flicker', 'Unbalance', 'Protection', 'LoM', 'EMT', 'BlackStart', 'SSO', 'LoadFlow', 'FaultLevel', 'POD'];
-const PUBLISHERS:    Publisher[]   = ['NESO', 'ENA', 'DCode', 'EU', 'UKGov', 'IEEE', 'IEC', 'VDE', 'AEMC'];
-const JURISDICTIONS: Jurisdiction[] = ['GB', 'EU', 'US', 'DE', 'AU', 'Scotland', 'Offshore'];
+const PUBLISHERS:    Publisher[]   = ['NESO', 'ENA', 'DCode', 'EU', 'UKGov', 'EirGrid', 'SONI', 'IEEE', 'IEC', 'VDE', 'AEMC'];
+const JURISDICTIONS: Jurisdiction[] = ['GB', 'IE', 'NI', 'EU', 'US', 'DE', 'AU', 'Scotland', 'Offshore'];
 const LICENSES:      LicenseBucket[] = ['link-only', 'hostable-eu', 'paywalled'];
 
 const LICENSE_LABEL: Record<LicenseBucket, string> = {

@@ -1,0 +1,200 @@
+id: frequency-response
+title: "Frequency response (FSM, LFSM, droop)"
+kicker: "How much power to add or shed per hertz, and when"
+order: 5
+checked: "2026-10-24"
+
+asks:
+  - "What's the difference between FSM, LFSM-O and LFSM-U?"
+  - "What does a 4% droop mean in MW for my plant?"
+  - "Why does LFSM-O start at 50.4 Hz in GB but 50.2 Hz in Ireland?"
+  - "Is the droop on Registered Capacity or on current output?"
+
+summary: >-
+  After a loss, inertia sets the first-second RoCoF; then plant changes
+  output in proportion to the frequency error — the droop. FSM is that
+  control running all the time around 50 Hz. LFSM-O and LFSM-U are
+  emergency-only versions that wake up beyond a threshold.
+
+bigPicture: |
+  - **The timeline.** Inertia acts instantly; proportional (droop) response
+    acts over seconds and arrests the fall; slower reserves and re-dispatch
+    then bring frequency back to 50 Hz over tens of seconds to minutes.
+  - **Droop in one line.** $s = \dfrac{\Delta f/f_0}{\Delta P/P_{base}}$, so
+    $\dfrac{\Delta P}{P_{base}} = \dfrac{\Delta f/f_0}{s}$. A 10% droop gives
+    2% of the base per 0.1 Hz; a 4% droop gives 5%.
+  - **Three modes.** *FSM* — continuous, small deadband, both directions.
+    *LFSM-O* — every Type, cuts output only above a high threshold. *LFSM-U* —
+    Type C and up, adds output (if it has headroom) only below a low threshold.
+  - **Why Ireland is stricter.** The all-island system is small, so the same
+    loss moves frequency further and faster. Its LFSM-O starts lower
+    (50.2 Hz vs 50.4 Hz) and its default droop is steeper (4% vs 10%).
+
+visuals: [droop-explorer, frequency-timeline]
+
+keyIdeas:
+  - title: "LFSM-O is for everyone"
+    body: >-
+      RfG puts LFSM-O in the type A base layer, so every Type inherits it. GB:
+      above 50.4 Hz at 10% droop. Ireland and NI: from 50.2 Hz at a 4% default,
+      settable 2–12%.
+    refs:
+      - { clause: "nc-rfg/Art.13", pin: "13(2)" }
+      - "grid-code/ECC.6.3.7.1"
+      - "eirgrid-grid-code/PPM1.5.3.11"
+      - "soni-grid-code/CC8.8.7"
+  - title: "LFSM-U from Type C"
+    body: >-
+      Below 49.5 Hz in all three codes; 10% droop in GB, 4% default in Ireland
+      and NI. Response is limited by available headroom.
+    refs:
+      - { clause: "nc-rfg/Art.15", pin: "15(2)(c)" }
+      - "grid-code/ECC.6.3.7.2"
+      - "eirgrid-grid-code/PPM1.5.3.12"
+  - title: "FSM: the TSO picks inside RfG's ranges"
+    body: >-
+      RfG Table 4 allows droop 2–12%, deadband 0–500 mHz, insensitivity
+      10–30 mHz and an FSM power range of 1.5–10% of Pmax; Table 5 wants
+      activation within 2 s and full response within 30 s. GB picked droop
+      3–5%, no deadband, ±15 mHz insensitivity and a 10% range.
+    refs:
+      - { clause: "nc-rfg/Art.15", pin: "15(2)(d), Tables 4–5" }
+      - { clause: "grid-code/ECC.6.3.7.3", pin: "Table ECC.6.3.7.3.3(a)" }
+  - title: "Ireland: droop on Registered Capacity, from 50 Hz"
+    body: >-
+      EirGrid calculates PPM droop on Registered Capacity (2–12% RfG, default
+      4%), measures the deviation from nominal frequency rather than from the
+      deadband edge, and wants 60% of the response in 5 s and all of it in 15 s.
+    refs:
+      - { clause: "eirgrid-grid-code/PPM1.5.3", pin: "PPM1.5.3.1, .5.3.3" }
+  - title: "NI PPM governor: a wide-range droop"
+    body: >-
+      NI PPMs carry a fast proportional governor with droop settable 2–20%,
+      adjustable deadband edges, and the ability to run curtailed (50–100%) to
+      hold reserve.
+    refs: ["soni-grid-code/CC.S2.1.7.2"]
+  - title: "Ride through the frequency range first"
+    body: >-
+      Response only matters if the plant stays on. GB: protect only outside
+      47–52 Hz. Ireland PPMs: 49.5–50.5 Hz continuous, 47.5–52 Hz for 60 min,
+      47–47.5 Hz for 20 s. NI: 49–51 Hz continuous with timed bands to 47 and
+      52 Hz.
+    refs:
+      - "grid-code/ECC.6.3.13"
+      - "eirgrid-grid-code/PPM1.5"
+      - "soni-grid-code/CC8.8.6"
+
+matrix:
+  caption: "Frequency response settings"
+  rows:
+    - param: "LFSM-O threshold"
+      cells:
+        GB:  { text: "50.4 Hz (50.5 Hz if already in FSM)", ref: "grid-code/ECC.6.3.7.1" }
+        G99: { text: "Type C/D mirror the ECC (13.2.4)", ref: "erec-g99/13.2" }
+        IE:  { text: "50.2 Hz", ref: "eirgrid-grid-code/PPM1.5.3.11" }
+        NI:  { text: "50.2 Hz", ref: "soni-grid-code/CC8.8.7" }
+        RfG: { text: "Required for every type", ref: { clause: "nc-rfg/Art.13", pin: "13(2)" } }
+    - param: "LFSM-O droop"
+      cells:
+        GB:  { text: "10% (2% of output per 0.1 Hz)", ref: "grid-code/ECC.6.3.7.1" }
+        IE:  { text: "2–12%, default 4%", ref: "eirgrid-grid-code/PPM1.5.3.11" }
+        NI:  { text: "Default 4% (5% per 0.1 Hz), settable 2–12%", ref: "soni-grid-code/CC8.8.7" }
+    - param: "LFSM-U"
+      cells:
+        GB:  { text: "Below 49.5 Hz, 10% (Type C/D)", ref: "grid-code/ECC.6.3.7.2" }
+        IE:  { text: "Below 49.5 Hz, default 4%", ref: "eirgrid-grid-code/PPM1.5.3.12" }
+        NI:  { text: "Below 49.5 Hz, default 4%", ref: "soni-grid-code/CC8.8.7" }
+        RfG: { text: "Type C and up", ref: { clause: "nc-rfg/Art.15", pin: "15(2)(c)" } }
+    - param: "FSM droop"
+      cells:
+        GB:  { text: "3–5%", ref: "grid-code/ECC.6.3.7.3" }
+        IE:  { text: "On RC: non-RfG 2–10%, RfG 2–12%, default 4%", ref: "eirgrid-grid-code/PPM1.5.3" }
+        NI:  { text: "4% nominal (CC8.8.7.3) · PPM governor settable 2–20%", refs: ["soni-grid-code/CC8.8.7", "soni-grid-code/CC.S2.1.7.2"] }
+        RfG: { text: "2–12%", ref: { clause: "nc-rfg/Art.15", pin: "Table 4" } }
+    - param: "Deadband / insensitivity"
+      cells:
+        GB:  { text: "0 mHz / ±15 mHz", ref: "grid-code/ECC.6.3.7.3" }
+        IE:  { text: "±15 mHz (non-RfG, APC mode)", ref: "eirgrid-grid-code/PPM1.5.3" }
+        NI:  { text: "Insensitivity ±15 mHz (CC8.8.7.3) · PPM deadband edges settable 49–50 / 50–51 Hz", refs: ["soni-grid-code/CC8.8.7", "soni-grid-code/CC.S2.1.7.2"] }
+        RfG: { text: "Deadband 0–500 mHz; insensitivity 10–30 mHz", ref: { clause: "nc-rfg/Art.15", pin: "Table 4" } }
+    - param: "Speed"
+      cells:
+        IE:  { text: "60% in 5 s; 100% in 15 s", ref: { clause: "eirgrid-grid-code/PPM1.5.3", pin: "PPM1.5.3.3" } }
+        NI:  { text: "Initial delay over 2 s must be justified (LFSM)", ref: "soni-grid-code/CC8.8.7" }
+        RfG: { text: "Activation ≤2 s; full ≤30 s", ref: { clause: "nc-rfg/Art.15", pin: "Table 5" } }
+    - param: "RoCoF withstand"
+      cells:
+        GB:  { text: "1 Hz/s over 500 ms (2 Hz/s grid-forming PPM)", ref: "grid-code/ECC.6.3.13" }
+        IE:  { text: "1 Hz/s over 500 ms", ref: "eirgrid-grid-code/PPM1.5" }
+        RfG: { text: "TSO specifies", ref: { clause: "nc-rfg/Art.13", pin: "13(1)(b)" } }
+    - param: "Continuous frequency range"
+      cells:
+        GB:  { text: "Users protect plant against excursions outside 47–52 Hz", ref: "grid-code/ECC.6.3.13" }
+        IE:  { text: "49.5–50.5 Hz (PPM)", ref: "eirgrid-grid-code/PPM1.5" }
+        NI:  { text: "49–51 Hz", ref: "soni-grid-code/CC8.8.6" }
+
+pitfalls:
+  - title: "Droop on the wrong base"
+    body: >-
+      Irish PPM droop is on Registered Capacity, so the MW per hertz does not
+      shrink at part load. A model that applies droop to current output
+      under-delivers at low output.
+    refs: [{ clause: "eirgrid-grid-code/PPM1.5.3", pin: "PPM1.5.3.1" }]
+  - title: "Deadband edge vs nominal"
+    body: >-
+      Measuring the deviation from the deadband edge (a common default in
+      generic models) gives less response than EirGrid's from-nominal rule.
+      Toggle it in the explorer: the gap is deadband ÷ (50 Hz × droop).
+    refs: [{ clause: "eirgrid-grid-code/PPM1.5.3", pin: "Figure PPM1.5.3.1.b note" }]
+  - title: "GB thresholds in an Irish model"
+    body: >-
+      LFSM-O at 50.4 Hz misses the whole 50.2–50.4 Hz band Ireland expects
+      response in, and 10% droop delivers less than half the 4% response.
+    refs: ["grid-code/ECC.6.3.7.1", "eirgrid-grid-code/PPM1.5.3.11"]
+  - title: "No headroom, no LFSM-U"
+    body: >-
+      Up-regulation needs margin. At Registered Capacity, or with no primary
+      energy, a plant cannot add output; codes acknowledge this rather than
+      require the impossible. Studies should state the operating point.
+    refs: ["soni-grid-code/CC8.8.7", "grid-code/ECC.6.3.7.2"]
+  - title: "Storage responds both ways"
+    body: >-
+      A battery can respond while importing. GB has a specific LFSM clause for
+      storage in import mode; check direction-dependent limits.
+    refs: [{ clause: "grid-code/ECC.6.3.7.2", pin: "ECC.6.3.7.2.3" }, "gn-storage/A.6"]
+
+inStudies:
+  - title: "Frequency response study and tests"
+    body: >-
+      Simulate frequency ramps and steps through each threshold; check delay,
+      MW per hertz, final value and ramp rate. Then the site tests validate the
+      model.
+    refs:
+      - "grid-code/ECP.A.3.6"
+      - "grid-code/ECP.A.6.6"
+      - "grid-code/ECP.A.5.8"
+      - { clause: "erec-g99/C.7", pin: "C.7.6, C.7.7" }
+  - title: "Model it as the code defines it"
+    body: >-
+      Base (RC vs output), deadband measurement, insensitivity, delay and ramp
+      limits all change the MW you deliver. Put each one in the model
+      explicitly and say which clause sets it.
+    refs: ["eirgrid-grid-code/PPM1.5.3", "grid-code/ECC.6.3.7.3"]
+
+reading:
+  - { source: "machowski-2020", section: "9", why: "Frequency stability and control" }
+  - { source: "machowski-2020", section: "9.2", why: "What happens in the first seconds after a loss" }
+  - { source: "machowski-2020", section: "2.3.3.7", why: "Governor control functions" }
+  - { source: "machowski-2020", section: "11.3", why: "Turbine and governor models" }
+  - { source: "kundur-1994", section: "9", why: "Prime movers and energy supply systems" }
+  - { source: "kundur-1994", section: "11", why: "Control of active and reactive power" }
+  - { source: "glover-2017", section: "12", why: "Power system controls" }
+
+concepts:
+  - frequency-control
+  - the-swing-equation
+  - balancing-mechanism
+  - grid-forming-inverter
+  - inverter-based-resources-ibr
+
+related: [inertia-syncons, landscape, reactive-voltage]

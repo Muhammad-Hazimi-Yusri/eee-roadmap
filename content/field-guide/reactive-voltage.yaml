@@ -1,0 +1,208 @@
+id: reactive-voltage
+title: "Reactive capability & voltage control"
+kicker: "How much Q the plant can make, and how it decides how much to make"
+order: 4
+checked: "2026-10-24"
+
+asks:
+  - "What reactive capability must the plant have at full output — and at 10% output?"
+  - "Is that capability on Registered Capacity, MEC or Maximum Capacity?"
+  - "What does a 4% slope mean, and why not just hold voltage exactly?"
+  - "How fast must the voltage controller respond to a setpoint step?"
+
+summary: >-
+  Two separate requirements. Capability: the envelope of reactive power the
+  plant can deliver across its active-power and voltage range, at a named
+  point. Control: the controller that picks the operating point inside that
+  envelope — setpoint, slope and speed.
+
+bigPicture: |
+  - **Why reactive power.** On a mostly inductive network the voltage drop
+    along a line is roughly $\Delta V \approx (RP + XQ)/V$ with $X \gg R$, so
+    voltage follows reactive flow. Plants hold local voltage by producing
+    (lagging) or absorbing (leading) Q.
+  - **Capability is drawn two ways.** A *P–Q* envelope (Q range as active
+    power falls to zero) and a *U–Q/Pmax* envelope (Q range across the
+    voltage band — more absorption needed at high voltage, more production at
+    low). RfG caps how wide the TSO may draw the U–Q/Pmax inner envelope.
+  - **Control is a droop, on purpose.** A *slope* lets voltage rise a little as
+    the plant absorbs Q. Several plants on one bus then share Q in proportion
+    instead of fighting to hold exactly the same voltage.
+  - **Synchronous plant** gets its range from the machine capability curve and
+    its excitation limiters; **converters** get it from current rating — so the
+    rules are written differently for each.
+
+visuals: [capability-chart, voltage-slope]
+
+keyIdeas:
+  - title: "Capability and control are separate tests"
+    body: >-
+      A plant can have the MVAr range on paper and still fail voltage control
+      (too slow, wrong slope), or control well but run out of range at high
+      voltage. Studies and tests cover both.
+    refs:
+      - "grid-code/ECC.6.3.2"
+      - "grid-code/ECC.6.3.8"
+  - title: "Know the base and the point"
+    body: >-
+      GB Type B: 0.95 pf lagging to leading at Maximum Capacity. Ireland PPMs:
+      ±0.33 Q/Pmax at 100% of Registered Capacity, held at the same MVAr down to
+      12% of RC, measured at the connection point. NI uses the same A–F
+      envelope structure.
+    refs:
+      - { clause: "grid-code/ECC.6.3.2", pin: "ECC.6.3.2.1–.2.2" }
+      - "eirgrid-grid-code/PPM1.6.3"
+      - "soni-grid-code/CC.S2.1.3.2"
+  - title: "RfG's 0.66 is ±0.33 is 0.95 pf"
+    body: >-
+      RfG Table 9 limits the PPM inner envelope to a Q/Pmax *range* of 0.66 —
+      split evenly, ±0.33, which is 0.95 pf at full output. Synchronous plant
+      (Table 8) is allowed a wider range: 0.95 in GB, 1.08 in Ireland & NI.
+    refs:
+      - { clause: "nc-rfg/Art.21", pin: "21(3)(b), Table 9" }
+      - { clause: "nc-rfg/Art.18", pin: "18(2)(b), Table 8" }
+  - title: "Slope sets how stiff the plant is"
+    body: >-
+      GB: setpoint 95–105% in 0.25% steps, slope 2–7% in 0.5% steps. Ireland
+      RfG PPMs: 2–7% (non-RfG 1–10%). Irish synchronous condensers: 1–10%,
+      settable online by the TSO.
+    refs:
+      - { clause: "grid-code/ECC.A.7.2", pin: "ECC.A.7.2.2" }
+      - "eirgrid-grid-code/PPM1.6.2"
+      - "eirgrid-grid-code/SCU1.4.7"
+  - title: "Speed: GB 2 s, Ireland 1 s"
+    body: >-
+      GB PPMs: reactive response starts within 0.2 s and reaches 90% of the
+      change within 2 s. Ireland RfG PPMs: 90% within 1 s, settled within 5 s.
+    refs:
+      - { clause: "grid-code/ECC.A.7.2", pin: "ECC.A.7.2.3" }
+      - "eirgrid-grid-code/PPM1.6.2"
+  - title: "Synchronous plant: AVR, limiters, PSS"
+    body: >-
+      Type C/D synchronous modules need a continuously acting AVR; Type D also
+      a power system stabiliser to damp electromechanical oscillations. The
+      under- and over-excitation limiters set the practical edge of the
+      capability curve.
+    refs:
+      - "grid-code/ECC.A.6.2"
+      - "grid-code/ECC.A.6.2.5"
+      - { source: "machowski-2020", section: "3.3.4" }
+  - title: "NI: switchable modes that fall back to voltage control"
+    body: >-
+      NI PPMs can run voltage, power-factor or Q control at the connection
+      point, but revert to voltage control when voltage leaves the agreed band.
+      The same clause limits 0.25–1.75 Hz power oscillations to under 1% of RC.
+    refs: ["soni-grid-code/CC.S2.1.7.3"]
+
+matrix:
+  caption: "Reactive capability and voltage control"
+  rows:
+    - param: "Q at full output (PPM)"
+      cells:
+        GB:  { text: "Type B: 0.95 pf lag–lead · Type C/D: Fig ECC.6.3.2.4(a) above 33 kV, (b) at/below", ref: "grid-code/ECC.6.3.2.4" }
+        G99: { text: "Type B 12.5 · Type C/D 13.5 (summary in Annex D.4)", ref: "erec-g99/D.4" }
+        IE:  { text: "±0.33 Q/Pmax at 100% RC", ref: "eirgrid-grid-code/PPM1.6.3" }
+        NI:  { text: "Points A/B at RC", ref: "soni-grid-code/CC.S2.1.3.2" }
+        RfG: { text: "Inner envelope Q/Pmax range ≤0.66 (GB and IE/NI)", ref: { clause: "nc-rfg/Art.21", pin: "Table 9" } }
+    - param: "Q at low output (PPM)"
+      cells:
+        IE:  { text: "Same MVAr down to 12% RC, taper to cut-in (points C–F)", ref: "eirgrid-grid-code/PPM1.6.3" }
+        NI:  { text: "C/D at 12% RC, E/F at cut-in", ref: "soni-grid-code/CC.S2.1.3.2" }
+    - param: "Base for Q/P"
+      cells:
+        GB:  { text: "Maximum Capacity", ref: "grid-code/ECC.6.3.2" }
+        IE:  { text: "Registered Capacity", ref: "eirgrid-grid-code/PPM1.6.3" }
+        NI:  { text: "Registered Capacity", ref: "soni-grid-code/CC.S2.1.3.2" }
+        RfG: { text: "Maximum capacity (Pmax)", ref: "nc-rfg/Art.21" }
+    - param: "Measured at"
+      cells:
+        GB:  { text: "Grid Entry Point / User System Entry Point", ref: "grid-code/ECC.6.3.2.4" }
+        IE:  { text: "Connection point", ref: "eirgrid-grid-code/PPM1.6.3" }
+        NI:  { text: "Connection point", ref: "soni-grid-code/CC.S2.1.3.2" }
+    - param: "Voltage setpoint"
+      cells:
+        GB:  { text: "95–105% in 0.25% steps", ref: { clause: "grid-code/ECC.A.7.2", pin: "ECC.A.7.2.2.2" } }
+        IE:  { text: "0.95–1.05 pu in 0.01 pu steps (RfG)", ref: "eirgrid-grid-code/PPM1.6.2" }
+        NI:  { text: "Band set in the Connection Agreement", ref: "soni-grid-code/CC.S2.1.7.3" }
+    - param: "Slope"
+      cells:
+        GB:  { text: "2–7% in 0.5% steps", ref: { clause: "grid-code/ECC.A.7.2", pin: "ECC.A.7.2.2.3" } }
+        IE:  { text: "RfG 2–7% (0.5% steps) · non-RfG 1–10% · SCU 1–10%", ref: "eirgrid-grid-code/PPM1.6.2" }
+    - param: "Response time"
+      cells:
+        GB:  { text: "Starts ≤0.2 s; 90% ≤2 s", ref: { clause: "grid-code/ECC.A.7.2", pin: "ECC.A.7.2.3.1" } }
+        IE:  { text: "90% ≤1 s; settled ≤5 s (RfG)", ref: "eirgrid-grid-code/PPM1.6.2" }
+    - param: "Synchronous, Type C (RfG Table 8)"
+      cells:
+        GB:  { text: "Q/Pmax range ≤0.95; voltage range ≤0.225 pu", ref: { clause: "nc-rfg/Art.18", pin: "Table 8" } }
+        IE:  { text: "Q/Pmax range ≤1.08; voltage range ≤0.218 pu", ref: { clause: "nc-rfg/Art.18", pin: "Table 8" } }
+        NI:  { text: "Same as IE (one synchronous area)", ref: { clause: "nc-rfg/Art.18", pin: "Table 8" } }
+
+pitfalls:
+  - title: "MEC is not Registered Capacity"
+    body: >-
+      Irish PPM capability is defined on Registered Capacity at the connection
+      point. If a site's export cap (MEC) is below RC, a template built on MEC
+      under-sizes the MVAr requirement. Check which base your connection
+      agreement uses before signing off a capability study.
+    refs: ["eirgrid-grid-code/PPM1.6.3"]
+  - title: "Slope definitions differ"
+    body: >-
+      "4% slope" can mean 4% voltage change for full Q, for Q equal to Pmax, or
+      on a different voltage base. Read each code's definition before setting
+      the controller or the model parameter — the same number gives different
+      stiffness.
+    refs: ["grid-code/ECC.A.7.2", "eirgrid-grid-code/PPM1.6.2"]
+  - title: "Terminal capability is not connection-point capability"
+    body: >-
+      Transformer reactance absorbs Q; long cables generate it. Size inverter
+      or machine capability for the requirement at the connection point, across
+      the whole voltage band.
+    refs: [{ clause: "erec-g99/C.7", pin: "C.7.3" }]
+  - title: "Reusing legacy GB numbers"
+    body: >-
+      The old CC asked synchronous units for 0.85 pf lagging to 0.95 leading at
+      Rated MW. RfG-era plant follows ECC.6.3.2 instead.
+    refs: ["grid-code/CC.6.3.2", "grid-code/ECC.6.3.2"]
+
+inStudies:
+  - title: "Reactive capability study"
+    body: >-
+      P–Q at the connection point at minimum, nominal and maximum voltage,
+      with transformers, cables and filters modelled. Then the test confirms
+      it on site.
+    refs:
+      - { clause: "erec-g99/C.7", pin: "C.7.3" }
+      - "grid-code/ECP.A.6.4"
+  - title: "Voltage control study"
+    body: >-
+      Setpoint steps and network voltage steps; check start time, rise time,
+      settling and overshoot against the code, and how the slope interacts
+      with neighbouring controllers.
+    refs:
+      - "grid-code/ECP.A.3.4"
+      - "grid-code/ECP.A.6.5"
+      - { clause: "erec-g99/C.7", pin: "C.7.4" }
+
+reading:
+  - { source: "machowski-2020", section: "3.3.4", why: "Reactive capability curve of a round-rotor generator" }
+  - { source: "machowski-2020", section: "3.3.5", why: "Voltage–reactive power characteristic" }
+  - { source: "machowski-2020", section: "8", why: "Voltage stability" }
+  - { source: "machowski-2020", section: "2.3.2.1", why: "Excitation systems" }
+  - { source: "kundur-1994", section: "11", why: "Control of active and reactive power" }
+  - { source: "kundur-1994", section: "14", why: "Voltage stability" }
+  - { source: "glover-2017", section: "12", why: "Power system controls" }
+
+concepts:
+  - reactive-power-q
+  - reactive-power-flow
+  - capability-curve
+  - excitation
+  - excitation-and-reactive-power
+  - power-factor
+  - voltage-stability-and-p-v-curves
+  - tap-changers
+  - power-system-stabilizer
+  - ieee-421-5-excitation-models
+
+related: [inertia-syncons, fault-ride-through, landscape]

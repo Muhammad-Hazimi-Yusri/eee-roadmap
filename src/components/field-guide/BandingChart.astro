@@ -1,0 +1,124 @@
+---
+// Type A–D bands on a log MW axis: GB vs Ireland/NI, with the RfG ceilings.
+// Values: GB Grid Code GD; Ireland TSO banding position (SONI identical);
+// RfG Article 5 Table 1.
+const MIN = 0.0008;   // 0.8 kW
+const MAX = 100;      // MW
+const pos = (mw: number) => (Math.log10(mw / MIN) / Math.log10(MAX / MIN)) * 100;
+
+const rows = [
+  { id: 'gb', label: 'GB', bands: [[0.0008, 1], [1, 10], [10, 50], [50, 100]], ceilings: [1, 50, 75] },
+  { id: 'ie', label: 'IE & NI', bands: [[0.0008, 0.1], [0.1, 5], [5, 10], [10, 100]], ceilings: [0.1, 5, 10] },
+];
+const ticks = [
+  { mw: 0.001, label: '1 kW' }, { mw: 0.01, label: '10 kW' }, { mw: 0.1, label: '100 kW' },
+  { mw: 1, label: '1 MW' }, { mw: 10, label: '10 MW' }, { mw: 100, label: '100 MW' },
+];
+const TYPES = ['A', 'B', 'C', 'D'];
+// Keep the end labels inside the track so they never widen the page.
+const edgeShift = (p: number) => (p > 95 ? '-100%' : p < 5 ? '0' : '-50%');
+---
+
+<div class="bc" role="img" aria-label="Type A to D power thresholds: GB versus Ireland and Northern Ireland on a logarithmic megawatt scale">
+  {rows.map(r => (
+    <div class="bc__row">
+      <span class={`bc__label bc__label--${r.id}`}>{r.label}</span>
+      <div class="bc__track">
+        {r.bands.map(([a, b], i) => (
+          <span class={`bc__band bc__band--${TYPES[i].toLowerCase()}`}
+            style={`left:${pos(a)}%;width:${pos(b) - pos(a)}%`}>{TYPES[i]}</span>
+        ))}
+        {r.ceilings.map((c, i) => (
+          <span class="bc__ceiling" style={`left:${pos(c)}%`} title={`RfG ceiling for Type ${TYPES[i + 1]}: ${c} MW`}></span>
+        ))}
+      </div>
+    </div>
+  ))}
+  <div class="bc__row bc__row--axis">
+    <span class="bc__label"></span>
+    <div class="bc__axis">
+      {ticks.map(t => <span style={`left:${pos(t.mw)}%;transform:translateX(${edgeShift(pos(t.mw))})`}>{t.label}</span>)}
+    </div>
+  </div>
+  <p class="bc__note">
+    Bars: the bands each system chose. Ticks: RfG's maximum threshold for B, C and D. Ireland &amp; NI sit on the ceilings;
+    GB set C and D well below theirs. Any connection at 110 kV or above is Type D regardless of size.
+  </p>
+</div>
+
+<style>
+  .bc {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+
+  .bc__row {
+    display: grid;
+    grid-template-columns: 4.2rem 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .bc__label {
+    font-weight: 700;
+  }
+
+  .bc__label--gb { color: var(--fg-gb); }
+
+  .bc__label--ie { color: var(--fg-ie); }
+
+  .bc__track {
+    position: relative;
+    height: 1.9rem;
+    background: var(--color-bg-grid);
+    border-radius: 4px;
+  }
+
+  .bc__band {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--color-bg);
+    border-right: 2px solid var(--color-bg);
+  }
+
+  .bc__band--a { background: color-mix(in srgb, var(--color-text) 30%, transparent); }
+
+  .bc__band--b { background: color-mix(in srgb, var(--color-text) 50%, transparent); }
+
+  .bc__band--c { background: color-mix(in srgb, var(--color-copper) 85%, transparent); }
+
+  .bc__band--d { background: var(--fg-bad); }
+
+  .bc__ceiling {
+    position: absolute;
+    top: -0.3rem;
+    bottom: -0.3rem;
+    width: 0;
+    border-left: 2px dashed var(--fg-eu);
+  }
+
+  .bc__axis {
+    position: relative;
+    height: 1rem;
+    color: var(--color-text-muted);
+  }
+
+  .bc__axis span {
+    position: absolute;
+    white-space: nowrap;
+    font-size: 0.6rem;
+  }
+
+  .bc__note {
+    color: var(--color-text-muted);
+    font-size: 0.66rem;
+    line-height: 1.5;
+    margin: 0.5rem 0 0;
+  }
+</style>

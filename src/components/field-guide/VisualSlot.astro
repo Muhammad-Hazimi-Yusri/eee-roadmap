@@ -1,0 +1,53 @@
+---
+// Maps a topic's `visuals:` key to its component. Interactive charts hydrate
+// when scrolled into view; the rest are static HTML/SVG.
+import FrtExplorer from './FrtExplorer';
+import DroopExplorer from './DroopExplorer';
+import RocofCalculator from './RocofCalculator';
+import VoltageSlope from './VoltageSlope';
+import CapabilityChart from './CapabilityChart';
+import LandscapeMap from './LandscapeMap.astro';
+import DocumentStack from './DocumentStack.astro';
+import BandingChart from './BandingChart.astro';
+import Lifecycle from './Lifecycle.astro';
+import FrequencyTimeline from './FrequencyTimeline.astro';
+import FfciSketch from './FfciSketch.astro';
+import SynconAnatomy from './SynconAnatomy.astro';
+
+interface Props {
+  kind: string;
+}
+
+const { kind } = Astro.props;
+
+const CAPTIONS: Record<string, string> = {
+  'landscape-map': 'Who sets the rules in each system.',
+  'document-stack': 'Each layer works inside the limits of the one above.',
+  'banding-chart': 'Type A–D thresholds, GB vs Ireland & NI, against the RfG ceilings.',
+  'lifecycle': 'From offer to final operational notification.',
+  'rocof-calculator': 'Initial RoCoF from stored energy and loss size — and what synchronous condensers add.',
+  'syncon-anatomy': 'What a synchronous condenser is and what it gives the system.',
+  'capability-chart': 'Reactive capability envelopes as the codes state them.',
+  'frt-explorer': 'FRT curves from the code tables. Drag the test dip to see which codes require ride-through.',
+  'ffci-sketch': 'Fast fault current: the shape, and who gets priority.',
+  'voltage-slope': 'Slope (droop) voltage control and reactive sharing.',
+  'droop-explorer': 'Droop in MW: thresholds, slopes and the deadband rule.',
+  'frequency-timeline': 'What acts when after a sudden loss.',
+};
+---
+
+<figure class="fg-figure fg-card">
+  {kind === 'frt-explorer' && <FrtExplorer client:visible />}
+  {kind === 'droop-explorer' && <DroopExplorer client:visible />}
+  {kind === 'rocof-calculator' && <RocofCalculator client:visible />}
+  {kind === 'voltage-slope' && <VoltageSlope client:visible />}
+  {kind === 'capability-chart' && <CapabilityChart client:visible />}
+  {kind === 'landscape-map' && <LandscapeMap />}
+  {kind === 'document-stack' && <DocumentStack />}
+  {kind === 'banding-chart' && <BandingChart />}
+  {kind === 'lifecycle' && <Lifecycle />}
+  {kind === 'frequency-timeline' && <FrequencyTimeline />}
+  {kind === 'ffci-sketch' && <FfciSketch />}
+  {kind === 'syncon-anatomy' && <SynconAnatomy />}
+  <figcaption>{CAPTIONS[kind] ?? ''}</figcaption>
+</figure>

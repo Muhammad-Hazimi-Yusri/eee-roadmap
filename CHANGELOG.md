@@ -11,6 +11,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.29.0] - 2026-10-24
+
+**Consultant field guide — GB, Ireland & NI grid connection requirements, every claim tied to a clause**
+
+### Added
+
+- **Field guide** at `/field-guide/` (header link "field guide"): a hub plus five topics — the rulebook map, inertia & synchronous condensers, fault ride-through, reactive capability & voltage control, and frequency response. Each topic has the big picture, visuals, key ideas, a side-by-side requirement matrix (GB transmission · G99 · Ireland · NI · RfG), pitfalls, study practice, textbook reading and links to the roadmap topics that teach the underlying concepts.
+- **Interactive charts** (`src/components/field-guide/`): FRT curve explorer with a "test a dip" overlay, LFSM/FSM droop explorer (including EirGrid's measure-from-50 Hz rule), RoCoF/inertia calculator with a synchronous-condenser adder, slope voltage control, and P–Q / U–Q capability envelopes. Static diagrams for the who's-who, document stack, Type banding, EON/ION/FON lifecycle, frequency timeline, FFCI and synchronous condenser anatomy.
+- **`src/lib/field-guide/curves.ts`** — FRT curves generated from the codes' own parameter tables (RfG Figure 3 shape checked against the regulation), droop/LFSM/FSM, RoCoF and slope maths, with 20 unit tests.
+- **`scripts/build-field-guide.mjs`** (runs in `build:data`) — resolves every clause, document, textbook section and concept reference in `content/field-guide/*.yaml` and fails the build on any unresolved one; 12 tests.
+- **`content/field-guide/_sources.yaml`** — bibliography (Machowski 3rd ed., Kundur 1994, Glover 6th ed., Grainger & Stevenson, CIGRE TB 885 and Green Books, IEEE stability definitions 2021) with a per-section verification status: checked, inferred or memory.
+- **Ireland & Northern Ireland in the standards catalogue**: EirGrid Grid Code v17, SONI Grid Code (20 July 2026), EirGrid/SONI synchronous condenser implementation note, EirGrid SCU EMT model specification and the Ireland RfG banding position; new `EirGrid`/`SONI` publishers, `IE`/`NI` jurisdictions and a `SynCon` project type in the Grid Code Viewer facets.
+- **~60 new clause anchors** (GB ECC subsections and definitions, EirGrid PPM1/SCU1/PC.A8/CC.15.10, SONI CC Schedules 2 and 4, RfG Articles 5–21, G99 sections 10–13 and Annexes C.7/D.4) with PDF page pins where a stable PDF exists, and cross-references linking equivalent clauses across jurisdictions.
+
+### Fixed
+
+- **Mislabelled clauses in `content/standards/_clauses.yaml`**, checked against the source documents:
+  - G99 `13.3` is Type C/D fault ride through (was "Loss of Mains Protection"; LoM is `10.4`), `13.6` is Type C/D fast fault current injection (was "Fault Ride Through"), `12.5` is Type B reactive capability (was "Type A"), `11` is Type A technical requirements (was "Type A Protection").
+  - RfG Articles 13/14/15 are the general requirements for types A/B/C (were labelled B/C/D); Article 16 (type D) added.
+  - GB: `ECC.6.3.15.10` is "other FRT requirements" (not HVRT), `CC.6.3.15.3` is legacy FRT exceptions (not loss of mains), `ECP.A.5.6.3` is an excitation-limiter test (not frequency response — that is `ECP.A.5.8`/`ECP.A.6.6`), `ECP.A.6` is the PPM test appendix (not pre-ION), and the `ECC.A.6.x` entries are the excitation appendix (PSS is `ECC.A.6.2.5`).
+  - Cross-references built on those labels were re-pointed (e.g. the ECC.6.3.15 distribution mirror is now G99 `13.3`).
+- `gn-grid-forming` version updated to Issue 4 to match NESO's listing.
+
+---
+
 ## [0.28.0] - 2026-05-31
 
 **Grid Code Viewer hardening — test coverage + user-facing error handling**
